@@ -72,7 +72,7 @@ public abstract class LightAdapter<D>
         this.mDatas = datas;
         this.mHolderSet = new HashSet<>();
         if (layoutRes > 0)
-            _addType(TYPE_DEFAULT, layoutRes);
+            addTypeInternal(TYPE_DEFAULT, layoutRes);
         mUpdateModule = new UpdateModule<>();
         mUpdateModule.onAttachAdapter(this);
         mDebugTag = hashCode() + "";
@@ -323,16 +323,15 @@ public abstract class LightAdapter<D>
         if (type == TYPE_HEADER || type == TYPE_FOOTER || type == TYPE_DEFAULT) {
             throw new IllegalArgumentException(mDebugTag + " type can not be (" + TYPE_HEADER + "," + TYPE_FOOTER + "," + TYPE_DEFAULT + ")");
         }
-        _addType(type, resId);
+        addTypeInternal(type, resId);
         return this;
     }
 
-    private void _addType(int type, int resId) {
+    private void addTypeInternal(int type, int resId) {
         if (this.mLayoutResIdArray == null)
             this.mLayoutResIdArray = new SparseArray<>();
         this.mLayoutResIdArray.put(type, new TypeConfig(type, resId));
     }
-
 
     private int getOriginItemType(int pos) {
         D d = mDatas.get(pos);
