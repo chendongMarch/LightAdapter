@@ -1,6 +1,2 @@
 <manifest
-    package="com.march.lightadapter"
-    >
-
-
-</manifest>
+    package="com.march.lightadapter"/>

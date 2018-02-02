@@ -56,7 +56,6 @@ abstract class AbstractModule<D> {
         this.mAttachAdapter = adapter;
     }
 
-
     void post(Runnable runnable) {
         if (mAttachRecyclerView != null)
             mAttachRecyclerView.post(runnable);

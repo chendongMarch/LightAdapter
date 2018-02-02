@@ -15,7 +15,6 @@ public abstract class SimpleItemListener<D> implements OnItemListener<D> {
 
     @Override
     public void onClick(int pos, LightHolder holder, D data) {
-
     }
 
     @Override

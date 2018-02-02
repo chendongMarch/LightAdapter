@@ -46,6 +46,7 @@ public class ViewBinder {
         this.mViewFinder = viewFinder;
     }
 
+
     private ViewBinder(final View itemView) {
         this(itemView, new ViewFinder() {
             @Override

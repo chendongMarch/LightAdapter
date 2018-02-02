@@ -7,7 +7,6 @@ package com.march.lightadapter.model;
  * @author chendong
  */
 public class TypeConfig {
-
     private int type;
     private int resId;
 
