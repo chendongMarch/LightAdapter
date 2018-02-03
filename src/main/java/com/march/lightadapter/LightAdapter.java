@@ -32,7 +32,7 @@ import java.util.Set;
  * @author chendong
  */
 public abstract class LightAdapter<D>
-        extends RecyclerView.Adapter<LightHolder<D>>
+        extends RecyclerView.Adapter<LightHolder>
         implements ILightAdapter {
 
     public static final String TAG = LightAdapter.class.getSimpleName();
@@ -51,10 +51,7 @@ public abstract class LightAdapter<D>
     // 类型和layout资源文件配置
     private SparseArray<TypeConfig> mLayoutResIdArray;
 
-    // 底部加载更多模块
-    private LoadMoreModule mLoadMoreModule;
-    // 顶部加载更多
-    private TopLoadMoreModule mTopLoadMoreModule;
+
     // header+footer
     private HFModule mHFModule;
     // 选择器模块
@@ -198,8 +195,8 @@ public abstract class LightAdapter<D>
     ///////////////////////////////////////////////////////////////////////////
 
     @Override
-    public LightHolder<D> onCreateViewHolder(ViewGroup parent, int viewType) {
-        LightHolder<D> holder = null;
+    public LightHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        LightHolder holder = null;
         if (mHFModule != null)
             holder = mHFModule.getHFViewHolder(viewType);
         if (holder == null) {
@@ -215,7 +212,7 @@ public abstract class LightAdapter<D>
 
 
     @Override
-    public void onBindViewHolder(LightHolder<D> holder, int position) {
+    public void onBindViewHolder(LightHolder holder, int position) {
         if (mHFModule == null) {
             onBindViewHolderWrap(holder, position);
         } else if (mHFModule.isFooterEnable() && position == getItemCount() - 1) {
@@ -363,7 +360,7 @@ public abstract class LightAdapter<D>
      * @param pos    数据集中的位置
      * @param type   类型
      */
-    public abstract void onBindView(LightHolder<D> holder, D data, int pos, int type);
+    public abstract void onBindView(LightHolder holder, D data, int pos, int type);
 
     /**
      * 绑定header的数据 和  监听
@@ -383,5 +380,25 @@ public abstract class LightAdapter<D>
 
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Header+Footer
+    ///////////////////////////////////////////////////////////////////////////
 
+
+    ///////////////////////////////////////////////////////////////////////////
+    // LoadMore
+    ///////////////////////////////////////////////////////////////////////////
+
+    // 底部加载更多模块
+    private LoadMoreModule mLoadMoreModule;
+    // 顶部加载更多
+    private TopLoadMoreModule mTopLoadMoreModule;
+
+    public void finishBottomLoad() {
+        mLoadMoreModule.finishLoad();
+    }
+
+    public void finishTopLoad() {
+        mTopLoadMoreModule.finishLoad();
+    }
 }

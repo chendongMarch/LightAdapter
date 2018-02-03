@@ -27,7 +27,7 @@ import java.util.List;
  *
  * @author chendong
  */
-public class LightHolder<D> extends RecyclerView.ViewHolder {
+public class LightHolder extends RecyclerView.ViewHolder {
 
     private static final String TAG = LightHolder.class.getSimpleName();
 
