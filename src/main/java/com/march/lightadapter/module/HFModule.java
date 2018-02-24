@@ -1,7 +1,6 @@
 package com.march.lightadapter.module;
 
 import android.content.Context;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
@@ -10,7 +9,6 @@ import android.view.ViewGroup;
 
 import com.march.lightadapter.LightAdapter;
 import com.march.lightadapter.LightHolder;
-import com.march.lightadapter.helper.LightLogger;
 
 /**
  * CreateAt : 16/8/20
@@ -36,6 +34,10 @@ public class HFModule extends AbstractModule {
         mFooterRes = footerRes;
     }
 
+    public HFModule(Context context) {
+        mContext = context;
+    }
+
     public boolean isFullSpan(int viewType) {
         return viewType == LightAdapter.TYPE_HEADER || viewType == LightAdapter.TYPE_FOOTER;
     }
@@ -51,8 +53,8 @@ public class HFModule extends AbstractModule {
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
-//
-//        final RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+
+        //        final RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
 //        if (layoutManager instanceof GridLayoutManager) {
 //            final GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
 //            gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
@@ -129,33 +131,16 @@ public class HFModule extends AbstractModule {
 
     public void notifyHeaderUpdate() {
         if (mHeaderHolder != null && mAttachAdapter != null) {
-            onBindHeader(mHeaderHolder);
+            mAttachAdapter.onBindHeaderView(mHeaderHolder);
         }
     }
 
     public void notifyFooterUpdate() {
         if (mFooterHolder != null && mAttachAdapter != null) {
-            onBindHeader(mFooterHolder);
+            mAttachAdapter.onBindFooterView(mFooterHolder);
         }
     }
 
-    /**
-     * 绑定header的数据 和  监听
-     *
-     * @param header header holder
-     */
-    public void onBindHeader(LightHolder header) {
-
-    }
-
-    /**
-     * 绑定footer的数据和监听
-     *
-     * @param footer footer holder
-     */
-    public void onBindFooter(LightHolder footer) {
-
-    }
 
     public int getItemCount4HF() {
         int result = 0;
@@ -183,10 +168,10 @@ public class HFModule extends AbstractModule {
     public boolean onBindViewHolder(LightHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         if (isFooterEnable() && position == mAttachAdapter.getItemCount() - 1) {
-            onBindFooter(holder);
+            mAttachAdapter.onBindFooterView(holder);
             return true;
         } else if (isHeaderEnable() && position == 0) {
-            onBindHeader(holder);
+            mAttachAdapter.onBindHeaderView(holder);
             return true;
         }
         return false;

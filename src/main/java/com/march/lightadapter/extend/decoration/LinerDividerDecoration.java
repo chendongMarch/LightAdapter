@@ -1,4 +1,4 @@
-package com.march.lightadapter.extend;
+package com.march.lightadapter.extend.decoration;
 
 import android.content.Context;
 import android.graphics.Canvas;

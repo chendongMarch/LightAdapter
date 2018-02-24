@@ -2,7 +2,6 @@ package com.march.lightadapter;
 
 import android.content.Context;
 import android.support.v4.view.GestureDetectorCompat;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.GestureDetector;
@@ -11,17 +10,18 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.march.lightadapter.annotation.AnnotationParser;
 import com.march.lightadapter.event.SimpleItemListener;
 import com.march.lightadapter.helper.LightLogger;
 import com.march.lightadapter.event.OnItemListener;
 import com.march.lightadapter.listener.AdapterViewBinder;
+import com.march.lightadapter.delegate.UpdateDelegate;
 import com.march.lightadapter.model.ITypeModel;
 import com.march.lightadapter.model.TypeConfig;
 import com.march.lightadapter.module.AbstractModule;
 import com.march.lightadapter.module.HFModule;
 import com.march.lightadapter.module.LoadMoreModule;
 import com.march.lightadapter.module.TopLoadMoreModule;
-import com.march.lightadapter.module.UpdateModule;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,11 +39,14 @@ import java.util.Set;
 public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> {
 
     public static final String TAG = LightAdapter.class.getSimpleName();
+
     public static final int UNSET = -100;
     public static final int TYPE_HEADER = -1;
     public static final int TYPE_FOOTER = -2;
-    public static final int TYPE_DEFAULT = 0x123;
+    public static final int TYPE_DEFAULT = 0;
 
+    private boolean mIsConfigInit;
+    // View
     private RecyclerView mRecyclerView;
     // 上下文
     private Context mContext;
@@ -59,21 +62,27 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     private SparseArray<TypeConfig> mLayoutResIdArray;
     // 模块列表
     private Map<Class, AbstractModule> mModuleMap;
+    private List<AdapterViewBinder<D>> mAdapterViewBinders;
+    // 数据更新代理
+    private UpdateDelegate<D> mUpdateManager;
 
     public LightAdapter(Context context, List<D> datas) {
-        this(context, datas, -1);
+        mContext = context;
+        mHolderSet = new HashSet<>();
+        mLayoutInflater = LayoutInflater.from(context);
+        mDatas = datas;
+        mHolderSet = new HashSet<>();
+        mModuleMap = new HashMap<>();
     }
 
-    public LightAdapter(Context context, List<D> datas, int layoutRes) {
-        this.mContext = context;
-        this.mHolderSet = new HashSet<>();
-        this.mLayoutInflater = LayoutInflater.from(context);
-        this.mDatas = datas;
-        this.mHolderSet = new HashSet<>();
-        if (layoutRes > 0) {
-            addTypeInternal(TYPE_DEFAULT, layoutRes);
+
+    public void bind(Object targetHost, RecyclerView recyclerView, RecyclerView.LayoutManager layoutManager) {
+        if (!mIsConfigInit) {
+            AnnotationParser.parse2(targetHost, this);
+            mIsConfigInit = true;
         }
-        addModule(new UpdateModule<>());
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(this);
     }
 
     public Set<LightHolder> getHolderSet() {
@@ -96,43 +105,6 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         return mRecyclerView;
     }
 
-    public void setRecyclerView(RecyclerView recyclerView) {
-        mRecyclerView = recyclerView;
-    }
-
-    public void bindRecyclerView(RecyclerView recyclerView, RecyclerView.LayoutManager layoutManager) {
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(this);
-    }
-
-    private View getInflateView(int viewType, ViewGroup parent) {
-        TypeConfig typeConfig = mLayoutResIdArray.get(viewType);
-        if (typeConfig != null && typeConfig.getResId() > 0) {
-            return mLayoutInflater.inflate(typeConfig.getResId(), parent, false);
-        }
-        return null;
-    }
-
-    int mapPosition(int pos) {
-        return isHasHeader() ? pos - 1 : pos;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // 模块部分，添加模块支持
-    ///////////////////////////////////////////////////////////////////////////
-
-
-    public void addModule(AbstractModule module) {
-        module.onAttachAdapter(this);
-        if (mModuleMap == null) {
-            mModuleMap = new HashMap<>();
-        }
-        mModuleMap.put(module.getClass(), module);
-        if (module instanceof HFModule) {
-            mHFModule = (HFModule) module;
-        }
-    }
-
     ///////////////////////////////////////////////////////////////////////////
     // 重载Adapter的方法
     ///////////////////////////////////////////////////////////////////////////
@@ -140,26 +112,28 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     @Override
     public LightHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LightHolder holder = null;
-        if (mHFModule != null) {
-            holder = mHFModule.onCreateViewHolder(parent, viewType);
+        if (getHFModule() != null) {
+            holder = getHFModule().onCreateViewHolder(parent, viewType);
         }
         if (holder == null) {
             holder = new LightHolder(mContext, getInflateView(viewType, parent));
             initItemEvent(holder);
+            mHolderSet.add(holder);
         }
-        mHolderSet.add(holder);
         return holder;
     }
 
 
     @Override
     public void onBindViewHolder(LightHolder holder, int position) {
-        if (mHFModule == null || !mHFModule.onBindViewHolder(holder, position)) {
+        if (getHFModule() == null || !getHFModule().onBindViewHolder(holder, position)) {
             int pos = mapPosition(position);
             D data = getItem(pos);
             onBindView(holder, data, pos, getItemViewType(position));
-            for (AdapterViewBinder<D> binder : mAdapterViewBinders) {
-                binder.onBindViewHolder(holder, data, pos, getItemViewType(position));
+            if (mAdapterViewBinders != null) {
+                for (AdapterViewBinder<D> binder : mAdapterViewBinders) {
+                    binder.onBindViewHolder(holder, data, pos, getItemViewType(position));
+                }
             }
         }
     }
@@ -182,34 +156,13 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         for (AbstractModule module : mModuleMap.values()) {
             module.onAttachedToRecyclerView(recyclerView);
         }
-
-        final RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-        if (layoutManager instanceof GridLayoutManager) {
-            final GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
-            gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-                @Override
-                public int getSpanSize(int position) {
-                    int type = getItemViewType(position);
-                    if ((mHFModule != null && mHFModule.isFullSpan(type)) || isFullSpanType(type)) {
-                        return gridLayoutManager.getSpanCount();
-                    } else {
-                        return 1;
-                    }
-                }
-            });
-        }
-    }
-
-    // 子类决定哪一种类型需要跨越整行
-    protected boolean isFullSpanType(int viewType) {
-        return false;
     }
 
     @Override
     public int getItemCount() {
         int count = this.mDatas.size();
-        if (mHFModule != null) {
-            count += mHFModule.getItemCount4HF();
+        if (getHFModule() != null) {
+            count += getHFModule().getItemCount4HF();
         }
         return count;
     }
@@ -217,11 +170,11 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     @Override
     public int getItemViewType(int position) {
         int type;
-        if (mHFModule != null && ((type = mHFModule.getItemViewType4HF(position)) != 0)) {
+        if (getHFModule() != null && ((type = getHFModule().getItemViewType4HF(position)) != 0)) {
             return type;
         }
         // 如果有header,下标减一个
-        if (mHFModule != null && mHFModule.isHeaderEnable())
+        if (getHFModule() != null && getHFModule().isHeaderEnable())
             return getModelItemType(position - 1);
         else
             //没有header 按照原来的
@@ -234,17 +187,13 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     ///////////////////////////////////////////////////////////////////////////
 
     public LightAdapter<D> addType(int type, int resId) {
-        if (type == TYPE_HEADER || type == TYPE_FOOTER || type == TYPE_DEFAULT) {
+        if (type == TYPE_HEADER || type == TYPE_FOOTER) {
             throw new IllegalArgumentException(TAG + " type can not be (" + TYPE_HEADER + "," + TYPE_FOOTER + "," + TYPE_DEFAULT + ")");
         }
-        addTypeInternal(type, resId);
-        return this;
-    }
-
-    private void addTypeInternal(int type, int resId) {
         if (this.mLayoutResIdArray == null)
             this.mLayoutResIdArray = new SparseArray<>();
         this.mLayoutResIdArray.put(type, new TypeConfig(type, resId));
+        return this;
     }
 
 
@@ -258,19 +207,87 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // 子类实现的进行数据绑定的方法
-    ///////////////////////////////////////////////////////////////////////////
+    public UpdateDelegate<D> update() {
+        if (mUpdateManager == null) {
+            mUpdateManager = new UpdateDelegate<>(this);
+        }
+        return mUpdateManager;
+    }
 
-    /**
-     * 绑定数据
-     *
-     * @param holder ViewHolder数据持有者
-     * @param data   数据集
-     * @param pos    数据集中的位置
-     * @param type   类型
-     */
+    //////////////////////////////  -- 数据绑定 --  //////////////////////////////
+
     public abstract void onBindView(LightHolder holder, D data, int pos, int type);
+
+    public void onBindHeaderView(LightHolder holder) {
+    }
+
+    public void onBindFooterView(LightHolder holder) {
+    }
+
+
+    //////////////////////////////  -- LoadMore --  //////////////////////////////
+
+    public void onTopLoadMore() {
+    }
+
+    public void onBottomLoadMore() {
+    }
+
+    public void finishBottomLoadMore() {
+        LoadMoreModule module = getModule(LoadMoreModule.class);
+        if (module != null) {
+            module.finishLoad();
+        }
+    }
+
+    public void finishTopLoadMore() {
+        TopLoadMoreModule module = getModule(TopLoadMoreModule.class);
+        if (module != null) {
+            module.finishLoad();
+        }
+    }
+
+
+    //////////////////////////////  -- Header & Footer --  //////////////////////////////
+
+    private HFModule getHFModule() {
+        return getModule(HFModule.class);
+    }
+
+
+    public boolean isHeaderEnable() {
+        return getHFModule() != null && getHFModule().isHeaderEnable();
+    }
+
+    public boolean isFooterEnable() {
+        return getHFModule() != null && getHFModule().isFooterEnable();
+    }
+
+    public void setHeaderEnable(boolean enable) {
+        HFModule hfModule = getHFModule();
+        if (hfModule != null) {
+            hfModule.setHeaderEnable(enable);
+        }
+    }
+
+    public void setFooterEnable(boolean enable) {
+        HFModule hfModule = getHFModule();
+        if (hfModule != null) {
+            hfModule.setFooterEnable(enable);
+        }
+    }
+
+    //////////////////////////////  -- 模块化 --  //////////////////////////////
+
+    @SuppressWarnings("unchecked")
+    public <C extends AbstractModule> C getModule(Class<C> clz) {
+        return (C) mModuleMap.get(clz);
+    }
+
+    public void addModule(AbstractModule module) {
+        module.onAttachAdapter(this);
+        mModuleMap.put(module.getClass(), module);
+    }
 
     public void addViewBinder(AdapterViewBinder<D> binder) {
         if (mAdapterViewBinders == null) {
@@ -279,59 +296,22 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         mAdapterViewBinders.add(binder);
     }
 
-    @SuppressWarnings("unchecked")
-    public <C extends AbstractModule> C getComp(Class<C> clz) {
-        return (C) mModuleMap.get(clz);
-    }
+    //////////////////////////////  -- 辅助方法 --  //////////////////////////////
 
-    ///////////////////////////////////////////////////////////////////////////
-    // update
-    ///////////////////////////////////////////////////////////////////////////
-
-    @SuppressWarnings("unchecked")
-    public UpdateModule<D> update() {
-        return getComp(UpdateModule.class);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Header+Footer
-    ///////////////////////////////////////////////////////////////////////////
-
-    private HFModule mHFModule;
-
-    public HFModule getHFModule() {
-        return mHFModule;
-    }
-
-    public boolean isHasHeader() {
-        return mHFModule != null && mHFModule.isHeaderEnable();
-    }
-
-    public boolean isHasFooter() {
-        return mHFModule != null && mHFModule.isHeaderEnable();
-    }
-
-    public void setFooterEnable(boolean footerEnable) {
-        if (mHFModule != null) {
-            mHFModule.setFooterEnable(false);
+    private View getInflateView(int viewType, ViewGroup parent) {
+        TypeConfig typeConfig = mLayoutResIdArray.get(viewType);
+        if (typeConfig != null && typeConfig.getResId() > 0) {
+            return mLayoutInflater.inflate(typeConfig.getResId(), parent, false);
         }
+        return null;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // LoadMore
-    ///////////////////////////////////////////////////////////////////////////
-
-    public void finishLoading() {
-        getComp(LoadMoreModule.class).finishLoad();
+    int mapPosition(int pos) {
+        return isHeaderEnable() ? pos - 1 : pos;
     }
 
-    public void finishTopLoading() {
-        getComp(TopLoadMoreModule.class).finishLoad();
-    }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // 事件
-    ///////////////////////////////////////////////////////////////////////////
+    //////////////////////////////  -- 事件 --  //////////////////////////////
 
     public void setOnItemListener(final OnItemListener<D> onItemListener) {
         this.mOnItemListener = new SimpleItemListener<D>() {

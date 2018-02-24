@@ -5,7 +5,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 
-import com.march.lightadapter.listener.OnLoadMoreListener;
 
 /**
  * Created by march on 16/6/8.
@@ -13,14 +12,12 @@ import com.march.lightadapter.listener.OnLoadMoreListener;
  */
 public class LoadMoreModule extends AbstractModule {
 
-    private OnLoadMoreListener mLoadMoreListener;
     private boolean mIsLoadingMore;
     private int preLoadNum = 0;
     private boolean isEnding = false;
 
-    public LoadMoreModule(int preLoadNum, OnLoadMoreListener mLoadMoreListener) {
+    public LoadMoreModule(int preLoadNum) {
         this.preLoadNum = preLoadNum;
-        this.mLoadMoreListener = mLoadMoreListener;
     }
 
     @Override
@@ -30,18 +27,25 @@ public class LoadMoreModule extends AbstractModule {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
+                if (mAttachAdapter == null) {
+                    return;
+                }
                 if (newState == RecyclerView.SCROLL_STATE_IDLE && isEnding) {
-                    if (null != mLoadMoreListener && !mIsLoadingMore) {
+                    if (!mIsLoadingMore) {
                         mIsLoadingMore = true;
-                        mLoadMoreListener.onLoadMore();
+                        mAttachAdapter.onBottomLoadMore();
                     }
                 }
+
             }
 
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (null != mLoadMoreListener && dy > 0) {
+                if (mAttachAdapter == null) {
+                    return;
+                }
+                if (dy > 0) {
                     int lastVisiblePosition = getLastVisiblePosition(mRecyclerView);
                     isEnding = lastVisiblePosition + 1 + preLoadNum >= mAttachAdapter.getItemCount();
                 }

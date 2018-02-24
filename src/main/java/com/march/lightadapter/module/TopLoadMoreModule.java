@@ -13,14 +13,12 @@ import com.march.lightadapter.listener.OnLoadMoreListener;
  */
 public class TopLoadMoreModule extends AbstractModule {
 
-    private OnLoadMoreListener mLoadMoreListener;
     private boolean mIsLoadingMore;
     private int preLoadNum = 0;
     private boolean isTopping;
 
-    public TopLoadMoreModule(int preLoadNum, OnLoadMoreListener mLoadMoreListener) {
+    public TopLoadMoreModule(int preLoadNum) {
         this.preLoadNum = preLoadNum;
-        this.mLoadMoreListener = mLoadMoreListener;
     }
 
     @Override
@@ -30,11 +28,14 @@ public class TopLoadMoreModule extends AbstractModule {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
+                if (mAttachAdapter == null) {
+                    return;
+                }
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    if (null != mLoadMoreListener && !mIsLoadingMore) {
+                    if (!mIsLoadingMore) {
                         if (isTopping) {
                             mIsLoadingMore = true;
-                            mLoadMoreListener.onLoadMore();
+                            mAttachAdapter.onTopLoadMore();
                         }
                     }
                 }
@@ -43,7 +44,10 @@ public class TopLoadMoreModule extends AbstractModule {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (null != mLoadMoreListener && dy < 0) {
+                if (mAttachAdapter == null) {
+                    return;
+                }
+                if (dy < 0) {
                     int firstPos = getFirstVisiblePosition(mAttachRecyclerView);
                     isTopping = firstPos <= preLoadNum;
                 }

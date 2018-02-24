@@ -1,25 +1,25 @@
-package com.march.lightadapter.module;
+package com.march.lightadapter.delegate;
 
 import com.march.lightadapter.LightAdapter;
 
 import java.util.List;
 
 /**
- * CreateAt : 2017/6/14
- * Describe : 数据更新的module
- * 使用 RecyclerView post 在主线程更新数据
- * 提供简化更新数据的方法。
+ * CreateAt : 2018/2/24
+ * Describe :
+ * 数据更新的代理
+ * 1. 将数据更新发送到 UI 线程
+ * 2. 扩展更多更新数据的方法
  *
  * @author chendong
  */
-public class UpdateModule<D> extends AbstractModule {
+public class UpdateDelegate<D> {
 
+    private LightAdapter<D> mAttachAdapter;
     private int itemCount;
 
-    @Override
-    public void onAttachAdapter(LightAdapter adapter) {
-        super.onAttachAdapter(adapter);
-        refreshItemCount();
+    public UpdateDelegate(LightAdapter<D> adapter) {
+        mAttachAdapter = adapter;
     }
 
     public final void notifyDataSetChanged() {
@@ -76,7 +76,6 @@ public class UpdateModule<D> extends AbstractModule {
         });
     }
 
-
     public final void notifyItemRemoved(final int position) {
         notifyInUIThread(new Runnable() {
             @Override
@@ -96,31 +95,13 @@ public class UpdateModule<D> extends AbstractModule {
     }
 
     private void notifyInUIThread(final Runnable action) {
-        if (mIsAttach) {
-            mAttachRecyclerView.post(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        action.run();
-                        refreshItemCount();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        }
+        mAttachAdapter.getRecyclerView().post(action);
     }
-
 
     private boolean checkPosition(int pos) {
-        return mIsAttach
-                && pos >= 0
-                && pos < mAttachAdapter.getDatas().size();
+        return pos >= 0 && pos < mAttachAdapter.getDatas().size();
     }
 
-
-
-    @SuppressWarnings("unchecked")
     private List<D> getDatas() {
         return mAttachAdapter.getDatas();
     }
@@ -140,7 +121,6 @@ public class UpdateModule<D> extends AbstractModule {
     }
 
     // 更新全部数据
-    @SuppressWarnings("unchecked")
     public void update(List<D> data) {
         mAttachAdapter.setDatas(data);
         notifyDataSetChanged();
@@ -153,18 +133,18 @@ public class UpdateModule<D> extends AbstractModule {
 
 
     // 在尾部追加数据
-    @SuppressWarnings("unchecked")
     public void appendTailList(List<D> datas, boolean isAllData) {
+        itemCount = getDatas().size();
         if (isAllData)
             mAttachAdapter.setDatas(datas);
         else
             mAttachAdapter.getDatas().addAll(datas);
-        notifyItemRangeInserted(itemCount + (mAttachAdapter.isHasHeader() ? 1 : 0), getDatas().size() - itemCount);
+        notifyItemRangeInserted(itemCount + (mAttachAdapter.isHeaderEnable() ? 1 : 0), getDatas().size() - itemCount);
     }
 
     // 在头部追加数据
-    @SuppressWarnings("unchecked")
     public void appendHeadList(List<D> datas, boolean isAllData) {
+        itemCount = getDatas().size();
         if (isAllData)
             mAttachAdapter.setDatas(datas);
         else
@@ -172,8 +152,5 @@ public class UpdateModule<D> extends AbstractModule {
         notifyItemRangeInserted(0, getDatas().size() - itemCount);
     }
 
-    private void refreshItemCount() {
-        itemCount = getDatas().size();
-    }
 
 }

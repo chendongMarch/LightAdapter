@@ -1,4 +1,4 @@
-package com.march.lightadapter.module;
+package com.march.lightadapter.extend;
 
 import android.support.v7.widget.RecyclerView;
 
@@ -6,21 +6,23 @@ import com.march.lightadapter.LightAdapter;
 import com.march.lightadapter.LightHolder;
 import com.march.lightadapter.helper.LightLogger;
 import com.march.lightadapter.listener.AdapterViewBinder;
-import com.march.lightadapter.manager.SelectManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * CreateAt : 2017/3/24
- * Describe : 选择器模块
- * 支持单选多选
- * 支持holder更新优先，避免UI闪烁
- * 支持范型数据获取
+ * CreateAt : 2018/2/3
+ * Describe :
+ * <p>
+ * 需要的参数：
+ * adapter，绑定到的 adapter
+ * 类型，单选|多选
+ * 初始选择项，列表
+ * 数据绑定器
  *
  * @author chendong
  */
-public class SelectorModule<D> extends AbstractModule {
+public class SelectManager<D> {
 
     public static final String TAG = SelectManager.class.getSimpleName();
 
@@ -29,21 +31,24 @@ public class SelectorModule<D> extends AbstractModule {
 
     private int mType;
     private List<D> mSelectDatas;
-    private List<Integer> mSelectPos;
     private LightAdapter<D> mAdapter;
+    private AdapterViewBinder<D> mBinder;
 
-    public SelectorModule(LightAdapter<D> adapter, int type, AdapterViewBinder<D> binder) {
+    public SelectManager(LightAdapter<D> adapter, int type, AdapterViewBinder<D> binder) {
         mAdapter = adapter;
-        mSelectPos = new ArrayList<>();
         mSelectDatas = new ArrayList<>();
         mType = type;
-        adapter.addViewBinder(binder);
+        mBinder = binder;
+        adapter.addViewBinder(mBinder);
     }
 
     public void initSelect(int... initItems) {
-        for (Integer initPos : initItems) {
-            if (initPos != null && initPos >= 0) {
-                mSelectPos.add(initPos);
+        for (Integer pos : initItems) {
+            if (pos != null && pos >= 0) {
+                D item = mAdapter.getItem(pos);
+                if (item != null) {
+                    mSelectDatas.add(item);
+                }
             }
         }
     }
@@ -52,7 +57,6 @@ public class SelectorModule<D> extends AbstractModule {
         return pos >= 0 && pos < getDatas().size();
     }
 
-    @SuppressWarnings("unchecked")
     private List<D> getDatas() {
         return mAdapter.getDatas();
     }
@@ -107,7 +111,6 @@ public class SelectorModule<D> extends AbstractModule {
         }
     }
 
-
     public boolean isSelect(D data) {
         return mSelectDatas.contains(data);
     }
@@ -152,7 +155,7 @@ public class SelectorModule<D> extends AbstractModule {
         if (mAdapter == null || !checkPosition(pos))
             return false;
         // 如果有header，传过来的位置是经过处理后的位置，即数据位置，返回真正的控件位置
-        if (mAdapter.isHasHeader()) {
+        if (mAdapter. isHeaderEnable()) {
             pos = pos + 1;
             LightLogger.e(TAG, "传过来的位置是经过处理后的位置，即数据位置，返回真正的控件位置 = " + pos);
         }
@@ -161,9 +164,8 @@ public class SelectorModule<D> extends AbstractModule {
             if (holder != null && holder instanceof LightHolder) {
                 LightHolder viewHolder = (LightHolder) holder;
 
-                if (mHolderUpdater != null && viewHolder.getData() != null) {
-                    mHolderUpdater.onChanged(viewHolder, viewHolder.getData(),
-                            pos, isSelect(viewHolder.getData()));
+                if (mBinder != null && mAdapter.getItem(pos) != null) {
+                    mBinder.onBindViewHolder(viewHolder, mAdapter.getItem(pos), pos, mAdapter.getItemViewType(pos));
                     return true;
                 }
             }
@@ -174,14 +176,9 @@ public class SelectorModule<D> extends AbstractModule {
     }
 
     private void updatePos(final int pos) {
-        if (!updatePosUseHolder(pos))
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    if (isSupportPos(pos))
-                        mAttachAdapter.getUpdateModule().notifyItemChanged(pos);
-                }
-            });
+        if (!updatePosUseHolder(pos)) {
+            mAdapter.update().notifyItemChanged(pos);
+        }
     }
-}
 
+}
