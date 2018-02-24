@@ -1,12 +1,10 @@
 package com.march.lightadapter.module;
 
 import android.support.v7.widget.RecyclerView;
+import android.view.ViewGroup;
 
 import com.march.lightadapter.LightAdapter;
-import com.march.lightadapter.helper.LightLogger;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.march.lightadapter.LightHolder;
 
 
 /**
@@ -15,27 +13,20 @@ import java.util.List;
  *
  * @author chendong
  */
-abstract class AbstractModule<D> {
+public abstract class AbstractModule {
 
     public static final String TAG = AbstractModule.class.getSimpleName();
 
-    private List<Integer> mIgnoreTypeList;
-    LightAdapter<D> mAttachAdapter;
-    RecyclerView    mAttachRecyclerView;
+    protected LightAdapter mAttachAdapter;
+    protected RecyclerView mAttachRecyclerView;
+    protected boolean mIsAttach;
 
-
-    public void ignoreType(int... types) {
-        if (mIgnoreTypeList == null) {
-            mIgnoreTypeList = new ArrayList<>();
-        }
-        mIgnoreTypeList.clear();
-        for (int type : types) {
-            mIgnoreTypeList.add(type);
-        }
+    public LightHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        return null;
     }
 
-    boolean isIgnoreThisType(int type) {
-        return mIgnoreTypeList.contains(type);
+    public boolean onBindViewHolder(LightHolder holder, int position) {
+        return false;
     }
 
     /**
@@ -44,7 +35,8 @@ abstract class AbstractModule<D> {
      * @param recyclerView rv
      */
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        this.mAttachRecyclerView = recyclerView;
+        mAttachRecyclerView = recyclerView;
+        mIsAttach = mAttachRecyclerView != null && mAttachAdapter != null;
     }
 
     /**
@@ -52,33 +44,9 @@ abstract class AbstractModule<D> {
      *
      * @param adapter adapter
      */
-    public void onAttachAdapter(LightAdapter<D> adapter) {
-        this.mAttachAdapter = adapter;
-    }
-
-    void post(Runnable runnable) {
-        if (mAttachRecyclerView != null)
-            mAttachRecyclerView.post(runnable);
-    }
-
-    boolean isSupportPos(Integer pos) {
-        boolean isSupport = pos != null && mAttachAdapter != null && mAttachAdapter.getDatas() != null
-                && pos >= 0 && pos < mAttachAdapter.getDatas().size();
-        if (!isSupport) {
-            LightLogger.e(TAG, "not Support Pos,check pos = " + pos + " , and data size = " + getDatas().size());
-        }
-        return isSupport;
-    }
-
-    boolean isAttachSuccess() {
-        return mAttachRecyclerView != null && mAttachAdapter != null;
-    }
-
-    List<D> getDatas() {
-        if (mAttachAdapter == null || mAttachAdapter.getDatas() == null) {
-            throw new IllegalArgumentException("adapter data not set");
-        }
-        return mAttachAdapter.getDatas();
+    public void onAttachAdapter(LightAdapter adapter) {
+        mAttachAdapter = adapter;
+        mIsAttach = mAttachRecyclerView != null && mAttachAdapter != null;
     }
 
 }

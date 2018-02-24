@@ -1,28 +1,33 @@
 package com.march.lightadapter;
 
 import android.content.Context;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.SparseArray;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.march.lightadapter.event.SimpleItemListener;
 import com.march.lightadapter.helper.LightLogger;
-import com.march.lightadapter.listener.OnItemListener;
+import com.march.lightadapter.event.OnItemListener;
+import com.march.lightadapter.listener.AdapterViewBinder;
 import com.march.lightadapter.model.ITypeModel;
 import com.march.lightadapter.model.TypeConfig;
+import com.march.lightadapter.module.AbstractModule;
 import com.march.lightadapter.module.HFModule;
 import com.march.lightadapter.module.LoadMoreModule;
-import com.march.lightadapter.module.SelectorModule;
 import com.march.lightadapter.module.TopLoadMoreModule;
 import com.march.lightadapter.module.UpdateModule;
 
-import java.lang.annotation.Annotation;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -31,13 +36,15 @@ import java.util.Set;
  *
  * @author chendong
  */
-public abstract class LightAdapter<D>
-        extends RecyclerView.Adapter<LightHolder>
-        implements ILightAdapter {
+public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> {
 
     public static final String TAG = LightAdapter.class.getSimpleName();
-    private String mDebugTag;
+    public static final int UNSET = -100;
+    public static final int TYPE_HEADER = -1;
+    public static final int TYPE_FOOTER = -2;
+    public static final int TYPE_DEFAULT = 0x123;
 
+    private RecyclerView mRecyclerView;
     // 上下文
     private Context mContext;
     // 数据源
@@ -45,42 +52,31 @@ public abstract class LightAdapter<D>
     // 布局加载
     private LayoutInflater mLayoutInflater;
     // 用来存储创建的所有holder，你可以使用holder来直接更新item，而不必调用 notify
-    private Set<LightHolder<D>> mHolderSet;
+    private Set<LightHolder> mHolderSet;
     // 点击监听时间
     private OnItemListener<D> mOnItemListener;
     // 类型和layout资源文件配置
     private SparseArray<TypeConfig> mLayoutResIdArray;
-
-
-    // header+footer
-    private HFModule mHFModule;
-    // 选择器模块
-    private SelectorModule<D> mSelectorModule;
-    // 数据更新模块
-    private UpdateModule<D> mUpdateModule;
-
+    // 模块列表
+    private Map<Class, AbstractModule> mModuleMap;
 
     public LightAdapter(Context context, List<D> datas) {
         this(context, datas, -1);
     }
 
     public LightAdapter(Context context, List<D> datas, int layoutRes) {
-        Annotation[] annotations = this.getClass().getAnnotations();
-        Log.e("chendong", Arrays.toString(annotations));
         this.mContext = context;
         this.mHolderSet = new HashSet<>();
         this.mLayoutInflater = LayoutInflater.from(context);
         this.mDatas = datas;
         this.mHolderSet = new HashSet<>();
         if (layoutRes > 0) {
-            _addType(TYPE_DEFAULT, layoutRes);
+            addTypeInternal(TYPE_DEFAULT, layoutRes);
         }
-        mUpdateModule = new UpdateModule<>();
-        mUpdateModule.onAttachAdapter(this);
-        mDebugTag = hashCode() + "";
+        addModule(new UpdateModule<>());
     }
 
-    public Set<LightHolder<D>> getHolderSet() {
+    public Set<LightHolder> getHolderSet() {
         return mHolderSet;
     }
 
@@ -92,103 +88,50 @@ public abstract class LightAdapter<D>
         mDatas = datas;
     }
 
-    public void setDebugTag(String debugTag) {
-        mDebugTag = debugTag;
-    }
-
     public Context getContext() {
         return mContext;
     }
 
-    public void setOnItemListener(OnItemListener<D> onItemListener) {
-        this.mOnItemListener = onItemListener;
+    public RecyclerView getRecyclerView() {
+        return mRecyclerView;
     }
 
-    public void bindRecyclerView(RecyclerView recyclerView) {
-        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-        if (layoutManager == null) {
-            LightLogger.e(mDebugTag, "recyclerView has no LayoutManager");
-            return;
-        }
-        recyclerView.setAdapter(this);
+    public void setRecyclerView(RecyclerView recyclerView) {
+        mRecyclerView = recyclerView;
     }
 
     public void bindRecyclerView(RecyclerView recyclerView, RecyclerView.LayoutManager layoutManager) {
         recyclerView.setLayoutManager(layoutManager);
-        this.bindRecyclerView(recyclerView);
+        recyclerView.setAdapter(this);
     }
-
 
     private View getInflateView(int viewType, ViewGroup parent) {
         TypeConfig typeConfig = mLayoutResIdArray.get(viewType);
         if (typeConfig != null && typeConfig.getResId() > 0) {
             return mLayoutInflater.inflate(typeConfig.getResId(), parent, false);
-        } else if (viewType != TYPE_DEFAULT) {
-            LightLogger.e(mDebugTag, "viewType = " + viewType + ",no layout res,use defLayoutRes instead,please check implements ITypeModel");
-            return getInflateView(TYPE_DEFAULT, parent);
-        } else {
-            LightLogger.e(mDebugTag, "viewType = " + viewType + ",no layoutRes,defType no layoutRes too !");
-            return null;
         }
+        return null;
     }
 
-    int calPositionInDatas(int pos) {
-        if (mHFModule != null && mHFModule.isHeaderEnable()) {
-            return pos - 1;
-        } else {
-            return pos;
-        }
+    int mapPosition(int pos) {
+        return isHasHeader() ? pos - 1 : pos;
     }
-
 
     ///////////////////////////////////////////////////////////////////////////
-    // 模块部分，添加和获取模块
+    // 模块部分，添加模块支持
     ///////////////////////////////////////////////////////////////////////////
 
-    public UpdateModule<D> getUpdateModule() {
-        return mUpdateModule;
+
+    public void addModule(AbstractModule module) {
+        module.onAttachAdapter(this);
+        if (mModuleMap == null) {
+            mModuleMap = new HashMap<>();
+        }
+        mModuleMap.put(module.getClass(), module);
+        if (module instanceof HFModule) {
+            mHFModule = (HFModule) module;
+        }
     }
-
-
-    public HFModule getHFModule() {
-        return mHFModule;
-    }
-
-
-    public LoadMoreModule getLoadMoreModule() {
-        return mLoadMoreModule;
-    }
-
-    public TopLoadMoreModule getTopLoadMoreModule() {
-        return mTopLoadMoreModule;
-    }
-
-    public SelectorModule<D> getSelectorModule() {
-        return mSelectorModule;
-    }
-
-
-    public void addHFModule(HFModule hfModule) {
-        this.mHFModule = hfModule;
-        mHFModule.onAttachAdapter(LightAdapter.this);
-    }
-
-    public void addLoadMoreModule(LoadMoreModule loadMoreModule) {
-        this.mLoadMoreModule = loadMoreModule;
-        mLoadMoreModule.onAttachAdapter(LightAdapter.this);
-    }
-
-    public void addTopLoadMoreModule(TopLoadMoreModule topLoadMoreModule) {
-        this.mTopLoadMoreModule = topLoadMoreModule;
-        mTopLoadMoreModule.onAttachAdapter(LightAdapter.this);
-    }
-
-    public void addSelectorModule(SelectorModule<D> selectorModule, int... ignoreType) {
-        this.mSelectorModule = selectorModule;
-        mSelectorModule.onAttachAdapter(LightAdapter.this);
-        mSelectorModule.ignoreType(ignoreType);
-    }
-
 
     ///////////////////////////////////////////////////////////////////////////
     // 重载Adapter的方法
@@ -197,14 +140,12 @@ public abstract class LightAdapter<D>
     @Override
     public LightHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LightHolder holder = null;
-        if (mHFModule != null)
-            holder = mHFModule.getHFViewHolder(viewType);
+        if (mHFModule != null) {
+            holder = mHFModule.onCreateViewHolder(parent, viewType);
+        }
         if (holder == null) {
-            holder = new LightHolder<>(mContext, getInflateView(viewType, parent), viewType);
-            holder.setAttachAdapter(this);
-            holder.setOnItemListener(null);
-            if (!ignoreItemListener(holder, viewType))
-                holder.setOnItemListener(mOnItemListener);
+            holder = new LightHolder(mContext, getInflateView(viewType, parent));
+            initItemEvent(holder);
         }
         mHolderSet.add(holder);
         return holder;
@@ -213,24 +154,23 @@ public abstract class LightAdapter<D>
 
     @Override
     public void onBindViewHolder(LightHolder holder, int position) {
-        if (mHFModule == null) {
-            onBindViewHolderWrap(holder, position);
-        } else if (mHFModule.isFooterEnable() && position == getItemCount() - 1) {
-            onBindFooter(holder);
-        } else if (mHFModule.isHeaderEnable() && position == 0) {
-            onBindHeader(holder);
-        } else {
-            onBindViewHolderWrap(holder, position);
+        if (mHFModule == null || !mHFModule.onBindViewHolder(holder, position)) {
+            int pos = mapPosition(position);
+            D data = getItem(pos);
+            onBindView(holder, data, pos, getItemViewType(position));
+            for (AdapterViewBinder<D> binder : mAdapterViewBinders) {
+                binder.onBindViewHolder(holder, data, pos, getItemViewType(position));
+            }
         }
     }
 
-    private void onBindViewHolderWrap(LightHolder<D> holder, int position) {
-        int pos = calPositionInDatas(position);
-        D data = mDatas.get(pos);
-        holder.setData(data);
-        onBindView(holder, data, pos, getItemViewType(position));
-        if (mSelectorModule != null) {
-            mSelectorModule.onBindView(holder, data, pos, getItemViewType(position));
+
+    public D getItem(int pos) {
+        if (pos >= 0 && pos < mDatas.size()) {
+            return mDatas.get(pos);
+        } else {
+            LightLogger.e(TAG, "IndexOutBounds & pos = " + pos);
+            return null;
         }
     }
 
@@ -238,39 +178,26 @@ public abstract class LightAdapter<D>
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
-        if (mLoadMoreModule != null)
-            mLoadMoreModule.onAttachedToRecyclerView(recyclerView);
-        if (mTopLoadMoreModule != null)
-            mTopLoadMoreModule.onAttachedToRecyclerView(recyclerView);
-        if (mSelectorModule != null)
-            mSelectorModule.onAttachedToRecyclerView(recyclerView);
-        if (mHFModule != null)
-            mHFModule.onAttachedToRecyclerView(recyclerView);
-        if (mUpdateModule != null)
-            mUpdateModule.onAttachedToRecyclerView(recyclerView);
+        mRecyclerView = recyclerView;
+        for (AbstractModule module : mModuleMap.values()) {
+            module.onAttachedToRecyclerView(recyclerView);
+        }
 
         final RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-        if (!(layoutManager instanceof GridLayoutManager))
-            return;
-        // 针对GridLayoutManager处理
-        final GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
-        gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-            @Override
-            public int getSpanSize(int position) {
-                int type = getItemViewType(position);
-                if ((mHFModule != null && mHFModule.isFullSpan(type)) || isFullSpanType(type)) {
-                    return gridLayoutManager.getSpanCount();
-                } else {
-                    return 1;
+        if (layoutManager instanceof GridLayoutManager) {
+            final GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
+            gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                @Override
+                public int getSpanSize(int position) {
+                    int type = getItemViewType(position);
+                    if ((mHFModule != null && mHFModule.isFullSpan(type)) || isFullSpanType(type)) {
+                        return gridLayoutManager.getSpanCount();
+                    } else {
+                        return 1;
+                    }
                 }
-            }
-        });
-    }
-
-
-    // 忽略某种类型的点击事件
-    protected boolean ignoreItemListener(LightHolder holder, int viewType) {
-        return false;
+            });
+        }
     }
 
     // 子类决定哪一种类型需要跨越整行
@@ -280,41 +207,25 @@ public abstract class LightAdapter<D>
 
     @Override
     public int getItemCount() {
-        int pos = this.mDatas.size();
-        if (mHFModule == null)
-            return pos;
-        if (mHFModule.isHeaderEnable())
-            pos++;
-        if (mHFModule.isFooterEnable())
-            pos++;
-        return pos;
+        int count = this.mDatas.size();
+        if (mHFModule != null) {
+            count += mHFModule.getItemCount4HF();
+        }
+        return count;
     }
-
 
     @Override
     public int getItemViewType(int position) {
-
-        if (mHFModule == null)
-            return getOriginItemType(position);
-
-        // 如果没有header没有footer直接返回
-        if (!mHFModule.isHeaderEnable() && !mHFModule.isFooterEnable())
-            return getOriginItemType(position);
-
-        // 有header且位置0
-        if (mHFModule.isHeaderEnable() && position == 0)
-            return TYPE_HEADER;
-
-        // pos超出
-        if (mHFModule.isFooterEnable() && position == getItemCount() - 1)
-            return TYPE_FOOTER;
-
+        int type;
+        if (mHFModule != null && ((type = mHFModule.getItemViewType4HF(position)) != 0)) {
+            return type;
+        }
         // 如果有header,下标减一个
-        if (mHFModule.isHeaderEnable())
-            return getOriginItemType(position - 1);
+        if (mHFModule != null && mHFModule.isHeaderEnable())
+            return getModelItemType(position - 1);
         else
             //没有header 按照原来的
-            return getOriginItemType(position);
+            return getModelItemType(position);
     }
 
 
@@ -324,21 +235,21 @@ public abstract class LightAdapter<D>
 
     public LightAdapter<D> addType(int type, int resId) {
         if (type == TYPE_HEADER || type == TYPE_FOOTER || type == TYPE_DEFAULT) {
-            throw new IllegalArgumentException(mDebugTag + " type can not be (" + TYPE_HEADER + "," + TYPE_FOOTER + "," + TYPE_DEFAULT + ")");
+            throw new IllegalArgumentException(TAG + " type can not be (" + TYPE_HEADER + "," + TYPE_FOOTER + "," + TYPE_DEFAULT + ")");
         }
-        _addType(type, resId);
+        addTypeInternal(type, resId);
         return this;
     }
 
-    private void _addType(int type, int resId) {
+    private void addTypeInternal(int type, int resId) {
         if (this.mLayoutResIdArray == null)
             this.mLayoutResIdArray = new SparseArray<>();
         this.mLayoutResIdArray.put(type, new TypeConfig(type, resId));
     }
 
 
-    private int getOriginItemType(int pos) {
-        D d = mDatas.get(pos);
+    private int getModelItemType(int pos) {
+        D d = getItem(pos);
         if (d instanceof ITypeModel) {
             ITypeModel model = (ITypeModel) d;
             return model.getModelType();
@@ -346,7 +257,6 @@ public abstract class LightAdapter<D>
             return TYPE_DEFAULT;
         }
     }
-
 
     ///////////////////////////////////////////////////////////////////////////
     // 子类实现的进行数据绑定的方法
@@ -362,43 +272,175 @@ public abstract class LightAdapter<D>
      */
     public abstract void onBindView(LightHolder holder, D data, int pos, int type);
 
-    /**
-     * 绑定header的数据 和  监听
-     *
-     * @param header header holder
-     */
-    public void onBindHeader(LightHolder<D> header) {
-
+    public void addViewBinder(AdapterViewBinder<D> binder) {
+        if (mAdapterViewBinders == null) {
+            mAdapterViewBinders = new ArrayList<>();
+        }
+        mAdapterViewBinders.add(binder);
     }
 
-    /**
-     * 绑定footer的数据和监听
-     *
-     * @param footer footer holder
-     */
-    public void onBindFooter(LightHolder<D> footer) {
+    @SuppressWarnings("unchecked")
+    public <C extends AbstractModule> C getComp(Class<C> clz) {
+        return (C) mModuleMap.get(clz);
+    }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // update
+    ///////////////////////////////////////////////////////////////////////////
+
+    @SuppressWarnings("unchecked")
+    public UpdateModule<D> update() {
+        return getComp(UpdateModule.class);
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Header+Footer
     ///////////////////////////////////////////////////////////////////////////
 
+    private HFModule mHFModule;
+
+    public HFModule getHFModule() {
+        return mHFModule;
+    }
+
+    public boolean isHasHeader() {
+        return mHFModule != null && mHFModule.isHeaderEnable();
+    }
+
+    public boolean isHasFooter() {
+        return mHFModule != null && mHFModule.isHeaderEnable();
+    }
+
+    public void setFooterEnable(boolean footerEnable) {
+        if (mHFModule != null) {
+            mHFModule.setFooterEnable(false);
+        }
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // LoadMore
     ///////////////////////////////////////////////////////////////////////////
 
-    // 底部加载更多模块
-    private LoadMoreModule mLoadMoreModule;
-    // 顶部加载更多
-    private TopLoadMoreModule mTopLoadMoreModule;
-
-    public void finishBottomLoad() {
-        mLoadMoreModule.finishLoad();
+    public void finishLoading() {
+        getComp(LoadMoreModule.class).finishLoad();
     }
 
-    public void finishTopLoad() {
-        mTopLoadMoreModule.finishLoad();
+    public void finishTopLoading() {
+        getComp(TopLoadMoreModule.class).finishLoad();
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // 事件
+    ///////////////////////////////////////////////////////////////////////////
+
+    public void setOnItemListener(final OnItemListener<D> onItemListener) {
+        this.mOnItemListener = new SimpleItemListener<D>() {
+
+            @Override
+            public void onClick(int pos, LightHolder holder, D data) {
+                int position = mapPosition(holder.getAdapterPosition());
+                D item = getItem(position);
+                if (isClickable(item)) {
+                    onItemListener.onClick(pos, holder, item);
+                }
+            }
+
+            @Override
+            public void onLongPress(int pos, LightHolder holder, D data) {
+                int position = mapPosition(holder.getAdapterPosition());
+                D item = getItem(position);
+                if (isClickable(item)) {
+                    onItemListener.onLongPress(pos, holder, data);
+                }
+            }
+
+            @Override
+            public void onDoubleClick(int pos, LightHolder holder, D data) {
+                int position = mapPosition(holder.getAdapterPosition());
+                D item = getItem(position);
+                if (isClickable(item)) {
+                    onItemListener.onDoubleClick(pos, holder, data);
+                }
+            }
+
+            @Override
+            public boolean isSupportDoubleClick() {
+                return onItemListener.isSupportDoubleClick();
+            }
+
+            @Override
+            public boolean isClickable(D data) {
+                return onItemListener.isClickable(data);
+            }
+        };
+    }
+
+
+    private void initItemEvent(final LightHolder holder) {
+        View itemView = holder.getItemView();
+        GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                if (mOnItemListener != null && mOnItemListener.isSupportDoubleClick()) {
+                    mOnItemListener.onClick(0, holder, null);
+                }
+                return super.onSingleTapConfirmed(e);
+            }
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                if (mOnItemListener != null && !mOnItemListener.isSupportDoubleClick()) {
+                    mOnItemListener.onClick(0, holder, null);
+                }
+                return super.onSingleTapUp(e);
+            }
+
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                if (mOnItemListener != null) {
+                    mOnItemListener.onDoubleClick(0, holder, null);
+                }
+                return super.onDoubleTap(e);
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+                if (mOnItemListener != null) {
+                    mOnItemListener.onLongPress(0, holder, null);
+                }
+            }
+        };
+        final GestureDetectorCompat gestureDetector = new GestureDetectorCompat(mContext, gestureListener);
+        itemView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (mOnItemListener != null && mOnItemListener.isSupportDoubleClick()) {
+                    gestureDetector.onTouchEvent(motionEvent);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+        // 不支持双击的话还是用原来的，因为这样可以支持控件点击的背景变化
+        itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mOnItemListener != null && !mOnItemListener.isSupportDoubleClick()) {
+                    mOnItemListener.onClick(0, holder, null);
+                }
+            }
+        });
+        // 不支持双击的话还是用原来的
+        itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                if (mOnItemListener != null && !mOnItemListener.isSupportDoubleClick()) {
+                    mOnItemListener.onLongPress(0, holder, null);
+                }
+                return true;
+            }
+        });
+    }
+
 }

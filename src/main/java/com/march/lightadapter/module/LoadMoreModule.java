@@ -33,7 +33,7 @@ public class LoadMoreModule extends AbstractModule {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE && isEnding) {
                     if (null != mLoadMoreListener && !mIsLoadingMore) {
                         mIsLoadingMore = true;
-                        mLoadMoreListener.onLoadMore(LoadMoreModule.this);
+                        mLoadMoreListener.onLoadMore();
                     }
                 }
             }
@@ -88,9 +88,5 @@ public class LoadMoreModule extends AbstractModule {
 
     public void finishLoad() {
         this.mIsLoadingMore = false;
-    }
-
-    interface LoadMoreHandler {
-        RecyclerView.OnScrollListener createListener();
     }
 }

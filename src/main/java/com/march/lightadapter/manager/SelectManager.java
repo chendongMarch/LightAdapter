@@ -1,4 +1,4 @@
-package com.march.lightadapter.module;
+package com.march.lightadapter.manager;
 
 import android.support.v7.widget.RecyclerView;
 
@@ -6,21 +6,17 @@ import com.march.lightadapter.LightAdapter;
 import com.march.lightadapter.LightHolder;
 import com.march.lightadapter.helper.LightLogger;
 import com.march.lightadapter.listener.AdapterViewBinder;
-import com.march.lightadapter.manager.SelectManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * CreateAt : 2017/3/24
- * Describe : 选择器模块
- * 支持单选多选
- * 支持holder更新优先，避免UI闪烁
- * 支持范型数据获取
+ * CreateAt : 2018/2/3
+ * Describe :
  *
  * @author chendong
  */
-public class SelectorModule<D> extends AbstractModule {
+public class SelectManager<D> {
 
     public static final String TAG = SelectManager.class.getSimpleName();
 
@@ -32,7 +28,7 @@ public class SelectorModule<D> extends AbstractModule {
     private List<Integer> mSelectPos;
     private LightAdapter<D> mAdapter;
 
-    public SelectorModule(LightAdapter<D> adapter, int type, AdapterViewBinder<D> binder) {
+    public SelectManager(LightAdapter<D> adapter, int type, AdapterViewBinder<D> binder) {
         mAdapter = adapter;
         mSelectPos = new ArrayList<>();
         mSelectDatas = new ArrayList<>();
@@ -183,5 +179,5 @@ public class SelectorModule<D> extends AbstractModule {
                 }
             });
     }
-}
 
+}

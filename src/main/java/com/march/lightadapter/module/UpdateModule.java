@@ -1,10 +1,6 @@
 package com.march.lightadapter.module;
 
-import android.support.v7.widget.RecyclerView;
-
 import com.march.lightadapter.LightAdapter;
-import com.march.lightadapter.LightHolder;
-import com.march.lightadapter.listener.OnHolderUpdateListener;
 
 import java.util.List;
 
@@ -16,14 +12,14 @@ import java.util.List;
  *
  * @author chendong
  */
-public class UpdateModule<D> extends AbstractModule<D> {
+public class UpdateModule<D> extends AbstractModule {
 
-    private int lastDataCount;
+    private int itemCount;
 
     @Override
-    public void onAttachAdapter(LightAdapter<D> adapter) {
+    public void onAttachAdapter(LightAdapter adapter) {
         super.onAttachAdapter(adapter);
-        refreshLastDataCount();
+        refreshItemCount();
     }
 
     public final void notifyDataSetChanged() {
@@ -100,45 +96,51 @@ public class UpdateModule<D> extends AbstractModule<D> {
     }
 
     private void notifyInUIThread(final Runnable action) {
-        if (!isAttachSuccess())
-            return;
-        post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    action.run();
-                    refreshLastDataCount();
-                } catch (Exception e) {
-                    e.printStackTrace();
+        if (mIsAttach) {
+            mAttachRecyclerView.post(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        action.run();
+                        refreshItemCount();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        });
-    }
-
-    public void notifyByHolder(int pos, OnHolderUpdateListener<D> onHolderUpdateListener) {
-        if (!isAttachSuccess()) return;
-        RecyclerView.ViewHolder findHolder = mAttachRecyclerView.findViewHolderForAdapterPosition(pos);
-        if (findHolder != null && findHolder instanceof LightHolder) {
-            LightHolder<D> holder = (LightHolder<D>) findHolder;
-            onHolderUpdateListener.onChanged(holder, holder.getData(), pos, false);
+            });
         }
     }
 
+
+    private boolean checkPosition(int pos) {
+        return mIsAttach
+                && pos >= 0
+                && pos < mAttachAdapter.getDatas().size();
+    }
+
+
+
+    @SuppressWarnings("unchecked")
+    private List<D> getDatas() {
+        return mAttachAdapter.getDatas();
+    }
+
     // 更新一项
-    public void set(final int pos, D data) {
-        if (!isSupportPos(pos))
-            return;
-        getDatas().set(pos, data);
-        notifyItemChanged(pos);
+    public void set(int pos, D data) {
+        if (checkPosition(pos)) {
+            getDatas().set(pos, data);
+            notifyItemChanged(pos);
+        }
     }
 
     // 清除数据
     public void clear() {
-        getDatas().clear();
+        mAttachAdapter.getDatas().clear();
         notifyDataSetChanged();
     }
 
     // 更新全部数据
+    @SuppressWarnings("unchecked")
     public void update(List<D> data) {
         mAttachAdapter.setDatas(data);
         notifyDataSetChanged();
@@ -149,32 +151,29 @@ public class UpdateModule<D> extends AbstractModule<D> {
         notifyDataSetChanged();
     }
 
+
     // 在尾部追加数据
+    @SuppressWarnings("unchecked")
     public void appendTailList(List<D> datas, boolean isAllData) {
         if (isAllData)
             mAttachAdapter.setDatas(datas);
         else
-            getDatas().addAll(datas);
-        notifyItemRangeInserted(lastDataCount + getAppendCount(), getDatas().size() - lastDataCount);
+            mAttachAdapter.getDatas().addAll(datas);
+        notifyItemRangeInserted(itemCount + (mAttachAdapter.isHasHeader() ? 1 : 0), getDatas().size() - itemCount);
     }
 
     // 在头部追加数据
+    @SuppressWarnings("unchecked")
     public void appendHeadList(List<D> datas, boolean isAllData) {
         if (isAllData)
             mAttachAdapter.setDatas(datas);
         else
             getDatas().addAll(0, datas);
-        notifyItemRangeInserted(0, getDatas().size() - lastDataCount);
+        notifyItemRangeInserted(0, getDatas().size() - itemCount);
     }
 
-    private void refreshLastDataCount() {
-        lastDataCount = getDatas().size();
+    private void refreshItemCount() {
+        itemCount = getDatas().size();
     }
 
-    private int getAppendCount() {
-        if (mAttachAdapter != null && mAttachAdapter.getHFModule() != null && mAttachAdapter.getHFModule().isFooterEnable()) {
-            return 1;
-        }
-        return 0;
-    }
 }

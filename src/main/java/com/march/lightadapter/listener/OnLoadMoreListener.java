@@ -1,6 +1,5 @@
 package com.march.lightadapter.listener;
 
-import com.march.lightadapter.module.LoadMoreModule;
 
 /**
  * CreateAt : 16/8/20
@@ -9,5 +8,5 @@ import com.march.lightadapter.module.LoadMoreModule;
  * @author chendong
  */
 public interface OnLoadMoreListener {
-    void onLoadMore(LoadMoreModule module);
+    void onLoadMore();
 }

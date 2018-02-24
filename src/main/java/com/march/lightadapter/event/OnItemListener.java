@@ -1,4 +1,4 @@
-package com.march.lightadapter.listener;
+package com.march.lightadapter.event;
 
 import com.march.lightadapter.LightHolder;
 
@@ -20,4 +20,6 @@ public interface OnItemListener<D> {
     void onDoubleClick(int pos, LightHolder holder, D data);
 
     boolean isSupportDoubleClick();
+
+    boolean isClickable(D data);
 }

@@ -5,7 +5,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 
-import com.march.lightadapter.listener.OnTopLoadMoreListener;
+import com.march.lightadapter.listener.OnLoadMoreListener;
 
 /**
  * Created by march on 16/6/8.
@@ -13,12 +13,12 @@ import com.march.lightadapter.listener.OnTopLoadMoreListener;
  */
 public class TopLoadMoreModule extends AbstractModule {
 
-    private OnTopLoadMoreListener mLoadMoreListener;
+    private OnLoadMoreListener mLoadMoreListener;
     private boolean mIsLoadingMore;
     private int preLoadNum = 0;
     private boolean isTopping;
 
-    public TopLoadMoreModule(int preLoadNum, OnTopLoadMoreListener mLoadMoreListener) {
+    public TopLoadMoreModule(int preLoadNum, OnLoadMoreListener mLoadMoreListener) {
         this.preLoadNum = preLoadNum;
         this.mLoadMoreListener = mLoadMoreListener;
     }
@@ -34,7 +34,7 @@ public class TopLoadMoreModule extends AbstractModule {
                     if (null != mLoadMoreListener && !mIsLoadingMore) {
                         if (isTopping) {
                             mIsLoadingMore = true;
-                            mLoadMoreListener.onLoadMore(TopLoadMoreModule.this);
+                            mLoadMoreListener.onLoadMore();
                         }
                     }
                 }
