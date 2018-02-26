@@ -81,6 +81,12 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     }
 
 
+    /**
+     * 无比需要调用该方法
+     * @param targetHost adapter 对象所在的类
+     * @param recyclerView RecyclerView
+     * @param layoutManager 对应 LayoutManager
+     */
     public void bind(Object targetHost, RecyclerView recyclerView, RecyclerView.LayoutManager layoutManager) {
         if (!mIsConfigInit) {
             AnnotationManager.parse2(targetHost, this);

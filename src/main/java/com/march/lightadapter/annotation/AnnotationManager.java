@@ -37,7 +37,9 @@ public class AnnotationManager {
 
     public static void parse2(Object target, LightAdapter adapter) {
         Field adapterField = getAdapterField(target);
+
         //////////////////////////////  -- LoadMore --  //////////////////////////////
+
         PreLoading loadMoreAnno = adapterField.getAnnotation(PreLoading.class);
         if (loadMoreAnno != null) {
             int bottomPreLoadNum = loadMoreAnno.bottom();
@@ -49,7 +51,9 @@ public class AnnotationManager {
                 adapter.addModule(new TopLoadMoreModule(topPreLoadNum));
             }
         }
+
         //////////////////////////////  -- Header Footer --  //////////////////////////////
+
         int headerLayoutId = 0, footerLayoutId = 0;
         Header headerAnno = adapterField.getAnnotation(Header.class);
         if (headerAnno != null) {
@@ -61,16 +65,24 @@ public class AnnotationManager {
         }
         if (headerLayoutId > 0 || footerLayoutId > 0) {
             adapter.addModule(new HFModule(adapter.getContext(), headerLayoutId, footerLayoutId));
+            adapter.addModule(new FullSpanModule());
         }
+
+        //////////////////////////////  -- full span --  //////////////////////////////
+
+        FullSpan fullSpan = adapterField.getAnnotation(FullSpan.class);
+        if (fullSpan != null) {
+            FullSpanModule fullSpanModule = new FullSpanModule();
+            int[] fullSpanTypes = fullSpan.value();
+            fullSpanModule.addFullSpanType(fullSpanTypes);
+            adapter.addModule(fullSpanModule);
+        }
+
+        //////////////////////////////  -- item type layout--  //////////////////////////////
 
         AdapterLayout itemTypeConfigAnno = adapterField.getAnnotation(AdapterLayout.class);
         if (itemTypeConfigAnno != null) {
-            //////////////////////////////  -- full span --  //////////////////////////////
-            FullSpanModule fullSpanModule = new FullSpanModule();
-            int[] fullSpanTypes = itemTypeConfigAnno.fullSpanTypes();
-            fullSpanModule.addFullSpanType(fullSpanTypes);
-            adapter.addModule(fullSpanModule);
-            //////////////////////////////  -- item type --  //////////////////////////////
+
             int itemLayoutId = itemTypeConfigAnno.value();
             if (itemLayoutId <= 0) {
                 itemLayoutId = itemTypeConfigAnno.itemLayoutId();
