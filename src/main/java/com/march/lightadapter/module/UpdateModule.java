@@ -1,6 +1,7 @@
-package com.march.lightadapter.delegate;
+package com.march.lightadapter.module;
 
 import com.march.lightadapter.LightAdapter;
+import com.march.lightadapter.module.AbstractModule;
 
 import java.util.List;
 
@@ -13,14 +14,9 @@ import java.util.List;
  *
  * @author chendong
  */
-public class UpdateDelegate<D> {
+public class UpdateModule<D> extends AbstractModule {
 
-    private LightAdapter<D> mAttachAdapter;
     private int itemCount;
-
-    public UpdateDelegate(LightAdapter<D> adapter) {
-        mAttachAdapter = adapter;
-    }
 
     public final void notifyDataSetChanged() {
         notifyInUIThread(new Runnable() {

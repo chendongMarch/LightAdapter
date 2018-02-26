@@ -183,9 +183,9 @@ public class HFModule extends AbstractModule {
         boolean isFooter = isFooterEnable() && viewType == LightAdapter.TYPE_FOOTER;
         boolean isHeader = isHeaderEnable() && viewType == LightAdapter.TYPE_HEADER;
         if (isFooter) {
-            mFooterHolder = holder = new LightHolder(mAttachAdapter.getContext(), footerView);
+            mFooterHolder = holder = new LightHolder(mAttachAdapter.getContext(), "footer-holder",footerView);
         } else if (isHeader) {
-            mHeaderHolder = holder = new LightHolder(mAttachAdapter.getContext(), headerView);
+            mHeaderHolder = holder = new LightHolder(mAttachAdapter.getContext(), "header-holder",headerView);
         }
         // 如果是StaggeredGridLayoutManager,放在创建ViewHolder里面来处理
         RecyclerView.LayoutManager layoutManager = mAttachRecyclerView.getLayoutManager();

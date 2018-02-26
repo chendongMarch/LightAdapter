@@ -4,7 +4,6 @@ import android.support.v7.widget.RecyclerView;
 
 import com.march.lightadapter.LightAdapter;
 import com.march.lightadapter.LightHolder;
-import com.march.lightadapter.helper.LightLogger;
 import com.march.lightadapter.listener.AdapterViewBinder;
 
 import java.util.ArrayList;
@@ -43,8 +42,13 @@ public class SelectManager<D> {
     }
 
     public void initSelect(int... initItems) {
-        for (Integer pos : initItems) {
-            if (pos != null && pos >= 0) {
+        if (initItems.length == 0) {
+            return;
+        }
+        if (mType == TYPE_SINGLE) {
+            mSelectDatas.add(mAdapter.getItem(initItems[0]));
+        } else {
+            for (int pos : initItems) {
                 D item = mAdapter.getItem(pos);
                 if (item != null) {
                     mSelectDatas.add(item);
@@ -62,7 +66,7 @@ public class SelectManager<D> {
     }
 
     // 不选中一个
-    public void unSelect(int pos) {
+    private void unSelect(int pos) {
         if (checkPosition(pos)) {
             if (mType == TYPE_MULTI) {
                 mSelectDatas.remove(getDatas().get(pos));
@@ -74,7 +78,7 @@ public class SelectManager<D> {
     }
 
     // 选中一个
-    public void doSelect(int pos) {
+    private void doSelect(int pos) {
         if (checkPosition(pos)) {
             if (mType == TYPE_MULTI) {
                 mSelectDatas.add(getDatas().get(pos));
@@ -87,7 +91,7 @@ public class SelectManager<D> {
     }
 
     // 切换，单选时去掉原来的，选中现在的，多选时，存在就去掉，不存在就添加
-    public void toggle(int pos) {
+    public void select(int pos) {
         D data = getDatas().get(pos);
         // 多选模式，存在就删除，不存在就添加，更新当前项
         if (mType == TYPE_MULTI) {
@@ -154,16 +158,10 @@ public class SelectManager<D> {
     private boolean updatePosUseHolder(int pos) {
         if (mAdapter == null || !checkPosition(pos))
             return false;
-        // 如果有header，传过来的位置是经过处理后的位置，即数据位置，返回真正的控件位置
-//        if (mAdapter. isHeaderEnable()) {
-//            pos = pos + 1;
-//            LightLogger.e(TAG, "传过来的位置是经过处理后的位置，即数据位置，返回真正的控件位置 = " + pos);
-//        }
-        RecyclerView.ViewHolder holder = mAdapter.getRecyclerView().findViewHolderForAdapterPosition(pos);
+        RecyclerView.ViewHolder holder = mAdapter.findViewHolderForAdapterPosition(pos);
         try {
-            if (holder != null && holder instanceof LightHolder) {
+            if (holder != null) {
                 LightHolder viewHolder = (LightHolder) holder;
-
                 if (mBinder != null && mAdapter.getItem(pos) != null) {
                     mBinder.onBindViewHolder(viewHolder, mAdapter.getItem(pos), pos, mAdapter.getItemViewType(pos));
                     return true;

@@ -13,19 +13,17 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface AdapterConfig {
+public @interface AdapterLayout {
+
+    /**
+     * @return 默认 item 资源ID
+     */
+    int value() default -1;
+
     /**
      * @return 默认 item 资源ID
      */
     int itemLayoutId() default -1;
-
-
-    int value() default -1;
-    /**
-     * @return 占据整行的类型
-     */
-    int[] fullSpanTypes() default {};
-
 
     /**
      * @return item type 数组
@@ -36,4 +34,9 @@ public @interface AdapterConfig {
      * @return item layout 资源数组
      */
     int[] itemLayoutIds() default {};
+
+    /**
+     * @return 占据整行的类型
+     */
+    int[] fullSpanTypes() default {};
 }

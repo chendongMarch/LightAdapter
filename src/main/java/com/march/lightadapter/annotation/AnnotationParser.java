@@ -63,7 +63,7 @@ public class AnnotationParser {
             adapter.addModule(new HFModule(adapter.getContext(), headerLayoutId, footerLayoutId));
         }
 
-        AdapterConfig itemTypeConfigAnno = adapterField.getAnnotation(AdapterConfig.class);
+        AdapterLayout itemTypeConfigAnno = adapterField.getAnnotation(AdapterLayout.class);
         if (itemTypeConfigAnno != null) {
             //////////////////////////////  -- full span --  //////////////////////////////
             FullSpanModule fullSpanModule = new FullSpanModule();

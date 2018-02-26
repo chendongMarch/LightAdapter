@@ -15,7 +15,7 @@ import com.march.lightadapter.event.SimpleItemListener;
 import com.march.lightadapter.helper.LightLogger;
 import com.march.lightadapter.event.OnItemListener;
 import com.march.lightadapter.listener.AdapterViewBinder;
-import com.march.lightadapter.delegate.UpdateDelegate;
+import com.march.lightadapter.module.UpdateModule;
 import com.march.lightadapter.model.ITypeModel;
 import com.march.lightadapter.model.TypeConfig;
 import com.march.lightadapter.module.AbstractModule;
@@ -63,8 +63,6 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     // 模块列表
     private Map<Class, AbstractModule> mModuleMap;
     private List<AdapterViewBinder<D>> mAdapterViewBinders;
-    // 数据更新代理
-    private UpdateDelegate<D> mUpdateManager;
 
     public LightAdapter(Context context, List<D> datas) {
         mContext = context;
@@ -80,6 +78,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         if (!mIsConfigInit) {
             AnnotationParser.parse2(targetHost, this);
             mIsConfigInit = true;
+            addModule(new UpdateModule<D>());
         }
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(this);
@@ -116,7 +115,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
             holder = getHFModule().onCreateViewHolder(parent, viewType);
         }
         if (holder == null) {
-            holder = new LightHolder(mContext, getInflateView(viewType, parent));
+            holder = new LightHolder(mContext, "normal-holder-" + viewType, getInflateView(viewType, parent));
             initItemEvent(holder);
             mHolderSet.add(holder);
         }
@@ -181,7 +180,9 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
             return getModelItemType(position);
     }
 
-
+    public LightHolder findViewHolderForAdapterPosition(int pos) {
+        return (LightHolder) mRecyclerView.findViewHolderForAdapterPosition(pos + (isHeaderEnable() ? 1 : 0));
+    }
     ///////////////////////////////////////////////////////////////////////////
     // 关于数据类型的相关方法
     ///////////////////////////////////////////////////////////////////////////
@@ -207,11 +208,9 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         }
     }
 
-    public UpdateDelegate<D> update() {
-        if (mUpdateManager == null) {
-            mUpdateManager = new UpdateDelegate<>(this);
-        }
-        return mUpdateManager;
+    @SuppressWarnings("unchecked")
+    public UpdateModule<D> update() {
+        return getModule(UpdateModule.class);
     }
 
     //////////////////////////////  -- 数据绑定 --  //////////////////////////////
@@ -321,7 +320,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
                 int position = mapPosition(holder.getAdapterPosition());
                 D item = getItem(position);
                 if (isClickable(item)) {
-                    onItemListener.onClick(pos, holder, item);
+                    onItemListener.onClick(position, holder, item);
                 }
             }
 
@@ -330,7 +329,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
                 int position = mapPosition(holder.getAdapterPosition());
                 D item = getItem(position);
                 if (isClickable(item)) {
-                    onItemListener.onLongPress(pos, holder, data);
+                    onItemListener.onLongPress(position, holder, data);
                 }
             }
 
@@ -339,7 +338,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
                 int position = mapPosition(holder.getAdapterPosition());
                 D item = getItem(position);
                 if (isClickable(item)) {
-                    onItemListener.onDoubleClick(pos, holder, data);
+                    onItemListener.onDoubleClick(position, holder, data);
                 }
             }
 

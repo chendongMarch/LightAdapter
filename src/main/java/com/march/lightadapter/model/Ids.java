@@ -1,4 +1,4 @@
-package com.march.lightadapter.binder;
+package com.march.lightadapter.model;
 
 /**
  * CreateAt : 2017.09.28
@@ -14,8 +14,11 @@ public class Ids {
         viewIds = resIds;
     }
 
-
     public int[] getViewIds() {
         return viewIds;
+    }
+
+    public static Ids all(int... resIds) {
+        return new Ids(resIds);
     }
 }
