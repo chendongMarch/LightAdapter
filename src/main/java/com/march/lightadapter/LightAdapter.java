@@ -10,11 +10,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.march.lightadapter.annotation.AnnotationParser;
+import com.march.lightadapter.annotation.AnnotationManager;
 import com.march.lightadapter.event.SimpleItemListener;
 import com.march.lightadapter.helper.LightLogger;
 import com.march.lightadapter.event.OnItemListener;
 import com.march.lightadapter.listener.AdapterViewBinder;
+import com.march.lightadapter.module.FullSpanModule;
 import com.march.lightadapter.module.UpdateModule;
 import com.march.lightadapter.model.ITypeModel;
 import com.march.lightadapter.model.TypeConfig;
@@ -23,6 +24,7 @@ import com.march.lightadapter.module.HFModule;
 import com.march.lightadapter.module.LoadMoreModule;
 import com.march.lightadapter.module.TopLoadMoreModule;
 
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -64,6 +66,11 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     private Map<Class, AbstractModule> mModuleMap;
     private List<AdapterViewBinder<D>> mAdapterViewBinders;
 
+    public LightAdapter(Context context, List<D> datas, int itemLayoutId) {
+        this(context, datas);
+        addType(TYPE_DEFAULT, itemLayoutId);
+    }
+
     public LightAdapter(Context context, List<D> datas) {
         mContext = context;
         mHolderSet = new HashSet<>();
@@ -76,7 +83,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
 
     public void bind(Object targetHost, RecyclerView recyclerView, RecyclerView.LayoutManager layoutManager) {
         if (!mIsConfigInit) {
-            AnnotationParser.parse2(targetHost, this);
+            AnnotationManager.parse2(targetHost, this);
             mIsConfigInit = true;
             addModule(new UpdateModule<D>());
         }
@@ -137,7 +144,6 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         }
     }
 
-
     public D getItem(int pos) {
         if (pos >= 0 && pos < mDatas.size()) {
             return mDatas.get(pos);
@@ -146,7 +152,6 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
             return null;
         }
     }
-
 
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
@@ -183,6 +188,8 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     public LightHolder findViewHolderForAdapterPosition(int pos) {
         return (LightHolder) mRecyclerView.findViewHolderForAdapterPosition(pos + (isHeaderEnable() ? 1 : 0));
     }
+
+
     ///////////////////////////////////////////////////////////////////////////
     // 关于数据类型的相关方法
     ///////////////////////////////////////////////////////////////////////////
@@ -287,6 +294,29 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         module.onAttachAdapter(this);
         mModuleMap.put(module.getClass(), module);
     }
+
+    public void configPreLoading(int top, int bottom) {
+        if (bottom >= 0) {
+            addModule(new LoadMoreModule(bottom));
+        }
+        if (top >= 0) {
+            addModule(new TopLoadMoreModule(top));
+        }
+    }
+
+    public void configHeaderFooter(int headerLayoutId, int footerLayoutId) {
+        if (headerLayoutId > 0 || footerLayoutId > 0) {
+            addModule(new HFModule(getContext(), headerLayoutId, footerLayoutId));
+            configFullSpan();
+        }
+    }
+
+    public void configFullSpan(int... fullSpanTypes) {
+        FullSpanModule fullSpanModule = new FullSpanModule();
+        fullSpanModule.addFullSpanType(fullSpanTypes);
+        addModule(fullSpanModule);
+    }
+
 
     public void addViewBinder(AdapterViewBinder<D> binder) {
         if (mAdapterViewBinders == null) {

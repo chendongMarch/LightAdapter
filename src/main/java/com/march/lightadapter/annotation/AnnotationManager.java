@@ -15,9 +15,9 @@ import java.lang.reflect.Field;
  *
  * @author chendong
  */
-public class AnnotationParser {
+public class AnnotationManager {
 
-    public static final String TAG = AnnotationParser.class.getSimpleName();
+    public static final String TAG = AnnotationManager.class.getSimpleName();
 
     private static Field getAdapterField(Object target) {
         Field[] fields = target.getClass().getDeclaredFields();
@@ -89,4 +89,5 @@ public class AnnotationParser {
             }
         }
     }
+
 }

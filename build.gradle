@@ -9,8 +9,7 @@ android {
 }
 
 dependencies {
-    compile rootProject.ext.google.appcompat_v7
-    compile rootProject.ext.google.design
+    compile "com.android.support:recyclerview-v7:25.3.0"
 }
 
 apply from: '../bintrayConfig.gradle'
