@@ -155,10 +155,10 @@ public class SelectManager<D> {
         if (mAdapter == null || !checkPosition(pos))
             return false;
         // 如果有header，传过来的位置是经过处理后的位置，即数据位置，返回真正的控件位置
-        if (mAdapter. isHeaderEnable()) {
-            pos = pos + 1;
-            LightLogger.e(TAG, "传过来的位置是经过处理后的位置，即数据位置，返回真正的控件位置 = " + pos);
-        }
+//        if (mAdapter. isHeaderEnable()) {
+//            pos = pos + 1;
+//            LightLogger.e(TAG, "传过来的位置是经过处理后的位置，即数据位置，返回真正的控件位置 = " + pos);
+//        }
         RecyclerView.ViewHolder holder = mAdapter.getRecyclerView().findViewHolderForAdapterPosition(pos);
         try {
             if (holder != null && holder instanceof LightHolder) {

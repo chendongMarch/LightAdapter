@@ -13,16 +13,7 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface LoadMore {
+public @interface Footer {
 
-    /**
-     * @return 顶部预加载更多，提前加载的项数
-     */
-    int top() default -1;
-
-    /**
-     * @return 底部预加载更多，提前加载的项数
-     */
-    int bottom() default -1;
-
+    int value() default -1;
 }

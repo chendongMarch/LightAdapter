@@ -15,14 +15,17 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AdapterConfig {
     /**
+     * @return 默认 item 资源ID
+     */
+    int itemLayoutId() default -1;
+
+
+    int value() default -1;
+    /**
      * @return 占据整行的类型
      */
     int[] fullSpanTypes() default {};
 
-    /**
-     * @return 默认 item 资源ID
-     */
-    int itemLayoutId() default -1;
 
     /**
      * @return item type 数组

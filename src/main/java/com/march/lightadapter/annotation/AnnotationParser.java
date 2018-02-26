@@ -38,7 +38,7 @@ public class AnnotationParser {
     public static void parse2(Object target, LightAdapter adapter) {
         Field adapterField = getAdapterField(target);
         //////////////////////////////  -- LoadMore --  //////////////////////////////
-        LoadMore loadMoreAnno = adapterField.getAnnotation(LoadMore.class);
+        PreLoading loadMoreAnno = adapterField.getAnnotation(PreLoading.class);
         if (loadMoreAnno != null) {
             int bottomPreLoadNum = loadMoreAnno.bottom();
             int topPreLoadNum = loadMoreAnno.top();
@@ -50,13 +50,17 @@ public class AnnotationParser {
             }
         }
         //////////////////////////////  -- Header Footer --  //////////////////////////////
-        HeaderFooter hfAnno = adapterField.getAnnotation(HeaderFooter.class);
-        if (hfAnno != null) {
-            int headerLayoutId = hfAnno.header();
-            int footerLayoutId = hfAnno.footer();
-            if (headerLayoutId > 0 || footerLayoutId > 0) {
-                adapter.addModule(new HFModule(adapter.getContext(), headerLayoutId, footerLayoutId));
-            }
+        int headerLayoutId = 0, footerLayoutId = 0;
+        Header headerAnno = adapterField.getAnnotation(Header.class);
+        if (headerAnno != null) {
+            headerLayoutId = headerAnno.value();
+        }
+        Footer footerAnno = adapterField.getAnnotation(Footer.class);
+        if (footerAnno != null) {
+            footerLayoutId = footerAnno.value();
+        }
+        if (headerLayoutId > 0 || footerLayoutId > 0) {
+            adapter.addModule(new HFModule(adapter.getContext(), headerLayoutId, footerLayoutId));
         }
 
         AdapterConfig itemTypeConfigAnno = adapterField.getAnnotation(AdapterConfig.class);
@@ -67,11 +71,14 @@ public class AnnotationParser {
             fullSpanModule.addFullSpanType(fullSpanTypes);
             adapter.addModule(fullSpanModule);
             //////////////////////////////  -- item type --  //////////////////////////////
-            int defItemLayoutId = itemTypeConfigAnno.itemLayoutId();
+            int itemLayoutId = itemTypeConfigAnno.value();
+            if (itemLayoutId <= 0) {
+                itemLayoutId = itemTypeConfigAnno.itemLayoutId();
+            }
             int[] itemTypes = itemTypeConfigAnno.itemTypes();
             int[] itemLayoutIds = itemTypeConfigAnno.itemLayoutIds();
-            if (defItemLayoutId > 0) {
-                adapter.addType(LightAdapter.TYPE_DEFAULT, defItemLayoutId);
+            if (itemLayoutId > 0) {
+                adapter.addType(LightAdapter.TYPE_DEFAULT, itemLayoutId);
             } else if (itemTypes.length != 0 && itemTypes.length == itemLayoutIds.length) {
                 for (int i = 0; i < itemTypes.length; i++) {
                     adapter.addType(itemTypes[i], itemLayoutIds[i]);
