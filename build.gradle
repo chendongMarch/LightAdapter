@@ -12,4 +12,7 @@ dependencies {
     compile "com.android.support:recyclerview-v7:25.3.0"
 }
 
-apply from: '../bintrayConfig.gradle'
+File file = file('../bintrayConfig.gradle')
+if(file.exists()){
+    apply from: "../bintrayConfig.gradle"
+}
