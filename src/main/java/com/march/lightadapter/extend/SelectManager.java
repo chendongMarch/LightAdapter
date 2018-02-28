@@ -32,6 +32,11 @@ public class SelectManager<D> {
     private List<D> mSelectDatas;
     private LightAdapter<D> mAdapter;
     private AdapterViewBinder<D> mBinder;
+    private CheckSelectListener<D> mCheckSelectListener;
+
+    public interface CheckSelectListener<D> {
+        boolean onSelect(boolean toSelect, D data);
+    }
 
     public SelectManager(LightAdapter<D> adapter, int type, AdapterViewBinder<D> binder) {
         mAdapter = adapter;
@@ -39,6 +44,10 @@ public class SelectManager<D> {
         mType = type;
         mBinder = binder;
         adapter.addViewBinder(mBinder);
+    }
+
+    public void setCheckSelectListener(CheckSelectListener<D> checkSelectListener) {
+        mCheckSelectListener = checkSelectListener;
     }
 
     public void initSelect(int... initItems) {
@@ -68,8 +77,12 @@ public class SelectManager<D> {
     // 不选中一个
     private void unSelect(int pos) {
         if (checkPosition(pos)) {
+            D data = getDatas().get(pos);
+            if (mCheckSelectListener != null && !mCheckSelectListener.onSelect(false, data)) {
+                return;
+            }
             if (mType == TYPE_MULTI) {
-                mSelectDatas.remove(getDatas().get(pos));
+                mSelectDatas.remove(data);
             } else if (mType == TYPE_SINGLE) {
                 mSelectDatas.clear();
             }
@@ -80,11 +93,15 @@ public class SelectManager<D> {
     // 选中一个
     private void doSelect(int pos) {
         if (checkPosition(pos)) {
+            D data = getDatas().get(pos);
+            if (mCheckSelectListener != null && !mCheckSelectListener.onSelect(true, data)) {
+                return;
+            }
             if (mType == TYPE_MULTI) {
-                mSelectDatas.add(getDatas().get(pos));
+                mSelectDatas.add(data);
             } else if (mType == TYPE_SINGLE) {
                 mSelectDatas.clear();
-                mSelectDatas.add(getDatas().get(pos));
+                mSelectDatas.add(data);
             }
             updatePos(pos);
         }

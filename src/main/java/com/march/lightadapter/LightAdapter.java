@@ -83,8 +83,9 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
 
     /**
      * 无比需要调用该方法
-     * @param targetHost adapter 对象所在的类
-     * @param recyclerView RecyclerView
+     *
+     * @param targetHost    adapter 对象所在的类
+     * @param recyclerView  RecyclerView
      * @param layoutManager 对应 LayoutManager
      */
     public void bind(Object targetHost, RecyclerView recyclerView, RecyclerView.LayoutManager layoutManager) {
@@ -157,6 +158,10 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
             LightLogger.e(TAG, "IndexOutBounds & pos = " + pos);
             return null;
         }
+    }
+
+    public D getRealItem(int pos) {
+        return getItem(pos + (isHeaderEnable() ? 1 : 0));
     }
 
     @Override
