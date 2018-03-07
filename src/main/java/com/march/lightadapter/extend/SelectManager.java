@@ -32,10 +32,13 @@ public class SelectManager<D> {
     private List<D> mSelectDatas;
     private LightAdapter<D> mAdapter;
     private AdapterViewBinder<D> mBinder;
-    private CheckSelectListener<D> mCheckSelectListener;
+    private OnSelectListener<D> mSelectListener;
 
-    public interface CheckSelectListener<D> {
-        boolean onSelect(boolean toSelect, D data);
+    public interface OnSelectListener<D> {
+
+        boolean onBeforeSelect(boolean toSelect, D data);
+
+        void onAfterSelect(boolean toSelect, D data);
     }
 
     public SelectManager(LightAdapter<D> adapter, int type, AdapterViewBinder<D> binder) {
@@ -46,8 +49,8 @@ public class SelectManager<D> {
         adapter.addViewBinder(mBinder);
     }
 
-    public void setCheckSelectListener(CheckSelectListener<D> checkSelectListener) {
-        mCheckSelectListener = checkSelectListener;
+    public void setSelectListener(OnSelectListener<D> selectListener) {
+        mSelectListener = selectListener;
     }
 
     public void initSelect(int... initItems) {
@@ -78,7 +81,7 @@ public class SelectManager<D> {
     private void unSelect(int pos) {
         if (checkPosition(pos)) {
             D data = getDatas().get(pos);
-            if (mCheckSelectListener != null && !mCheckSelectListener.onSelect(false, data)) {
+            if (mSelectListener != null && !mSelectListener.onBeforeSelect(false, data)) {
                 return;
             }
             if (mType == TYPE_MULTI) {
@@ -87,6 +90,9 @@ public class SelectManager<D> {
                 mSelectDatas.clear();
             }
             updatePos(pos);
+            if (mSelectListener != null) {
+                mSelectListener.onAfterSelect(false, data);
+            }
         }
     }
 
@@ -94,7 +100,7 @@ public class SelectManager<D> {
     private void doSelect(int pos) {
         if (checkPosition(pos)) {
             D data = getDatas().get(pos);
-            if (mCheckSelectListener != null && !mCheckSelectListener.onSelect(true, data)) {
+            if (mSelectListener != null && !mSelectListener.onBeforeSelect(true, data)) {
                 return;
             }
             if (mType == TYPE_MULTI) {
@@ -104,6 +110,9 @@ public class SelectManager<D> {
                 mSelectDatas.add(data);
             }
             updatePos(pos);
+            if (mSelectListener != null) {
+                mSelectListener.onAfterSelect(true, data);
+            }
         }
     }
 
@@ -163,6 +172,10 @@ public class SelectManager<D> {
             return mSelectDatas.get(0);
         }
         return null;
+    }
+
+    public void setSelectDatas(List<D> selectDatas) {
+        mSelectDatas = selectDatas;
     }
 
     public List<D> getResults() {
