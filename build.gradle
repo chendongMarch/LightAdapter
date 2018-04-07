@@ -1,15 +1,11 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '25.0.3'
-    defaultConfig {
-        minSdkVersion 15
-    }
+    compileSdkVersion 26
 }
 
 dependencies {
-    compile "com.android.support:recyclerview-v7:25.3.0"
+    api rootProject.ext.google.recyclerView_v7
 }
 
 File file = file('../bintrayConfig.gradle')
