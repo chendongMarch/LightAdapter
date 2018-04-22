@@ -118,6 +118,9 @@ public class SelectManager<D> {
 
     // 切换，单选时去掉原来的，选中现在的，多选时，存在就去掉，不存在就添加
     public void select(int pos) {
+        if (!checkPosition(pos)) {
+            return;
+        }
         D data = getDatas().get(pos);
         // 多选模式，存在就删除，不存在就添加，更新当前项
         if (mType == TYPE_MULTI) {
