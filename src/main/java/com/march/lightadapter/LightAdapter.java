@@ -10,12 +10,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.march.lightadapter.annotation.AnnotationManager;
-import com.march.lightadapter.event.SimpleItemListener;
+import com.march.lightadapter.annotation.AdapterInstaller;
+import com.march.lightadapter.listener.SimpleItemListener;
 import com.march.lightadapter.helper.LightLogger;
-import com.march.lightadapter.event.OnItemListener;
+import com.march.lightadapter.listener.OnItemListener;
 import com.march.lightadapter.listener.AdapterViewBinder;
-import com.march.lightadapter.module.FullSpanModule;
+import com.march.lightadapter.annotation.AdapterConfig;
 import com.march.lightadapter.module.UpdateModule;
 import com.march.lightadapter.model.ITypeModel;
 import com.march.lightadapter.model.TypeConfig;
@@ -24,7 +24,6 @@ import com.march.lightadapter.module.HFModule;
 import com.march.lightadapter.module.LoadMoreModule;
 import com.march.lightadapter.module.TopLoadMoreModule;
 
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,6 +64,8 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     // 模块列表
     private Map<Class, AbstractModule> mModuleMap;
     private List<AdapterViewBinder<D>> mAdapterViewBinders;
+    private AdapterConfig mAdapterConfig;
+
 
     public LightAdapter(Context context, List<D> datas, int itemLayoutId) {
         this(context, datas);
@@ -80,23 +81,6 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         mModuleMap = new HashMap<>();
     }
 
-
-    /**
-     * 无比需要调用该方法
-     *
-     * @param targetHost    adapter 对象所在的类
-     * @param recyclerView  RecyclerView
-     * @param layoutManager 对应 LayoutManager
-     */
-    public void bind(Object targetHost, RecyclerView recyclerView, RecyclerView.LayoutManager layoutManager) {
-        if (!mIsConfigInit) {
-            AnnotationManager.parse2(targetHost, this);
-            mIsConfigInit = true;
-            addModule(new UpdateModule<D>());
-        }
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(this);
-    }
 
     public Set<LightHolder> getHolderSet() {
         return mHolderSet;
@@ -264,7 +248,6 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         }
     }
 
-
     //////////////////////////////  -- Header & Footer --  //////////////////////////////
 
     private HFModule getHFModule() {
@@ -306,28 +289,6 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         mModuleMap.put(module.getClass(), module);
     }
 
-    public void configPreLoading(int top, int bottom) {
-        if (bottom >= 0) {
-            addModule(new LoadMoreModule(bottom));
-        }
-        if (top >= 0) {
-            addModule(new TopLoadMoreModule(top));
-        }
-    }
-
-    public void configHeaderFooter(int headerLayoutId, int footerLayoutId) {
-        if (headerLayoutId > 0 || footerLayoutId > 0) {
-            addModule(new HFModule(getContext(), headerLayoutId, footerLayoutId));
-            configFullSpan();
-        }
-    }
-
-    public void configFullSpan(int... fullSpanTypes) {
-        FullSpanModule fullSpanModule = new FullSpanModule();
-        fullSpanModule.addFullSpanType(fullSpanTypes);
-        addModule(fullSpanModule);
-    }
-
 
     public void addViewBinder(AdapterViewBinder<D> binder) {
         if (mAdapterViewBinders == null) {
@@ -350,17 +311,27 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         return isHeaderEnable() ? pos - 1 : pos;
     }
 
+    public void setAdapterConfig(AdapterConfig adapterConfig) {
+        mAdapterConfig = adapterConfig;
+    }
+
+    public int getModeType(D data) {
+        if (data instanceof ITypeModel) {
+            return ((ITypeModel) data).getModelType();
+        } else {
+            return TYPE_DEFAULT;
+        }
+    }
 
     //////////////////////////////  -- 事件 --  //////////////////////////////
 
     public void setOnItemListener(final OnItemListener<D> onItemListener) {
         this.mOnItemListener = new SimpleItemListener<D>() {
-
             @Override
             public void onClick(int pos, LightHolder holder, D data) {
                 int position = mapPosition(holder.getAdapterPosition());
                 D item = getItem(position);
-                if (isClickable(item)) {
+                if (!mAdapterConfig.isDisableType(getModeType(item))) {
                     onItemListener.onClick(position, holder, item);
                 }
             }
@@ -369,7 +340,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
             public void onLongPress(int pos, LightHolder holder, D data) {
                 int position = mapPosition(holder.getAdapterPosition());
                 D item = getItem(position);
-                if (isClickable(item)) {
+                if (!mAdapterConfig.isDisableType(getModeType(item))) {
                     onItemListener.onLongPress(position, holder, data);
                 }
             }
@@ -378,19 +349,9 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
             public void onDoubleClick(int pos, LightHolder holder, D data) {
                 int position = mapPosition(holder.getAdapterPosition());
                 D item = getItem(position);
-                if (isClickable(item)) {
+                if (!mAdapterConfig.isDisableType(getModeType(item))) {
                     onItemListener.onDoubleClick(position, holder, data);
                 }
-            }
-
-            @Override
-            public boolean isSupportDoubleClick() {
-                return onItemListener.isSupportDoubleClick();
-            }
-
-            @Override
-            public boolean isClickable(D data) {
-                return onItemListener.isClickable(data);
             }
         };
     }
@@ -401,7 +362,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
-                if (mOnItemListener != null && mOnItemListener.isSupportDoubleClick()) {
+                if (mOnItemListener != null && mAdapterConfig.isDbClick()) {
                     mOnItemListener.onClick(0, holder, null);
                 }
                 return super.onSingleTapConfirmed(e);
@@ -409,7 +370,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
 
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
-                if (mOnItemListener != null && !mOnItemListener.isSupportDoubleClick()) {
+                if (mOnItemListener != null && !mAdapterConfig.isDbClick()) {
                     mOnItemListener.onClick(0, holder, null);
                 }
                 return super.onSingleTapUp(e);
@@ -434,7 +395,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         itemView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (mOnItemListener != null && mOnItemListener.isSupportDoubleClick()) {
+                if (mOnItemListener != null && mAdapterConfig.isDbClick()) {
                     gestureDetector.onTouchEvent(motionEvent);
                     return true;
                 } else {
@@ -446,7 +407,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mOnItemListener != null && !mOnItemListener.isSupportDoubleClick()) {
+                if (mOnItemListener != null && !mAdapterConfig.isDbClick()) {
                     mOnItemListener.onClick(0, holder, null);
                 }
             }
@@ -455,7 +416,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                if (mOnItemListener != null && !mOnItemListener.isSupportDoubleClick()) {
+                if (mOnItemListener != null && !mAdapterConfig.isDbClick()) {
                     mOnItemListener.onLongPress(0, holder, null);
                 }
                 return true;
