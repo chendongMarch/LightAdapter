@@ -34,9 +34,4 @@ public @interface AdapterLayout {
      * @return item layout 资源数组
      */
     int[] itemLayoutIds() default {};
-
-    /**
-     * @return 占据整行的类型
-     */
-    int[] fullSpanTypes() default {};
 }

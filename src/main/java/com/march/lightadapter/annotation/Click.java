@@ -13,10 +13,9 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Header {
+public @interface Click {
 
-    /**
-     * @return header layout 资源
-     */
-    int value() default -1;
+    boolean dbClick() default false;
+
+    int[] disableTypes() default {};
 }

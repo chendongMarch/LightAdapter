@@ -14,6 +14,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface FullSpan {
+
     /**
      * @return 占据整行的类型
      */

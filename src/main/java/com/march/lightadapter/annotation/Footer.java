@@ -15,5 +15,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Footer {
 
+    /**
+     * @return footer layout 资源
+     */
     int value() default -1;
 }
