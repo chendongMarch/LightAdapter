@@ -1,9 +1,8 @@
-package com.march.lightadapter.event;
+package com.march.lightadapter.listener;
 
-//import com.march.lightadapter.core.ViewHolder;
 
 import com.march.lightadapter.LightHolder;
-import com.march.lightadapter.event.OnItemListener;
+import com.march.lightadapter.listener.OnItemListener;
 
 /**
  * CreateAt : 2016/11/9
@@ -26,15 +25,5 @@ public abstract class SimpleItemListener<D> implements OnItemListener<D> {
     @Override
     public void onDoubleClick(int pos, LightHolder holder, D data) {
 
-    }
-
-    @Override
-    public boolean isSupportDoubleClick() {
-        return false;
-    }
-
-    @Override
-    public boolean isClickable(D data) {
-        return true;
     }
 }
