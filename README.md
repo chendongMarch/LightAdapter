@@ -1,4 +1,4 @@
-![img](http://olx4t2q6z.bkt.clouddn.com/18-2-6/27323356.jpg)
+![img](./backup/banner.jpg)
 
 `LightAdapter` 的设计初衷是能够快速、简单的完成 `RecyclerView` 的数据适配工作，同时也对使用过程中的一些常用功能进行了扩展和封装。
 
