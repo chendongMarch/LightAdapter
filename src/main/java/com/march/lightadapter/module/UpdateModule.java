@@ -1,5 +1,7 @@
 package com.march.lightadapter.module;
 
+import android.support.v7.util.DiffUtil;
+
 import com.march.lightadapter.LightAdapter;
 import com.march.lightadapter.module.AbstractModule;
 

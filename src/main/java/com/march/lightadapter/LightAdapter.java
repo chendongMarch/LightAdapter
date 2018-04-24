@@ -81,7 +81,6 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         mModuleMap = new HashMap<>();
     }
 
-
     public Set<LightHolder> getHolderSet() {
         return mHolderSet;
     }

@@ -1,14 +1,24 @@
 apply plugin: 'com.android.library'
+apply plugin: 'bintray-release'
+
+// project/build.gradle
+// apply from: 'https://coding.net/u/devlab/p/Resource/git/raw/master/android/project.gradle'
+def libs = rootProject.ext.libs
+def version = rootProject.ext.version
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion version.compileSdkVersion
 }
 
 dependencies {
-    api rootProject.ext.google.recyclerView_v7
+    api libs.recyclerView_v7
 }
 
-File file = file('../bintrayConfig.gradle')
-if(file.exists()){
-    apply from: "../bintrayConfig.gradle"
+publish {
+    userOrg = 'chendongmarch'
+    groupId = 'com.github.chendongMarch'
+    artifactId = 'lightadapter'
+    publishVersion = '0.0.5'
+    desc = 'Java Recyclerview Library'
+    website = 'https://github.com/chendongMarch/LightAdapter'
 }
