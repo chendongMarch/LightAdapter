@@ -1,4 +1,4 @@
-package com.march.lightadapter.annotation;
+package com.march.lightadapter.inject;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -13,10 +13,16 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface FullSpan {
+public @interface PreLoading {
 
     /**
-     * @return 占据整行的类型
+     * @return 顶部预加载更多，提前加载的项数
      */
-    int[] value() default {};
+    int top() default -1;
+
+    /**
+     * @return 底部预加载更多，提前加载的项数
+     */
+    int bottom() default -1;
+
 }

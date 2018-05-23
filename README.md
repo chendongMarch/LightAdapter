@@ -58,24 +58,24 @@
 
 适配器的配置使用注解来完成，但是由于 `Library Module` 中资源 `ID` 无法作为注解的参数，所以所有的配置项统一由 `AdapterConfig` 来管理，每个注解在 `AdapterConfig` 中都有对应的配置项，当无法使用注解时，可以使用这些方法，建议优先使用注解。
 
-使用注解配置时，需要使用 `AdapterInstaller` 初始化, 其中 `targetHost` 为 `Adapter` 所在的类，用来解析注解
+使用注解配置时，需要使用 `AdapterInjector` 初始化, 其中 `targetHost` 为 `Adapter` 所在的类，用来解析注解
 
 ```java
 initAdapter(LightAdapter adapter, Object targetHost,
             RecyclerView recyclerView, RecyclerView.LayoutManager layoutManager)
 
 eg:
-AdapterInstaller.initAdapter(mAdapter, AdapterHomeActivity.this, mRv, LightManager.vLinear(getContext()));
+AdapterInjector.initAdapter(mAdapter, AdapterHomeActivity.this, mRv, LightManager.vLinear(getContext()));
 ```
 
-使用 `AdapterConfig` 配置时，同样需要使用 `AdapterInstaller` 初始化
+使用 `AdapterConfig` 配置时，同样需要使用 `AdapterInjector` 初始化
 
 ```java
 initAdapter(LightAdapter adapter, AdapterConfig config,
             RecyclerView recyclerView, RecyclerView.LayoutManager layoutManager)
 ```
 
-设计上 `AdapterInstaller` 强制了参数 `RecyclerView` 和 `LayuotManager`, 内部会完成如下操作，一方面为了简化代码另一方面也是为了防止忘记设置 `LayoutManager` 的情况（我就经常忘记😂）
+设计上 `AdapterInjector` 强制了参数 `RecyclerView` 和 `LayuotManager`, 内部会完成如下操作，一方面为了简化代码另一方面也是为了防止忘记设置 `LayoutManager` 的情况（我就经常忘记😂）
 
 ```java
 recyclerView.setLayoutManager(layoutManager);

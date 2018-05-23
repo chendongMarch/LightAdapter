@@ -10,19 +10,18 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.march.lightadapter.annotation.AdapterInstaller;
-import com.march.lightadapter.listener.SimpleItemListener;
 import com.march.lightadapter.helper.LightLogger;
-import com.march.lightadapter.listener.OnItemListener;
+import com.march.lightadapter.inject.AdapterConfig;
 import com.march.lightadapter.listener.AdapterViewBinder;
-import com.march.lightadapter.annotation.AdapterConfig;
-import com.march.lightadapter.module.UpdateModule;
+import com.march.lightadapter.listener.OnItemListener;
+import com.march.lightadapter.listener.SimpleItemListener;
 import com.march.lightadapter.model.ITypeModel;
 import com.march.lightadapter.model.TypeConfig;
 import com.march.lightadapter.module.AbstractModule;
 import com.march.lightadapter.module.HFModule;
 import com.march.lightadapter.module.LoadMoreModule;
 import com.march.lightadapter.module.TopLoadMoreModule;
+import com.march.lightadapter.module.UpdateModule;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,12 +40,12 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
 
     public static final String TAG = LightAdapter.class.getSimpleName();
 
-    public static final int UNSET = -100;
-    public static final int TYPE_HEADER = -1;
-    public static final int TYPE_FOOTER = -2;
-    public static final int TYPE_DEFAULT = 0;
+    public static final int UNSET        = -100;
+    public static final int TYPE_HEADER  = -1;
+    public static final int TYPE_FOOTER  = -2;
+    public static final int TYPE_DEFAULT = -3;
+    public static final int TYPE_EMPTY   = -4;
 
-    private boolean mIsConfigInit;
     // View
     private RecyclerView mRecyclerView;
     // 上下文
@@ -224,7 +223,9 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     public void onBindFooterView(LightHolder holder) {
     }
 
+    public void onBindEmptyView(LightHolder holder) {
 
+    }
     //////////////////////////////  -- LoadMore --  //////////////////////////////
 
     public void onTopLoadMore() {

@@ -1,10 +1,5 @@
 package com.march.lightadapter.module;
 
-import android.support.v7.util.DiffUtil;
-
-import com.march.lightadapter.LightAdapter;
-import com.march.lightadapter.module.AbstractModule;
-
 import java.util.List;
 
 /**
@@ -110,6 +105,16 @@ public class UpdateModule<D> extends AbstractModule {
             getDatas().set(pos, data);
             notifyItemChanged(pos);
         }
+    }
+
+    // 更新一项
+    public void add(D data) {
+//        getDatas().add(data);
+//        notifyItemRangeInserted();
+//        if (checkPosition(pos)) {
+//            getDatas().set(pos, data);
+//            notifyItemChanged(pos);
+//        }
     }
 
     // 清除数据

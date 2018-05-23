@@ -1,9 +1,15 @@
-package com.march.lightadapter.annotation;
+package com.march.lightadapter;
 
 import android.support.v7.widget.RecyclerView;
 
-import com.march.lightadapter.LightAdapter;
 import com.march.lightadapter.helper.LightLogger;
+import com.march.lightadapter.inject.AdapterConfig;
+import com.march.lightadapter.inject.AdapterLayout;
+import com.march.lightadapter.inject.Click;
+import com.march.lightadapter.inject.Footer;
+import com.march.lightadapter.inject.FullSpan;
+import com.march.lightadapter.inject.Header;
+import com.march.lightadapter.inject.PreLoading;
 import com.march.lightadapter.module.FullSpanModule;
 import com.march.lightadapter.module.HFModule;
 import com.march.lightadapter.module.LoadMoreModule;
@@ -14,13 +20,13 @@ import java.lang.reflect.Field;
 
 /**
  * CreateAt : 2018/2/24
- * Describe :
+ * Describe : 向 adapter 中注入配置
  *
  * @author chendong
  */
-public class AdapterInstaller {
+public class LightInjector {
 
-    private static final String TAG = AdapterInstaller.class.getSimpleName();
+    private static final String TAG = LightInjector.class.getSimpleName();
 
     private static Field getAdapterField(Object target, Object current) {
         Field[] fields = target.getClass().getDeclaredFields();

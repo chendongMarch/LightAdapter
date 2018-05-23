@@ -1,4 +1,4 @@
-package com.march.lightadapter.annotation;
+package com.march.lightadapter.inject;
 
 /**
  * CreateAt : 2018/4/22

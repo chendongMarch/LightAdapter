@@ -1,4 +1,4 @@
-package com.march.lightadapter.annotation;
+package com.march.lightadapter.inject;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
