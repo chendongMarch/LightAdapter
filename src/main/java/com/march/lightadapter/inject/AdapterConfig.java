@@ -12,6 +12,9 @@ public class AdapterConfig {
         return new AdapterConfig();
     }
 
+    private AdapterConfig() {
+
+    }
     private int itemLayoutId;
     private int[] itemTypes;
     private int[] itemLayoutIds;
