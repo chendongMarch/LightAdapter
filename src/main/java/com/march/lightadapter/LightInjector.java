@@ -28,6 +28,7 @@ public class LightInjector {
 
     private static final String TAG = LightInjector.class.getSimpleName();
 
+
     private static Field getAdapterField(Object target, Object current) {
         Field[] fields = target.getClass().getDeclaredFields();
         // find field
@@ -39,8 +40,8 @@ public class LightInjector {
                     Object obj = field.get(target);
                     if (obj != null && obj.hashCode() == current.hashCode()) {
                         adapterField = field;
+                        break;
                     }
-                    break;
                 }
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
@@ -52,9 +53,13 @@ public class LightInjector {
         return adapterField;
     }
 
+
     private static AdapterConfig parseAnnotation(Object host, LightAdapter adapter) {
         Field field = getAdapterField(host, adapter);
+        return makeAdapterConfig(field);
+    }
 
+    private static AdapterConfig makeAdapterConfig(Field field) {
         AdapterConfig config = AdapterConfig.newConfig();
         PreLoading preLoadingAnno = field.getAnnotation(PreLoading.class);
         if (preLoadingAnno != null) {

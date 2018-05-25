@@ -8,6 +8,8 @@ package com.march.lightadapter.inject;
  */
 public class AdapterConfig {
 
+    public static final int[] ARRAY = new int[]{};
+
     public static AdapterConfig newConfig() {
         return new AdapterConfig();
     }
@@ -15,11 +17,12 @@ public class AdapterConfig {
     private AdapterConfig() {
 
     }
+
     private int itemLayoutId;
-    private int[] itemTypes;
+    private int[] itemTypes = ARRAY;
     private int[] itemLayoutIds;
 
-    private int[] fullSpanTypes;
+    private int[] fullSpanTypes = ARRAY;
 
     private int footerLayoutId;
     private int headerLayoutId;
@@ -28,7 +31,7 @@ public class AdapterConfig {
     private int preloadTopNum;
 
     private boolean dbClick;
-    private int[] disableClickTypes;
+    private int[] disableClickTypes = ARRAY;
 
     public int getItemLayoutId() {
         return itemLayoutId;
