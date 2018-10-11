@@ -1,4 +1,4 @@
-package com.zfy.component.basic.arch;
+package com.zfy.component.basic.arch.model;
 
 import com.march.common.able.Destroyable;
 

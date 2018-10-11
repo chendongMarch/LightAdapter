@@ -1,6 +1,6 @@
 package com.zfy.component.basic.arch.mvp.presenter;
 
-import com.zfy.component.basic.arch.IRepository;
+import com.zfy.component.basic.arch.model.IRepository;
 import com.zfy.component.basic.arch.mvp.IMvpView;
 
 /**
@@ -11,7 +11,7 @@ import com.zfy.component.basic.arch.mvp.IMvpView;
  */
 public abstract class RepositoryMvpPresenter<R extends IRepository, V extends IMvpView> extends MvpPresenter<V> {
 
-    protected IRepository mRepository;
+    protected R mRepository;
 
     public RepositoryMvpPresenter() {
         try {

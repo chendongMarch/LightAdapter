@@ -26,12 +26,12 @@ import com.zfy.component.basic.arch.mvvm.IBindingView;
  *
  * @author chendong
  */
-public class MvvmDelegate<VM extends BaseViewModel, VDB extends ViewDataBinding> extends AppDelegate implements IBindingView<VM, VDB> {
+public class MvvmDelegate<VideoModel extends BaseViewModel, VDB extends ViewDataBinding> extends AppDelegate implements IBindingView<VideoModel, VDB> {
 
     public static final String TAG = MvvmDelegate.class.getSimpleName();
 
-    private VM mViewModel;
-    private VDB mBinding;
+    private VideoModel mViewModel;
+    private VDB        mBinding;
 
     private <T extends LifecycleOwner> void attach(T obj) {
         ComponentX.inject(obj);
@@ -41,13 +41,18 @@ public class MvvmDelegate<VM extends BaseViewModel, VDB extends ViewDataBinding>
         if (obj instanceof IViewInit && ((IViewInit) obj).getViewConfig() != null) {
             mViewConfig = ((IViewInit) obj).getViewConfig();
         } else {
-            com.zfy.component.basic.arch.mvvm.app.VM annotation = mHost.getClass().getAnnotation(com.zfy.component.basic.arch.mvvm.app.VM.class);
-            int layout = annotation.layout();
-            Class vm = annotation.vm();
-            int vmId = annotation.vmId();
-            if (layout != 0) {
-                mViewConfig = ViewConfig.makeMvvm(layout, vmId, vm);
+            VM annotation = mHost.getClass().getAnnotation(VM.class);
+            if (annotation != null) {
+                int layout = annotation.layout();
+                Class vm = annotation.vm();
+                int vmId = annotation.vmId();
+                if (layout != 0) {
+                    mViewConfig = ViewConfig.makeMvvm(layout, vmId, vm);
+                }
             }
+        }
+        if (mViewConfig == null) {
+            throw new IllegalStateException("require ViewConfig");
         }
     }
 
@@ -55,6 +60,7 @@ public class MvvmDelegate<VM extends BaseViewModel, VDB extends ViewDataBinding>
     public View bindFragment(LifecycleOwner owner, LayoutInflater inflater, ViewGroup container) {
         attach(owner);
         mBinding = DataBindingUtil.inflate(inflater, mViewConfig.getLayout(), container, false);
+        bindViewAndEvent(mBinding.getRoot());
         init();
         return mBinding.getRoot();
     }
@@ -63,6 +69,7 @@ public class MvvmDelegate<VM extends BaseViewModel, VDB extends ViewDataBinding>
     public void bindActivity(LifecycleOwner owner) {
         attach(owner);
         mBinding = DataBindingUtil.setContentView(((Activity) owner), mViewConfig.getLayout());
+        bindViewAndEvent(null);
         init();
     }
 
@@ -85,10 +92,10 @@ public class MvvmDelegate<VM extends BaseViewModel, VDB extends ViewDataBinding>
 
     // 创建 ViewModel 并绑定到生命周期
     @SuppressWarnings("unchecked")
-    private VM makeViewModel(Class clazz) {
+    private VideoModel makeViewModel(Class clazz) {
         if (mHost instanceof FragmentActivity) {
             FragmentActivity activity = (FragmentActivity) mHost;
-            VM viewModel = (VM) ViewModelProviders.of(activity).get(clazz);
+            VideoModel viewModel = (VideoModel) ViewModelProviders.of(activity).get(clazz);
             addObserver(viewModel);
             viewModel.init();
             return viewModel;
@@ -98,7 +105,7 @@ public class MvvmDelegate<VM extends BaseViewModel, VDB extends ViewDataBinding>
 
 
     @Override
-    public VM viewModel() {
+    public VideoModel viewModel() {
         return mViewModel;
     }
 

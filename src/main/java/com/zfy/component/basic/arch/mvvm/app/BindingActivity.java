@@ -13,7 +13,7 @@ import com.zfy.component.basic.arch.mvvm.IBindingView;
  *
  * @author chendong
  */
-public class BindingActivity<VM extends BaseViewModel, VDB extends ViewDataBinding>
+public abstract class BindingActivity<VM extends BaseViewModel, VDB extends ViewDataBinding>
         extends AppActivity
         implements IBindingView<VM, VDB> {
 
@@ -38,4 +38,5 @@ public class BindingActivity<VM extends BaseViewModel, VDB extends ViewDataBindi
     public AppDelegate getAppDelegate() {
         return mDelegate;
     }
+
 }

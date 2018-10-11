@@ -37,11 +37,16 @@ public class MvpDelegate<P extends IMvpPresenter> extends AppDelegate implements
             mViewConfig = ((IViewInit) obj).getViewConfig();
         } else {
             MvpV annotation = mHost.getClass().getAnnotation(MvpV.class);
-            int layout = annotation.layout();
-            Class pClazz = annotation.p();
-            if (layout != 0) {
-                mViewConfig = ViewConfig.makeMvp(layout, pClazz);
+            if (annotation != null) {
+                int layout = annotation.layout();
+                Class pClazz = annotation.p();
+                if (layout != 0) {
+                    mViewConfig = ViewConfig.makeMvp(layout, pClazz);
+                }
             }
+        }
+        if (mViewConfig == null) {
+            throw new IllegalStateException("require ViewConfig");
         }
     }
 
@@ -52,6 +57,7 @@ public class MvpDelegate<P extends IMvpPresenter> extends AppDelegate implements
         }
         attach(owner);
         View inflate = inflater.inflate(mViewConfig.getLayout(), container, false);
+        bindViewAndEvent(inflate);
         init();
         return inflate;
 
@@ -65,6 +71,7 @@ public class MvpDelegate<P extends IMvpPresenter> extends AppDelegate implements
         }
         attach(owner);
         ((AppActivity) mHost).setContentView(mViewConfig.getLayout());
+        bindViewAndEvent(null);
         init();
     }
 

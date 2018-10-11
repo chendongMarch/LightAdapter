@@ -1,8 +1,9 @@
-package com.zfy.component.basic;
+package com.zfy.component.basic.arch;
 
 import android.app.Application;
 
 import com.march.common.Common;
+import com.zfy.component.basic.ComponentX;
 
 /**
  * CreateAt : 2018/9/11

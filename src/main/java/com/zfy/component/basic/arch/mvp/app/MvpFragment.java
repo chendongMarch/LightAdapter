@@ -11,7 +11,7 @@ import com.zfy.component.basic.arch.mvp.IMvpView;
  *
  * @author chendong
  */
-public class MvpFragment<P extends IMvpPresenter> extends AppFragment implements IMvpView<P> {
+public abstract class MvpFragment<P extends IMvpPresenter> extends AppFragment implements IMvpView<P> {
 
     protected MvpDelegate<P> mDelegate = new MvpDelegate<>();
 

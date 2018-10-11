@@ -15,6 +15,8 @@ import com.zfy.component.basic.arch.base.IElegantView;
 import com.zfy.component.basic.arch.base.IViewInit;
 import com.zfy.component.basic.arch.base.ViewConfig;
 
+import org.greenrobot.eventbus.Subscribe;
+
 /**
  * CreateAt : 2018/10/11
  * Describe :
@@ -31,13 +33,6 @@ public abstract class AppFragment extends Fragment implements IElegantView, IVie
         mContentView = getAppDelegate().bindFragment(this, inflater, container);
         init();
         return mContentView;
-    }
-
-    // base view
-
-    @Override
-    public void init() {
-
     }
 
 
@@ -74,5 +69,9 @@ public abstract class AppFragment extends Fragment implements IElegantView, IVie
         if (getAppDelegate() != null) {
             getAppDelegate().onDestroy();
         }
+    }
+    @Subscribe
+    public void ignoreEvent(AppDelegate thiz) {
+
     }
 }

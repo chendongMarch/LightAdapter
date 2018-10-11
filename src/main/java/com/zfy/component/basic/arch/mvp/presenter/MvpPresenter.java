@@ -27,4 +27,8 @@ public abstract class MvpPresenter<V extends IMvpView> implements IMvpPresenter<
     }
 
 
+    @Override
+    public void init() {
+
+    }
 }

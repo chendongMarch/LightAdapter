@@ -12,6 +12,9 @@ import com.zfy.component.basic.arch.base.IBaseView;
 import com.zfy.component.basic.arch.base.IElegantView;
 import com.zfy.component.basic.arch.base.IViewInit;
 import com.zfy.component.basic.arch.base.ViewConfig;
+import com.zfy.component.basic.foundation.Api;
+
+import org.greenrobot.eventbus.Subscribe;
 
 /**
  * CreateAt : 2018/10/11
@@ -24,23 +27,19 @@ public abstract class AppActivity extends AppCompatActivity implements IElegantV
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        beforeViewInit();
         getAppDelegate().bindActivity(this);
         init();
     }
 
-    // view init
+    protected void beforeViewInit() {
+
+    }
 
     @Override
     public ViewConfig getViewConfig() {
         return null;
     }
-
-
-    @Override
-    public void init() {
-
-    }
-
 
     // elegant view
 
@@ -70,5 +69,17 @@ public abstract class AppActivity extends AppCompatActivity implements IElegantV
     @Override
     public Lifecycle getLifecycle() {
         return getAppDelegate().getLifecycle();
+    }
+
+    @Subscribe
+    public void ignoreEvent(AppDelegate thiz) {
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        getAppDelegate().onDestroy();
+        Api.queue().cancelRequest(hashCode());
     }
 }

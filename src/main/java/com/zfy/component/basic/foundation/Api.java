@@ -2,10 +2,12 @@ package com.zfy.component.basic.foundation;
 
 import com.google.gson.Gson;
 import com.march.common.funcs.Consumer;
+import com.march.common.funcs.Function;
 import com.zfy.component.basic.foundation.api.config.ApiConfig;
 import com.zfy.component.basic.foundation.api.converts.StringConvertFactory;
 import com.zfy.component.basic.foundation.api.interceptors.HeaderInterceptor;
 import com.zfy.component.basic.foundation.api.interceptors.NetWorkInterceptor;
+import com.zfy.component.basic.foundation.api.observers.ApiObserver;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +41,7 @@ public class Api {
 
     private Consumer<OkHttpClient.Builder> mOkHttpInitConsumer;
     private Consumer<Retrofit.Builder>     mRetrofitConsumer;
+    private Function<Object,ApiObserver>   mObserverMaker;
 
     private Api(ApiConfig apiConfig) {
         mApiConfig = apiConfig;
@@ -60,6 +63,14 @@ public class Api {
 
     public void setRetrofitConsumer(Consumer<Retrofit.Builder> retrofitConsumer) {
         mRetrofitConsumer = retrofitConsumer;
+    }
+
+    public Function<Object, ApiObserver> getObserverMaker() {
+        return mObserverMaker;
+    }
+
+    public void setObserverMaker(Function<Object, ApiObserver> observerMaker) {
+        mObserverMaker = observerMaker;
     }
 
     public static ApiConfig config() {

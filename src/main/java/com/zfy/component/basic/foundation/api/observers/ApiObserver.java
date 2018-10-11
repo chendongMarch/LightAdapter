@@ -32,7 +32,7 @@ public class ApiObserver<D> implements Observer<D> {
 
     public ApiObserver(Object host) {
         this.tag = host.hashCode();
-        this.requestConfig = ReqConfig.loading(false);
+        this.requestConfig = ReqConfig.create();
     }
 
     @Override

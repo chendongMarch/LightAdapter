@@ -19,7 +19,7 @@ import com.zfy.component.basic.arch.mvvm.IBindingView;
  *
  * @author chendong
  */
-public class BindingFragment<VM extends BaseViewModel, VDB extends ViewDataBinding>
+public abstract class BindingFragment<VM extends BaseViewModel, VDB extends ViewDataBinding>
         extends AppFragment
         implements IBindingView<VM, VDB> {
 

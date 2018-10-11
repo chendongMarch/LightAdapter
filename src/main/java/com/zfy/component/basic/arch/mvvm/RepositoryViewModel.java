@@ -3,7 +3,7 @@ package com.zfy.component.basic.arch.mvvm;
 import android.app.Application;
 import android.support.annotation.NonNull;
 
-import com.zfy.component.basic.arch.IRepository;
+import com.zfy.component.basic.arch.model.IRepository;
 
 /**
  * CreateAt : 2018/9/11
