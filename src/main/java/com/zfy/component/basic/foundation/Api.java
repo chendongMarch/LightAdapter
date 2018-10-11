@@ -29,8 +29,9 @@ public class Api {
 
     public static final String TAG = Api.class.getSimpleName();
 
-    public static final String DOMAIN_KEY = "api-domain";
-    public static final String KEY_AUTH   = "Authorization";
+    public static final String DOMAIN_KEY  = "api-domain";
+    public static final String KEY_AUTH    = "Authorization";
+    public static final String KEY_CHANNEL = "Channel";
 
     private static Api                sInst;
     private        Map<Class, Object> mServiceMap; // 服务缓存

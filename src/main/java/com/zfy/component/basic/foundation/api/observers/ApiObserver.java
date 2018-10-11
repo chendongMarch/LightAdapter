@@ -21,14 +21,12 @@ public class ApiObserver<D> implements Observer<D> {
 
     public static final String TAG = ApiObserver.class.getSimpleName();
 
-    protected Disposable disposable;
-
-    private int tag;
-
+    protected Disposable          disposable;
     protected Consumer<D>         nextConsumer;
     protected Consumer<Throwable> errorConsumer;
     protected Action              finishAction;
     protected ReqConfig           requestConfig;
+    private   int                 tag;
 
     public ApiObserver(Object host) {
         this.tag = host.hashCode();

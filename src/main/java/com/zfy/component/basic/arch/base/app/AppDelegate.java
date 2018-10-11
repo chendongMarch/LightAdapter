@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.march.common.able.Destroyable;
-import com.march.common.funcs.Action;
 import com.zfy.component.basic.arch.base.ViewConfig;
 
 import org.greenrobot.eventbus.EventBus;
@@ -39,9 +38,9 @@ public abstract class AppDelegate implements Destroyable, LifecycleOwner {
 
     protected void bindViewAndEvent(View view) {
         if (mHost instanceof AppActivity) {
-            mUnBinder = ButterKnife.bind((AppActivity) mHost);
+            mUnBinder = ButterKnife.bind(mHost, (AppActivity) mHost);
         } else if (mHost instanceof AppFragment) {
-            mUnBinder = ButterKnife.bind(view);
+            mUnBinder = ButterKnife.bind(mHost, view);
         }
         if (!EventBus.getDefault().isRegistered(mHost)) {
             EventBus.getDefault().register(mHost);

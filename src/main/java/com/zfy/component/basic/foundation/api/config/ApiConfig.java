@@ -17,7 +17,7 @@ public class ApiConfig {
 
     private String baseUrl;
     private Map<String, String> baseUrlMap = new HashMap<>();
-    private Map<String, String> headers = new HashMap<>();
+    private Map<String, String> headers    = new HashMap<>();
 
     private ApiConfig(String baseUrl) {
         if (EmptyX.isEmpty(baseUrl)) {
@@ -40,7 +40,7 @@ public class ApiConfig {
 
     // 添加通用 header
     public ApiConfig addHeader(String key, String value) {
-        if (!EmptyX.isAnyEmpty(key, value)) {
+        if (!EmptyX.isEmpty(key)) {
             this.headers.put(key, value);
         }
         return this;
