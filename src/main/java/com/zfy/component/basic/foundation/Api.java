@@ -1,12 +1,11 @@
 package com.zfy.component.basic.foundation;
 
 import com.google.gson.Gson;
-import com.march.common.Common;
 import com.march.common.funcs.Consumer;
-import com.zfy.component.basic.foundation.config.ApiConfig;
-import com.zfy.component.basic.foundation.converts.StringConvertFactory;
-import com.zfy.component.basic.foundation.interceptors.HeaderInterceptor;
-import com.zfy.component.basic.foundation.interceptors.NetWorkInterceptor;
+import com.zfy.component.basic.foundation.api.config.ApiConfig;
+import com.zfy.component.basic.foundation.api.converts.StringConvertFactory;
+import com.zfy.component.basic.foundation.api.interceptors.HeaderInterceptor;
+import com.zfy.component.basic.foundation.api.interceptors.NetWorkInterceptor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,8 +37,8 @@ public class Api {
     private        ApiConfig          mApiConfig; // config
     private        ApiQueueMgr        mApiQueueMgr; // queue
 
-    private Consumer<OkHttpClient.Builder> mOkHttpIniter;
-    private Consumer<Retrofit.Builder>     mRetrofitIniter;
+    private Consumer<OkHttpClient.Builder> mOkHttpInitConsumer;
+    private Consumer<Retrofit.Builder>     mRetrofitConsumer;
 
     private Api(ApiConfig apiConfig) {
         mApiConfig = apiConfig;
@@ -55,12 +54,12 @@ public class Api {
         sInst = new Api(apiConfig);
     }
 
-    public void initOkHttp(Consumer<OkHttpClient.Builder> okHttpIniter) {
-        mOkHttpIniter = okHttpIniter;
+    public void setOkHttpInitConsumer(Consumer<OkHttpClient.Builder> okHttpInitConsumer) {
+        mOkHttpInitConsumer = okHttpInitConsumer;
     }
 
-    public void setRetrofitIniter(Consumer<Retrofit.Builder> retrofitIniter) {
-        mRetrofitIniter = retrofitIniter;
+    public void setRetrofitConsumer(Consumer<Retrofit.Builder> retrofitConsumer) {
+        mRetrofitConsumer = retrofitConsumer;
     }
 
     public static ApiConfig config() {
@@ -115,8 +114,8 @@ public class Api {
         // builder.addInterceptor(new BaseUrlInterceptor());
         // 用来添加全局 Header
         builder.addInterceptor(new HeaderInterceptor());
-        if (Common.exports.appConfig.DEBUG) {
-            Assistant.getInst().hookOkHttp(builder);
+        if (mOkHttpInitConsumer != null) {
+            mOkHttpInitConsumer.accept(builder);
         }
         // token校验，返回 403 时
         // builder.authenticator(new TokenAuthenticator());
@@ -137,7 +136,9 @@ public class Api {
         builder.addConverterFactory(StringConvertFactory.create());
         // 转换为 Json Model
         builder.addConverterFactory(GsonConverterFactory.create(new Gson()));
-
+        if (mRetrofitConsumer != null) {
+            mRetrofitConsumer.accept(builder);
+        }
         return builder.build();
     }
 
