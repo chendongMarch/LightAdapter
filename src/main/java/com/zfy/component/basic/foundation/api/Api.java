@@ -1,4 +1,4 @@
-package com.zfy.component.basic.foundation;
+package com.zfy.component.basic.foundation.api;
 
 import com.google.gson.Gson;
 import com.march.common.funcs.Consumer;

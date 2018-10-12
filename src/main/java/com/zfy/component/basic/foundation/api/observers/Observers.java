@@ -1,6 +1,6 @@
 package com.zfy.component.basic.foundation.api.observers;
 
-import com.zfy.component.basic.foundation.Api;
+import com.zfy.component.basic.foundation.api.Api;
 import com.zfy.component.basic.foundation.api.config.ReqConfig;
 
 import io.reactivex.functions.Action;

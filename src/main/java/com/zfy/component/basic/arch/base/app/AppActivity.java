@@ -12,7 +12,7 @@ import com.zfy.component.basic.arch.base.IBaseView;
 import com.zfy.component.basic.arch.base.IElegantView;
 import com.zfy.component.basic.arch.base.IViewInit;
 import com.zfy.component.basic.arch.base.ViewConfig;
-import com.zfy.component.basic.foundation.Api;
+import com.zfy.component.basic.foundation.api.Api;
 
 import org.greenrobot.eventbus.Subscribe;
 

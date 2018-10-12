@@ -1,7 +1,7 @@
 package com.zfy.component.basic.foundation.api.interceptors;
 
 import com.march.common.exts.EmptyX;
-import com.zfy.component.basic.foundation.Api;
+import com.zfy.component.basic.foundation.api.Api;
 
 import okhttp3.HttpUrl;
 import okhttp3.Request;
