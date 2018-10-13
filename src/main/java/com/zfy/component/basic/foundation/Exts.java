@@ -27,4 +27,15 @@ public class Exts {
             EventBus.getDefault().unregister(host);
         }
     }
+
+    public static <T> T newInst(Class<T> clazz) {
+        T t;
+        try {
+            t = clazz.newInstance();
+        } catch (Exception e) {
+            throw new IllegalStateException("实例创建失败", e);
+        }
+        return t;
+    }
+
 }
