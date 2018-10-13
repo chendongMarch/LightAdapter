@@ -3,6 +3,7 @@ package com.zfy.component.basic.arch.base;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 
 /**
  * CreateAt : 2017/12/7
@@ -18,5 +19,6 @@ public interface IElegantView {
 
     void startActivity(Class clz);
 
+    @NonNull
     Bundle getData();
 }

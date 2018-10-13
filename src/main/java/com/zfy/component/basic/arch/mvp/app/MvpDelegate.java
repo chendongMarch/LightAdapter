@@ -22,7 +22,7 @@ import com.zfy.component.basic.arch.mvp.IMvpView;
  *
  * @author chendong
  */
-public class MvpDelegate<P extends IMvpPresenter> extends AppDelegate implements IMvpView<P> {
+public class MvpDelegate<P extends IMvpPresenter> extends AppDelegate {
 
     public static final String TAG = MvpDelegate.class.getSimpleName();
 
@@ -93,7 +93,6 @@ public class MvpDelegate<P extends IMvpPresenter> extends AppDelegate implements
         }
     }
 
-    @Override
     public P getPresenter() {
         return mPresenter;
     }

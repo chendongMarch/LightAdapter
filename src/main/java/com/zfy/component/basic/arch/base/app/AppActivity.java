@@ -5,6 +5,7 @@ import android.arch.lifecycle.Lifecycle;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
@@ -59,8 +60,9 @@ public abstract class AppActivity extends AppCompatActivity implements IElegantV
     }
 
     @Override
-    public Bundle getData() {
-        if (getIntent() == null) {
+    public @NonNull
+    Bundle getData() {
+        if (getIntent() == null || getIntent().getExtras() == null) {
             return new Bundle();
         }
         return getIntent().getExtras();

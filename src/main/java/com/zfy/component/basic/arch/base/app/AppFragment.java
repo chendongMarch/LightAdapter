@@ -54,7 +54,8 @@ public abstract class AppFragment extends Fragment implements IElegantView, IVie
     }
 
     @Override
-    public Bundle getData() {
+    public @NonNull
+    Bundle getData() {
         Bundle arguments = getArguments();
         if (arguments == null) {
             return new Bundle();
