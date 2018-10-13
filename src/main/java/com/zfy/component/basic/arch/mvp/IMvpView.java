@@ -8,7 +8,7 @@ import android.arch.lifecycle.LifecycleOwner;
  *
  * @author chendong
  */
-public interface IMvpView<P> extends LifecycleOwner {
+public interface IMvpView<P extends IMvpPresenter> extends LifecycleOwner {
 
     P getPresenter();
 
