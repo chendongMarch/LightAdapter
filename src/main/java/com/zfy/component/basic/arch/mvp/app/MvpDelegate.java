@@ -15,6 +15,7 @@ import com.zfy.component.basic.arch.base.app.AppDelegate;
 import com.zfy.component.basic.arch.base.app.AppFragment;
 import com.zfy.component.basic.arch.mvp.IMvpPresenter;
 import com.zfy.component.basic.arch.mvp.IMvpView;
+import com.zfy.component.basic.arch.mvp.presenter.MvpPresenter;
 
 /**
  * CreateAt : 2018/9/12
@@ -84,9 +85,10 @@ public class MvpDelegate<P extends IMvpPresenter> extends AppDelegate {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (mPresenter != null) {
-                mPresenter.setView((IMvpView) mHost);
-                mPresenter.init();
+            if (getPresenter() != null && getPresenter() instanceof MvpPresenter) {
+                MvpPresenter presenter = (MvpPresenter) getPresenter();
+                presenter.attachView((IMvpView) mHost);
+                presenter.init();
             }
         } else {
             LogX.e(TAG, "Host not IMvpView");
@@ -100,8 +102,16 @@ public class MvpDelegate<P extends IMvpPresenter> extends AppDelegate {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mPresenter != null) {
-            mPresenter.onDestroy();
+        if (getPresenter() != null) {
+            getPresenter().onDestroy();
+        }
+    }
+
+    public static class NoPresenter extends MvpPresenter{
+
+        @Override
+        public void init() {
+
         }
     }
 }

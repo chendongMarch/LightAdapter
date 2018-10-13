@@ -50,7 +50,7 @@ public abstract class AppActivity extends AppCompatActivity implements IElegantV
     }
 
     @Override
-    public Activity getActivity() {
+    public AppActivity getActivity() {
         return this;
     }
 

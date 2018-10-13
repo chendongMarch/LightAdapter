@@ -8,9 +8,7 @@ import com.march.common.able.Destroyable;
  *
  * @author chendong
  */
-public interface IMvpPresenter<V extends IMvpView> extends Destroyable {
+public interface IMvpPresenter extends Destroyable {
 
-    void setView(V view);
 
-    void init();
 }

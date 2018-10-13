@@ -1,5 +1,6 @@
 package com.zfy.component.basic.arch.mvp.presenter;
 
+import com.march.common.exts.LogX;
 import com.zfy.component.basic.arch.model.IRepository;
 import com.zfy.component.basic.arch.mvp.IMvpPresenter;
 import com.zfy.component.basic.arch.mvp.IMvpView;
@@ -11,7 +12,7 @@ import com.zfy.component.basic.foundation.Exts;
  *
  * @author chendong
  */
-public abstract class MvpPresenter<R extends IRepository, V extends IMvpView> implements IMvpPresenter<V> {
+public abstract class MvpPresenter<R extends IRepository, V extends IMvpView> implements IMvpPresenter {
 
     protected V mView;
     protected R mRepo;
@@ -20,18 +21,26 @@ public abstract class MvpPresenter<R extends IRepository, V extends IMvpView> im
         mRepo = makeRepo();
     }
 
+    public void attachView(V view) {
+        mView = view;
+    }
+
+    public abstract void init();
+
     @SuppressWarnings("unchecked")
     private R makeRepo() {
+        R repo = null;
         try {
             MvpP annotation = getClass().getAnnotation(MvpP.class);
             if (annotation != null) {
-                Class repo = annotation.repo();
-                mRepo = ((R) Exts.newInst(repo));
+                Class<R> repoClazz = annotation.repo();
+                repo = Exts.newInst(repoClazz);
             }
         } catch (Exception e) {
-            throw new IllegalArgumentException("resp class error", e);
+            LogX.e("no repo presenter");
+            e.printStackTrace();
         }
-        return null;
+        return repo;
     }
 
     @Override
@@ -39,14 +48,13 @@ public abstract class MvpPresenter<R extends IRepository, V extends IMvpView> im
 
     }
 
-    @Override
-    public void setView(V view) {
-        mView = view;
-    }
 
-
-    @Override
-    public void init() {
-
+    public static <P> P attachView(Class<P> pClass, IMvpView mvpView) {
+        P presenter = Exts.newInst(pClass);
+        if (presenter instanceof MvpPresenter) {
+            ((MvpPresenter) presenter).attachView(mvpView);
+            ((MvpPresenter) presenter).init();
+        }
+        return presenter;
     }
 }

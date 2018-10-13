@@ -3,8 +3,6 @@ package com.zfy.component.basic.arch.mvp.app;
 
 import android.support.annotation.NonNull;
 
-import com.zfy.component.basic.arch.mvp.presenter.MvpPresenter;
-
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -21,5 +19,5 @@ public @interface MvpV {
 
     int layout();
 
-    @NonNull Class p() default MvpPresenter.class;
+    @NonNull Class p() default MvpDelegate.NoPresenter.class;
 }
