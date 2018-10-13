@@ -14,8 +14,8 @@ public class ApiException extends IllegalStateException {
 
     public static final int ERR_NETWORK = 1; // 网络没有链连接
 
-    private int    code;
-    private String msg;
+    private int     code;
+    private String  msg;
 
     public ApiException(String message) {
         super(message);

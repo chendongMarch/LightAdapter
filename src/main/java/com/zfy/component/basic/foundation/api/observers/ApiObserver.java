@@ -1,9 +1,12 @@
 package com.zfy.component.basic.foundation.api.observers;
 
 
+import com.march.common.exts.ToastX;
 import com.zfy.component.basic.foundation.api.Api;
 import com.zfy.component.basic.foundation.api.config.ReqConfig;
 import com.zfy.component.basic.foundation.api.exception.ApiException;
+
+import com.march.common.Common;
 
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
@@ -52,6 +55,9 @@ public class ApiObserver<D> implements Observer<D> {
 
     @Override
     public void onError(@NonNull Throwable e) {
+        if (Common.exports.appConfig.DEBUG) {
+            ToastX.showLong("请求错误 -- " + e.getMessage());
+        }
         ApiException.handleApiException(e);
         if (errorConsumer != null) {
             try {
