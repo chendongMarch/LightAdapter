@@ -26,7 +26,10 @@ public final class HeaderInterceptor extends AbstractInterceptor {
             return super.proceedRequest(request);
         }
         for (String key : headers.keySet()) {
-            builder.addHeader(key, headers.get(key));
+            String value = headers.get(key);
+            if(!EmptyX.isEmpty(value)) {
+                builder.addHeader(key, value);
+            }
         }
         return builder.build();
     }
