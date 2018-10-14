@@ -17,6 +17,8 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MvpV {
 
+    int NO_LAYOUT = -1;
+
     int layout();
 
     @NonNull Class p() default MvpDelegate.NoPresenter.class;

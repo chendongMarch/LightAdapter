@@ -36,6 +36,10 @@ public abstract class AppDelegate implements Destroyable, LifecycleOwner {
 
     public abstract void bindActivity(LifecycleOwner owner);
 
+    public void bindNoLayoutView(LifecycleOwner owner) {
+
+    }
+
     protected void bindViewAndEvent(View view) {
         if (mHost instanceof AppActivity) {
             mUnBinder = ButterKnife.bind(mHost, (AppActivity) mHost);
