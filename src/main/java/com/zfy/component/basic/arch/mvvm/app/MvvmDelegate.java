@@ -60,7 +60,8 @@ public class MvvmDelegate<VideoModel extends BaseViewModel, VDB extends ViewData
     public View bindFragment(LifecycleOwner owner, LayoutInflater inflater, ViewGroup container) {
         attach(owner);
         mBinding = DataBindingUtil.inflate(inflater, mViewConfig.getLayout(), container, false);
-        bindViewAndEvent(mBinding.getRoot());
+        bindView(mHost, mBinding.getRoot());
+        bindEvent();
         init();
         return mBinding.getRoot();
     }
@@ -69,7 +70,7 @@ public class MvvmDelegate<VideoModel extends BaseViewModel, VDB extends ViewData
     public void bindActivity(LifecycleOwner owner) {
         attach(owner);
         mBinding = DataBindingUtil.setContentView(((Activity) owner), mViewConfig.getLayout());
-        bindViewAndEvent(null);
+        bindView(mHost, null);
         init();
     }
 

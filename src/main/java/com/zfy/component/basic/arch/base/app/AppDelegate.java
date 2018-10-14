@@ -10,9 +10,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.march.common.able.Destroyable;
+import com.march.common.exts.EmptyX;
+import com.march.common.exts.ListX;
 import com.zfy.component.basic.arch.base.ViewConfig;
+import com.zfy.component.basic.arch.mvp.app.NoLayoutMvpView;
 
 import org.greenrobot.eventbus.EventBus;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -32,20 +38,42 @@ public abstract class AppDelegate implements Destroyable, LifecycleOwner {
     protected ViewConfig mViewConfig;
     private   Unbinder   mUnBinder;
 
+    private List<Destroyable> mDestroyableList;
+
+    public void addDestroyable(Destroyable destroyable) {
+        if (mDestroyableList == null) {
+            mDestroyableList = new ArrayList<>();
+        }
+        mDestroyableList.add(destroyable);
+    }
+
     public abstract View bindFragment(LifecycleOwner owner, LayoutInflater inflater, ViewGroup container);
 
     public abstract void bindActivity(LifecycleOwner owner);
 
-    public void bindNoLayoutView(LifecycleOwner owner) {
+    public void bindNoLayoutView(LifecycleOwner owner, Object host) {
 
     }
 
-    protected void bindViewAndEvent(View view) {
-        if (mHost instanceof AppActivity) {
-            mUnBinder = ButterKnife.bind(mHost, (AppActivity) mHost);
-        } else if (mHost instanceof AppFragment) {
-            mUnBinder = ButterKnife.bind(mHost, view);
+    /**
+     * @param host   当前需要绑定的 对象
+     * @param binder findViewById 对象
+     */
+    protected void bindView(Object host, Object binder) {
+        if (host instanceof AppActivity) {
+            mUnBinder = ButterKnife.bind((AppActivity) host);
+        } else if (host instanceof AppFragment && binder instanceof View) {
+            mUnBinder = ButterKnife.bind(host, (View) binder);
+        } else if (host instanceof NoLayoutMvpView) {
+            if (binder instanceof AppActivity) {
+                mUnBinder = ButterKnife.bind(host, (AppActivity) binder);
+            } else if (binder instanceof View) {
+                mUnBinder = ButterKnife.bind(host, (View) binder);
+            }
         }
+    }
+
+    protected void bindEvent() {
         if (!EventBus.getDefault().isRegistered(mHost)) {
             EventBus.getDefault().register(mHost);
         }
@@ -59,6 +87,10 @@ public abstract class AppDelegate implements Destroyable, LifecycleOwner {
         if (mUnBinder != null) {
             mUnBinder.unbind();
             mUnBinder = null;
+        }
+        if (!EmptyX.isEmpty(mDestroyableList)) {
+            ListX.foreach(mDestroyableList, Destroyable::onDestroy);
+            mDestroyableList.clear();
         }
     }
 

@@ -1,6 +1,5 @@
 package com.zfy.component.basic.arch.base.app;
 
-import android.app.Activity;
 import android.arch.lifecycle.Lifecycle;
 import android.content.Context;
 import android.content.Intent;

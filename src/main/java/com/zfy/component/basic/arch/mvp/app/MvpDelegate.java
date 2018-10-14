@@ -58,7 +58,8 @@ public class MvpDelegate<P extends IMvpPresenter> extends AppDelegate {
         }
         attach(owner);
         View inflate = inflater.inflate(mViewConfig.getLayout(), container, false);
-        bindViewAndEvent(inflate);
+        bindView(mHost, inflate);
+        bindEvent();
         init();
         return inflate;
     }
@@ -70,18 +71,20 @@ public class MvpDelegate<P extends IMvpPresenter> extends AppDelegate {
         }
         attach(owner);
         ((AppActivity) mHost).setContentView(mViewConfig.getLayout());
-        bindViewAndEvent(null);
+        bindView(mHost, null);
+        bindEvent();
         init();
     }
 
 
     @Override
-    public void bindNoLayoutView(LifecycleOwner owner) {
+    public void bindNoLayoutView(LifecycleOwner owner, Object binder) {
         if (!(owner instanceof NoLayoutMvpView)) {
             throw new IllegalArgumentException("owner must be no layout view");
         }
         attach(owner);
-        bindViewAndEvent(null);
+        bindView(mHost, binder);
+        bindEvent();
         init();
     }
 
@@ -115,6 +118,7 @@ public class MvpDelegate<P extends IMvpPresenter> extends AppDelegate {
             getPresenter().onDestroy();
         }
     }
+
 
     public static class NoPresenter extends MvpPresenter{
 
