@@ -3,6 +3,7 @@ apply from: '../scripts/library.gradle'
 dependencies {
     // 基础库
     api project(':common')
+    api libs.multidex
     // 基础 UI
     api libs.appcompat_v7
     api libs.constraint

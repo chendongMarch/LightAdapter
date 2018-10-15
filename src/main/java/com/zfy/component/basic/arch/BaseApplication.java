@@ -1,6 +1,7 @@
 package com.zfy.component.basic.arch;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.march.common.Common;
 import com.zfy.component.basic.ComponentX;
@@ -16,9 +17,16 @@ public abstract class BaseApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        ComponentX.init(this, true);
+        // ComponentX.init(this, true);
         Common.init(this, getBuildConfigClazz());
     }
 
     public abstract Class getBuildConfigClazz();
+
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
+    }
 }
