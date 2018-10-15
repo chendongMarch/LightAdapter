@@ -2,6 +2,6 @@
           package="com.zfy.component.basic">
 
     <application>
-        <activity android:name=".arch.mvp.app.MvpActivity" />
+        <activity android:name=".mvx.mvp.app.MvpActivity" />
     </application>
 </manifest>
