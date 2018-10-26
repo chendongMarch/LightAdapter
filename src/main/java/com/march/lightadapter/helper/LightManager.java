@@ -11,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
  * @author chendong
  */
 public class LightManager {
+
     public static LinearLayoutManager vLinear(Context context) {
         return new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
     }
