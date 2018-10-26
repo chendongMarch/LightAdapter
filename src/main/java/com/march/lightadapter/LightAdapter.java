@@ -218,9 +218,11 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     public abstract void onBindView(LightHolder holder, D data, int pos, int type);
 
     public void onBindHeaderView(LightHolder holder) {
+
     }
 
     public void onBindFooterView(LightHolder holder) {
+
     }
 
     public void onBindEmptyView(LightHolder holder) {
@@ -229,9 +231,11 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     //////////////////////////////  -- LoadMore --  //////////////////////////////
 
     public void onTopLoadMore() {
+
     }
 
     public void onBottomLoadMore() {
+
     }
 
     public void finishBottomLoadMore() {
@@ -288,7 +292,6 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         module.onAttachAdapter(this);
         mModuleMap.put(module.getClass(), module);
     }
-
 
     public void addViewBinder(AdapterViewBinder<D> binder) {
         if (mAdapterViewBinders == null) {

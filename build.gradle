@@ -1,4 +1,5 @@
-def libs = rootProject.ext.libs
+apply from: '../scripts/library.gradle'
+
 
 dependencies {
     api libs.recyclerView_v7
