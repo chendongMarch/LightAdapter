@@ -187,22 +187,6 @@ public class HFDelegate extends BaseDelegate {
         return mFooterView != null;
     }
 
-    // 隐藏/隐藏 Footer
-    public void setFooterEnable(boolean footerEnable) {
-        if (isFooterEnable()) {
-            mFooterView.setVisibility(footerEnable ? View.VISIBLE : View.GONE);
-            mAdapter.notifyItemChanged(getItemCount() - 1);
-        }
-    }
-
-    // 显示/隐藏 Header
-    public void setHeaderEnable(boolean headerEnable) {
-        if (isHeaderEnable()) {
-            mHeaderView.setVisibility(headerEnable ? View.VISIBLE : View.GONE);
-            mAdapter.notifyItemChanged(0);
-        }
-    }
-
     // 清空 Header
     public void clearHeaderView() {
         if (mHeaderView != null) {

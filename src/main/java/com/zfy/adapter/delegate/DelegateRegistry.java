@@ -23,6 +23,8 @@ public class DelegateRegistry implements IDelegate {
         mDelegates = new SparseArray<>();
         register(new HFDelegate());
         register(new SpanDelegate());
+        register(new TopMoreDelegate());
+        register(new LoadMoreDelegate());
     }
 
     public void register(IDelegate delegate) {

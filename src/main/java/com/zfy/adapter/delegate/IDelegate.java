@@ -18,6 +18,8 @@ public interface IDelegate {
 
     int HF = 0;
     int SPAN = 1;
+    int LOADMORE = 3;
+    int TOPMORE = 3;
 
     /**
      * 获取本代理的 key
