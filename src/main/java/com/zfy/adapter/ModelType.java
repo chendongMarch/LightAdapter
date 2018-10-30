@@ -9,18 +9,16 @@ package com.zfy.adapter;
 public class ModelType {
 
 
-    private int type; // ; // 类型
-    private int layout; //  ; // 布局资源
+    private int type; // 类型
+    private int layout; // 布局资源
     private int spanSize = VALUE.NONE; // 跨越行数
     private boolean enableClick = true; // 是否允许点击事件
     private boolean enableDbClick = false; // 是否允许双击事件，双击事件使用 gesture 实现，将会丧失一些效果
 
 
-    public ModelType(int type, int layout) {
+    public ModelType(int type) {
         this.type = type;
-        this.layout = layout;
     }
-
 
     public int getType() {
         return type;

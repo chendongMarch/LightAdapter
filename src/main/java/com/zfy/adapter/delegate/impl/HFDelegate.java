@@ -1,4 +1,4 @@
-package com.zfy.adapter.delegate;
+package com.zfy.adapter.delegate.impl;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +9,8 @@ import android.widget.LinearLayout;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.VALUE;
 import com.zfy.adapter.ViewHolderBinder;
+import com.zfy.adapter.delegate.IDelegate;
+import com.zfy.adapter.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +20,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 /**
  * CreateAt : 16/8/20
- * Describe : Header Footer模块
+ * Describe : 完成添加 header&footer 功能
  *
  * @author chendong
  */

@@ -8,6 +8,6 @@ package com.zfy.adapter;
  */
 public interface ModelTypeFactory {
 
-    ModelType create(int type);
+    void update(ModelType type);
 }
 

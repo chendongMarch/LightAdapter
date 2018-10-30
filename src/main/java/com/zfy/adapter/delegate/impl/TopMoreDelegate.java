@@ -1,4 +1,4 @@
-package com.zfy.adapter.delegate;
+package com.zfy.adapter.delegate.impl;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -7,37 +7,38 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 
 /**
  * CreateAt : 2018/10/30
- * Describe :
+ * Describe : 完成顶部加载更多功能
  *
  * @author chendong
  */
-public class LoadMoreDelegate extends BaseDelegate {
+public class TopMoreDelegate extends BaseDelegate {
+
+    @Override
+    public int getKey() {
+        return TOPMORE;
+    }
+
 
     private boolean mLoadingMore;
     private int mPreLoadNum;
-    private boolean mReachBottom;
+    private boolean mReachTop;
     private Runnable mRunnable;
 
-    public LoadMoreDelegate() {
+    public TopMoreDelegate() {
         mPreLoadNum = 3;
         mRunnable = () -> {
         };
     }
 
     @Override
-    public int getKey() {
-        return IDelegate.LOADMORE;
-    }
-
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-        mView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+    public void onAttachedToRecyclerView(final RecyclerView mRecyclerView) {
+        super.onAttachedToRecyclerView(mRecyclerView);
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                // 停止，到达底部，没有在加载
-                if (isAttached() && newState == RecyclerView.SCROLL_STATE_IDLE && mReachBottom && !mLoadingMore) {
+                // 停止，到达顶部,没有在加载更多，
+                if (isAttached() && newState == RecyclerView.SCROLL_STATE_IDLE && mReachTop && !mLoadingMore) {
                     mLoadingMore = true;
                     mRunnable.run();
                 }
@@ -46,9 +47,9 @@ public class LoadMoreDelegate extends BaseDelegate {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (isAttached() && dy > 0) {
-                    int lastVisiblePosition = getLastVisiblePosition(mView);
-                    mReachBottom = lastVisiblePosition + 1 + mPreLoadNum >= mAdapter.getItemCount();
+                if (isAttached() && dy < 0) {
+                    int firstPos = getFirstVisiblePosition(mView);
+                    mReachTop = firstPos <= mPreLoadNum;
                 }
             }
         });
@@ -56,19 +57,19 @@ public class LoadMoreDelegate extends BaseDelegate {
 
 
     // 获取最后一条展示的位置
-    private int getLastVisiblePosition(RecyclerView mRecyclerView) {
+    private int getFirstVisiblePosition(RecyclerView mRecyclerView) {
         int position;
         RecyclerView.LayoutManager manager = mRecyclerView.getLayoutManager();
         if (manager instanceof GridLayoutManager) {
-            position = ((GridLayoutManager) manager).findLastVisibleItemPosition();
+            position = ((GridLayoutManager) manager).findFirstVisibleItemPosition();
         } else if (manager instanceof LinearLayoutManager) {
-            position = ((LinearLayoutManager) manager).findLastVisibleItemPosition();
+            position = ((LinearLayoutManager) manager).findFirstVisibleItemPosition();
         } else if (manager instanceof StaggeredGridLayoutManager) {
             StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) manager;
-            int[] lastPositions = layoutManager.findLastVisibleItemPositions(new int[layoutManager.getSpanCount()]);
+            int[] lastPositions = layoutManager.findFirstVisibleItemPositions(new int[layoutManager.getSpanCount()]);
             position = getMaxPosition(lastPositions);
         } else {
-            position = manager.getItemCount() - 1;
+            position = 0;
         }
         return position;
     }
@@ -83,7 +84,7 @@ public class LoadMoreDelegate extends BaseDelegate {
     }
 
     /**
-     * 结束加载，才能开启下次加载
+     * 结束加载才能开启下次加载
      */
     public void finishLoad() {
         this.mLoadingMore = false;

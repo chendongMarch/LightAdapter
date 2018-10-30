@@ -9,8 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.zfy.adapter.delegate.DelegateRegistry;
-import com.zfy.adapter.delegate.HFDelegate;
 import com.zfy.adapter.delegate.IDelegate;
+import com.zfy.adapter.delegate.impl.HFDelegate;
 import com.zfy.adapter.listener.OnItemListener;
 import com.zfy.adapter.listener.SimpleItemListener;
 import com.zfy.adapter.model.ITypeModel;
@@ -56,17 +56,14 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     private DelegateRegistry mDelegateRegistry;
 
     public ModelType getType(int type) {
-        ModelType typeOptions = mModelTypeCache.get(type);
-        if (typeOptions == null) {
-            typeOptions = mBuildInModelTypeFactory.create(type);
-            if (typeOptions == null) {
-                typeOptions = mModelTypeFactory.create(type);
-            }
-            if (typeOptions != null) {
-                mModelTypeCache.put(type, typeOptions);
-            }
+        ModelType modelType = mModelTypeCache.get(type);
+        if (modelType == null) {
+            modelType = new ModelType(type);
+            mBuildInModelTypeFactory.update(modelType);
+            mModelTypeFactory.update(modelType);
+            mModelTypeCache.put(type, modelType);
         }
-        return typeOptions;
+        return modelType;
     }
 
 
@@ -86,7 +83,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
 
     // 单类型构造
     public LightAdapter(Context context, List<D> datas, int layoutId) {
-        this(context, datas, type -> new ModelType(type, layoutId));
+        this(context, datas, modelType -> modelType.setLayout(layoutId));
     }
 
     // 多类型构造
@@ -104,15 +101,9 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         mHolderCache = new HashSet<>();
         mDelegateRegistry = new DelegateRegistry();
         mDelegateRegistry.onAttachAdapter(this);
-        mBuildInModelTypeFactory = new ModelTypeFactory() {
-            @Override
-            public ModelType create(int type) {
-                if (type == VALUE.TYPE_FOOTER || type == VALUE.TYPE_HEADER) {
-                    ModelType modelType = new ModelType(type, 0);
-                    modelType.setSpanSize(VALUE.SPAN_SIZE_ALL);
-                    return modelType;
-                }
-                return null;
+        mBuildInModelTypeFactory = type -> {
+            if (type.getType() == VALUE.TYPE_FOOTER || type.getType() == VALUE.TYPE_HEADER) {
+                type.setSpanSize(VALUE.SPAN_SIZE_ALL);
             }
         };
     }

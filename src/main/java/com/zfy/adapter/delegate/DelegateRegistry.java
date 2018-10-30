@@ -8,6 +8,10 @@ import android.view.ViewGroup;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.VALUE;
+import com.zfy.adapter.delegate.impl.HFDelegate;
+import com.zfy.adapter.delegate.impl.LoadMoreDelegate;
+import com.zfy.adapter.delegate.impl.SpanDelegate;
+import com.zfy.adapter.delegate.impl.TopMoreDelegate;
 
 /**
  * CreateAt : 2018/10/28

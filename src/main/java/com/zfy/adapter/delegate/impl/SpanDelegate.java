@@ -1,4 +1,4 @@
-package com.zfy.adapter.delegate;
+package com.zfy.adapter.delegate.impl;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
@@ -12,7 +12,7 @@ import com.zfy.adapter.VALUE;
 
 /**
  * CreateAt : 2018/2/24
- * Describe : 跨越整行
+ * Describe : 完成跨越整行功能
  *
  * @author chendong
  */

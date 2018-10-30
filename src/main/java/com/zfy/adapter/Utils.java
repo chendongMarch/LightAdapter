@@ -1,4 +1,4 @@
-package com.zfy.adapter.delegate;
+package com.zfy.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;

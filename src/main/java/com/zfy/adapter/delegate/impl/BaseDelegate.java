@@ -1,4 +1,4 @@
-package com.zfy.adapter.delegate;
+package com.zfy.adapter.delegate.impl;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.VALUE;
+import com.zfy.adapter.delegate.IDelegate;
 
 /**
  * CreateAt : 2018/10/28

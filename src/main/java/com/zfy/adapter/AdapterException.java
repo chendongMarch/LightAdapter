@@ -1,4 +1,4 @@
-package com.zfy.adapter.delegate;
+package com.zfy.adapter;
 
 /**
  * CreateAt : 2018/10/29
