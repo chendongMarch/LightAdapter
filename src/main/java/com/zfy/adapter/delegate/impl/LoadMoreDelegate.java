@@ -5,6 +5,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 
+import com.zfy.adapter.AdapterCallback;
 import com.zfy.adapter.delegate.IDelegate;
 
 /**
@@ -15,20 +16,20 @@ import com.zfy.adapter.delegate.IDelegate;
  */
 public class LoadMoreDelegate extends BaseDelegate {
 
-    private boolean mLoadingMore;
-    private int mPreLoadNum;
-    private boolean mReachBottom;
-    private Runnable mRunnable;
+    private boolean mLoadingMore; // 是否在加载更多
+    private int mStartTryLoadMoreItemCount; // 预加载的个数
+    private boolean mReachBottom; // 是否到达底部
+    private AdapterCallback mCallback; // 加载更多回调
 
     public LoadMoreDelegate() {
-        mPreLoadNum = 3;
-        mRunnable = () -> {
+        mStartTryLoadMoreItemCount = 3;
+        mCallback = adapter -> {
         };
     }
 
     @Override
     public int getKey() {
-        return IDelegate.LOADMORE;
+        return IDelegate.LOAD_MORE;
     }
 
     @Override
@@ -41,7 +42,7 @@ public class LoadMoreDelegate extends BaseDelegate {
                 // 停止，到达底部，没有在加载
                 if (isAttached() && newState == RecyclerView.SCROLL_STATE_IDLE && mReachBottom && !mLoadingMore) {
                     mLoadingMore = true;
-                    mRunnable.run();
+                    mCallback.call(mAdapter);
                 }
             }
 
@@ -50,7 +51,7 @@ public class LoadMoreDelegate extends BaseDelegate {
                 super.onScrolled(recyclerView, dx, dy);
                 if (isAttached() && dy > 0) {
                     int lastVisiblePosition = getLastVisiblePosition(mView);
-                    mReachBottom = lastVisiblePosition + 1 + mPreLoadNum >= mAdapter.getItemCount();
+                    mReachBottom = lastVisiblePosition + 1 + mStartTryLoadMoreItemCount >= mAdapter.getItemCount();
                 }
             }
         });
@@ -87,7 +88,26 @@ public class LoadMoreDelegate extends BaseDelegate {
     /**
      * 结束加载，才能开启下次加载
      */
-    public void finishLoad() {
+    public void finishLoadMore() {
         this.mLoadingMore = false;
+    }
+
+    /**
+     * 设置加载更多监听
+     *
+     * @param callback
+     */
+    public void setLoadMoreListener(AdapterCallback callback) {
+        mCallback = callback;
+    }
+
+
+    /**
+     * 设置提前预加载的个数
+     *
+     * @param startTryLoadMoreItemCount 预加载的个数
+     */
+    public void setStartTryLoadMoreItemCount(int startTryLoadMoreItemCount) {
+        mStartTryLoadMoreItemCount = startTryLoadMoreItemCount;
     }
 }

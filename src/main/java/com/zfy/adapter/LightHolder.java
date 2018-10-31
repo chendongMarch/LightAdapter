@@ -16,7 +16,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.zfy.adapter.helper.LightLogger;
 import com.zfy.adapter.model.Ids;
 
 import java.lang.reflect.Field;
@@ -121,9 +120,6 @@ public class LightHolder extends RecyclerView.ViewHolder {
         boolean result = visibility == View.VISIBLE
                 || visibility == View.GONE
                 || visibility == View.INVISIBLE;
-        if (!result) {
-            LightLogger.e(TAG, "checkVisibilityParam fail");
-        }
         return result;
     }
 
@@ -431,10 +427,26 @@ public class LightHolder extends RecyclerView.ViewHolder {
 
     public <T extends View> LightHolder setCallback(Ids ids, Callback<T> callback) {
         forEachView(callback, ids.getViewIds());
+
+        set(100, IMAGE, imageView -> {
+
+        });
         return this;
     }
 
+    public static final Class<ImageView> IMAGE = ImageView.class;
+
+
     //////////////////////////////  -- 公共方法 --  //////////////////////////////
+
+    public <V extends View> void set(int id, Class<V> clazz, Callback2<V> callback) {
+
+    }
+
+    public interface Callback2<T extends View> {
+        void bind(T view);
+    }
+
 
     public interface Callback<T extends View> {
         void bind(LightHolder holder, T view, int pos);
@@ -454,5 +466,6 @@ public class LightHolder extends RecyclerView.ViewHolder {
     private int getColor(int colorRes) {
         return ContextCompat.getColor(getContext(), colorRes);
     }
+
 
 }

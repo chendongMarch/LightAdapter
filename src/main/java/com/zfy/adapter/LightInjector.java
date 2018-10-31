@@ -2,7 +2,6 @@ package com.zfy.adapter;
 
 import android.support.v7.widget.RecyclerView;
 
-import com.zfy.adapter.helper.LightLogger;
 import com.zfy.adapter.inject.AdapterConfig;
 import com.zfy.adapter.inject.AdapterLayout;
 import com.zfy.adapter.inject.Click;
@@ -10,11 +9,6 @@ import com.zfy.adapter.inject.Footer;
 import com.zfy.adapter.inject.FullSpan;
 import com.zfy.adapter.inject.Header;
 import com.zfy.adapter.inject.PreLoading;
-import com.zfy.adapter.module.FullSpanModule;
-import com.zfy.adapter.module.HFModule;
-import com.zfy.adapter.module.LoadMoreModule;
-import com.zfy.adapter.module.TopLoadMoreModule;
-import com.zfy.adapter.module.UpdateModule;
 
 import java.lang.reflect.Field;
 

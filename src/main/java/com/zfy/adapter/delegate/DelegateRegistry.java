@@ -10,6 +10,7 @@ import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.VALUE;
 import com.zfy.adapter.delegate.impl.HFDelegate;
 import com.zfy.adapter.delegate.impl.LoadMoreDelegate;
+import com.zfy.adapter.delegate.impl.NotifyDelegate;
 import com.zfy.adapter.delegate.impl.SpanDelegate;
 import com.zfy.adapter.delegate.impl.TopMoreDelegate;
 
@@ -29,6 +30,7 @@ public class DelegateRegistry implements IDelegate {
         register(new SpanDelegate());
         register(new TopMoreDelegate());
         register(new LoadMoreDelegate());
+        register(new NotifyDelegate());
     }
 
     public void register(IDelegate delegate) {
@@ -44,7 +46,7 @@ public class DelegateRegistry implements IDelegate {
     public LightHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LightHolder holder = null;
         for (int i = 0; i < mDelegates.size(); i++) {
-            holder = mDelegates.get(i).onCreateViewHolder(parent, viewType);
+            holder = mDelegates.valueAt(i).onCreateViewHolder(parent, viewType);
             if (holder != null) {
                 break;
             }
@@ -55,7 +57,7 @@ public class DelegateRegistry implements IDelegate {
     @Override
     public void onViewAttachedToWindow(@NonNull LightHolder holder) {
         for (int i = 0; i < mDelegates.size(); i++) {
-            mDelegates.get(i).onViewAttachedToWindow(holder);
+            mDelegates.valueAt(i).onViewAttachedToWindow(holder);
         }
     }
 
@@ -63,7 +65,7 @@ public class DelegateRegistry implements IDelegate {
     public boolean onBindViewHolder(LightHolder holder, int position) {
         boolean result = false;
         for (int i = 0; i < mDelegates.size(); i++) {
-            if (mDelegates.get(i).onBindViewHolder(holder, position)) {
+            if (mDelegates.valueAt(i).onBindViewHolder(holder, position)) {
                 result = true;
                 break;
             }
@@ -74,14 +76,14 @@ public class DelegateRegistry implements IDelegate {
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         for (int i = 0; i < mDelegates.size(); i++) {
-            mDelegates.get(i).onAttachedToRecyclerView(recyclerView);
+            mDelegates.valueAt(i).onAttachedToRecyclerView(recyclerView);
         }
     }
 
     @Override
     public void onAttachAdapter(LightAdapter adapter) {
         for (int i = 0; i < mDelegates.size(); i++) {
-            mDelegates.get(i).onAttachAdapter(adapter);
+            mDelegates.valueAt(i).onAttachAdapter(adapter);
         }
     }
 
@@ -89,7 +91,7 @@ public class DelegateRegistry implements IDelegate {
     public int getItemCount() {
         int count = 0;
         for (int i = 0; i < mDelegates.size(); i++) {
-            count += mDelegates.get(i).getItemCount();
+            count += mDelegates.valueAt(i).getItemCount();
         }
         return count;
     }
@@ -99,7 +101,7 @@ public class DelegateRegistry implements IDelegate {
     public int getItemViewType(int position) {
         int type = VALUE.NONE;
         for (int i = 0; i < mDelegates.size(); i++) {
-            type = mDelegates.get(i).getItemViewType(position);
+            type = mDelegates.valueAt(i).getItemViewType(position);
             if (type != VALUE.NONE) {
                 break;
             }
@@ -114,5 +116,10 @@ public class DelegateRegistry implements IDelegate {
             return (D) iDelegate;
         }
         return null;
+    }
+
+
+    interface DelegateCallback {
+        boolean call(IDelegate delegate);
     }
 }

@@ -5,6 +5,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 
+import com.zfy.adapter.AdapterCallback;
+
 /**
  * CreateAt : 2018/10/30
  * Describe : 完成顶部加载更多功能
@@ -15,18 +17,18 @@ public class TopMoreDelegate extends BaseDelegate {
 
     @Override
     public int getKey() {
-        return TOPMORE;
+        return TOP_MORE;
     }
 
 
-    private boolean mLoadingMore;
-    private int mPreLoadNum;
-    private boolean mReachTop;
-    private Runnable mRunnable;
+    private boolean mLoadingMore; // 是否在加载更多
+    private int mStartTryTopMoreItemCount; // 预加载个数
+    private boolean mReachTop; // 是否到达顶部
+    private AdapterCallback mCallback; // 加载回调
 
     public TopMoreDelegate() {
-        mPreLoadNum = 3;
-        mRunnable = () -> {
+        mStartTryTopMoreItemCount = 3;
+        mCallback = adapter -> {
         };
     }
 
@@ -40,7 +42,7 @@ public class TopMoreDelegate extends BaseDelegate {
                 // 停止，到达顶部,没有在加载更多，
                 if (isAttached() && newState == RecyclerView.SCROLL_STATE_IDLE && mReachTop && !mLoadingMore) {
                     mLoadingMore = true;
-                    mRunnable.run();
+                    mCallback.call(mAdapter);
                 }
             }
 
@@ -49,7 +51,7 @@ public class TopMoreDelegate extends BaseDelegate {
                 super.onScrolled(recyclerView, dx, dy);
                 if (isAttached() && dy < 0) {
                     int firstPos = getFirstVisiblePosition(mView);
-                    mReachTop = firstPos <= mPreLoadNum;
+                    mReachTop = firstPos <= mStartTryTopMoreItemCount;
                 }
             }
         });
@@ -86,7 +88,22 @@ public class TopMoreDelegate extends BaseDelegate {
     /**
      * 结束加载才能开启下次加载
      */
-    public void finishLoad() {
+    public void finishTopMore() {
         this.mLoadingMore = false;
+    }
+
+
+    /**
+     * @param callback 回调
+     */
+    public void setTopMoreListener(AdapterCallback callback) {
+        mCallback = callback;
+    }
+
+    /**
+     * @param count 预加载个数
+     */
+    public void setStartTryTopMoreItemCount(int count) {
+        mStartTryTopMoreItemCount = count;
     }
 }

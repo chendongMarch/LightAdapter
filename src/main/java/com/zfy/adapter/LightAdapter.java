@@ -345,4 +345,8 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         });
     }
 
+
+    public int all(int... ids) {
+
+    }
 }

@@ -16,10 +16,11 @@ import com.zfy.adapter.LightHolder;
 public interface IDelegate {
 
 
-    int HF = 0;
-    int SPAN = 1;
-    int LOADMORE = 3;
-    int TOPMORE = 3;
+    int HF = 1;
+    int SPAN = 2;
+    int LOAD_MORE = 3;
+    int TOP_MORE = 4;
+    int NOTIFY = 5;
 
     /**
      * 获取本代理的 key
