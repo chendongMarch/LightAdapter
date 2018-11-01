@@ -29,12 +29,19 @@ public class NotifyDelegate extends BaseDelegate {
         notifyInUIThread(() -> mAdapter.notifyItemRangeChanged(positionStart, itemCount));
     }
 
+    public final void change(final int positionStart, final int itemCount, Object payloads) {
+        notifyInUIThread(() -> mAdapter.notifyItemRangeChanged(positionStart, itemCount, payloads));
+    }
+
+
     public final void insert(final int position) {
         notifyInUIThread(() -> mAdapter.notifyItemRangeInserted(position, 1));
     }
 
     public final void insert(final int positionStart, final int itemCount) {
-        notifyInUIThread(() -> mAdapter.notifyItemRangeInserted(positionStart, itemCount));
+        notifyInUIThread(() -> {
+            mAdapter.notifyItemRangeInserted(positionStart, itemCount);
+        });
     }
 
     public final void remove(final int position) {

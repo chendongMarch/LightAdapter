@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.delegate.DelegateRegistry;
 import com.zfy.adapter.delegate.IDelegate;
 import com.zfy.adapter.delegate.impl.HFDelegate;
@@ -64,6 +65,9 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
 
     // 通用
     private LightAdapter(Context context, List<D> datas) {
+        if (datas instanceof LightDiffList) {
+            ((LightDiffList) datas).setLightAdapter(this);
+        }
         mContext = context;
         mHolderCache = new HashSet<>();
         mLayoutInflater = LayoutInflater.from(context);
