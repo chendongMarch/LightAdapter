@@ -4,7 +4,7 @@ import android.support.annotation.IdRes;
 
 /**
  * CreateAt : 2017.09.28
- * Describe : 针对id列表使用
+ * Describe : 针对 id 列表使用
  *
  * @author chendong
  */

@@ -11,6 +11,16 @@ import com.zfy.adapter.model.Selectable;
  */
 public class SelectorDelegate extends BaseDelegate {
 
+    public interface SelectorBinder {
+        void onBindSelectableViewHolder(LightHolder holder, int position, Selectable obj)
+    }
+
+    private SelectorBinder mSelectorBinder;
+
+    public void setSelectorBinder(SelectorBinder selectorBinder) {
+        mSelectorBinder = selectorBinder;
+    }
+
     @Override
     public int getKey() {
         return SELECTOR;
@@ -18,17 +28,17 @@ public class SelectorDelegate extends BaseDelegate {
 
     @Override
     public boolean onBindViewHolder(LightHolder holder, int position) {
+        if (mSelectorBinder == null) {
+            return super.onBindViewHolder(holder, position);
+        }
         int pos = mAdapter.toModelIndex(position);
         Object data = mAdapter.getItem(pos);
         if (data instanceof Selectable) {
-            onBindSelectableViewHolder(holder, position, (Selectable) data);
+            mSelectorBinder.onBindSelectableViewHolder(holder, position, (Selectable) data);
         }
         return super.onBindViewHolder(holder, position);
     }
 
-    public void onBindSelectableViewHolder(LightHolder holder, int position, Selectable obj) {
-
-    }
 
     /**
      * 选中某一项
@@ -41,7 +51,7 @@ public class SelectorDelegate extends BaseDelegate {
         }
         selectable.setSelected(true);
         int pos = mAdapter.getDatas().indexOf(selectable);
-        if (pos > 0) {
+        if (pos >= 0) {
             mAdapter.notifyItem().change(mAdapter.toLayoutIndex(pos));
         }
     }
@@ -57,7 +67,7 @@ public class SelectorDelegate extends BaseDelegate {
         }
         selectable.setSelected(false);
         int pos = mAdapter.getDatas().indexOf(selectable);
-        if (pos > 0) {
+        if (pos >= 0) {
             mAdapter.notifyItem().change(mAdapter.toLayoutIndex(pos));
         }
     }

@@ -8,13 +8,7 @@ package com.zfy.adapter.model;
  */
 public interface Selectable {
 
-    boolean selected[] = {false};
+    boolean isSelected();
 
-    default boolean isSelected() {
-        return selected[0];
-    }
-
-    default void setSelected(boolean isSelected) {
-        selected[0] = isSelected;
-    }
+    void setSelected(boolean isSelected);
 }

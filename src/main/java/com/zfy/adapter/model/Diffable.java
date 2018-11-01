@@ -6,7 +6,7 @@ import java.util.Set;
 
 /**
  * CreateAt : 2018/11/1
- * Describe :
+ * Describe : 使用 LightDiffList 更新数据时需要实现该接口
  *
  * @author chendong
  */

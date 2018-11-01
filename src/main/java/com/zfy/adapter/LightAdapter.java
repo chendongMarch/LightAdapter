@@ -247,6 +247,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
                 int position = toModelIndex(holder.getAdapterPosition());
                 ModelType type = getType(getItem(position));
                 if (type != null && type.isEnableClick()) {
+                    data = mDatas.get(position);
                     onItemListener.onClick(position, holder, data);
                 }
             }
@@ -256,6 +257,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
                 int position = toModelIndex(holder.getAdapterPosition());
                 ModelType type = getType(getItem(position));
                 if (type != null && type.isEnableClick()) {
+                    data = mDatas.get(position);
                     onItemListener.onLongPress(position, holder, data);
                 }
             }
@@ -265,6 +267,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
                 int position = toModelIndex(holder.getAdapterPosition());
                 ModelType type = getType(getItem(position));
                 if (type != null && type.isEnableClick()) {
+                    data = mDatas.get(position);
                     onItemListener.onDoubleClick(position, holder, data);
                 }
             }

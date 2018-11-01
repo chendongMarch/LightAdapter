@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.Values;
+import com.zfy.adapter.delegate.impl.BaseDelegate;
 import com.zfy.adapter.delegate.impl.HFDelegate;
 import com.zfy.adapter.delegate.impl.LoadMoreDelegate;
 import com.zfy.adapter.delegate.impl.NotifyDelegate;
@@ -20,7 +21,7 @@ import com.zfy.adapter.delegate.impl.TopMoreDelegate;
  *
  * @author chendong
  */
-public class DelegateRegistry implements IDelegate {
+public class DelegateRegistry extends BaseDelegate {
 
     private SparseArray<IDelegate> mDelegates;
 
@@ -34,6 +35,9 @@ public class DelegateRegistry implements IDelegate {
     }
 
     public void register(IDelegate delegate) {
+        if (mAdapter != null) {
+            delegate.onAttachAdapter(mAdapter);
+        }
         mDelegates.append(delegate.getKey(), delegate);
     }
 
@@ -75,6 +79,7 @@ public class DelegateRegistry implements IDelegate {
 
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
         for (int i = 0; i < mDelegates.size(); i++) {
             mDelegates.valueAt(i).onAttachedToRecyclerView(recyclerView);
         }
@@ -82,6 +87,7 @@ public class DelegateRegistry implements IDelegate {
 
     @Override
     public void onAttachAdapter(LightAdapter adapter) {
+        super.onAttachAdapter(adapter);
         for (int i = 0; i < mDelegates.size(); i++) {
             mDelegates.valueAt(i).onAttachAdapter(adapter);
         }
