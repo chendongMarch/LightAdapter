@@ -2,9 +2,11 @@ package com.zfy.adapter.collections;
 
 import android.annotation.TargetApi;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.MainThread;
+import android.support.annotation.Nullable;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.util.ListUpdateCallback;
 
@@ -84,6 +86,15 @@ public class LightDiffList<T extends Diffable<T>> extends AbstractList<T> {
                 T newItem = newItems.get(newItemPosition);
                 return oldItem.areContentsTheSame(newItem);
             }
+
+            @Nullable
+            @Override
+            public Object getChangePayload(int oldItemPosition, int newItemPosition) {
+                T oldItem = oldItems.get(oldItemPosition);
+                T newItem = newItems.get(newItemPosition);
+                return oldItem.getChangePayload(newItem);
+            }
+
         }, detectMoves);
     }
 

@@ -18,6 +18,7 @@ import com.zfy.adapter.delegate.impl.SelectorDelegate;
 import com.zfy.adapter.delegate.impl.TopMoreDelegate;
 import com.zfy.adapter.listener.OnItemListener;
 import com.zfy.adapter.listener.SimpleItemListener;
+import com.zfy.adapter.model.Ids;
 import com.zfy.adapter.model.Typeable;
 
 import java.util.HashSet;
@@ -130,6 +131,28 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         }
     }
 
+    @Override
+    public void onBindViewHolder(@NonNull LightHolder holder, int position, @NonNull List<Object> payloads) {
+        if (payloads.isEmpty()) {
+            super.onBindViewHolder(holder, position, payloads);
+        } else {
+            int pos = toModelIndex(position);
+            D data = getItem(pos);
+            onBindView(holder, data, pos);
+            for (Object payload : payloads) {
+                if (payload instanceof Set && !((Set) payload).isEmpty()) {
+                    Set msgSet = (Set) payload;
+                    for (Object o : msgSet) {
+                        if (o instanceof String) {
+                            onBindViewUsePayload(holder, data, pos, (String) o);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
     // 绑定到 RecyclerView
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
@@ -211,14 +234,10 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         return mDelegateRegistry.get(key);
     }
 
-    /**
-     * 绑定数据
-     *
-     * @param holder holder
-     * @param data   数据
-     * @param pos    数据中的位置
-     */
     public abstract void onBindView(LightHolder holder, D data, int pos);
+
+    public void onBindViewUsePayload(LightHolder holder, D data, int pos, String msg) {
+    }
 
 
     public void setOnItemListener(final OnItemListener<D> onItemListener) {
@@ -320,9 +339,8 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         });
     }
 
-
-    public int all(int... ids) {
-        return 0;
+    public Ids all(int... ids) {
+        return Ids.all(ids);
     }
 
     // 根据类型获取 ModelType
