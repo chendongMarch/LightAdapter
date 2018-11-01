@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.VALUE;
+import com.zfy.adapter.Values;
 
 import java.util.List;
 
@@ -45,7 +45,7 @@ public abstract class LightPagerAdapter<D> extends PagerAdapter {
     public Object instantiateItem(ViewGroup container, int position) {
         View view = LayoutInflater.from(container.getContext()).inflate(mItemLayout, container, false);
         container.addView(view);
-        LightHolder holder = new LightHolder(null, VALUE.NONE, view);
+        LightHolder holder = new LightHolder(null, Values.NONE, view);
         onBindView(holder, mDatas.get(position));
         return view;
     }

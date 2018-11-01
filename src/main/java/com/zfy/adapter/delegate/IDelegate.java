@@ -20,7 +20,8 @@ public interface IDelegate {
     int SPAN = 2;
     int LOAD_MORE = 3;
     int TOP_MORE = 4;
-    int NOTIFY = 5;
+    int SELECTOR = 5;
+    int NOTIFY = 6;
 
     /**
      * 获取本代理的 key

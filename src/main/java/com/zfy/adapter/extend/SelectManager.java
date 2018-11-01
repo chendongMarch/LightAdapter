@@ -209,7 +209,7 @@ public class SelectManager<D> {
 
     private void updatePos(final int pos) {
         if (!updatePosUseHolder(pos)) {
-//            mAdapter.update().notifyItemChanged(pos);
+//            mAdapter.notifyItem().notifyItemChanged(pos);
         }
     }
 }

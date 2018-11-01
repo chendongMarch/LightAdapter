@@ -17,15 +17,15 @@ public class NotifyDelegate extends BaseDelegate {
         mView.post(runnable);
     }
 
-    public final void update() {
+    public final void change() {
         notifyInUIThread(() -> mAdapter.notifyDataSetChanged());
     }
 
-    public final void update(final int position) {
-        notifyInUIThread(() -> mAdapter.notifyItemRangeChanged(position, 1));
+    public final void change(final int position) {
+        notifyInUIThread(() -> mAdapter.notifyItemChanged(position));
     }
 
-    public final void update(final int positionStart, final int itemCount) {
+    public final void change(final int positionStart, final int itemCount) {
         notifyInUIThread(() -> mAdapter.notifyItemRangeChanged(positionStart, itemCount));
     }
 

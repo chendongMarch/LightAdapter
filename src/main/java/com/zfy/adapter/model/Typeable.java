@@ -5,6 +5,6 @@ package com.zfy.adapter.model;
  *
  * @author chendong
  */
-public interface ITypeModel {
+public interface Typeable {
     int getModelType();
 }

@@ -11,9 +11,13 @@ import android.view.ViewGroup;
 import com.zfy.adapter.delegate.DelegateRegistry;
 import com.zfy.adapter.delegate.IDelegate;
 import com.zfy.adapter.delegate.impl.HFDelegate;
+import com.zfy.adapter.delegate.impl.LoadMoreDelegate;
+import com.zfy.adapter.delegate.impl.NotifyDelegate;
+import com.zfy.adapter.delegate.impl.SelectorDelegate;
+import com.zfy.adapter.delegate.impl.TopMoreDelegate;
 import com.zfy.adapter.listener.OnItemListener;
 import com.zfy.adapter.listener.SimpleItemListener;
-import com.zfy.adapter.model.ITypeModel;
+import com.zfy.adapter.model.Typeable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -26,14 +30,6 @@ import java.util.Set;
  * @author chendong
  */
 public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> {
-
-    public static final String TAG = LightAdapter.class.getSimpleName();
-
-    public static final int UNSET        = -100;
-    public static final int TYPE_HEADER  = -1;
-    public static final int TYPE_FOOTER  = -2;
-    public static final int TYPE_DEFAULT = -3;
-    public static final int TYPE_EMPTY   = -4;
 
     // View
     private RecyclerView mRecyclerView;
@@ -55,32 +51,6 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     // 代理注册表
     private DelegateRegistry mDelegateRegistry;
 
-    public ModelType getType(int type) {
-        ModelType modelType = mModelTypeCache.get(type);
-        if (modelType == null) {
-            modelType = new ModelType(type);
-            mBuildInModelTypeFactory.update(modelType);
-            mModelTypeFactory.update(modelType);
-            mModelTypeCache.put(type, modelType);
-        }
-        return modelType;
-    }
-
-
-    // 构造一个 ModelType
-    public ModelType getType(D data) {
-        if (data == null) {
-            return null;
-        }
-        int type;
-        if (data instanceof ITypeModel) {
-            type = ((ITypeModel) data).getModelType();
-        } else {
-            type = VALUE.TYPE_CONTENT;
-        }
-        return getType(type);
-    }
-
     // 单类型构造
     public LightAdapter(Context context, List<D> datas, int layoutId) {
         this(context, datas, modelType -> modelType.setLayout(layoutId));
@@ -92,6 +62,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         mModelTypeFactory = factory;
     }
 
+    // 通用
     private LightAdapter(Context context, List<D> datas) {
         mContext = context;
         mHolderCache = new HashSet<>();
@@ -102,8 +73,8 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         mDelegateRegistry = new DelegateRegistry();
         mDelegateRegistry.onAttachAdapter(this);
         mBuildInModelTypeFactory = type -> {
-            if (type.getType() == VALUE.TYPE_FOOTER || type.getType() == VALUE.TYPE_HEADER) {
-                type.setSpanSize(VALUE.SPAN_SIZE_ALL);
+            if (type.getType() == Values.TYPE_FOOTER || type.getType() == Values.TYPE_HEADER) {
+                type.setSpanSize(Values.SPAN_SIZE_ALL);
             }
         };
     }
@@ -171,15 +142,15 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     @Override
     public int getItemViewType(int position) {
         int hfType = mDelegateRegistry.getItemViewType(position);
-        if (hfType != VALUE.NONE) {
+        if (hfType != Values.NONE) {
             return hfType;
         }
         D d = getItem(toModelIndex(position));
-        if (d instanceof ITypeModel) {
-            ITypeModel model = (ITypeModel) d;
+        if (d instanceof Typeable) {
+            Typeable model = (Typeable) d;
             return model.getModelType();
         } else {
-            return VALUE.TYPE_CONTENT;
+            return Values.TYPE_CONTENT;
         }
     }
 
@@ -196,7 +167,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
      * @return 数据中的位置
      */
     public int toModelIndex(int position) {
-        HFDelegate delegate = mDelegateRegistry.get(IDelegate.HF, HFDelegate.class);
+        HFDelegate delegate = mDelegateRegistry.get(IDelegate.HF);
         if (delegate.isHeaderEnable()) {
             return position - 1;
         }
@@ -210,7 +181,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
      * @return 布局中的位置
      */
     public int toLayoutIndex(int position) {
-        HFDelegate delegate = mDelegateRegistry.get(IDelegate.HF, HFDelegate.class);
+        HFDelegate delegate = mDelegateRegistry.get(IDelegate.HF);
         if (delegate.isHeaderEnable()) {
             return position + 1;
         }
@@ -232,8 +203,8 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         }
     }
 
-    public <Delegate extends IDelegate> Delegate getDelegate(int key, Class<Delegate> clazz) {
-        return mDelegateRegistry.get(key, clazz);
+    public <Delegate extends IDelegate> Delegate getDelegate(int key) {
+        return mDelegateRegistry.get(key);
     }
 
     /**
@@ -347,6 +318,66 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
 
 
     public int all(int... ids) {
+        return 0;
+    }
 
+    // 根据类型获取 ModelType
+    public ModelType getType(int type) {
+        ModelType modelType = mModelTypeCache.get(type);
+        if (modelType == null) {
+            modelType = new ModelType(type);
+            mBuildInModelTypeFactory.update(modelType);
+            mModelTypeFactory.update(modelType);
+            mModelTypeCache.put(type, modelType);
+        }
+        return modelType;
+    }
+
+
+    // 根据数据获取 ModelType
+    public ModelType getType(D data) {
+        if (data == null) {
+            return null;
+        }
+        int type;
+        if (data instanceof Typeable) {
+            type = ((Typeable) data).getModelType();
+        } else {
+            type = Values.TYPE_CONTENT;
+        }
+        return getType(type);
+    }
+
+    /**
+     * 获取注册表，注册和获取
+     *
+     * @return DelegateRegistry
+     */
+    public DelegateRegistry getDelegateRegistry() {
+        return mDelegateRegistry;
+    }
+
+    public HFDelegate header() {
+        return getDelegate(IDelegate.HF);
+    }
+
+    public HFDelegate footer() {
+        return getDelegate(IDelegate.HF);
+    }
+
+    public NotifyDelegate notifyItem() {
+        return getDelegate(IDelegate.NOTIFY);
+    }
+
+    public LoadMoreDelegate loadMore() {
+        return getDelegate(IDelegate.LOAD_MORE);
+    }
+
+    public TopMoreDelegate topMore() {
+        return getDelegate(IDelegate.TOP_MORE);
+    }
+
+    public SelectorDelegate selector() {
+        return getDelegate(IDelegate.SELECTOR);
     }
 }

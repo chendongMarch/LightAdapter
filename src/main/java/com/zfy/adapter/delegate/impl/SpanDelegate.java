@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.ModelType;
-import com.zfy.adapter.VALUE;
+import com.zfy.adapter.Values;
 
 /**
  * CreateAt : 2018/2/24
@@ -26,7 +26,7 @@ public class SpanDelegate extends BaseDelegate {
         if (layoutManager instanceof StaggeredGridLayoutManager) {
             int type = holder.getItemViewType();
             ModelType modelType = mAdapter.getType(type);
-            if (modelType.getSpanSize() == VALUE.SPAN_SIZE_ALL) {
+            if (modelType.getSpanSize() == Values.SPAN_SIZE_ALL) {
                 ViewGroup.LayoutParams originLp = holder.getItemView().getLayoutParams();
                 StaggeredGridLayoutManager.LayoutParams layoutParams =
                         new StaggeredGridLayoutManager.LayoutParams(originLp.width, originLp.height);
@@ -50,11 +50,11 @@ public class SpanDelegate extends BaseDelegate {
                     ModelType modelType = mAdapter.getType(type);
                     int spanCount = gridLayoutManager.getSpanCount();
                     int spanSize = modelType.getSpanSize();
-                    if (spanSize == VALUE.SPAN_SIZE_ALL) {
+                    if (spanSize == Values.SPAN_SIZE_ALL) {
                         spanSize = spanCount;
-                    } else if (spanSize == VALUE.SPAN_SIZE_HALF && spanCount % 2 == 0) {
+                    } else if (spanSize == Values.SPAN_SIZE_HALF && spanCount % 2 == 0) {
                         spanSize = spanCount / 2;
-                    } else if (spanSize == VALUE.SPAN_SIZE_HALF && spanCount % 3 == 0) {
+                    } else if (spanSize == Values.SPAN_SIZE_HALF && spanCount % 3 == 0) {
                         spanSize = spanCount / 3;
                     } else if (spanSize <= 0) {
                         spanSize = 1;

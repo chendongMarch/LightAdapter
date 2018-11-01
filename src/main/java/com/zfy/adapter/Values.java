@@ -6,7 +6,7 @@ package com.zfy.adapter;
  *
  * @author chendong
  */
-public class VALUE {
+public class Values {
 
 
     public static final String HOLDER_HEADER = "HOLDER_HEADER"; // header holder

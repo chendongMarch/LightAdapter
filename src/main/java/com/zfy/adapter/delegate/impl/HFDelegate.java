@@ -7,10 +7,10 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.VALUE;
+import com.zfy.adapter.Utils;
+import com.zfy.adapter.Values;
 import com.zfy.adapter.ViewHolderBinder;
 import com.zfy.adapter.delegate.IDelegate;
-import com.zfy.adapter.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +35,8 @@ public class HFDelegate extends BaseDelegate {
     @Override
     public LightHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LightHolder holder = null;
-        boolean isFooter = isFooterEnable() && viewType == VALUE.TYPE_FOOTER;
-        boolean isHeader = isHeaderEnable() && viewType == VALUE.TYPE_HEADER;
+        boolean isFooter = isFooterEnable() && viewType == Values.TYPE_FOOTER;
+        boolean isHeader = isHeaderEnable() && viewType == Values.TYPE_HEADER;
         if (isFooter) {
             holder = new LightHolder(mAdapter, viewType, mFooterView);
         } else if (isHeader) {
@@ -49,7 +49,7 @@ public class HFDelegate extends BaseDelegate {
     @Override
     public boolean onBindViewHolder(LightHolder holder, int position) {
         int itemViewType = mAdapter.getItemViewType(position);
-        if (itemViewType == VALUE.TYPE_HEADER || itemViewType == VALUE.TYPE_FOOTER) {
+        if (itemViewType == Values.TYPE_HEADER || itemViewType == Values.TYPE_FOOTER) {
             return true;
         }
         return super.onBindViewHolder(holder, position);
@@ -67,12 +67,14 @@ public class HFDelegate extends BaseDelegate {
     @Override
     public int getItemViewType(int position) {
         // 有 header 且位置 0
-        if (isHeaderEnable() && position == 0)
-            return VALUE.TYPE_HEADER;
+        if (isHeaderEnable() && position == 0) {
+            return Values.TYPE_HEADER;
+        }
         // pos 超出
-        if (isFooterEnable() && position == mAdapter.getItemCount() - 1)
-            return VALUE.TYPE_FOOTER;
-        return VALUE.NONE;
+        if (isFooterEnable() && position == mAdapter.getItemCount() - 1) {
+            return Values.TYPE_FOOTER;
+        }
+        return Values.NONE;
     }
 
     public ViewGroup getFooterView() {
@@ -130,8 +132,9 @@ public class HFDelegate extends BaseDelegate {
             index = childCount;
         }
         mHeaderView.addView(view, index);
-        LightHolder holder = new LightHolder(mAdapter, VALUE.TYPE_HEADER, mHeaderView);
-        binder.onBindViewHolder(holder, VALUE.NONE);
+        LightHolder holder = new LightHolder(mAdapter, Values.TYPE_HEADER, mHeaderView);
+        binder.onBindViewHolder(holder, Values.NONE);
+        mHeaderEnable = true;
         if (isNewHeader && mHeaderView.getChildCount() == 1) {
             mAdapter.notifyItemInserted(0);
         }
@@ -171,8 +174,9 @@ public class HFDelegate extends BaseDelegate {
             index = childCount;
         }
         mFooterView.addView(view, index);
-        LightHolder holder = new LightHolder(mAdapter, VALUE.TYPE_FOOTER, mFooterView);
-        binder.onBindViewHolder(holder, VALUE.NONE);
+        LightHolder holder = new LightHolder(mAdapter, Values.TYPE_FOOTER, mFooterView);
+        binder.onBindViewHolder(holder, Values.NONE);
+        mFooterEnable = true;
         if (isNewFooter && mFooterView.getChildCount() == 1) {
             mAdapter.notifyItemInserted(mAdapter.getItemCount() - 1);
         }
@@ -181,12 +185,12 @@ public class HFDelegate extends BaseDelegate {
 
     // header 是否可用
     public boolean isHeaderEnable() {
-        return mHeaderView != null;
+        return mHeaderEnable;
     }
 
     // footer 是否可用
     public boolean isFooterEnable() {
-        return mFooterView != null;
+        return mFooterEnable;
     }
 
     // 清空 Header
@@ -205,22 +209,55 @@ public class HFDelegate extends BaseDelegate {
         mFooterViewHolderBinders.clear();
     }
 
+    private boolean mFooterEnable;
+    private boolean mHeaderEnable;
+
+    public void setFooterEnable(boolean footerEnable) {
+        if (mFooterView == null) {
+            return;
+        }
+        if (mFooterEnable == footerEnable) {
+            return;
+        }
+        mFooterEnable = footerEnable;
+        if (mFooterEnable) {
+            mAdapter.notifyItem().insert(mAdapter.getItemCount());
+        } else {
+            mAdapter.notifyItem().remove(mAdapter.getItemCount());
+        }
+    }
+
+    public void setHeaderEnable(boolean headerEnable) {
+        if (mHeaderView == null) {
+            return;
+        }
+        if (mHeaderEnable == headerEnable) {
+            return;
+        }
+        mHeaderEnable = headerEnable;
+        if (mHeaderEnable) {
+            mAdapter.notifyItem().insert(0);
+        } else {
+            mAdapter.notifyItem().remove(0);
+        }
+    }
+
     // 更新 Header
     public void notifyHeaderUpdate() {
         if (mHeaderView == null) {
             return;
         }
-        LightHolder holder = new LightHolder(mAdapter, VALUE.TYPE_HEADER, mHeaderView);
+        LightHolder holder = new LightHolder(mAdapter, Values.TYPE_HEADER, mHeaderView);
         for (ViewHolderBinder binder : mHeaderViewHolderBinders) {
-            binder.onBindViewHolder(holder, VALUE.NONE);
+            binder.onBindViewHolder(holder, Values.NONE);
         }
     }
 
     // 更新 Footer
     public void notifyFooterUpdate() {
-        LightHolder holder = new LightHolder(mAdapter, VALUE.TYPE_FOOTER, mFooterView);
+        LightHolder holder = new LightHolder(mAdapter, Values.TYPE_FOOTER, mFooterView);
         for (ViewHolderBinder binder : mFooterViewHolderBinders) {
-            binder.onBindViewHolder(holder, VALUE.NONE);
+            binder.onBindViewHolder(holder, Values.NONE);
         }
     }
 

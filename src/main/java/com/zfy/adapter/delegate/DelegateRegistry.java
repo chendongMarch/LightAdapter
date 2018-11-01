@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.VALUE;
+import com.zfy.adapter.Values;
 import com.zfy.adapter.delegate.impl.HFDelegate;
 import com.zfy.adapter.delegate.impl.LoadMoreDelegate;
 import com.zfy.adapter.delegate.impl.NotifyDelegate;
@@ -39,7 +39,7 @@ public class DelegateRegistry implements IDelegate {
 
     @Override
     public int getKey() {
-        return VALUE.NONE;
+        return Values.NONE;
     }
 
     @Override
@@ -99,10 +99,10 @@ public class DelegateRegistry implements IDelegate {
 
     @Override
     public int getItemViewType(int position) {
-        int type = VALUE.NONE;
+        int type = Values.NONE;
         for (int i = 0; i < mDelegates.size(); i++) {
             type = mDelegates.valueAt(i).getItemViewType(position);
-            if (type != VALUE.NONE) {
+            if (type != Values.NONE) {
                 break;
             }
         }
@@ -110,16 +110,10 @@ public class DelegateRegistry implements IDelegate {
     }
 
     @SuppressWarnings("unchecked")
-    public <D extends IDelegate> D get(int key, Class<D> clazz) {
+    public <D extends IDelegate> D get(int key) {
         IDelegate iDelegate = mDelegates.get(key);
-        if (iDelegate.getClass() == clazz) {
-            return (D) iDelegate;
-        }
-        return null;
+        return (D) iDelegate;
     }
 
 
-    interface DelegateCallback {
-        boolean call(IDelegate delegate);
-    }
 }
