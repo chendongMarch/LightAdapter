@@ -213,13 +213,31 @@ public class Student implements Selectable {
 }
 ```
 
-Wangzy0904,,,
+使用 `adapter.selector()` 获取 `SelectorDelegate` 来初始化选择器需要的参数：
 
-使用 `adapter.selector()` 获取 `SelectorDelegate` 添加绑定监听，用来根据是否选中的状态来显示不同的 `UI`，如果需要使用具体的数据，可以将 `Selectable` 对象强转转换为目标对象；
+- 类型，支持多选和单选，单选时，选中一个会自动取消其他选中。
+- 绑定回调，用来根据是否选中的状态来显示不同的 `UI`，如果需要使用具体的数据，可以将 `Selectable` 对象强转转换为目标对象；
+
 
 ```java
-adapter.selector().setSelectorBinder((holder, position, obj) -> {
+mStudentAdapter.selector().setSelectorBinder(LightValues.SINGLE, (holder, position, obj) -> {
     holder.setTextColor(R.id.tv, obj.isSelected() ? Color.GREEN : Color.RED);
+});
+```
+
+然后可以在点击事件中选中或者取消选中某一项
+
+```java
+mStudentAdapter.setOnItemListener(new SimpleItemListener<Student>() {
+    @Override
+    public void onClick(int pos, LightHolder holder, Student data) {
+        // 选中切换为不选中，不选中切换为选中
+        mStudentAdapter.selector().toggleItem(data);
+        // 选中
+        mStudentAdapter.selector().selectItem(data);
+        // 不选中
+        mStudentAdapter.selector().releaseItem(data);
+    }
 });
 ```
 
@@ -532,5 +550,6 @@ new LightAdapter<Student>(getContext(), mStudents, factory) {
     }
 };
 ```
+
 
 

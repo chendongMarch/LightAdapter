@@ -2,6 +2,9 @@ package com.zfy.adapter.delegate.impl;
 
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.able.Selectable;
+import com.zfy.adapter.common.LightValues;
+
+import java.util.List;
 
 /**
  * CreateAt : 2018/11/1
@@ -16,9 +19,11 @@ public class SelectorDelegate extends BaseDelegate {
     }
 
     private SelectorBinder mSelectorBinder;
+    private int mSelectType;
 
-    public void setSelectorBinder(SelectorBinder selectorBinder) {
+    public void setSelectorBinder(int type, SelectorBinder selectorBinder) {
         mSelectorBinder = selectorBinder;
+        mSelectType = type;
     }
 
     @Override
@@ -40,6 +45,22 @@ public class SelectorDelegate extends BaseDelegate {
     }
 
 
+    // 单选时，选中一个，取消选中其他的
+    private void releaseOthers(Selectable selectable) {
+        List datas = mAdapter.getDatas();
+        for (Object data : datas) {
+            if (data.equals(selectable)) {
+                continue;
+            }
+            if (data instanceof Selectable) {
+                Selectable item = (Selectable) data;
+                if (item.isSelected()) {
+                    releaseItem(item);
+                }
+            }
+        }
+    }
+
     /**
      * 选中某一项
      *
@@ -48,6 +69,9 @@ public class SelectorDelegate extends BaseDelegate {
     public void selectItem(Selectable selectable) {
         if (selectable.isSelected()) {
             return;
+        }
+        if (mSelectType == LightValues.SINGLE) {
+            releaseOthers(selectable);
         }
         selectable.setSelected(true);
         int pos = mAdapter.getDatas().indexOf(selectable);

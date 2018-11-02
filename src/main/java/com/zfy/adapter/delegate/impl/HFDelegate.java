@@ -7,8 +7,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.common.Utils;
-import com.zfy.adapter.common.Values;
+import com.zfy.adapter.common.LightUtils;
+import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.IDelegate;
 import com.zfy.adapter.listener.ViewHolderBinder;
 
@@ -36,8 +36,8 @@ public class HFDelegate extends BaseDelegate {
     @Override
     public LightHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LightHolder holder = null;
-        boolean isFooter = isFooterEnable() && viewType == Values.TYPE_FOOTER;
-        boolean isHeader = isHeaderEnable() && viewType == Values.TYPE_HEADER;
+        boolean isFooter = isFooterEnable() && viewType == LightValues.TYPE_FOOTER;
+        boolean isHeader = isHeaderEnable() && viewType == LightValues.TYPE_HEADER;
         if (isFooter) {
             holder = new LightHolder(mAdapter, viewType, mFooterView);
         } else if (isHeader) {
@@ -59,7 +59,7 @@ public class HFDelegate extends BaseDelegate {
     @Override
     public boolean onBindViewHolder(LightHolder holder, int position) {
         int itemViewType = mAdapter.getItemViewType(position);
-        if (itemViewType == Values.TYPE_HEADER || itemViewType == Values.TYPE_FOOTER) {
+        if (itemViewType == LightValues.TYPE_HEADER || itemViewType == LightValues.TYPE_FOOTER) {
             return true;
         }
         return super.onBindViewHolder(holder, position);
@@ -78,13 +78,13 @@ public class HFDelegate extends BaseDelegate {
     public int getItemViewType(int position) {
         // 有 header 且位置 0
         if (isHeaderEnable() && position == 0) {
-            return Values.TYPE_HEADER;
+            return LightValues.TYPE_HEADER;
         }
         // pos 超出
         if (isFooterEnable() && position == mAdapter.getItemCount() - 1) {
-            return Values.TYPE_FOOTER;
+            return LightValues.TYPE_FOOTER;
         }
-        return Values.NONE;
+        return LightValues.NONE;
     }
 
     public ViewGroup getFooterView() {
@@ -111,7 +111,7 @@ public class HFDelegate extends BaseDelegate {
 
     // 添加 Header
     public void addHeaderView(int layoutId, ViewHolderBinder binder) {
-        View view = Utils.inflateView(mAdapter.getContext(), layoutId);
+        View view = LightUtils.inflateView(mAdapter.getContext(), layoutId);
         if (view != null) {
             addHeaderView(view, -1, binder);
         }
@@ -124,7 +124,7 @@ public class HFDelegate extends BaseDelegate {
 
     // 添加 Header
     public void addHeaderView(int layoutId, int index, ViewHolderBinder binder) {
-        View view = Utils.inflateView(mAdapter.getContext(), layoutId);
+        View view = LightUtils.inflateView(mAdapter.getContext(), layoutId);
         if (view != null) {
             addHeaderView(view, index, binder);
         }
@@ -137,7 +137,7 @@ public class HFDelegate extends BaseDelegate {
             int viewIndex = index;
             boolean isNewHeader = false;
             if (mHeaderView == null) {
-                mHeaderView = createContainerView(mAdapter.getContext(), Utils.getRecyclerViewOrientation(mView));
+                mHeaderView = createContainerView(mAdapter.getContext(), LightUtils.getRecyclerViewOrientation(mView));
                 isNewHeader = true;
             }
             final int childCount = mHeaderView.getChildCount();
@@ -145,8 +145,8 @@ public class HFDelegate extends BaseDelegate {
                 viewIndex = childCount;
             }
             mHeaderView.addView(view, viewIndex);
-            LightHolder holder = new LightHolder(mAdapter, Values.TYPE_HEADER, mHeaderView);
-            binder.onBindViewHolder(holder, Values.NONE);
+            LightHolder holder = new LightHolder(mAdapter, LightValues.TYPE_HEADER, mHeaderView);
+            binder.onBindViewHolder(holder, LightValues.NONE);
             mHeaderEnable = true;
             if (isNewHeader && mHeaderView.getChildCount() == 1) {
                 mAdapter.notifyItemInserted(0);
@@ -162,7 +162,7 @@ public class HFDelegate extends BaseDelegate {
 
     // 添加 Footer
     public void addFooterView(int layoutId, ViewHolderBinder binder) {
-        View view = Utils.inflateView(mAdapter.getContext(), layoutId);
+        View view = LightUtils.inflateView(mAdapter.getContext(), layoutId);
         if (view != null) {
             addFooterView(view, -1, binder);
         }
@@ -175,7 +175,7 @@ public class HFDelegate extends BaseDelegate {
 
     // 添加 Footer
     public void addFooterView(int layoutId, int index, ViewHolderBinder binder) {
-        View view = Utils.inflateView(mAdapter.getContext(), layoutId);
+        View view = LightUtils.inflateView(mAdapter.getContext(), layoutId);
         if (view != null) {
             addHeaderView(view, index, binder);
         }
@@ -187,7 +187,7 @@ public class HFDelegate extends BaseDelegate {
             int viewIndex = index;
             boolean isNewFooter = false;
             if (mFooterView == null) {
-                mFooterView = createContainerView(mAdapter.getContext(), Utils.getRecyclerViewOrientation(mView));
+                mFooterView = createContainerView(mAdapter.getContext(), LightUtils.getRecyclerViewOrientation(mView));
                 isNewFooter = true;
             }
             final int childCount = mFooterView.getChildCount();
@@ -195,8 +195,8 @@ public class HFDelegate extends BaseDelegate {
                 viewIndex = childCount;
             }
             mFooterView.addView(view, viewIndex);
-            LightHolder holder = new LightHolder(mAdapter, Values.TYPE_FOOTER, mFooterView);
-            binder.onBindViewHolder(holder, Values.NONE);
+            LightHolder holder = new LightHolder(mAdapter, LightValues.TYPE_FOOTER, mFooterView);
+            binder.onBindViewHolder(holder, LightValues.NONE);
             mFooterEnable = true;
             if (isNewFooter && mFooterView.getChildCount() == 1) {
                 mAdapter.notifyItemInserted(mAdapter.getItemCount() - 1);
@@ -274,17 +274,17 @@ public class HFDelegate extends BaseDelegate {
         if (mHeaderView == null) {
             return;
         }
-        LightHolder holder = new LightHolder(mAdapter, Values.TYPE_HEADER, mHeaderView);
+        LightHolder holder = new LightHolder(mAdapter, LightValues.TYPE_HEADER, mHeaderView);
         for (ViewHolderBinder binder : mHeaderViewHolderBinders) {
-            binder.onBindViewHolder(holder, Values.NONE);
+            binder.onBindViewHolder(holder, LightValues.NONE);
         }
     }
 
     // 更新 Footer
     public void notifyFooterUpdate() {
-        LightHolder holder = new LightHolder(mAdapter, Values.TYPE_FOOTER, mFooterView);
+        LightHolder holder = new LightHolder(mAdapter, LightValues.TYPE_FOOTER, mFooterView);
         for (ViewHolderBinder binder : mFooterViewHolderBinders) {
-            binder.onBindViewHolder(holder, Values.NONE);
+            binder.onBindViewHolder(holder, LightValues.NONE);
         }
     }
 

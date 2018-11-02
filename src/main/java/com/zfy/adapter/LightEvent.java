@@ -1,4 +1,4 @@
-package com.zfy.adapter.model;
+package com.zfy.adapter;
 
 import android.support.v4.view.GestureDetectorCompat;
 import android.view.GestureDetector;
@@ -9,6 +9,7 @@ import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.listener.OnItemListener;
 import com.zfy.adapter.listener.SimpleItemListener;
+import com.zfy.adapter.model.ModelType;
 
 /**
  * CreateAt : 2018/11/2

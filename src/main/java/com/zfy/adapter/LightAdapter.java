@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 
 import com.zfy.adapter.able.ModelTypeable;
 import com.zfy.adapter.collections.LightDiffList;
-import com.zfy.adapter.common.Values;
+import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.DelegateRegistry;
 import com.zfy.adapter.delegate.IDelegate;
 import com.zfy.adapter.delegate.impl.HFDelegate;
@@ -21,7 +21,6 @@ import com.zfy.adapter.delegate.impl.TopMoreDelegate;
 import com.zfy.adapter.listener.ModelTypeFactory;
 import com.zfy.adapter.listener.OnItemListener;
 import com.zfy.adapter.model.Ids;
-import com.zfy.adapter.model.LightEvent;
 import com.zfy.adapter.model.ModelType;
 
 import java.util.HashSet;
@@ -98,8 +97,8 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         mDelegateRegistry.onAttachAdapter(this);
         mLightEvent = new LightEvent<>(this);
         mBuildInModelTypeFactory = type -> {
-            if (type.getType() == Values.TYPE_FOOTER || type.getType() == Values.TYPE_HEADER) {
-                type.setSpanSize(Values.SPAN_SIZE_ALL);
+            if (type.getType() == LightValues.TYPE_FOOTER || type.getType() == LightValues.TYPE_HEADER) {
+                type.setSpanSize(LightValues.SPAN_SIZE_ALL);
             }
         };
     }
@@ -165,7 +164,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     @Override
     public int getItemViewType(int position) {
         int hfType = mDelegateRegistry.getItemViewType(position);
-        if (hfType != Values.NONE) {
+        if (hfType != LightValues.NONE) {
             return hfType;
         }
         D d = getItem(toModelIndex(position));
@@ -173,7 +172,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
             ModelTypeable model = (ModelTypeable) d;
             return model.getModelType();
         } else {
-            return Values.TYPE_CONTENT;
+            return LightValues.TYPE_CONTENT;
         }
     }
 
@@ -342,7 +341,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         if (data instanceof ModelTypeable) {
             type = ((ModelTypeable) data).getModelType();
         } else {
-            type = Values.TYPE_CONTENT;
+            type = LightValues.TYPE_CONTENT;
         }
         return getType(type);
     }

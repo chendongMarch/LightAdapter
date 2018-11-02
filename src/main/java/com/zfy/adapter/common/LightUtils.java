@@ -14,7 +14,7 @@ import android.widget.LinearLayout;
  *
  * @author chendong
  */
-public class Utils {
+public class LightUtils {
 
 
     public static View inflateView(Context context, int layoutId) {
