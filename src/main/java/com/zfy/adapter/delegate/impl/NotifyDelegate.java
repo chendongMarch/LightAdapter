@@ -1,5 +1,8 @@
 package com.zfy.adapter.delegate.impl;
 
+import android.os.Handler;
+import android.os.Looper;
+
 /**
  * CreateAt : 2018/10/30
  * Describe :
@@ -8,13 +11,20 @@ package com.zfy.adapter.delegate.impl;
  */
 public class NotifyDelegate extends BaseDelegate {
 
+    private Handler mHandler = new Handler(Looper.getMainLooper());
+
     @Override
     public int getKey() {
         return NOTIFY;
     }
 
-    public void notifyInUIThread(Runnable runnable) {
-        mView.post(runnable);
+
+    private void notifyInUIThread(Runnable runnable) {
+        if (Looper.getMainLooper() == Looper.myLooper()) {
+            runnable.run();
+        } else {
+            mHandler.post(runnable);
+        }
     }
 
     public final void change() {
@@ -32,7 +42,6 @@ public class NotifyDelegate extends BaseDelegate {
     public final void change(final int positionStart, final int itemCount, Object payloads) {
         notifyInUIThread(() -> mAdapter.notifyItemRangeChanged(positionStart, itemCount, payloads));
     }
-
 
     public final void insert(final int position) {
         notifyInUIThread(() -> mAdapter.notifyItemRangeInserted(position, 1));

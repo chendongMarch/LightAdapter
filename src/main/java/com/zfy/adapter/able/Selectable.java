@@ -1,4 +1,4 @@
-package com.zfy.adapter.model;
+package com.zfy.adapter.able;
 
 /**
  * CreateAt : 2018/11/1

@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.Values;
+import com.zfy.adapter.common.Values;
 import com.zfy.adapter.delegate.IDelegate;
 
 /**

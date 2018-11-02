@@ -7,8 +7,8 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.ViewGroup;
 
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.ModelType;
-import com.zfy.adapter.Values;
+import com.zfy.adapter.model.ModelType;
+import com.zfy.adapter.common.Values;
 
 /**
  * CreateAt : 2018/2/24

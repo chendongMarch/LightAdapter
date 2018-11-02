@@ -1,4 +1,4 @@
-package com.zfy.adapter;
+package com.zfy.adapter.common;
 
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,6 +25,9 @@ public class Utils {
 
     public static int getRecyclerViewOrientation(RecyclerView view) {
         int orientation = LinearLayout.VERTICAL;
+        if (view == null) {
+            return orientation;
+        }
         RecyclerView.LayoutManager layoutManager = view.getLayoutManager();
         if (layoutManager == null) {
             throw new AdapterException(AdapterException.LAYOUT_MANAGER_NOT_SET);

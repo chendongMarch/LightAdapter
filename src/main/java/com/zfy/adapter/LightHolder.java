@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.zfy.adapter.model.Ids;
+import com.zfy.adapter.model.ModelType;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -50,15 +51,12 @@ public class LightHolder extends RecyclerView.ViewHolder {
     private SparseArray<View> mCacheViews;
     private ModelType mModelType;
     private LightAdapter mAdapter;
-    private Ids mIds;
-
 
     public LightHolder(LightAdapter adapter, int type, View itemView) {
         super(itemView);
         this.mCacheViews = new SparseArray<>(5);
         this.mAdapter = adapter;
         this.mModelType = adapter.getType(type);
-        this.mIds = Ids.all();
     }
 
     public View getItemView() {
@@ -133,23 +131,24 @@ public class LightHolder extends RecyclerView.ViewHolder {
     }
 
     public LightHolder setVisibility(@IdRes int resId, @Visibility int visibility) {
-        return setVisibility(mIds.obtain(resId), visibility);
+        return setVisibility(all(resId), visibility);
     }
 
     public LightHolder setGone(@IdRes int... resIds) {
-        return setVisibility(mIds.obtain(resIds), View.GONE);
+        return setVisibility(all(resIds), View.GONE);
     }
 
     public LightHolder setVisible(@IdRes int... resIds) {
-        return setVisibility(mIds.obtain(resIds), View.VISIBLE);
+        return setVisibility(all(resIds), View.VISIBLE);
     }
 
+
     public LightHolder setInVisible(@IdRes int... resIds) {
-        return setVisibility(mIds.obtain(resIds), View.INVISIBLE);
+        return setVisibility(all(resIds), View.INVISIBLE);
     }
 
     public LightHolder setVisibleGone(@IdRes int resId, boolean isVisible) {
-        return setVisibility(mIds.obtain(resId), isVisible ? View.VISIBLE : View.GONE);
+        return setVisibility(all(resId), isVisible ? View.VISIBLE : View.GONE);
     }
 
     public LightHolder setVisibleGone(Ids ids, boolean isVisible) {
@@ -157,7 +156,7 @@ public class LightHolder extends RecyclerView.ViewHolder {
     }
 
     public LightHolder setVisibleInVisible(@IdRes int resId, boolean isVisible) {
-        return setVisibility(mIds.obtain(resId), isVisible ? View.VISIBLE : View.INVISIBLE);
+        return setVisibility(all(resId), isVisible ? View.VISIBLE : View.INVISIBLE);
     }
 
     public LightHolder setVisibleInVisible(Ids ids, boolean isVisible) {
@@ -174,15 +173,15 @@ public class LightHolder extends RecyclerView.ViewHolder {
     }
 
     public LightHolder setSelect(@IdRes int resId, boolean isSelect) {
-        return setSelect(mIds.obtain(resId), isSelect);
+        return setSelect(all(resId), isSelect);
     }
 
     public LightHolder setSelectYes(@IdRes int... resIds) {
-        return setSelect(mIds.obtain(resIds), true);
+        return setSelect(all(resIds), true);
     }
 
     public LightHolder setSelectNo(@IdRes int... resIds) {
-        return setSelect(mIds.obtain(resIds), false);
+        return setSelect(all(resIds), false);
     }
 
     //////////////////////////////  -- View.setChecked --  //////////////////////////////
@@ -195,15 +194,15 @@ public class LightHolder extends RecyclerView.ViewHolder {
     }
 
     public LightHolder setChecked(@IdRes int resId, boolean isCheck) {
-        return setChecked(mIds.obtain(resId), isCheck);
+        return setChecked(all(resId), isCheck);
     }
 
     public LightHolder setCheckedYes(@IdRes int... resIds) {
-        return setChecked(mIds.obtain(resIds), true);
+        return setChecked(all(resIds), true);
     }
 
     public LightHolder setCheckedNo(@IdRes int... resIds) {
-        return setChecked(mIds.obtain(resIds), false);
+        return setChecked(all(resIds), false);
     }
 
     //////////////////////////////  -- View.bg --  //////////////////////////////
@@ -221,7 +220,7 @@ public class LightHolder extends RecyclerView.ViewHolder {
     }
 
     public LightHolder setBgDrawable(@IdRes int resId, Drawable drawable) {
-        return setBgDrawable(mIds.obtain(resId), drawable);
+        return setBgDrawable(all(resId), drawable);
     }
 
     public LightHolder setBgRes(Ids ids, @DrawableRes int bgRes) {
@@ -232,7 +231,7 @@ public class LightHolder extends RecyclerView.ViewHolder {
     }
 
     public LightHolder setBgRes(@IdRes int resId, @DrawableRes int bgRes) {
-        return setBgRes(mIds.obtain(resId), bgRes);
+        return setBgRes(all(resId), bgRes);
     }
 
     public LightHolder setBgColor(Ids ids, int color) {
@@ -243,7 +242,7 @@ public class LightHolder extends RecyclerView.ViewHolder {
     }
 
     public LightHolder setBgColor(@IdRes int resId, int color) {
-        return setBgColor(mIds.obtain(resId), color);
+        return setBgColor(all(resId), color);
     }
 
     public LightHolder setBgColorRes(Ids ids, @ColorRes int colorRes) {
@@ -254,7 +253,7 @@ public class LightHolder extends RecyclerView.ViewHolder {
     }
 
     public LightHolder setBgColorRes(@IdRes int resId, @ColorRes int colorRes) {
-        return setBgColorRes(mIds.obtain(resId), colorRes);
+        return setBgColorRes(all(resId), colorRes);
     }
 
 
@@ -268,11 +267,11 @@ public class LightHolder extends RecyclerView.ViewHolder {
     }
 
     public LightHolder setTextColor(@IdRes int resId, int color) {
-        return setTextColor(mIds.obtain(resId), color);
+        return setTextColor(all(resId), color);
     }
 
     public LightHolder setTextColorRes(@IdRes int resId, @ColorRes int colorRes) {
-        return setTextColor(mIds.obtain(resId), getColor(colorRes));
+        return setTextColor(all(resId), getColor(colorRes));
     }
 
     public LightHolder setTextColorRes(Ids ids, @ColorRes int colorRes) {
@@ -295,23 +294,25 @@ public class LightHolder extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public LightHolder setText(@IdRes int resId, Object txt) {
-        if (txt == null) return this;
-        return setText(resId, txt.toString(), false);
-    }
-
     public LightHolder setText(@IdRes int resId, CharSequence txt) {
         if (txt == null) return this;
         return setText(resId, txt, false);
     }
 
-    public LightHolder setText(@IdRes int resId, @StringRes int txtRes) {
+    public LightHolder setTextRes(@IdRes int resId, @StringRes int txtRes) {
         if (txtRes == 0) return this;
         String txt = itemView.getContext().getResources().getString(txtRes);
         return setText(resId, txt, false);
     }
 
     //////////////////////////////  -- ImageView --  //////////////////////////////
+
+    public LightHolder setImage(@IdRes int resId, Drawable imgResId) {
+        ImageView iv = getView(resId);
+        iv.setImageDrawable(imgResId);
+        return this;
+    }
+
 
     public LightHolder setImage(@IdRes int resId, @DrawableRes int imgResId) {
         ImageView iv = getView(resId);
@@ -336,7 +337,7 @@ public class LightHolder extends RecyclerView.ViewHolder {
     }
 
     public LightHolder setClick(int resId, View.OnClickListener listener) {
-        return setClick(mIds.obtain(resId), listener);
+        return setClick(all(resId), listener);
     }
 
 
@@ -351,7 +352,7 @@ public class LightHolder extends RecyclerView.ViewHolder {
     }
 
     public LightHolder setLongClick(int resId, View.OnLongClickListener listener) {
-        return setLongClick(mIds.obtain(resId), listener);
+        return setLongClick(all(resId), listener);
     }
 
     //////////////////////////////  -- View LayoutParams --  //////////////////////////////
@@ -372,7 +373,7 @@ public class LightHolder extends RecyclerView.ViewHolder {
     }
 
     public LightHolder setLayoutParams(int resId, int width, int height) {
-        return setLayoutParams(mIds.obtain(resId), width, height);
+        return setLayoutParams(all(resId), width, height);
     }
 
     public LightHolder setLayoutParams(int width, int height) {
@@ -390,7 +391,21 @@ public class LightHolder extends RecyclerView.ViewHolder {
     //////////////////////////////  -- 自己定义的回调绑定 --  //////////////////////////////
 
     public <V extends View> LightHolder setCallback(int resId, Class<V> clazz, Callback<V> callback) {
-        setCallback(mIds.obtain(resId), clazz, callback);
+        setCallback(all(resId), clazz, callback);
+        return this;
+    }
+
+    public <V extends View> LightHolder setCallback(int resId, Callback<V> callback) {
+        setCallback(all(resId), callback);
+        return this;
+    }
+
+
+    public <V extends View> LightHolder setCallback(Ids ids, Callback<V> callback) {
+        for (int id : ids.ids()) {
+            V view = getView(id);
+            callback.bind(view);
+        }
         return this;
     }
 
@@ -405,6 +420,11 @@ public class LightHolder extends RecyclerView.ViewHolder {
     }
 
     //////////////////////////////  -- 公共方法 --  //////////////////////////////
+
+
+    public Ids all(@IdRes int ... resIds) {
+        return mAdapter.all(resIds);
+    }
 
 
     public interface Callback<T extends View> {

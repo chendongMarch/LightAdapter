@@ -2,7 +2,6 @@ package com.zfy.adapter.collections;
 
 import android.annotation.TargetApi;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.MainThread;
@@ -11,7 +10,7 @@ import android.support.v7.util.DiffUtil;
 import android.support.v7.util.ListUpdateCallback;
 
 import com.zfy.adapter.LightAdapter;
-import com.zfy.adapter.model.Diffable;
+import com.zfy.adapter.able.Diffable;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -102,7 +101,7 @@ public class LightDiffList<T extends Diffable<T>> extends AbstractList<T> {
         diffResult.dispatchUpdatesTo(listCallback);
     }
 
-    public List<T> lock() {
+    public List<T> snapshot() {
         return new ArrayList<>(list);
     }
 
@@ -152,7 +151,7 @@ public class LightDiffList<T extends Diffable<T>> extends AbstractList<T> {
      */
     @MainThread
     public void update(int pos, Consumer<T> howToUpdate) {
-        List<T> ts = lock();
+        List<T> ts = snapshot();
         setItem(ts, pos, howToUpdate);
         update(ts);
     }
@@ -160,7 +159,7 @@ public class LightDiffList<T extends Diffable<T>> extends AbstractList<T> {
     // 循环数据执行操作
     @TargetApi(Build.VERSION_CODES.N)
     private List<T> foreach(Predicate<T> needUpdate, Consumer<T> consumer) {
-        List<T> newItems = lock();
+        List<T> newItems = snapshot();
         T t;
         for (int i = 0; i < newItems.size(); i++) {
             t = newItems.get(i);
@@ -211,7 +210,8 @@ public class LightDiffList<T extends Diffable<T>> extends AbstractList<T> {
         @Override
         public void onInserted(int position, int count) {
             if (adapter != null) {
-                adapter.notifyItemRangeInserted(adapter.toLayoutIndex(position), count);
+                adapter.notifyItem().insert(adapter.toLayoutIndex(position), count);
+//                adapter.notifyItemRangeInserted(adapter.toLayoutIndex(position), count);
             }
             modCount += 1;
         }
@@ -219,7 +219,8 @@ public class LightDiffList<T extends Diffable<T>> extends AbstractList<T> {
         @Override
         public void onRemoved(int position, int count) {
             if (adapter != null) {
-                adapter.notifyItemRangeRemoved(adapter.toLayoutIndex(position), count);
+                adapter.notifyItem().remove(adapter.toLayoutIndex(position), count);
+    //                adapter.notifyItemRangeRemoved(adapter.toLayoutIndex(position), count);
             }
             modCount += 1;
         }
@@ -227,14 +228,16 @@ public class LightDiffList<T extends Diffable<T>> extends AbstractList<T> {
         @Override
         public void onMoved(int fromPosition, int toPosition) {
             if (adapter != null) {
-                adapter.notifyItemMoved(adapter.toLayoutIndex(fromPosition), adapter.toLayoutIndex(toPosition));
+                adapter.notifyItem().move(adapter.toLayoutIndex(fromPosition), adapter.toLayoutIndex(toPosition));
+//                adapter.notifyItemMoved(adapter.toLayoutIndex(fromPosition), adapter.toLayoutIndex(toPosition));
             }
         }
 
         @Override
         public void onChanged(int position, int count, Object payload) {
             if (adapter != null) {
-                adapter.notifyItemRangeChanged(adapter.toLayoutIndex(position), count, payload);
+                adapter.notifyItem().change(adapter.toLayoutIndex(position), count, payload);
+//                adapter.notifyItemRangeChanged(adapter.toLayoutIndex(position), count, payload);
             }
         }
     }

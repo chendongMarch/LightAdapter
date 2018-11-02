@@ -5,8 +5,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 
-import com.zfy.adapter.AdapterCallback;
 import com.zfy.adapter.delegate.IDelegate;
+import com.zfy.adapter.listener.AdapterCallback;
 
 /**
  * CreateAt : 2018/10/30
@@ -94,20 +94,22 @@ public class LoadMoreDelegate extends BaseDelegate {
 
     /**
      * 设置加载更多监听
+     * @param count 预加载的个数
+     * @param callback 回调
+     */
+    public void setLoadMoreListener(int count, AdapterCallback callback) {
+        mCallback = callback;
+        mStartTryLoadMoreItemCount = count;
+    }
+
+
+    /**
+     * 设置加载更多监听
      *
-     * @param callback
+     * @param callback 回调
      */
     public void setLoadMoreListener(AdapterCallback callback) {
         mCallback = callback;
     }
 
-
-    /**
-     * 设置提前预加载的个数
-     *
-     * @param startTryLoadMoreItemCount 预加载的个数
-     */
-    public void setStartTryLoadMoreItemCount(int startTryLoadMoreItemCount) {
-        mStartTryLoadMoreItemCount = startTryLoadMoreItemCount;
-    }
 }

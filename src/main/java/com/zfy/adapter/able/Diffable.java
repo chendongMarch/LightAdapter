@@ -1,4 +1,4 @@
-package com.zfy.adapter.model;
+package com.zfy.adapter.able;
 
 import android.os.Parcelable;
 

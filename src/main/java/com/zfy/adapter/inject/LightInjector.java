@@ -1,14 +1,8 @@
-package com.zfy.adapter;
+package com.zfy.adapter.inject;
 
 import android.support.v7.widget.RecyclerView;
 
-import com.zfy.adapter.inject.AdapterConfig;
-import com.zfy.adapter.inject.AdapterLayout;
-import com.zfy.adapter.inject.Click;
-import com.zfy.adapter.inject.Footer;
-import com.zfy.adapter.inject.FullSpan;
-import com.zfy.adapter.inject.Header;
-import com.zfy.adapter.inject.PreLoading;
+import com.zfy.adapter.LightAdapter;
 
 import java.lang.reflect.Field;
 

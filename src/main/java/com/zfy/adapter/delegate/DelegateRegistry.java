@@ -7,11 +7,12 @@ import android.view.ViewGroup;
 
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.Values;
+import com.zfy.adapter.common.Values;
 import com.zfy.adapter.delegate.impl.BaseDelegate;
 import com.zfy.adapter.delegate.impl.HFDelegate;
 import com.zfy.adapter.delegate.impl.LoadMoreDelegate;
 import com.zfy.adapter.delegate.impl.NotifyDelegate;
+import com.zfy.adapter.delegate.impl.SelectorDelegate;
 import com.zfy.adapter.delegate.impl.SpanDelegate;
 import com.zfy.adapter.delegate.impl.TopMoreDelegate;
 
@@ -32,6 +33,7 @@ public class DelegateRegistry extends BaseDelegate {
         register(new TopMoreDelegate());
         register(new LoadMoreDelegate());
         register(new NotifyDelegate());
+        register(new SelectorDelegate());
     }
 
     public void register(IDelegate delegate) {

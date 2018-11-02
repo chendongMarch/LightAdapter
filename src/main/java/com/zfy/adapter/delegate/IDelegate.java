@@ -77,7 +77,6 @@ public interface IDelegate {
      */
     int getItemCount();
 
-
     /**
      * 获取指定位置的 type
      *

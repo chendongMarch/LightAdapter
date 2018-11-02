@@ -7,10 +7,10 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.Utils;
-import com.zfy.adapter.Values;
-import com.zfy.adapter.ViewHolderBinder;
+import com.zfy.adapter.common.Utils;
+import com.zfy.adapter.common.Values;
 import com.zfy.adapter.delegate.IDelegate;
+import com.zfy.adapter.listener.ViewHolderBinder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +31,7 @@ public class HFDelegate extends BaseDelegate {
 
     private List<ViewHolderBinder> mHeaderViewHolderBinders = new ArrayList<>();
     private List<ViewHolderBinder> mFooterViewHolderBinders = new ArrayList<>();
+    private List<Runnable> mPendingRunnables = new ArrayList<>();
 
     @Override
     public LightHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -45,6 +46,15 @@ public class HFDelegate extends BaseDelegate {
         return holder;
     }
 
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        if (!mPendingRunnables.isEmpty()) {
+            for (Runnable runnable : mPendingRunnables) {
+                runnable.run();
+            }
+        }
+    }
 
     @Override
     public boolean onBindViewHolder(LightHolder holder, int position) {
@@ -120,25 +130,34 @@ public class HFDelegate extends BaseDelegate {
         }
     }
 
+
     // 添加 Header
-    public void addHeaderView(View view, int index, ViewHolderBinder binder) {
-        boolean isNewHeader = false;
-        if (mHeaderView == null) {
-            mHeaderView = createContainerView(mAdapter.getContext(), Utils.getRecyclerViewOrientation(mView));
-            isNewHeader = true;
+    public void addHeaderView(View view, final int index, ViewHolderBinder binder) {
+        Runnable runnable = () -> {
+            int viewIndex = index;
+            boolean isNewHeader = false;
+            if (mHeaderView == null) {
+                mHeaderView = createContainerView(mAdapter.getContext(), Utils.getRecyclerViewOrientation(mView));
+                isNewHeader = true;
+            }
+            final int childCount = mHeaderView.getChildCount();
+            if ((viewIndex < 0) || (viewIndex > childCount)) {
+                viewIndex = childCount;
+            }
+            mHeaderView.addView(view, viewIndex);
+            LightHolder holder = new LightHolder(mAdapter, Values.TYPE_HEADER, mHeaderView);
+            binder.onBindViewHolder(holder, Values.NONE);
+            mHeaderEnable = true;
+            if (isNewHeader && mHeaderView.getChildCount() == 1) {
+                mAdapter.notifyItemInserted(0);
+            }
+            mHeaderViewHolderBinders.add(binder);
+        };
+        if (isAttached() && mView.getLayoutManager() != null) {
+            runnable.run();
+        } else {
+            mPendingRunnables.add(runnable);
         }
-        final int childCount = mHeaderView.getChildCount();
-        if (index < 0 || index > childCount) {
-            index = childCount;
-        }
-        mHeaderView.addView(view, index);
-        LightHolder holder = new LightHolder(mAdapter, Values.TYPE_HEADER, mHeaderView);
-        binder.onBindViewHolder(holder, Values.NONE);
-        mHeaderEnable = true;
-        if (isNewHeader && mHeaderView.getChildCount() == 1) {
-            mAdapter.notifyItemInserted(0);
-        }
-        mHeaderViewHolderBinders.add(binder);
     }
 
     // 添加 Footer
@@ -163,24 +182,32 @@ public class HFDelegate extends BaseDelegate {
     }
 
     // 添加 Footer
-    public void addFooterView(View view, int index, ViewHolderBinder binder) {
-        boolean isNewFooter = false;
-        if (mFooterView == null) {
-            mFooterView = createContainerView(mAdapter.getContext(), Utils.getRecyclerViewOrientation(mView));
-            isNewFooter = true;
+    public void addFooterView(View view, final int index, ViewHolderBinder binder) {
+        Runnable runnable = () -> {
+            int viewIndex = index;
+            boolean isNewFooter = false;
+            if (mFooterView == null) {
+                mFooterView = createContainerView(mAdapter.getContext(), Utils.getRecyclerViewOrientation(mView));
+                isNewFooter = true;
+            }
+            final int childCount = mFooterView.getChildCount();
+            if (viewIndex < 0 || viewIndex > childCount) {
+                viewIndex = childCount;
+            }
+            mFooterView.addView(view, viewIndex);
+            LightHolder holder = new LightHolder(mAdapter, Values.TYPE_FOOTER, mFooterView);
+            binder.onBindViewHolder(holder, Values.NONE);
+            mFooterEnable = true;
+            if (isNewFooter && mFooterView.getChildCount() == 1) {
+                mAdapter.notifyItemInserted(mAdapter.getItemCount() - 1);
+            }
+            mFooterViewHolderBinders.add(binder);
+        };
+        if (isAttached() && mView.getLayoutManager() != null) {
+            runnable.run();
+        } else {
+            mPendingRunnables.add(runnable);
         }
-        final int childCount = mFooterView.getChildCount();
-        if (index < 0 || index > childCount) {
-            index = childCount;
-        }
-        mFooterView.addView(view, index);
-        LightHolder holder = new LightHolder(mAdapter, Values.TYPE_FOOTER, mFooterView);
-        binder.onBindViewHolder(holder, Values.NONE);
-        mFooterEnable = true;
-        if (isNewFooter && mFooterView.getChildCount() == 1) {
-            mAdapter.notifyItemInserted(mAdapter.getItemCount() - 1);
-        }
-        mFooterViewHolderBinders.add(binder);
     }
 
     // header 是否可用

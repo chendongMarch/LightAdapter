@@ -1,4 +1,4 @@
-package com.zfy.adapter;
+package com.zfy.adapter.common;
 
 /**
  * CreateAt : 2018/10/26

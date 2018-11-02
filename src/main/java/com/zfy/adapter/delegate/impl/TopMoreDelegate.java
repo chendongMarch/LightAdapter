@@ -5,7 +5,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 
-import com.zfy.adapter.AdapterCallback;
+import com.zfy.adapter.listener.AdapterCallback;
 
 /**
  * CreateAt : 2018/10/30
@@ -92,6 +92,15 @@ public class TopMoreDelegate extends BaseDelegate {
         this.mLoadingMore = false;
     }
 
+
+    /**
+     * @param count 预加载个数
+     * @param callback 回调
+     */
+    public void setTopMoreListener(int count, AdapterCallback callback) {
+        mCallback = callback;
+        mStartTryTopMoreItemCount = count;
+    }
 
     /**
      * @param callback 回调

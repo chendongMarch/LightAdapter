@@ -1,15 +1,18 @@
-![img](./backup/banner.jpg)
 
-`LightAdapter` 的设计初衷是能够快速、简单的完成 `RecyclerView` 的数据适配工作，同时也对使用过程中的一些常用功能进行了扩展和封装。
+![](http://olx4t2q6z.bkt.clouddn.com/18-2-6/27323356.jpg)
 
-随着功能的慢慢丰富，使用起来也变得越来越复杂，最后决定使用注解的方式对适配器进行配置。
+# LightAdapter
 
-[GitHub - LightAdapter](https://github.com/chendongMarch/LightAdapter)
+`LightAdapter` 的设计初衷是以 **轻量** 和 **面向业务** 为主要目的，一方面希望可以快速、简单的的完成数据的适配，另一方面针对业务中经常出现的场景能提供统一、简单的解决方案。
 
+> [本文博客地址](http://zfyx.coding.me/article/1632666977/)
+
+> [GitHub - LightAdapter](https://github.com/chendongMarch/LightAdapter)
+
+
+<!--more-->
 
 <div style="width:100%;display: flex;height:30px;">
-
-<!--<img style="margin-right:20px;" src="https://badge.juejin.im/entry/5a793a405188257a82111092/likes.svg?style=flat-square"/>-->
 
 <img style="margin-right:20px;"  src="https://img.shields.io/github/stars/chendongMarch/LightAdapter.svg"/>
 
@@ -17,380 +20,517 @@
 
 </div>
 
-<!--more-->
-
-> - 基于注解实现基本的数据适配功能。
-> - 预加载，支持顶部、底部预加载更多数据。
-> - `Header & Footer`，为列表添加 头部 和 尾部。
-> - 单击、双击、长按事件支持。
-> - 自动 `UI` 线程更新数据，避免数据更新问题。
-> - 选择器功能扩展，主要针对点击选中这种场景。
-
-
 
 ## 设计分析
 
-在类库功能变的越来越丰富的同时，涉及的配置也越来越多，也因此造成了大量的功能堆积在 `Adaper` 里面，不容易维护也不利于扩展，因此对类库进行了重构，按照功能划分了多个模块，每个模块负责完全独立的功能，这样 `Adapter` 仅完成数据的加载和绑定，各部分扩展的功能由子模块完成，逻辑更清晰，当有新的功能加入时，只需要增加一个模块，更利于扩展。
+由于功能比较多，当所有的逻辑都在 `Adapter` 里面实现时，会导致 `Adapter` 变得很臃肿，扩展功能变得越来越困难。
 
-目前有以下几个模块：
+为了解决这个问题，类库的设计借鉴了 **委托模式** 的设计方法，`Adapter` 只负责数据的加载，而其他功能都通过注册不同的 **功能代理** 实现，各个代理分工合作，都只关注自己负责的那部分功能，比如现在有如下代理实现：
 
-- `FullSpanModule`，负责处理跨越整行的布局类型。
-- `HFModule`，`Header&Footer` 模块，负责添加 头尾布局。
-- `LoadMoreModule`，底部预加载更多模块，负责列表到达底部时触发预加载。
-- `TopLoadMoreModule`，顶部加载更多模块，负责列表到达顶部时触发预加载。
--  `UpdateModule`，数据更新模块，负责将数据更新操作发布到 `UI` 线程，同时对数据更新的方法做扩展。
+- `HFDelegate`： 负责 `Header`/`Footer` 的装载、更新、隐藏等功能；
+- `LoadMoreDelegate`： 负责到达底部加载更多数据的功能；
+- `TopMoreDelegate`：负责到达顶部触发加载功能；
+- `NotifyDelegate`：负责数据更新的扩展功能；
+- `SelectorDelegate`：负责实现数据选择器功能；
+- `SpanDelegate`：负责处理某个 `item` 是否跨越整行的功能；
 
-功能模块化以后，整个类库的架构就更清晰了，不过与此同时也带来了另一个问题，就是模块过多，加大了使用难度，使用者需要关注所有的模块，为了避免这样情况，采用了注解来进行配置操作，类库内部解析注解自动添加适当的模块进去，这样一来使用者就不需要关注这些模块具体的功能，既做到了功能分离也对使用者足够友好。
-
-同时使用注解配置化之后也带来一个好处，就是只需要查看属性上面的注解就清楚当前的 `Adapter` 使用资源及相关配置，不需要再去代码里面查找。
-
-目前有以下注解进行配置：
-
-- `AdapterLayout`，负责 `Adapter` 布局资源文件配置，支持单类型和多类型。
-- `Footer`，负责 `Footer` 布局文件的配置。
-- `Header`，负责 `Header` 布局文件的配置。
-- `PreLoading`，负责顶部、底部预加载配置。
-- `FullSpan`，跨越整行的累心配置。
-- `Click`，是否支持双击事件，配置某些类型无法点击。
+所有的功能代理都统一被 `DelegateRegistry` 管理，内部维护一个注册表，所有的代理都在此处注册，由 `DelegateRegistry` 统一调度，同时，我们也可以根据自己的业务需求向 `DelegateRegistry` 注册代理实现；
 
 
-## 重要
+## 单类型数据适配
 
-适配器的配置使用注解来完成，但是由于 `Library Module` 中资源 `ID` 无法作为注解的参数，所以所有的配置项统一由 `AdapterConfig` 来管理，每个注解在 `AdapterConfig` 中都有对应的配置项，当无法使用注解时，可以使用这些方法，建议优先使用注解。
-
-使用注解配置时，需要使用 `AdapterInjector` 初始化, 其中 `targetHost` 为 `Adapter` 所在的类，用来解析注解
+单类型的适配器其实是多类型的简化版本，只是针对大多数的使用场景暴露出来更简单的构造方法，内部仍旧使用多类型实现。
 
 ```java
-initAdapter(LightAdapter adapter, Object targetHost,
-            RecyclerView recyclerView, RecyclerView.LayoutManager layoutManager)
-
-eg:
-AdapterInjector.initAdapter(mAdapter, AdapterHomeActivity.this, mRv, LightManager.vLinear(getContext()));
-```
-
-使用 `AdapterConfig` 配置时，同样需要使用 `AdapterInjector` 初始化
-
-```java
-initAdapter(LightAdapter adapter, AdapterConfig config,
-            RecyclerView recyclerView, RecyclerView.LayoutManager layoutManager)
-```
-
-设计上 `AdapterInjector` 强制了参数 `RecyclerView` 和 `LayuotManager`, 内部会完成如下操作，一方面为了简化代码另一方面也是为了防止忘记设置 `LayoutManager` 的情况（我就经常忘记😂）
-
-```java
-recyclerView.setLayoutManager(layoutManager);
-recyclerView.setAdapter(adapter);
-```
-
-### 注解和 AdapterConfig 对照表
-
-|描述|注解|AdapterConfig|备注|
-|:--|:--|:--|:--|
-|布局|@AdapterLayout|itemLayoutId(int itemLayoutId)|单类型适配器配置资源|
-|布局|@AdapterLayout|itemTypes(int... itemTypes)|多类型适配器配置类型|
-|布局|@AdapterLayout|itemLayoutIds(int... itemLayoutIds)|多类型适配器配置类型对应的资源|
-|头|@Header|headerLayoutId(int headerLayoutId)|添加头部布局资源|
-|尾|@Footer |footerLayoutId(int footerLayoutId)|添加尾部布局资源|
-|预加载|@PreLoading | preloadTop(int preloadTopNum)| 顶部预加载|
-|预加载|@PreLoading | preloadBottom(int preloadBottomNum)| 底部预加载|
-|跨行|@FullSpan|fullSpanTypes(int... fullSpanTypes)|跨越整行|
-|事件|@Click|dbClick(boolean dbClick)|支持双击|
-|事件|@Click|disableClickTypes(int...   disableClickTypes)|禁止某些类型点击|
-
-## 数据适配
-
-进行数据适配时，需要一个布局文件的资源文件，使用注解 `@AdapterLayout` 来配置，如一个简单的单类型适配器需要如下声明：
-
-```java
-// 单类型
-@AdapterLayout(R.layout.item_layout)
-LightAdapter<GuideData> mAdapter;
-```
-
-同样也支持多类型布局，下面类型 `TYPE_A` 对应布局文件 `R.layout.item_ly_a`，类型 `TYPE_B` 对应布局文件 `R.layout.item_ly_b`，两个数组长度需要相等：
-
-```java
-// 多类型
-@AdapterLayout(itemTypes = {TYPE_A, TYPE_B},
-        itemLayoutIds = {R.layout.item_ly_a,R.layout.item_ly_b})
-LightAdapter<GuideData> mAdapter;
-```
-
-之后就可以创建 `Adapter`，进行数据绑定：
-
-```java
-mAdapter = new LightAdapter<GuideData>(mContext,mGuideDatas) {
+LightAdapter<Student> adapter = new LightAdapter<Student>(getContext(), list, R.layout.adapter_item) {
     @Override
-    public void onBindView(LightHolder holder, GuideData data, int pos, int type) {
-    	// 数据绑定
+    public void onBindView(LightHolder holder, Student data, int pos) {
+        holder.setText(R.id.tv, data.name + " " + data.age);
     }
 };
 ```
 
-不使用注解的实现方式，需要依赖 `AdapterConfig` 完成
+## 多类型数据适配
+
+STEP1: 首先数据结构应该继承 `ModelTypeable` 接口，来向外暴露数据的类型;
 
 ```java
-// 单类型
-AdapterConfig config = AdapterConfig.newConfig()
-        .itemLayoutId(R.layout.item_layout);
+// 分为了大于 12 岁和小于等于 12 岁两种类型
+class Student implements ModelTypeable {
 
-// 多类型
-AdapterConfig config = AdapterConfig.newConfig()
-        .itemTypes(TYPE_A, TYPE_B)
-        .itemLayoutIds(R.layout.item_ly_a, R.layout.item_ly_b);
-```
+    public static final int TYPE_BIG = 0;
+    public static final int TYPE_SMALL = 1;
 
-## 其他注解
+    public String name;
+    public int age;
+    public int type;
 
-### Header & Footer
-
-为布局添加头尾，使用 `@Header` 和 `@Footer` 注解来完成
-
-```java
-@Header(R.layout.headerly)
-@Footer(R.layout.footerly)
-@AdapterLayout(R.layout.item)
-private LightAdapter<HFData> mAdapter;
-```
-
-对应的不使用注解的方法是：
-
-```java
-AdapterConfig config = new AdapterConfig()
-        .headerLayoutId(R.layout.headerly)
-        .footerLayoutId(R.layout.footerly);
-```
-
-对头尾数据进行绑定
-
-```java
-mAdapter = new LightAdapter<GuideData>(mContext, mGuideDatas) {
-    @Override
-    public void onBindHeaderView(LightHolder holder) {
-    	// 绑定 header 数据
+    public Student(String name, int age) {
+        this.name = name;
+        this.age = age;
+        this.type = age > 12 ? TYPE_BIG : TYPE_SMALL;
     }
 
     @Override
-    public void onBindFooterView(LightHolder holder) {
-    	// 绑定 footer 数据
+    public int getModelType() {
+        return type;
+    }
+}
+```
+
+STEP2: 多类型适配器需要构造一个 `ModelTypeFactory`，他用来决定每种类型的配置，包括:
+
+- 布局资源
+- 是否可被点击
+- 跨越的列数，支持 `整行` / `一半` / `三分之一` / `具体列数`
+
+```java
+ModelTypeFactory factory = modelType -> {
+    switch (modelType.getType()) {
+        case Student.TYPE_A:
+            modelType.setLayout(R.layout.adapter_item);
+            break;
+        case Student.TYPE_B:
+            // 该类型的布局文件
+            modelType.setLayout(R.layout.adapter_item_b);
+            // 设置该类型跨越整行
+            modelType.setSpanSize(Values.SPAN_SIZE_ALL);
+            // 设置该类型不允许点击
+            modelType.setEnableClick(false);
+            // 设置该类型不允许双击
+            modelType.setEnableDbClick(false);
+            // 设置该类型不允许长按
+            modelType.setEnableLongPress(false);
+            break;
+    }
+};
+```
+
+STEP3: 借助 `ModelTypeFactory` 可以构建多类型适配器
+
+```java
+mStudentAdapter = new LightAdapter<Student>(getContext(), mStudents, factory) {
+    @Override
+    public void onBindView(LightHolder holder, Student data, int pos) {
+        holder.setText(R.id.tv, data.name + " " + data.age);
     }
 };
 ```
 
-### PreLoading
+## Header&Footer
 
-预加载更多功能需要指定提前几项触发预加载，比如当距离到达列表底部还差 `3` 个 `item` 时触发预加载。使用 `@PreLoading` 进行配置。
+
+使用 `adapter.header()` 方法获取 `HFDelegate` 对 `Header` 进行操作
 
 ```java
-@AdapterLayout(R.layout.load_more_item)
-@PreLoading(top = 2, bottom = 2)
-private LightAdapter<LoadMoreModel> mAdapter;
+// 使用布局资源添加一个 Header，你可以像在 adapter 中使用 holder 绑定数据
+adapter.header().addHeaderView(R.layout.adapter_item_header, (holder, position) -> {
+    holder.setText(R.id.header_tv, headerDesc);
+});
+// 使用创建好的 View 添加一个 Header
+adapter.header().addHeaderView(new ImageView(getContext()), (holder, position) -> {
+    // 绑定数据
+});
+// 显示/隐藏 Header
+adapter.header().setHeaderEnable(true);
+// 清除添加的所有 Header
+adapter.header().clearHeaderView();
+// 更新 Header，此方法会调用添加 Header 时的绑定方法
+adapter.header().notifyHeaderUpdate();
 ```
-对应的不使用注解的方法是：
+
+使用 `adapter.footer()` 方法获取 `HFDelegate` 对 `Footer` 进行操作
 
 ```java
-AdapterConfig config = AdapterConfig.newConfig()
-        .preloadTop(2)
-        .preloadBottom(2);
+// 使用布局资源添加一个 Footer，你可以像在 adapter 中使用 holder 绑定数据
+adapter.footer().addFooterView(R.layout.adapter_item_footer, (holder, position) -> {
+    holder.setText(R.id.footer_tv, headerDesc);
+});
+// 使用创建好的 View 添加一个 Footer
+adapter.footer().addFooterView(new ImageView(getContext()), (holder, position) -> {
+    // 绑定数据
+});
+// 显示/隐藏 Footer
+adapter.footer().setFooterEnable(true);
+// 清除添加的所有 Footer
+adapter.footer().clearFooterView();
+// 更新 Header，此方法会调用添加 Footer 时的绑定方法
+adapter.footer().notifyFooterUpdate();
 ```
 
-预加载更多触发时的方法：
+## 加载更多
+
+使用 `adapter.loadMore()` 获取 `LoadMoreDelegete` 添加底部加载更多的监听，当列表滑动到底部时，会触发该事件：
 
 ```java
-mAdapter = new LightAdapter<GuideData>(mContext, mGuideDatas) {
+// 添加加载更多事件
+// count = 3 表示提前 3 个 item 到达底部开始加载
+adapter.loadMore().setLoadMoreListener(3, adapter -> {
+    // 请求数据
+    fetchData((data) -> {
+        // 存储和数据更新
+        saveUpdateData(data);
+        // 结束加载，才能开始新的加载
+        adapter.loadMore().finishLoadMore();
+    });
+});
+```
+
+使用 `adapter.topMore()` 获取 `TopMoreDelegete` 添加顶部加载更多的监听，当列表滑动到顶部时，会触发该事件：
+
+```java
+adapter.topMore().setTopMoreListener(3, adapter -> {
+    // 请求数据
+    fetchData((data) -> {
+        // 存储和数据更新
+        saveUpdateData(data);
+        // 结束加载
+        adapter.topMore().finishTopMore();
+    });
+});
+```
+
+## 选择器
+
+在开发过程中我们经常会遇到 **选中** 和 **取消选中** 列表中的某一项这种需求，针对这种场景增加了 `SelectorDelegate`，他负责实现选择器的选中、取消选中、数据更新等逻辑：
+
+为了能够存储和获取选择器的状态，数据结构需要实现 `Selectable` 接口，来表明它是一个可以支持选择器的数据类型。
+
+```java
+public class Student implements Selectable {
+
+    public boolean selected;
+
     @Override
-    public void onTopLoadMore() {
-    	// 顶部加载更多
+    public boolean isSelected() {
+        return selected;
     }
 
     @Override
-    public void onBottomLoadMore() {
-    	// 底部加载更多
+    public void setSelected(boolean isSelected) {
+        selected = isSelected;
+    }
+}
+```
+
+Wangzy0904,,,
+
+使用 `adapter.selector()` 获取 `SelectorDelegate` 添加绑定监听，用来根据是否选中的状态来显示不同的 `UI`，如果需要使用具体的数据，可以将 `Selectable` 对象强转转换为目标对象；
+
+```java
+adapter.selector().setSelectorBinder((holder, position, obj) -> {
+    holder.setTextColor(R.id.tv, obj.isSelected() ? Color.GREEN : Color.RED);
+});
+```
+
+## 触摸事件
+
+默认每个 `Item` 支持单击事件和长按事件，因为支持双击事件会导致回调的事件变长，所以默认不去支持双击事件，如果想要开启双击事件，需要在构造 `ModelType` 时针对类型开启；
+
+```java
+ModelTypeFactory factory = modelType -> {
+    switch (modelType.getType()) {
+        case Student.TYPE_A:
+            modelType.setLayout(R.layout.adapter_item);
+            break;
+        case Student.TYPE_B:
+            modelType.setLayout(R.layout.adapter_item_b);
+            // 支持双击事件
+            modelType.setEnableDbClick(true);
+            break;
     }
 };
 ```
-当数据加载完成时，需要调用结束加载的方法重置状态，保证下一次预加载可以触发。
+
+然后调用 `adapter.setOnItemListener()` 重写相关的事件方法，接受触摸事件的回调。
 
 ```java
-mAdapter.finishBottomLoadMore()
-mAdapter.finishTopLoadMore()
-```
-
-### FullSpan
-
-当使用 `GridLayoutManager` 布局时，通常会有需求某种类型的数据作为标题内容出现，他需要跨越整行，实现类似隔断的效果，使用 `@FullSpan` 注解来配置。
-
-下面的示例中，`TYPE_OK` 类型回跨越整行。
-
-```java
-@AdapterLayout(
-        itemTypes = {TypeModel.TYPE_OK, TypeModel.TYPE_NO},
-        itemLayoutIds = {R.layout.layout_ok, R.layout.layout_no})
-@FullSpan(TypeModel.TYPE_OK)
-private LightAdapter<TypeModel> mAdapter;
-```
-对应的不使用注解的方法：
-
-```java
-AdapterConfig config = AdapterConfig.newConfig()
-        .fullSpanTypes(TypeModel.TYPE_OK);
-```
-
-### Click
-
-主要用来支持两个功能
-
-- 设置双击点击事件的开关, 默认是不打开双击时间的
-- 禁止点击事件的类型
-
-如下代码表示支持双击事件，并且当数据类型为 `TYPE_OK（自定义常量）` 时点击事件不触发。
-
-```java
-@AdapterLayout(R.layout.adapter_home_item)
-@Click(dbClick = true, disableTypes = TYPE_OK)
-LightAdapter<GuideData> mAdapter;
-```
-不使用注解时
-
- ```java
- AdapterConfig config = AdapterConfig.newConfig()
-        .dbClick(false)
-        .disableClickTypes(TYPE_OK);
- ```
-
-## 数据更新
-
-用于更新数据，不需要注解支持，特点是对数据更新的方法进行了扩展，同时所有的数据更新都会到 `UI` 线程执行，不需要再为了更新适配器去切换线程啦。
-
-```java
-// 支持原来的更新方法，不过被切换到了 UI 线程
-mAdapter.update().notifyDataSetChanged();
-mAdapter.update().notifyItemChanged(0);
-mAdapter.update().notifyItemInserted(0);
-mAdapter.update().notifyItemRangeChanged(0,10);
-
-//////////////////////////////  -- 扩展的新方法 --  //////////////////////////////
-// 清空数据
-mAdapter.update().clear();
-// 改变某一个数据
-mAdapter.update().set(100,new GuideData());
-// 在头部添加数据，用于分页加载
-mAdapter.update().appendHeadList(mGuideDatas,true);
-// 在尾部添加数据，用于分页加载
-mAdapter.update().appendTailList(mGuideDatas,true);
-```
-
-## 事件
-
-支持  单击、双击、长按事件，设置简单且返回数据丰富, 双击开关和某些类型禁止点击事件的功能使用注解 `@Click` 完成。
-
-```java
-mAdapter.setOnItemListener(new SimpleItemListener<GuideData>() {
+// 添加点击事件
+adapter.setOnItemListener(new SimpleItemListener<Student>() {
     @Override
-    public void onClick(int pos, LightHolder holder, GuideData data) {
-        // 单击事件
+    public void onClick(int pos, LightHolder holder, Student data) {
+    	// 单击事件
     }
     @Override
-    public void onLongPress(int pos, LightHolder holder, GuideData data) {
-        // 长按事件
+    public void onLongPress(int pos, LightHolder holder, Student data) {
+	// 长按事件
     }
     @Override
-    public void onDoubleClick(int pos, LightHolder holder, GuideData data) {
+    public void onDoubleClick(int pos, LightHolder holder, Student data) {
         // 双击事件
     }
 });
 ```
 
-## 数据绑定
+## LightHolder
 
-数据绑定主要基于简化过的 `LightHolder`，里面内置了很多绑定数据的简单方法，如：
+为了支持同时对多个控件进行一样的绑定操作，可以使用 `Ids` 来包含多个 `id`
 
 ```java
-mAdapter = new LightAdapter<GuideData>(mContext, mGuideDatas) {
+Ids ids = Ids.all(R.id.test_tv, R.id.tv_count);
+```
+为了更好的性能，每个 `Adapter` 会维护一个可复用的 `Ids`， 因此在 `Adapter` 建议直接使用 `all()` 方法创建，避免每次都创建新的。
+
+```java
+new LightAdapter<Student>(getContext(), list, R.layout.adapter_item)
     @Override
-    public void onBindView(LightHolder holder, GuideData data, int pos, int type) {
+    public void onBindView(LightHolder holder, Student data, int pos) {
         holder
-                // 设置文本
-                .setText(R.id.test1, "test")
-                // 对多个控件设置相同文字颜色
-                .setTextColor(Ids.all(R.id.test1, R.id.test2, R.id.test3), Color.RED)
-                // 显示
-                .setVisible(R.id.test1, R.id.test2, R.id.test3)
-                // 显示 || 隐藏
-                .setVisibleGone(R.id.test1, true)
-                // 点击事件
-                .setClick(R.id.test1, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                // 长按事件
-                .setLongClick(R.id.test1, new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        return false;
-                    }
-                })
-                // 对最外层 view 设置 layout params
-                .setLayoutParams(100, 100)
-                // 对指定 view 设置 layout params
-                .setLayoutParams(R.id.test1, 100, 100)
-                // 设置 checked
-                .setChecked(Ids.all(R.id.test1, R.id.test2),false)
-                // 自定义 callback，可以做任何事，主要为了保持链式代码风格
-                .setCallback(R.id.test1, new LightHolder.Callback<ImageView>() {
-                    @Override
-                    public void bind(LightHolder holder, ImageView view, int pos) {
-                        Glide.with(holder.getContext()).load(url).into(view);
-                    }
-                })
-                // 设置图片
-                .setImage(R.id.test1,R.mipmap.ic_launcher);
+                // 单个控件绑定
+                .setVisibility(R.id.tv, View.GONE)
+                // 在 Adapter 中可以直接使用 all() 方法绑定多个控件
+                .setVisibility(all(R.id.tv_count, R.id.test_tv), View.GONE)
+                // 不在 Adapter 中可以使用 holder.all()
+                .setVisibility(holder.all(R.id.tv_count, R.id.test_tv), View.GONE)
+                // 最差的方法使用 Ids.all() 每次都会创建新的
+                .setVisibility(Ids.all(R.id.tv_count, R.id.test_tv), View.GONE);
     }
 };
 ```
 
-## SelectManager
-
-牵扯到列表时通常会有单选、多选的功能，`LightAdapter` 中的 `SelectManager` 就是针对这种业务场景进行的简化封装，借助它可以更简单的实现选择器功能，同时还支持局部更新数据。
-
-支持单选 `SelectManager.TYPE_SINGLE` 和 多选 `SelectManager.TYPE_MULTI` 两种模式，
+为了更优雅的绑定数据显示，扩展了 `ViewHolder` 的功能，现在支持如下绑定方法
 
 ```java
-mSelectManager = new SelectManager<>(mAdapter, SelectManager.TYPE_SINGLE, new AdapterViewBinder<TypeModel>() {
+holder
+        // 设置 visibility
+        .setVisibility(R.id.tv, View.VISIBLE)
+        // 同时对多个控件设置 visibility
+        .setVisibility(Ids.all(R.id.tv, R.id.tv_count), View.GONE)
+        // 对多个控件设置某种显示状态
+        .setVisible(R.id.tv, R.id.tv_count)
+        .setGone(R.id.tv, R.id.tv_count)
+        .setInVisible(R.id.tv, R.id.tv_count)
+        // 通过 bool 值切换两种显示状态
+        .setVisibleGone(R.id.test_tv, true)
+        .setVisibleInVisible(R.id.test_tv, false)
+        // 设置 select
+        .setSelect(R.id.tv, true)
+        .setSelectYes(R.id.tv_count, R.id.test_tv)
+        .setSelectNo(R.id.tv_count, R.id.test_tv)
+        // 设置 check
+        .setChecked(R.id.tv, true)
+        .setCheckedNo(R.id.tv_count, R.id.test_tv)
+        .setCheckedYes(R.id.tv_count, R.id.test_tv)
+        // 设置背景
+        .setBgColor(R.id.test_tv, Color.RED)
+        .setBgColorRes(R.id.test_tv, R.color.colorPrimary)
+        .setBgDrawable(R.id.test_tv, new ColorDrawable(Color.RED))
+        .setBgRes(R.id.test_tv, R.drawable.wx_logo)
+        // 设置文字颜色
+        .setTextColor(R.id.test_tv, Color.RED)
+        .setTextColorRes(R.id.test_tv, R.color.colorPrimary)
+        // 设置文字
+        .setText(R.id.test_tv, "test", true)
+        .setTextRes(R.id.test_tv, R.string.app_name)
+        // 设置图片
+        .setImage(R.id.test_tv, R.drawable.wx_logo)
+        .setImage(R.id.test_tv, new ColorDrawable(Color.RED))
+        .setImage(R.id.test_tv, BitmapFactory.decodeFile("test"))
+        // 给 itemView 设置 LayoutParams
+        .setLayoutParams(100, 100)
+        // 给指定控件设置 LayoutParams
+        .setLayoutParams(R.id.test_tv, 100, 100)
+        // 点击事件
+        .setClick(R.id.test_tv, view -> {
+            ToastX.show("点击事件");
+        })
+        // 长按事件
+        .setLongClick(R.id.test_tv, view -> {
+            ToastX.show("长按事件");
+            return true;
+        })
+        // 使用回调风格，LightHolder.IMAGE 用来声明范型类型
+        .setCallback(R.id.tv, LightHolder.IMAGE, imgView -> {
+            Glide.with(imgView.getContext()).load("url").into(imgView);
+        });
+```
+
+关于使用回调来绑定数据主要是为了不破坏链式编程的风格，他会查找到指定的 `View` 并回调绑定数据的方法，使用 `LightHolder.IMAGE`/`LightHolder.TEXT` 来声明范型可以更好的结合 `lambda` 表达式来简化代码。
+
+```java
+// 使用回调风格，LightHolder.IMAGE 用来声明范型类型
+holder.setCallback(R.id.tv, LightHolder.IMAGE, imgView -> {
+    Glide.with(imgView.getContext()).load("url").into(imgView);
+})
+```
+
+你也可以定义自己的 `Callback` 来处理某些常用场景的数据加载，例如使用 `Glide` 加载图片：
+
+```java
+static class GlideCallback implements LightHolder.Callback<ImageView> {
+
+    private RequestOptions mOptions;
+    private String mUrl;
+
+    public GlideCallback(String url, RequestOptions options) {
+        mOptions = options;
+        mUrl = url;
+    }
+
     @Override
-    public void onBindViewHolder(LightHolder holder, TypeModel data, int pos, int type) {
-        // 判断该数据是否被选中，然后进行不同的数据渲染
-        if (!mSelectManager.isSelect(data)) {
-            holder.setText(R.id.item_common_tv, "没选" + data.index);
-        } else {
-            holder.setText(R.id.item_common_tv, "选中" + data.index);
+    public void bind(ImageView view) {
+        Glide.with(view.getContext()).load(mUrl)
+                .apply(mOptions)
+                .into(view);
+    }
+}
+```
+
+在绑定数据时使用
+
+```java
+// 自定义图片加载的 callback 配置加载参数
+holder.setCallback(R.id.tv, new GlideCallback("imgUrl", RequestOptions.overrideOf(100, 100).placeholder(R.drawable.wx_logo)));
+```
+
+## 数据更新
+
+可以使用 `NotifyDelegate` 代替 `Adapter` 进行数据的更新，与 `Adapter` 相比，`NotifyDelegate` 会把所有的更新操作发布到主线程执行，避免不小心在 **子线程** 更新造成闪退的问题。
+
+使用 `adapter.notifyItem()` 获取内部的 `NotifyDelegate` 然后调用相应的更新方法，他和 `Adapter` 的更新数据的方法是一一对应的，只是他会帮你检测当前线程避免线程引起的更新问题。
+
+```java
+adapter.notifyItem().change(2);
+adapter.notifyItem().change(2, 20);
+adapter.notifyItem().change(2, 20, null);
+adapter.notifyItem().insert(2);
+adapter.notifyItem().insert(2, 20);
+adapter.notifyItem().remove(2);
+adapter.notifyItem().remove(2, 20);
+adapter.notifyItem().move(10, 20);
+```
+
+### LightDiffList
+
+我们更建议使用 `LightDiffList` 来更新数据，`LightDiffList` 是 `List` 的子类，内部使用 `DiffUtil` 实现了数据的自动比对和更新，使用 `DiffUtil` 可以把您从如何更新数据的困境中解放出来。
+
+首先使用 `LightDiffList` 直接替换掉原来的数据源即可
+
+```java
+// 将
+private List<Student> mStudents = new ArrayList<>();
+// 替换为
+private LightDiffList<Student> mStudents = new LightDiffList<>();
+```
+
+为了可以使用 `DiffUtil` 自动进行数据对比，我们的数据结构应该实现 `Diffable` 接口来告知 `LightDiffList` 如何对数据进行比对更新。
+
+```java
+public class DiffableStudent implements Diffable<DiffableStudent> {
+
+    public static final String MSG_NAME_CHANGED = "MSG_NAME_CHANGED";
+
+    public String name;
+    public int age;
+    public int id;
+
+    /* Diffable 继承了 Parcelable ，因此要是实现 Parcelable 接口*/
+    // 此处实现 Parcelable 接口
+
+    @Override
+    public boolean areItemsTheSame(DiffableStudent newItem) {
+        return id == newItem.id;
+    }
+    @Override
+    public boolean areContentsTheSame(DiffableStudent newItem) {
+        return name.equals(newItem.name) && age == newItem.age;
+    }
+    @Override
+    public Set<String> getChangePayload(DiffableStudent newItem) {
+        Set<String> set = new HashSet<>();
+        if (!name.equals(newItem.name)) {
+            set.add(MSG_NAME_CHANGED);
+        }
+        return set;
+    }
+}
+```
+
+上面提到的 3 个方法与 `DiffUtil` 中的 `Callback` 一致，可以参考该接口的文档，下面做简单解释：
+
+- `areItemsTheSame` ：是否为同一个 `Item`，如果你的数据结构有 `id`，则应该使用 `id` 比对，否则可以使用 `equals`，如果返回 `false` 会调用 `notifyItemRangeRemoved` / `notifyItemRangeInserted` 来更新数据。
+- `areContentsTheSame` ：`Item` 内容是否相同，只有当 `areItemsTheSame` 返回 `true` 时会调用该方法，如果返回 `false` 会调用 `notifyItemRangeChanged` 来更新数据。
+- `getChangePayload` ：增量更新数据，使用该方法可以避免每次都将整个 `Item` 无脑的 `Bind` 一遍，那样会导致那行出现明显的闪烁现象，此方法只有在 `areContentsTheSame` 返回 `false` 才会调用，此方法在下小节我们会更细致的介绍。
+
+使用了 `LightDiffList` 之后我们就可以告别 `Adapter` 的 `notify` 方法了，而是使用 `LightDiffList` 的 `update` 方法，
+
+```java
+// 获取数据快照，对快照数据只能做增删操作
+// 更新操作需要使用 update 方法
+// 对数据更新完毕后，使用 update 提交更新
+List<Student> students = mStudents.snapshot();
+students.add(new Student());
+mStudents.update(students);
+
+// 在原有数据后拼接新数据，并更新
+List<Student> list = ListX.range(30, index -> new Student("name" + (index), (index)));
+mStudents.append(list);
+
+// 原有数据 与 新数据 做 diff，并更新
+mStudents.update(list);
+
+// 遍历所有数据，根据条件查找指定 item，并对其更新
+// 如下：查找年龄大于10的学生将其年龄改为100
+mStudents.update(student -> {
+    return student.age > 10;
+}, student -> {
+    student.age = 100;
+});
+
+// 更新某个位置的数据
+mStudents.update(100, student -> {
+    student.age = 100;
+});
+```
+
+### payloads
+
+上面提到过了使用 `payloads` 来增量更新数据，使用该方法可以避免每次都将整个 `Item` 无脑的 `Bind` 一遍，那样会导致那行出现明显的闪烁现象，此方法只有在 `areContentsTheSame` 返回 `false` 才会调用。
+
+首先在数据结构中我们需要对数据进行比对，并返回一个 `Msg` 的列表，如下当两个数据的 `name` 不同时，我们返回添加一个 `MSG_NAME_CHANGED` 的消息来标记此次变化。
+
+```java
+public class DiffableStudent implements Diffable<DiffableStudent> {
+
+    public static final String MSG_NAME_CHANGED = "MSG_NAME_CHANGED";
+
+    //... 其他代码之前介绍过了，暂时不关注
+
+    @Override
+    public Set<String> getChangePayload(DiffableStudent newItem) {
+        Set<String> set = new HashSet<>();
+        if (!name.equals(newItem.name)) {
+            set.add(MSG_NAME_CHANGED);
+        }
+        return set;
+    }
+}
+```
+
+在 `Adapter` 的绑定过程中，我们要再重写 `onBindViewUsePayload` 方法来处理使用 `payloads` 更新显示的情况，在 `onBindViewUsePayload` 方法中根据传递过来的 `Msg` 不同选择性的去绑定指定的控件。
+
+需要注意的是 `onBindViewUsePayload` 是对 `onBindView` 的补充，`onBindView` 仍然要完成完整的数据绑定过程，但是当数据只是局部改变时，我们可以使用 `payload` 获得更好的性能和刷新体验。
+
+
+```java
+new LightAdapter<Student>(getContext(), mStudents, factory) {
+
+    // 一般绑定数据
+    @Override
+    public void onBindView(LightHolder holder, Student data, int pos) {
+        holder.setText(R.id.tv, data.name + " " + data.age);
+    }
+
+    // 使用 payload 绑定数据
+    @Override
+    public void onBindViewUsePayload(LightHolder holder, Student data, int pos, String msg) {
+        switch (msg) {
+            case Student.MSG_NAME_CHANGED:
+                holder.setText(R.id.tv, data.name + " " + data.age);
+                break;
         }
     }
-});
+};
 ```
 
-设置初始选中的项：
-
-```java
-mSelectManager.initSelect(0, 1, 2);
-```
-
-切换某一项的选中状态：
-
-```java
-mAdapter.setOnItemListener(new SimpleItemListener<TypeModel>() {
-    @Override
-    public void onClick(int pos, LightHolder holder, TypeModel data) {
-        mSelectManager.select(pos);
-    }
-});
-```
-
-获取选择的数据：
-
-```java
-mSelectManager.getResult();
-mSelectManager.getResults();
-```
 

@@ -2,8 +2,8 @@ package com.zfy.adapter.delegate;
 
 import android.view.View;
 
-import com.zfy.adapter.AdapterCallback;
-import com.zfy.adapter.ViewHolderBinder;
+import com.zfy.adapter.listener.AdapterCallback;
+import com.zfy.adapter.listener.ViewHolderBinder;
 
 /**
  * CreateAt : 2018/10/30

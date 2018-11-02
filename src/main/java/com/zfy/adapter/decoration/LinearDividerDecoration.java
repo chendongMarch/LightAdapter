@@ -1,4 +1,4 @@
-package com.zfy.adapter.extend.decoration;
+package com.zfy.adapter.decoration;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -12,36 +12,26 @@ import android.view.View;
 
 /**
  * CreateAt : 2017/12/10
- * Describe :
- * RecyclerView 分割线实现
+ * Describe : 为 LinearLayout 提供分割线实现
  *
  * @author chendong
  */
-public class LinerDividerDecoration extends RecyclerView.ItemDecoration {
+public class LinearDividerDecoration extends RecyclerView.ItemDecoration {
 
     public static final int HORIZONTAL = LinearLayoutManager.HORIZONTAL;
     public static final int VERTICAL = LinearLayoutManager.VERTICAL;
+
     private Drawable mDivider;
     private int mOrientation;
 
-    public LinerDividerDecoration(Context context, int orientation, int resId) {
+    public LinearDividerDecoration(Context context, int orientation, int resId) {
         mDivider = ContextCompat.getDrawable(context, resId);
-        if (orientation != HORIZONTAL && orientation != VERTICAL) {
-            throw new IllegalArgumentException("invalid orientation");
-        }
         mOrientation = orientation;
     }
 
-    public static void attachRecyclerView(RecyclerView recyclerView, int res) {
-        RecyclerView.LayoutManager lm = recyclerView.getLayoutManager();
-        if (lm == null || !(lm instanceof LinearLayoutManager)) {
-            throw new IllegalArgumentException("only for LinearLayoutManager");
-        }
-        LinearLayoutManager linearLayoutManager = (LinearLayoutManager) lm;
-        int mOrientation = linearLayoutManager.getOrientation();
-        Context context = recyclerView.getContext();
-        LinerDividerDecoration linerDividerDecoration = new LinerDividerDecoration(context, mOrientation, res);
-        recyclerView.addItemDecoration(linerDividerDecoration);
+    public LinearDividerDecoration(int orientation, Drawable drawable) {
+        mDivider = drawable;
+        mOrientation = orientation;
     }
 
     @Override

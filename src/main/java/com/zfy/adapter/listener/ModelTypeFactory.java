@@ -1,4 +1,6 @@
-package com.zfy.adapter;
+package com.zfy.adapter.listener;
+
+import com.zfy.adapter.model.ModelType;
 
 /**
  * CreateAt : 2018/10/26

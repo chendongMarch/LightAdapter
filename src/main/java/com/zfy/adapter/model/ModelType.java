@@ -1,4 +1,6 @@
-package com.zfy.adapter;
+package com.zfy.adapter.model;
+
+import com.zfy.adapter.common.Values;
 
 /**
  * CreateAt : 2018/10/26
@@ -57,5 +59,13 @@ public class ModelType {
 
     public void setEnableDbClick(boolean enableDbClick) {
         this.enableDbClick = enableDbClick;
+    }
+
+    public boolean isEnableLongPress() {
+        return enableLongPress;
+    }
+
+    public void setEnableLongPress(boolean enableLongPress) {
+        this.enableLongPress = enableLongPress;
     }
 }

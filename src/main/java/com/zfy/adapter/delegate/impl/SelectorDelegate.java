@@ -1,7 +1,7 @@
 package com.zfy.adapter.delegate.impl;
 
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.model.Selectable;
+import com.zfy.adapter.able.Selectable;
 
 /**
  * CreateAt : 2018/11/1
@@ -12,7 +12,7 @@ import com.zfy.adapter.model.Selectable;
 public class SelectorDelegate extends BaseDelegate {
 
     public interface SelectorBinder {
-        void onBindSelectableViewHolder(LightHolder holder, int position, Selectable obj)
+        void onBindSelectableViewHolder(LightHolder holder, int position, Selectable obj);
     }
 
     private SelectorBinder mSelectorBinder;
@@ -51,8 +51,12 @@ public class SelectorDelegate extends BaseDelegate {
         }
         selectable.setSelected(true);
         int pos = mAdapter.getDatas().indexOf(selectable);
-        if (pos >= 0) {
-            mAdapter.notifyItem().change(mAdapter.toLayoutIndex(pos));
+        int layoutIndex = mAdapter.toLayoutIndex(pos);
+        LightHolder holder = (LightHolder) mAdapter.getRecyclerView().findViewHolderForLayoutPosition(layoutIndex);
+        if (holder != null) {
+            mSelectorBinder.onBindSelectableViewHolder(holder, pos, selectable);
+        } else {
+            mAdapter.notifyItem().change(layoutIndex);
         }
     }
 
@@ -67,8 +71,12 @@ public class SelectorDelegate extends BaseDelegate {
         }
         selectable.setSelected(false);
         int pos = mAdapter.getDatas().indexOf(selectable);
-        if (pos >= 0) {
-            mAdapter.notifyItem().change(mAdapter.toLayoutIndex(pos));
+        int layoutIndex = mAdapter.toLayoutIndex(pos);
+        LightHolder holder = (LightHolder) mAdapter.getRecyclerView().findViewHolderForLayoutPosition(layoutIndex);
+        if (holder != null) {
+            mSelectorBinder.onBindSelectableViewHolder(holder, pos, selectable);
+        } else {
+            mAdapter.notifyItem().change(layoutIndex);
         }
     }
 

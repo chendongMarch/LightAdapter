@@ -8,7 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.zfy.adapter.able.ModelTypeable;
 import com.zfy.adapter.collections.LightDiffList;
+import com.zfy.adapter.common.Values;
 import com.zfy.adapter.delegate.DelegateRegistry;
 import com.zfy.adapter.delegate.IDelegate;
 import com.zfy.adapter.delegate.impl.HFDelegate;
@@ -16,10 +18,11 @@ import com.zfy.adapter.delegate.impl.LoadMoreDelegate;
 import com.zfy.adapter.delegate.impl.NotifyDelegate;
 import com.zfy.adapter.delegate.impl.SelectorDelegate;
 import com.zfy.adapter.delegate.impl.TopMoreDelegate;
+import com.zfy.adapter.listener.ModelTypeFactory;
 import com.zfy.adapter.listener.OnItemListener;
-import com.zfy.adapter.listener.SimpleItemListener;
 import com.zfy.adapter.model.Ids;
-import com.zfy.adapter.model.Typeable;
+import com.zfy.adapter.model.LightEvent;
+import com.zfy.adapter.model.ModelType;
 
 import java.util.HashSet;
 import java.util.List;
@@ -52,20 +55,36 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     private ModelTypeFactory mBuildInModelTypeFactory;
     // 代理注册表
     private DelegateRegistry mDelegateRegistry;
+    // 负责完成事件的初始化和触发
+    private LightEvent<D> mLightEvent;
+    // 多 ID 绑定
+    private Ids mIds;
 
-    // 单类型构造
+    /**
+     * 单类型适配器构造函数
+     *
+     * @param context  上下文
+     * @param datas    数据源
+     * @param layoutId 布局
+     */
     public LightAdapter(Context context, List<D> datas, int layoutId) {
         this(context, datas, modelType -> modelType.setLayout(layoutId));
     }
 
-    // 多类型构造
+    /**
+     * 多类型适配器构造函数
+     *
+     * @param context 上下文
+     * @param datas   数据源
+     * @param factory 类型构造工厂
+     */
     public LightAdapter(Context context, List<D> datas, ModelTypeFactory factory) {
-        this(context, datas);
+        init(context, datas);
         mModelTypeFactory = factory;
     }
 
-    // 通用
-    private LightAdapter(Context context, List<D> datas) {
+    // 通用初始化方法
+    private void init(Context context, List<D> datas) {
         if (datas instanceof LightDiffList) {
             ((LightDiffList) datas).setLightAdapter(this);
         }
@@ -77,6 +96,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         mHolderCache = new HashSet<>();
         mDelegateRegistry = new DelegateRegistry();
         mDelegateRegistry.onAttachAdapter(this);
+        mLightEvent = new LightEvent<>(this);
         mBuildInModelTypeFactory = type -> {
             if (type.getType() == Values.TYPE_FOOTER || type.getType() == Values.TYPE_HEADER) {
                 type.setSpanSize(Values.SPAN_SIZE_ALL);
@@ -84,27 +104,6 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         };
     }
 
-    public Set<LightHolder> getHolderCache() {
-        return mHolderCache;
-    }
-
-    public List<D> getDatas() {
-        return mDatas;
-    }
-
-    public void setDatas(List<D> datas) {
-        mDatas = datas;
-    }
-
-    public Context getContext() {
-        return mContext;
-    }
-
-    public RecyclerView getRecyclerView() {
-        return mRecyclerView;
-    }
-
-    // 创建 ViewHolder
     @Override
     public LightHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LightHolder holder = mDelegateRegistry.onCreateViewHolder(parent, viewType);
@@ -115,13 +114,12 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
                 view = mLayoutInflater.inflate(type.getLayout(), parent, false);
             }
             holder = new LightHolder(this, viewType, view);
-            initItemEvent(holder);
+            mLightEvent.initEvent(holder, type);
             mHolderCache.add(holder);
         }
         return holder;
     }
 
-    // 绑定数据
     @Override
     public void onBindViewHolder(@NonNull LightHolder holder, int position) {
         if (!mDelegateRegistry.onBindViewHolder(holder, position)) {
@@ -152,8 +150,6 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         }
     }
 
-
-    // 绑定到 RecyclerView
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
@@ -173,8 +169,8 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
             return hfType;
         }
         D d = getItem(toModelIndex(position));
-        if (d instanceof Typeable) {
-            Typeable model = (Typeable) d;
+        if (d instanceof ModelTypeable) {
+            ModelTypeable model = (ModelTypeable) d;
             return model.getModelType();
         } else {
             return Values.TYPE_CONTENT;
@@ -184,7 +180,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     @Override
     public void onViewAttachedToWindow(@NonNull LightHolder holder) {
         super.onViewAttachedToWindow(holder);
-
+        mDelegateRegistry.onViewAttachedToWindow(holder);
     }
 
     /**
@@ -230,123 +226,97 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         }
     }
 
-    public <Delegate extends IDelegate> Delegate getDelegate(int key) {
-        return mDelegateRegistry.get(key);
-    }
-
+    /**
+     * 一般绑定数据
+     *
+     * @param holder LightHolder
+     * @param data   数据
+     * @param pos    位置
+     */
     public abstract void onBindView(LightHolder holder, D data, int pos);
 
+    /**
+     * 使用 payload 绑定数据
+     *
+     * @param holder LightHolder
+     * @param data   数据
+     * @param pos    位置
+     * @param msg    消息
+     */
     public void onBindViewUsePayload(LightHolder holder, D data, int pos, String msg) {
     }
 
 
+    /**
+     * 设置点击事件
+     *
+     * @param onItemListener
+     */
     public void setOnItemListener(final OnItemListener<D> onItemListener) {
-        this.mOnItemListener = new SimpleItemListener<D>() {
-            @Override
-            public void onClick(int pos, LightHolder holder, D data) {
-                int position = toModelIndex(holder.getAdapterPosition());
-                ModelType type = getType(getItem(position));
-                if (type != null && type.isEnableClick()) {
-                    data = mDatas.get(position);
-                    onItemListener.onClick(position, holder, data);
-                }
-            }
+        mLightEvent.setOnItemListener(onItemListener);
+    }
 
-            @Override
-            public void onLongPress(int pos, LightHolder holder, D data) {
-                int position = toModelIndex(holder.getAdapterPosition());
-                ModelType type = getType(getItem(position));
-                if (type != null && type.isEnableClick()) {
-                    data = mDatas.get(position);
-                    onItemListener.onLongPress(position, holder, data);
-                }
-            }
+    /**
+     * 获取创建的 所有 holder
+     *
+     * @return holder set
+     */
+    public Set<LightHolder> getHolderCache() {
+        return mHolderCache;
+    }
 
-            @Override
-            public void onDoubleClick(int pos, LightHolder holder, D data) {
-                int position = toModelIndex(holder.getAdapterPosition());
-                ModelType type = getType(getItem(position));
-                if (type != null && type.isEnableClick()) {
-                    data = mDatas.get(position);
-                    onItemListener.onDoubleClick(position, holder, data);
-                }
-            }
-        };
+    /**
+     * @return 数据源
+     */
+    public List<D> getDatas() {
+        return mDatas;
+    }
+
+    /**
+     * @param datas 切换数据源
+     */
+    public void setDatas(List<D> datas) {
+        mDatas = datas;
+    }
+
+    /**
+     * 获取上下文
+     *
+     * @return 上下文
+     */
+    public Context getContext() {
+        return mContext;
+    }
+
+    /**
+     * 获取 RecyclerView
+     *
+     * @return RecyclerView
+     */
+    public RecyclerView getRecyclerView() {
+        return mRecyclerView;
     }
 
 
-    private void initItemEvent(final LightHolder holder) {
-        View itemView = holder.getItemView();
-//        GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
-//            @Override
-//            public boolean onSingleTapConfirmed(MotionEvent e) {
-//                if (mOnItemListener != null && mAdapterConfig.isDbClick()) {
-//                    mOnItemListener.onClick(0, holder, null);
-//                }
-//                return super.onSingleTapConfirmed(e);
-//            }
-//
-//            @Override
-//            public boolean onSingleTapUp(MotionEvent e) {
-//                if (mOnItemListener != null && !mAdapterConfig.isDbClick()) {
-//                    mOnItemListener.onClick(0, holder, null);
-//                }
-//                return super.onSingleTapUp(e);
-//            }
-//
-//            @Override
-//            public boolean onDoubleTap(MotionEvent e) {
-//                if (mOnItemListener != null) {
-//                    mOnItemListener.onDoubleClick(0, holder, null);
-//                }
-//                return super.onDoubleTap(e);
-//            }
-//
-//            @Override
-//            public void onLongPress(MotionEvent e) {
-//                if (mOnItemListener != null) {
-//                    mOnItemListener.onLongPress(0, holder, null);
-//                }
-//            }
-//        };
-//        final GestureDetectorCompat gestureDetector = new GestureDetectorCompat(mContext, gestureListener);
-//        itemView.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View view, MotionEvent motionEvent) {
-//                if (mOnItemListener != null && mAdapterConfig.isDbClick()) {
-//                    gestureDetector.onTouchEvent(motionEvent);
-//                    return true;
-//                } else {
-//                    return false;
-//                }
-//            }
-//        });
-        // 不支持双击的话还是用原来的，因为这样可以支持控件点击的背景变化
-        itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mOnItemListener != null) {
-                    mOnItemListener.onClick(0, holder, null);
-                }
-            }
-        });
-        // 不支持双击的话还是用原来的
-        itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                if (mOnItemListener != null) {
-                    mOnItemListener.onLongPress(0, holder, null);
-                }
-                return true;
-            }
-        });
-    }
-
+    /**
+     * 复用 id 集合
+     *
+     * @param ids id 集合
+     * @return Ids
+     */
     public Ids all(int... ids) {
-        return Ids.all(ids);
+        if (mIds == null) {
+            mIds = Ids.all();
+        }
+        return mIds.obtain(ids);
     }
 
-    // 根据类型获取 ModelType
+    /**
+     * 根据类型获取 ModelType
+     *
+     * @param type 类型
+     * @return 数据的类型
+     */
     public ModelType getType(int type) {
         ModelType modelType = mModelTypeCache.get(type);
         if (modelType == null) {
@@ -358,15 +328,19 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         return modelType;
     }
 
-
-    // 根据数据获取 ModelType
+    /**
+     * 根据数据获取 ModelType
+     *
+     * @param data 数据
+     * @return 数据的类型
+     */
     public ModelType getType(D data) {
         if (data == null) {
             return null;
         }
         int type;
-        if (data instanceof Typeable) {
-            type = ((Typeable) data).getModelType();
+        if (data instanceof ModelTypeable) {
+            type = ((ModelTypeable) data).getModelType();
         } else {
             type = Values.TYPE_CONTENT;
         }
@@ -374,34 +348,63 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     }
 
     /**
-     * 获取注册表，注册和获取
-     *
-     * @return DelegateRegistry
+     * @return DelegateRegistry 获取注册表，注册和获取
      */
     public DelegateRegistry getDelegateRegistry() {
         return mDelegateRegistry;
     }
 
+
+    /**
+     * 从注册中心获取委托实例
+     *
+     * @param key        委托类的 key
+     * @param <Delegate> 范型
+     * @return 功能代理
+     */
+    public <Delegate extends IDelegate> Delegate getDelegate(int key) {
+        return mDelegateRegistry.get(key);
+    }
+
+
+    /**
+     * @return HFDelegate 执行 header 相关功能
+     */
     public HFDelegate header() {
         return getDelegate(IDelegate.HF);
     }
 
+    /**
+     * @return HFDelegate 执行 footer 相关功能
+     */
     public HFDelegate footer() {
         return getDelegate(IDelegate.HF);
     }
 
+    /**
+     * @return NotifyDelegate 执行 数据更新 相关功能
+     */
     public NotifyDelegate notifyItem() {
         return getDelegate(IDelegate.NOTIFY);
     }
 
+    /**
+     * @return LoadMoreDelegate 执行底部加载更多功能
+     */
     public LoadMoreDelegate loadMore() {
         return getDelegate(IDelegate.LOAD_MORE);
     }
 
+    /**
+     * @return TopMoreDelegate 执行顶部加载更多功能
+     */
     public TopMoreDelegate topMore() {
         return getDelegate(IDelegate.TOP_MORE);
     }
 
+    /**
+     * @return SelectorDelegate 负责选择器功能
+     */
     public SelectorDelegate selector() {
         return getDelegate(IDelegate.SELECTOR);
     }
