@@ -14,9 +14,9 @@ import android.view.ViewGroup;
 
 import com.march.common.exts.LogX;
 import com.zfy.component.basic.ComponentX;
+import com.zfy.component.basic.app.AppDelegate;
 import com.zfy.component.basic.app.view.IViewInit;
 import com.zfy.component.basic.app.view.ViewConfig;
-import com.zfy.component.basic.app.AppDelegate;
 import com.zfy.component.basic.mvx.mvvm.BaseViewModel;
 import com.zfy.component.basic.mvx.mvvm.IBindingView;
 
@@ -57,7 +57,7 @@ public class MvvmDelegate<VideoModel extends BaseViewModel, VDB extends ViewData
     }
 
     @Override
-    public View bindFragment(LifecycleOwner owner, LayoutInflater inflater, ViewGroup container) {
+    public View bindFragmentDispatch(LifecycleOwner owner, LayoutInflater inflater, ViewGroup container) {
         attach(owner);
         mBinding = DataBindingUtil.inflate(inflater, mViewConfig.getLayout(), container, false);
         bindView(mHost, mBinding.getRoot());
@@ -67,11 +67,16 @@ public class MvvmDelegate<VideoModel extends BaseViewModel, VDB extends ViewData
     }
 
     @Override
-    public void bindActivity(LifecycleOwner owner) {
+    public void bindActivityDispatch(LifecycleOwner owner) {
         attach(owner);
         mBinding = DataBindingUtil.setContentView(((Activity) owner), mViewConfig.getLayout());
         bindView(mHost, null);
         init();
+    }
+
+    @Override
+    public void bindNoLayoutViewDispatch(LifecycleOwner owner, Object host) {
+        super.bindNoLayoutViewDispatch(owner, host);
     }
 
     private void init() {

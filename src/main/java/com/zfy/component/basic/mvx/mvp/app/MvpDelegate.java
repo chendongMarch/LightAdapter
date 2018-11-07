@@ -1,5 +1,6 @@
 package com.zfy.component.basic.mvx.mvp.app;
 
+import android.app.Activity;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.view.LayoutInflater;
@@ -8,11 +9,9 @@ import android.view.ViewGroup;
 
 import com.march.common.exts.LogX;
 import com.zfy.component.basic.ComponentX;
+import com.zfy.component.basic.app.AppDelegate;
 import com.zfy.component.basic.app.view.IViewInit;
 import com.zfy.component.basic.app.view.ViewConfig;
-import com.zfy.component.basic.app.AppActivity;
-import com.zfy.component.basic.app.AppDelegate;
-import com.zfy.component.basic.app.AppFragment;
 import com.zfy.component.basic.mvx.mvp.IMvpPresenter;
 import com.zfy.component.basic.mvx.mvp.IMvpView;
 import com.zfy.component.basic.mvx.mvp.presenter.MvpPresenter;
@@ -52,10 +51,7 @@ public class MvpDelegate<P extends IMvpPresenter> extends AppDelegate {
     }
 
     @Override
-    public View bindFragment(LifecycleOwner owner, LayoutInflater inflater, ViewGroup container) {
-        if (!(owner instanceof AppFragment)) {
-            throw new IllegalArgumentException("owner must be fragment");
-        }
+    public View bindFragmentDispatch(LifecycleOwner owner, LayoutInflater inflater, ViewGroup container) {
         attach(owner);
         View inflate = inflater.inflate(mViewConfig.getLayout(), container, false);
         bindView(mHost, inflate);
@@ -65,12 +61,9 @@ public class MvpDelegate<P extends IMvpPresenter> extends AppDelegate {
     }
 
     @Override
-    public void bindActivity(LifecycleOwner owner) {
-        if (!(owner instanceof AppActivity)) {
-            throw new IllegalArgumentException("owner must be activity");
-        }
+    public void bindActivityDispatch(LifecycleOwner owner) {
         attach(owner);
-        ((AppActivity) mHost).setContentView(mViewConfig.getLayout());
+        ((Activity) owner).setContentView(mViewConfig.getLayout());
         bindView(mHost, null);
         bindEvent();
         init();
@@ -78,7 +71,7 @@ public class MvpDelegate<P extends IMvpPresenter> extends AppDelegate {
 
 
     @Override
-    public void bindNoLayoutView(LifecycleOwner owner, Object binder) {
+    public void bindNoLayoutViewDispatch(LifecycleOwner owner, Object binder) {
         if (!(owner instanceof NoLayoutMvpView)) {
             throw new IllegalArgumentException("owner must be no layout view");
         }
@@ -93,7 +86,9 @@ public class MvpDelegate<P extends IMvpPresenter> extends AppDelegate {
         if (mHost instanceof IMvpView) {
             Class pClazz = mViewConfig.getpClazz();
             try {
-                mPresenter = (P) pClazz.newInstance();
+                if(pClazz !=null) {
+                    mPresenter = (P) pClazz.newInstance();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -120,7 +115,7 @@ public class MvpDelegate<P extends IMvpPresenter> extends AppDelegate {
     }
 
 
-    public static class NoPresenter extends MvpPresenter{
+    public static class NoPresenter extends MvpPresenter {
 
         @Override
         public void init() {

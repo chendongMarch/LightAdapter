@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.zfy.component.basic.app.view.IBaseView;
 import com.zfy.component.basic.app.view.IElegantView;
+import com.zfy.component.basic.app.view.IOnResultView;
 import com.zfy.component.basic.app.view.IViewInit;
 import com.zfy.component.basic.app.view.ViewConfig;
 import com.zfy.component.basic.foundation.api.Api;
@@ -22,7 +23,7 @@ import org.greenrobot.eventbus.Subscribe;
  *
  * @author chendong
  */
-public abstract class AppActivity extends AppCompatActivity implements IElegantView, IViewInit, IBaseView {
+public abstract class AppActivity extends AppCompatActivity implements IElegantView, IViewInit, IBaseView, IOnResultView {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,17 +55,18 @@ public abstract class AppActivity extends AppCompatActivity implements IElegantV
     }
 
     @Override
-    public void startActivity(Class clz) {
-        startActivity(new Intent(this, clz));
+    public void launchActivity(Intent data, int requestCode) {
+        if (requestCode == 0) {
+            startActivity(data);
+        } else {
+            startActivityForResult(data, requestCode);
+        }
     }
 
     @Override
     public @NonNull
     Bundle getData() {
-        if (getIntent() == null || getIntent().getExtras() == null) {
-            return new Bundle();
-        }
-        return getIntent().getExtras();
+        return getAppDelegate().getBundle();
     }
 
     @Override
@@ -82,5 +84,25 @@ public abstract class AppActivity extends AppCompatActivity implements IElegantV
         super.onDestroy();
         getAppDelegate().onDestroy();
         Api.queue().cancelRequest(hashCode());
+    }
+
+    @Override
+    public void finishUI(Intent intent, int code) {
+        if (intent != null) {
+            setResult(code, intent);
+        }
+        finish();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        getAppDelegate().onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        getAppDelegate().onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }

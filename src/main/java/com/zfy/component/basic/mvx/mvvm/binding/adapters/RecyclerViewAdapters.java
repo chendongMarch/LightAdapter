@@ -13,6 +13,7 @@ import me.tatarka.bindingcollectionadapter2.LayoutManagers;
  * CreateAt : 2018/9/10
  * Describe : RecyclerView
  * bindScroll
+ *
  * @author chendong
  */
 public class RecyclerViewAdapters {
@@ -33,11 +34,11 @@ public class RecyclerViewAdapters {
             "bindViewHolder"
     }, requireAll = false)
     public static <T> void setAdapter(RecyclerView recyclerView,
-            ItemBinding<T> itemBinding,
-            List<T> items,
-            BindingRecyclerViewAdapter<T> adapter,
-            BindingRecyclerViewAdapter.ItemIds<? super T> itemIds,
-            BindingRecyclerViewAdapter.ViewHolderFactory viewHolderFactory) {
+                                      ItemBinding<T> itemBinding,
+                                      List<T> items,
+                                      BindingRecyclerViewAdapter<T> adapter,
+                                      BindingRecyclerViewAdapter.ItemIds<? super T> itemIds,
+                                      BindingRecyclerViewAdapter.ViewHolderFactory viewHolderFactory) {
         if (itemBinding == null) {
             throw new IllegalArgumentException("itemBinding must not be null");
         }

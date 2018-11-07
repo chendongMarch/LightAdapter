@@ -1,7 +1,6 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.zfy.component.basic">
+<manifest package="com.zfy.component.basic">
 
     <application>
-        <activity android:name=".mvx.mvp.app.MvpActivity" />
+
     </application>
 </manifest>

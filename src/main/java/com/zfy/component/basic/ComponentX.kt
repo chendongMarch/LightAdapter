@@ -4,7 +4,6 @@ import android.app.Application
 import android.net.Uri
 import com.alibaba.android.arouter.facade.Postcard
 import com.alibaba.android.arouter.launcher.ARouter
-import com.march.common.Common
 import com.zfy.component.basic.exception.ServiceNotFoundException
 
 /**
@@ -49,7 +48,8 @@ object ComponentX {
     @Suppress("UNCHECKED_CAST")
     @JvmStatic
     fun <T> discover(path: String): T {
-        return ARouter.getInstance().build(path).navigation() as? T ?: throw ServiceNotFoundException()
+        return ARouter.getInstance().build(path).navigation() as? T
+                ?: throw ServiceNotFoundException()
     }
 
 

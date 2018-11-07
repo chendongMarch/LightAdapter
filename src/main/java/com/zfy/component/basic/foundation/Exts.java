@@ -33,6 +33,7 @@ public class Exts {
         try {
             t = clazz.newInstance();
         } catch (Exception e) {
+            e.printStackTrace();
             throw new IllegalStateException("实例创建失败", e);
         }
         return t;

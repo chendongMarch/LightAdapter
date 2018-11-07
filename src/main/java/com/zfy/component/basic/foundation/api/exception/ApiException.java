@@ -12,13 +12,19 @@ import com.march.common.exts.ToastX;
  */
 public class ApiException extends IllegalStateException {
 
-    public static final int ERR_NETWORK = 1; // 网络没有链连接
+    public static final int ERR_NETWORK      = 1; // 网络没有链连接
+    public static final int ERR_DATA_PROCESS = 2; // 数据处理错误
 
-    private int     code;
-    private String  msg;
+    private int    code;
+    private String msg;
 
     public ApiException(String message) {
         super(message);
+    }
+
+    public ApiException(int code, String msg) {
+        this.code = code;
+        this.msg = msg;
     }
 
     public ApiException(int errorCode) {
@@ -27,10 +33,12 @@ public class ApiException extends IllegalStateException {
             case ERR_NETWORK:
                 msg = "网络未连接";
                 break;
+            case ERR_DATA_PROCESS:
+                msg = "数据处理错误";
+                break;
+            default:
+                break;
         }
-    }
-
-    public ApiException() {
     }
 
     public static boolean handleApiException(Throwable e) {
@@ -40,6 +48,8 @@ public class ApiException extends IllegalStateException {
                 case ERR_NETWORK:
                     ToastX.show("网络未连接");
                     return true;
+                default:
+                    break;
             }
         }
         if (e instanceof JsonParseException) {

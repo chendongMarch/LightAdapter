@@ -4,6 +4,7 @@ import com.zfy.component.basic.app.AppDelegate;
 import com.zfy.component.basic.app.AppFragment;
 import com.zfy.component.basic.mvx.mvp.IMvpPresenter;
 import com.zfy.component.basic.mvx.mvp.IMvpView4Extends;
+import com.zfy.component.basic.mvx.mvp.contract.LazyLoadContract;
 
 /**
  * CreateAt : 2018/10/11
@@ -11,7 +12,8 @@ import com.zfy.component.basic.mvx.mvp.IMvpView4Extends;
  *
  * @author chendong
  */
-public abstract class MvpFragment<P extends IMvpPresenter> extends AppFragment implements IMvpView4Extends {
+public abstract class MvpFragment<P extends IMvpPresenter> extends AppFragment
+        implements IMvpView4Extends, LazyLoadContract.V {
 
     protected MvpDelegate<P> mDelegate = new MvpDelegate<>();
 
@@ -25,4 +27,8 @@ public abstract class MvpFragment<P extends IMvpPresenter> extends AppFragment i
         return mDelegate.getPresenter();
     }
 
+    @Override
+    public void setLazyLoadEnable(boolean enable) {
+        mLazyLoader.setLazyLoadEnable(enable);
+    }
 }

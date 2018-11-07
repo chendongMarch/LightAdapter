@@ -1,12 +1,11 @@
 package com.zfy.component.basic.foundation.api.observers;
 
 
+import com.march.common.Common;
 import com.march.common.exts.ToastX;
 import com.zfy.component.basic.foundation.api.Api;
 import com.zfy.component.basic.foundation.api.config.ReqConfig;
 import com.zfy.component.basic.foundation.api.exception.ApiException;
-
-import com.march.common.Common;
 
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
@@ -28,8 +27,12 @@ public class ApiObserver<D> implements Observer<D> {
     protected Consumer<D>         nextConsumer;
     protected Consumer<Throwable> errorConsumer;
     protected Action              finishAction;
-    protected ReqConfig           requestConfig;
-    private   int                 tag;
+
+    protected ReqConfig requestConfig;
+
+    private int tag;
+
+    private boolean isDispose;
 
     public ApiObserver(Object host) {
         this.tag = host.hashCode();
@@ -38,12 +41,26 @@ public class ApiObserver<D> implements Observer<D> {
 
     @Override
     public void onSubscribe(@NonNull Disposable d) {
-        disposable = d;
+        disposable = new Disposable() {
+            @Override
+            public void dispose() {
+                d.dispose();
+                isDispose = true;
+            }
+
+            @Override
+            public boolean isDisposed() {
+                return d.isDisposed();
+            }
+        };
         Api.queue().addRequest(tag, disposable);
     }
 
     @Override
     public void onNext(@NonNull D t) {
+        if (isDispose) {
+            return;
+        }
         if (nextConsumer != null) {
             try {
                 nextConsumer.accept(t);
@@ -55,8 +72,12 @@ public class ApiObserver<D> implements Observer<D> {
 
     @Override
     public void onError(@NonNull Throwable e) {
+        if (isDispose) {
+            return;
+        }
         if (Common.exports.appConfig.DEBUG) {
-            ToastX.showLong("请求错误 -- " + e.getMessage());
+            ToastX.showLong("请求错误/数据解析时发生错误 -- " + e.getMessage());
+            e.printStackTrace();
         }
         ApiException.handleApiException(e);
         if (errorConsumer != null) {
@@ -71,12 +92,18 @@ public class ApiObserver<D> implements Observer<D> {
 
     @Override
     public void onComplete() {
+        if (isDispose) {
+            return;
+        }
         onFinish();
     }
 
     // onError or onComplete
     protected void onFinish() {
         Api.queue().removeRequest(tag, disposable);
+        if (isDispose) {
+            return;
+        }
         if (finishAction != null) {
             try {
                 finishAction.run();

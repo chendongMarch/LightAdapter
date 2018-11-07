@@ -27,7 +27,7 @@ public final class HeaderInterceptor extends AbstractInterceptor {
         }
         for (String key : headers.keySet()) {
             String value = headers.get(key);
-            if(!EmptyX.isEmpty(value)) {
+            if (!EmptyX.isEmpty(value)) {
                 builder.addHeader(key, value);
             }
         }

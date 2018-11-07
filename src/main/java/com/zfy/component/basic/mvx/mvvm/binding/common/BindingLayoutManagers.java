@@ -17,18 +17,32 @@ import me.tatarka.bindingcollectionadapter2.LayoutManagers;
  */
 public class BindingLayoutManagers implements LayoutManagers.LayoutManagerFactory {
 
-    public static final int VERTICAL = RecyclerView.VERTICAL;
+    public static final int VERTICAL   = RecyclerView.VERTICAL;
     public static final int HORIZONTAL = RecyclerView.HORIZONTAL;
 
-    public static final int LINEAR = 0;
-    public static final int GRID = 1;
+    public static final int LINEAR         = 0;
+    public static final int GRID           = 1;
     public static final int STAGGERED_GRID = 2;
 
-    private int orientation = VERTICAL;
-    private int spanCount = 1;
-    private boolean reverse = false;
-    private int type = LINEAR;
+    private int     orientation = VERTICAL;
+    private int     spanCount   = 1;
+    private boolean reverse     = false;
+    private int     type        = LINEAR;
     private GridLayoutManager.SpanSizeLookup spanSizeLookup;
+
+    private BindingLayoutManagers() {
+
+    }
+
+    public static BindingLayoutManagers make() {
+        return new BindingLayoutManagers();
+    }
+
+    public static BindingLayoutManagers make(int type) {
+        BindingLayoutManagers factory = new BindingLayoutManagers();
+        factory.type = type;
+        return factory;
+    }
 
     @Override
     public RecyclerView.LayoutManager create(RecyclerView recyclerView) {
@@ -50,20 +64,6 @@ public class BindingLayoutManagers implements LayoutManagers.LayoutManagerFactor
                 break;
         }
         return layoutManager;
-    }
-
-    private BindingLayoutManagers() {
-
-    }
-
-    public static BindingLayoutManagers make() {
-        return new BindingLayoutManagers();
-    }
-
-    public static BindingLayoutManagers make(int type) {
-        BindingLayoutManagers factory = new BindingLayoutManagers();
-        factory.type = type;
-        return factory;
     }
 
     public BindingLayoutManagers orientation(int orientation) {

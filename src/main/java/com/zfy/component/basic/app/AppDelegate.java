@@ -4,6 +4,8 @@ import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LifecycleRegistry;
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,15 +14,18 @@ import android.view.ViewGroup;
 import com.march.common.able.Destroyable;
 import com.march.common.exts.EmptyX;
 import com.march.common.exts.ListX;
+import com.zfy.component.basic.app.view.IOnResultView;
 import com.zfy.component.basic.app.view.ViewConfig;
-import com.zfy.component.basic.mvx.mvp.app.NoLayoutMvpView;
 import com.zfy.component.basic.foundation.Exts;
+import com.zfy.component.basic.mvx.mvp.IMvpView;
+import com.zfy.component.basic.mvx.mvp.app.NoLayoutMvpView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import io.reactivex.disposables.Disposable;
 
 /**
  * CreateAt : 2018/10/11
@@ -28,7 +33,9 @@ import butterknife.Unbinder;
  *
  * @author chendong
  */
-public abstract class AppDelegate implements Destroyable, LifecycleOwner {
+public abstract class AppDelegate implements Destroyable, LifecycleOwner, IOnResultView {
+
+    protected Bundle mBundle;
 
     protected LifecycleOwner    mLifecycleOwner;
     protected LifecycleRegistry mLifecycleRegistry;
@@ -37,7 +44,27 @@ public abstract class AppDelegate implements Destroyable, LifecycleOwner {
     protected ViewConfig mViewConfig;
     private   Unbinder   mUnBinder;
 
-    private List<Destroyable> mDestroyableList;
+    private List<Destroyable>   mDestroyableList;
+    private List<Disposable>    mDisposables;
+    private List<IOnResultView> mOnResultViews;
+
+    public void addObserver(@NonNull LifecycleObserver observer) {
+        mLifecycleRegistry.addObserver(observer);
+    }
+
+    public void addOnResultView(IOnResultView view) {
+        if (mOnResultViews == null) {
+            mOnResultViews = new ArrayList<>();
+        }
+        mOnResultViews.add(view);
+    }
+
+    public void addDisposable(Disposable disposable) {
+        if (mDisposables == null) {
+            mDisposables = new ArrayList<>();
+        }
+        mDisposables.add(disposable);
+    }
 
     public void addDestroyable(Destroyable destroyable) {
         if (mDestroyableList == null) {
@@ -46,12 +73,48 @@ public abstract class AppDelegate implements Destroyable, LifecycleOwner {
         mDestroyableList.add(destroyable);
     }
 
-    public abstract View bindFragment(LifecycleOwner owner, LayoutInflater inflater, ViewGroup container);
+    public View bindFragment(AppFragment appFragment, LayoutInflater inflater, ViewGroup container) {
+        mBundle = appFragment.getArguments();
+        return bindFragmentDispatch(appFragment, inflater, container);
+    }
 
-    public abstract void bindActivity(LifecycleOwner owner);
+    public void bindActivity(AppActivity appActivity) {
+        mBundle = appActivity.getIntent().getExtras();
+        bindActivityDispatch(appActivity);
+    }
 
-    public void bindNoLayoutView(LifecycleOwner owner, Object host) {
+    public void bindNoLayoutView(NoLayoutMvpView noLayoutMvpView, Object host) {
+        if (host instanceof IMvpView) {
+            mBundle = ((IMvpView) host).getData();
+        }
+        // NoLayoutView 绑定到 Host 生命周期等
+        AppDelegate hostDelegate = null;
+        if (host instanceof AppActivity) {
+            hostDelegate = ((AppActivity) host).getAppDelegate();
+        } else if (host instanceof AppFragment) {
+            hostDelegate = ((AppFragment) host).getAppDelegate();
+        }
+        if (hostDelegate != null) {
+            hostDelegate.addDestroyable(noLayoutMvpView);
+            hostDelegate.addOnResultView(noLayoutMvpView);
+        }
+        bindNoLayoutViewDispatch(noLayoutMvpView, host);
+    }
 
+
+    public abstract View bindFragmentDispatch(LifecycleOwner owner, LayoutInflater inflater, ViewGroup container);
+
+    public abstract void bindActivityDispatch(LifecycleOwner owner);
+
+    public void bindNoLayoutViewDispatch(LifecycleOwner owner, Object host) {
+
+    }
+
+    public Bundle getBundle() {
+        if (mBundle == null) {
+            mBundle = new Bundle();
+        }
+        return mBundle;
     }
 
     /**
@@ -66,6 +129,8 @@ public abstract class AppDelegate implements Destroyable, LifecycleOwner {
         } else if (host instanceof NoLayoutMvpView) {
             if (binder instanceof AppActivity) {
                 mUnBinder = ButterKnife.bind(host, (AppActivity) binder);
+            } else if (binder instanceof AppFragment) {
+                mUnBinder = ButterKnife.bind(host, ((AppFragment) binder).mContentView);
             } else if (binder instanceof View) {
                 mUnBinder = ButterKnife.bind(host, (View) binder);
             }
@@ -87,10 +152,20 @@ public abstract class AppDelegate implements Destroyable, LifecycleOwner {
             ListX.foreach(mDestroyableList, Destroyable::onDestroy);
             mDestroyableList.clear();
         }
+        if (!EmptyX.isEmpty(mDisposables)) {
+            ListX.foreach(mDisposables, Disposable::dispose);
+            mDisposables.clear();
+        }
     }
 
-    public void addObserver(@NonNull LifecycleObserver observer) {
-        mLifecycleRegistry.addObserver(observer);
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        ListX.foreach(mOnResultViews, view -> view.onRequestPermissionsResult(requestCode, permissions, grantResults));
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        ListX.foreach(mOnResultViews, view -> view.onActivityResult(requestCode, resultCode, data));
     }
 
     @NonNull

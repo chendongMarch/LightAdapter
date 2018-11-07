@@ -10,6 +10,7 @@ import android.widget.ScrollView;
  * Describe : ScrollView
  * bindScroll
  * bindScroll
+ *
  * @author chendong
  */
 public final class ScrollViewAdapters {

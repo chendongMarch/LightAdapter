@@ -1,10 +1,13 @@
 package com.zfy.component.basic.mvx.mvp.presenter;
 
 import com.march.common.exts.LogX;
+import com.zfy.component.basic.foundation.Exts;
+import com.zfy.component.basic.foundation.api.Api;
 import com.zfy.component.basic.mvx.model.IRepository;
 import com.zfy.component.basic.mvx.mvp.IMvpPresenter;
 import com.zfy.component.basic.mvx.mvp.IMvpView;
-import com.zfy.component.basic.foundation.Exts;
+
+import org.greenrobot.eventbus.Subscribe;
 
 /**
  * CreateAt : 2018/10/11
@@ -19,6 +22,16 @@ public abstract class MvpPresenter<R extends IRepository, V extends IMvpView> im
 
     public MvpPresenter() {
         mRepo = makeRepo();
+        Exts.registerEvent(this);
+    }
+
+    public static <P> P attachView(Class<P> pClass, IMvpView mvpView) {
+        P presenter = Exts.newInst(pClass);
+        if (presenter instanceof MvpPresenter) {
+            ((MvpPresenter) presenter).attachView(mvpView);
+            ((MvpPresenter) presenter).init();
+        }
+        return presenter;
     }
 
     public void attachView(V view) {
@@ -45,16 +58,13 @@ public abstract class MvpPresenter<R extends IRepository, V extends IMvpView> im
 
     @Override
     public void onDestroy() {
-
+        Exts.unRegisterEvent(this);
+        Api.queue().cancelRequest(mView);
+        Api.queue().cancelRequest(this);
     }
 
+    @Subscribe
+    public void ignoreEvent(MvpPresenter thiz) {
 
-    public static <P> P attachView(Class<P> pClass, IMvpView mvpView) {
-        P presenter = Exts.newInst(pClass);
-        if (presenter instanceof MvpPresenter) {
-            ((MvpPresenter) presenter).attachView(mvpView);
-            ((MvpPresenter) presenter).init();
-        }
-        return presenter;
     }
 }

@@ -8,6 +8,7 @@ import com.zfy.component.basic.mvx.model.IRepository;
 /**
  * CreateAt : 2018/9/11
  * Describe : ViewModel with Repository
+ *
  * @author chendong
  */
 public abstract class RepositoryViewModel<R extends IRepository> extends BaseViewModel {

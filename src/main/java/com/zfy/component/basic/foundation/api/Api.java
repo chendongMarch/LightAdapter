@@ -42,7 +42,7 @@ public class Api {
 
     private Consumer<OkHttpClient.Builder> mOkHttpInitConsumer;
     private Consumer<Retrofit.Builder>     mRetrofitConsumer;
-    private Function<Object,ApiObserver>   mObserverMaker;
+    private Function<Object, ApiObserver>  mObserverMaker;
 
     private Api(ApiConfig apiConfig) {
         mApiConfig = apiConfig;
@@ -56,22 +56,6 @@ public class Api {
 
     public static void init(ApiConfig apiConfig) {
         sInst = new Api(apiConfig);
-    }
-
-    public void setOkHttpInitConsumer(Consumer<OkHttpClient.Builder> okHttpInitConsumer) {
-        mOkHttpInitConsumer = okHttpInitConsumer;
-    }
-
-    public void setRetrofitConsumer(Consumer<Retrofit.Builder> retrofitConsumer) {
-        mRetrofitConsumer = retrofitConsumer;
-    }
-
-    public Function<Object, ApiObserver> getObserverMaker() {
-        return mObserverMaker;
-    }
-
-    public void setObserverMaker(Function<Object, ApiObserver> observerMaker) {
-        mObserverMaker = observerMaker;
     }
 
     public static ApiConfig config() {
@@ -98,6 +82,22 @@ public class Api {
         } catch (Exception e) {
             throw new IllegalStateException();
         }
+    }
+
+    public void setOkHttpInitConsumer(Consumer<OkHttpClient.Builder> okHttpInitConsumer) {
+        mOkHttpInitConsumer = okHttpInitConsumer;
+    }
+
+    public void setRetrofitConsumer(Consumer<Retrofit.Builder> retrofitConsumer) {
+        mRetrofitConsumer = retrofitConsumer;
+    }
+
+    public Function<Object, ApiObserver> getObserverMaker() {
+        return mObserverMaker;
+    }
+
+    public void setObserverMaker(Function<Object, ApiObserver> observerMaker) {
+        mObserverMaker = observerMaker;
     }
 
     private void ensureInitClient() {
