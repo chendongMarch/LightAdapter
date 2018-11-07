@@ -42,7 +42,7 @@
 单类型的适配器其实是多类型的简化版本，只是针对大多数的使用场景暴露出来更简单的构造方法，内部仍旧使用多类型实现。
 
 ```java
-LightAdapter<Student> adapter = new LightAdapter<Student>(getContext(), list, R.layout.adapter_item) {
+LightAdapter<Student> adapter = new LightAdapter<Student>(getContext(), list, R.layoutId.adapter_item) {
     @Override
     public void onBindView(LightHolder holder, Student data, int pos) {
         holder.setText(R.id.tv, data.name + " " + data.age);
@@ -88,11 +88,11 @@ STEP2: 多类型适配器需要构造一个 `ModelTypeFactory`，他用来决定
 ModelTypeFactory factory = modelType -> {
     switch (modelType.getType()) {
         case Student.TYPE_A:
-            modelType.setLayout(R.layout.adapter_item);
+            modelType.setLayout(R.layoutId.adapter_item);
             break;
         case Student.TYPE_B:
             // 该类型的布局文件
-            modelType.setLayout(R.layout.adapter_item_b);
+            modelType.setLayout(R.layoutId.adapter_item_b);
             // 设置该类型跨越整行
             modelType.setSpanSize(Values.SPAN_SIZE_ALL);
             // 设置该类型不允许点击
@@ -124,7 +124,7 @@ mStudentAdapter = new LightAdapter<Student>(getContext(), mStudents, factory) {
 
 ```java
 // 使用布局资源添加一个 Header，你可以像在 adapter 中使用 holder 绑定数据
-adapter.header().addHeaderView(R.layout.adapter_item_header, (holder, position) -> {
+adapter.header().addHeaderView(R.layoutId.adapter_item_header, (holder, position) -> {
     holder.setText(R.id.header_tv, headerDesc);
 });
 // 使用创建好的 View 添加一个 Header
@@ -143,7 +143,7 @@ adapter.header().notifyHeaderUpdate();
 
 ```java
 // 使用布局资源添加一个 Footer，你可以像在 adapter 中使用 holder 绑定数据
-adapter.footer().addFooterView(R.layout.adapter_item_footer, (holder, position) -> {
+adapter.footer().addFooterView(R.layoutId.adapter_item_footer, (holder, position) -> {
     holder.setText(R.id.footer_tv, headerDesc);
 });
 // 使用创建好的 View 添加一个 Footer
@@ -249,10 +249,10 @@ mStudentAdapter.setOnItemListener(new SimpleItemListener<Student>() {
 ModelTypeFactory factory = modelType -> {
     switch (modelType.getType()) {
         case Student.TYPE_A:
-            modelType.setLayout(R.layout.adapter_item);
+            modelType.setLayout(R.layoutId.adapter_item);
             break;
         case Student.TYPE_B:
-            modelType.setLayout(R.layout.adapter_item_b);
+            modelType.setLayout(R.layoutId.adapter_item_b);
             // 支持双击事件
             modelType.setEnableDbClick(true);
             break;
@@ -271,7 +271,7 @@ adapter.setOnItemListener(new SimpleItemListener<Student>() {
     }
     @Override
     public void onLongPress(int pos, LightHolder holder, Student data) {
-	// 长按事件
+	    // 长按事件
     }
     @Override
     public void onDoubleClick(int pos, LightHolder holder, Student data) {
@@ -290,7 +290,7 @@ Ids ids = Ids.all(R.id.test_tv, R.id.tv_count);
 为了更好的性能，每个 `Adapter` 会维护一个可复用的 `Ids`， 因此在 `Adapter` 建议直接使用 `all()` 方法创建，避免每次都创建新的。
 
 ```java
-new LightAdapter<Student>(getContext(), list, R.layout.adapter_item)
+new LightAdapter<Student>(getContext(), list, R.layoutId.adapter_item)
     @Override
     public void onBindView(LightHolder holder, Student data, int pos) {
         holder

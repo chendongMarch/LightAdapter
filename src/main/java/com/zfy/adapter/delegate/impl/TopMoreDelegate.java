@@ -1,10 +1,8 @@
 package com.zfy.adapter.delegate.impl;
 
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 
+import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.listener.AdapterCallback;
 
 /**
@@ -25,11 +23,13 @@ public class TopMoreDelegate extends BaseDelegate {
     private int mStartTryTopMoreItemCount; // 预加载个数
     private boolean mReachTop; // 是否到达顶部
     private AdapterCallback mCallback; // 加载回调
+    private boolean mTopMoreEnable;
 
     public TopMoreDelegate() {
         mStartTryTopMoreItemCount = 3;
         mCallback = adapter -> {
         };
+        mTopMoreEnable = true;
     }
 
     @Override
@@ -39,6 +39,9 @@ public class TopMoreDelegate extends BaseDelegate {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
+                if (!mTopMoreEnable) {
+                    return;
+                }
                 // 停止，到达顶部,没有在加载更多，
                 if (isAttached() && newState == RecyclerView.SCROLL_STATE_IDLE && mReachTop && !mLoadingMore) {
                     mLoadingMore = true;
@@ -49,40 +52,24 @@ public class TopMoreDelegate extends BaseDelegate {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
+                if (!mTopMoreEnable) {
+                    return;
+                }
                 if (isAttached() && dy < 0) {
-                    int firstPos = getFirstVisiblePosition(mView);
+                    int firstPos = LightUtils.getFirstVisiblePosition(mView);
                     mReachTop = firstPos <= mStartTryTopMoreItemCount;
                 }
             }
         });
     }
 
-
-    // 获取最后一条展示的位置
-    private int getFirstVisiblePosition(RecyclerView mRecyclerView) {
-        int position;
-        RecyclerView.LayoutManager manager = mRecyclerView.getLayoutManager();
-        if (manager instanceof GridLayoutManager) {
-            position = ((GridLayoutManager) manager).findFirstVisibleItemPosition();
-        } else if (manager instanceof LinearLayoutManager) {
-            position = ((LinearLayoutManager) manager).findFirstVisibleItemPosition();
-        } else if (manager instanceof StaggeredGridLayoutManager) {
-            StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) manager;
-            int[] lastPositions = layoutManager.findFirstVisibleItemPositions(new int[layoutManager.getSpanCount()]);
-            position = getMaxPosition(lastPositions);
-        } else {
-            position = 0;
-        }
-        return position;
-    }
-
-    // 获得最大的位置
-    private int getMaxPosition(int[] positions) {
-        int maxPosition = Integer.MIN_VALUE;
-        for (int position : positions) {
-            maxPosition = Math.max(maxPosition, position);
-        }
-        return maxPosition;
+    /**
+     * 加载更多是否可用
+     *
+     * @param enable
+     */
+    public void setTopMoreEnable(boolean enable) {
+        mTopMoreEnable = enable;
     }
 
     /**

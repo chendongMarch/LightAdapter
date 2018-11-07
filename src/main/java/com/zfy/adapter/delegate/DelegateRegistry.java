@@ -9,12 +9,6 @@ import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.impl.BaseDelegate;
-import com.zfy.adapter.delegate.impl.HFDelegate;
-import com.zfy.adapter.delegate.impl.LoadMoreDelegate;
-import com.zfy.adapter.delegate.impl.NotifyDelegate;
-import com.zfy.adapter.delegate.impl.SelectorDelegate;
-import com.zfy.adapter.delegate.impl.SpanDelegate;
-import com.zfy.adapter.delegate.impl.TopMoreDelegate;
 
 /**
  * CreateAt : 2018/10/28
@@ -24,16 +18,22 @@ import com.zfy.adapter.delegate.impl.TopMoreDelegate;
  */
 public class DelegateRegistry extends BaseDelegate {
 
+    public interface DelegateFactory {
+        IDelegate create();
+    }
+
     private SparseArray<IDelegate> mDelegates;
+
+    private SparseArray<DelegateFactory> mDelegateFactorys;
+
 
     public DelegateRegistry() {
         mDelegates = new SparseArray<>();
-        register(new HFDelegate());
-        register(new SpanDelegate());
-        register(new TopMoreDelegate());
-        register(new LoadMoreDelegate());
-        register(new NotifyDelegate());
-        register(new SelectorDelegate());
+        mDelegateFactorys = new SparseArray<>();
+    }
+
+    public void register(int key, DelegateFactory delegateFactory) {
+        mDelegateFactorys.append(key, delegateFactory);
     }
 
     public void register(IDelegate delegate) {
@@ -104,6 +104,17 @@ public class DelegateRegistry extends BaseDelegate {
         return count;
     }
 
+    @Override
+    public int getAboveItemCount(int level) {
+        int count = 0;
+        for (int i = 0; i < mDelegates.size(); i++) {
+            count += mDelegates.valueAt(i).getAboveItemCount(level);
+        }
+        if (level > LightValues.FLOW_LEVEL_CONTENT) {
+            count += mAdapter.getDatas().size();
+        }
+        return count;
+    }
 
     @Override
     public int getItemViewType(int position) {
@@ -120,8 +131,19 @@ public class DelegateRegistry extends BaseDelegate {
     @SuppressWarnings("unchecked")
     public <D extends IDelegate> D get(int key) {
         IDelegate iDelegate = mDelegates.get(key);
+        if (iDelegate == null) {
+            DelegateFactory delegateFactory = mDelegateFactorys.get(key);
+            if (delegateFactory != null) {
+                iDelegate = delegateFactory.create();
+                register(iDelegate);
+                if (mAdapter != null) {
+                    iDelegate.onAttachAdapter(mAdapter);
+                }
+                if (mView != null) {
+                    iDelegate.onAttachedToRecyclerView(mView);
+                }
+            }
+        }
         return (D) iDelegate;
     }
-
-
 }

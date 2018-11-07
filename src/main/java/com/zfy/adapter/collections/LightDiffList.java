@@ -205,6 +205,21 @@ public class LightDiffList<T extends Diffable<T>> extends AbstractList<T> {
         return list.size();
     }
 
+    @Override
+    public T set(int index, T element) {
+        return list.set(index, element);
+    }
+
+    @Override
+    public boolean remove(Object o) {
+        return list.remove(o);
+    }
+
+    @Override
+    public T remove(int index) {
+        return list.remove(index);
+    }
+
     class ObservableListUpdateCallback implements ListUpdateCallback {
 
         @Override

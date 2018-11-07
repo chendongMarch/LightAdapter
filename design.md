@@ -1,43 +1,36 @@
-状态管理
-加载更多
-header-footer
-数据更新
+done - Header & Footer
+
+done - LoadMore & TopMore
+
+done - LoadingView
+
+done - EmptyView
+
+done - FullSpan
+
+done - Notify
+
+done - Selector
+
+waiting - Swipe
+
+waiting - Drag
+
+waiting - Expandable
+
+waiting - Animation
 
 
+现在有如下几种 View 类型，从上到下按照级别排列
 
-Header&Footer
+1. HeaderView
 
-参数：
-headerLayoutId
-footerLayoutId
+2. EmptyView
 
-方法：
-setHeaderEnable();
-setFooterEnable();
-notifyHeaderUpdate();
-notifyFooterUpdate();
+3. ContentView
 
-需要重写：
-onBindHeader();
-onBindFooter();
+4. FooterView
 
-
-
-LoadMore
-
-参数：
-topPreloadNum, bottomPreloadNum
-
-方法：
-setOnTopLoadMoreListener()
-finishTopLoadMore();
-setTopLoadMoreEnable();
-
-setOnLoadMoreListener()
-finishLoadMore();
-setLoadMoreEnable();
-
-
-
+5. LoadingView
 
 

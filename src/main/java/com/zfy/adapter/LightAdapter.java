@@ -2,6 +2,7 @@ package com.zfy.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -10,16 +11,21 @@ import android.view.ViewGroup;
 
 import com.zfy.adapter.able.ModelTypeable;
 import com.zfy.adapter.collections.LightDiffList;
+import com.zfy.adapter.common.AdapterException;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.DelegateRegistry;
 import com.zfy.adapter.delegate.IDelegate;
-import com.zfy.adapter.delegate.impl.HFDelegate;
+import com.zfy.adapter.delegate.impl.DragSwipeDelegate;
+import com.zfy.adapter.delegate.impl.EmptyViewDelegate;
+import com.zfy.adapter.delegate.impl.HFViewDelegate;
 import com.zfy.adapter.delegate.impl.LoadMoreDelegate;
+import com.zfy.adapter.delegate.impl.LoadingViewDelegate;
 import com.zfy.adapter.delegate.impl.NotifyDelegate;
 import com.zfy.adapter.delegate.impl.SelectorDelegate;
+import com.zfy.adapter.delegate.impl.SpanDelegate;
 import com.zfy.adapter.delegate.impl.TopMoreDelegate;
+import com.zfy.adapter.listener.EventCallback;
 import com.zfy.adapter.listener.ModelTypeFactory;
-import com.zfy.adapter.listener.OnItemListener;
 import com.zfy.adapter.model.Ids;
 import com.zfy.adapter.model.ModelType;
 
@@ -29,11 +35,15 @@ import java.util.Set;
 
 /**
  * CreateAt : 2016/19/7
- * Describe : adapter基类，主要负责数据适配的相关逻辑，事件，module
- *
+ * Describe : adapter 基类
+ * D 数据基于范型定义
+ * ViewHolder 统一使用 LightHolder
+ * Adapter 负责内容数据的加载，这部分也可以抽离成 Delegate
+ * 其他各个功能由 Delegate 实现
  * @author chendong
  */
-public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> {
+public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
+        implements LightEvent.EventSetting<D> {
 
     // View
     private RecyclerView mRecyclerView;
@@ -45,8 +55,6 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     private LayoutInflater mLayoutInflater;
     // 用来存储创建的所有holder，你可以使用holder来直接更新item，而不必调用 notify
     private Set<LightHolder> mHolderCache;
-    // 点击监听时间
-    private OnItemListener<D> mOnItemListener;
     // 类型和 TypeOptions 配置
     private SparseArray<ModelType> mModelTypeCache;
     // 类型构造器
@@ -67,7 +75,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
      * @param layoutId 布局
      */
     public LightAdapter(Context context, List<D> datas, int layoutId) {
-        this(context, datas, modelType -> modelType.setLayout(layoutId));
+        this(context, datas, modelType -> modelType.setLayoutId(layoutId));
     }
 
     /**
@@ -93,11 +101,26 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         mDatas = datas;
         mModelTypeCache = new SparseArray<>();
         mHolderCache = new HashSet<>();
+        // 代理注册表
         mDelegateRegistry = new DelegateRegistry();
+        mDelegateRegistry.register(new SpanDelegate());
+        mDelegateRegistry.register(new NotifyDelegate());
+        mDelegateRegistry.register(IDelegate.HF, HFViewDelegate::new);
+        mDelegateRegistry.register(IDelegate.TOP_MORE, TopMoreDelegate::new);
+        mDelegateRegistry.register(IDelegate.LOAD_MORE, LoadMoreDelegate::new);
+        mDelegateRegistry.register(IDelegate.SELECTOR, SelectorDelegate::new);
+        mDelegateRegistry.register(IDelegate.LOADING, LoadingViewDelegate::new);
+        mDelegateRegistry.register(IDelegate.EMPTY, EmptyViewDelegate::new);
+        mDelegateRegistry.register(IDelegate.DRAG_SWIPE, DragSwipeDelegate::new);
         mDelegateRegistry.onAttachAdapter(this);
+        // 事件处理
         mLightEvent = new LightEvent<>(this);
+        // 内置类型构建起
         mBuildInModelTypeFactory = type -> {
-            if (type.getType() == LightValues.TYPE_FOOTER || type.getType() == LightValues.TYPE_HEADER) {
+            if (type.getType() == LightValues.TYPE_FOOTER
+                    || type.getType() == LightValues.TYPE_HEADER
+                    || type.getType() == LightValues.TYPE_LOADING
+                    || type.getType() == LightValues.TYPE_EMPTY) {
                 type.setSpanSize(LightValues.SPAN_SIZE_ALL);
             }
         };
@@ -109,13 +132,22 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
         if (holder == null) {
             View view = null;
             ModelType type = getType(viewType);
-            if (type != null && type.getLayout() > 0) {
-                view = mLayoutInflater.inflate(type.getLayout(), parent, false);
+            if (type != null && type.getLayoutId() > 0) {
+                view = mLayoutInflater.inflate(type.getLayoutId(), parent, false);
+                if (view != null) {
+                    holder = new LightHolder(this, viewType, view);
+                    mLightEvent.initEvent(holder, type);
+                    mHolderCache.add(holder);
+                }
+                if (holder == null) {
+                    throw new AdapterException("holder is null layout = " + type.layoutId + " , type = " + type.type);
+                }
+            } else {
+                throw new AdapterException("can not find type viewType = " + viewType);
             }
-            holder = new LightHolder(this, viewType, view);
-            mLightEvent.initEvent(holder, type);
-            mHolderCache.add(holder);
+
         }
+
         return holder;
     }
 
@@ -163,9 +195,9 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
 
     @Override
     public int getItemViewType(int position) {
-        int hfType = mDelegateRegistry.getItemViewType(position);
-        if (hfType != LightValues.NONE) {
-            return hfType;
+        int itemViewType = mDelegateRegistry.getItemViewType(position);
+        if (itemViewType != LightValues.NONE) {
+            return itemViewType;
         }
         D d = getItem(toModelIndex(position));
         if (d instanceof ModelTypeable) {
@@ -189,11 +221,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
      * @return 数据中的位置
      */
     public int toModelIndex(int position) {
-        HFDelegate delegate = mDelegateRegistry.get(IDelegate.HF);
-        if (delegate.isHeaderEnable()) {
-            return position - 1;
-        }
-        return position;
+        return position - mDelegateRegistry.getAboveItemCount(LightValues.FLOW_LEVEL_CONTENT);
     }
 
     /**
@@ -203,11 +231,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
      * @return 布局中的位置
      */
     public int toLayoutIndex(int position) {
-        HFDelegate delegate = mDelegateRegistry.get(IDelegate.HF);
-        if (delegate.isHeaderEnable()) {
-            return position + 1;
-        }
-        return position;
+        return position + mDelegateRegistry.getAboveItemCount(LightValues.FLOW_LEVEL_CONTENT);
     }
 
 
@@ -246,13 +270,19 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     }
 
 
-    /**
-     * 设置点击事件
-     *
-     * @param onItemListener
-     */
-    public void setOnItemListener(final OnItemListener<D> onItemListener) {
-        mLightEvent.setOnItemListener(onItemListener);
+    @Override
+    public void setClickCallback(EventCallback<D> clickCallback) {
+        mLightEvent.setClickCallback(clickCallback);
+    }
+
+    @Override
+    public void setLongPressCallback(EventCallback<D> longPressCallback) {
+        mLightEvent.setLongPressCallback(longPressCallback);
+    }
+
+    @Override
+    public void setDbClickCallback(EventCallback<D> dbClickCallback) {
+        mLightEvent.setDbClickCallback(dbClickCallback);
     }
 
     /**
@@ -333,7 +363,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
      * @param data 数据
      * @return 数据的类型
      */
-    public ModelType getType(D data) {
+    public @Nullable ModelType getType(D data) {
         if (data == null) {
             return null;
         }
@@ -369,14 +399,14 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     /**
      * @return HFDelegate 执行 header 相关功能
      */
-    public HFDelegate header() {
+    public HFViewDelegate header() {
         return getDelegate(IDelegate.HF);
     }
 
     /**
      * @return HFDelegate 执行 footer 相关功能
      */
-    public HFDelegate footer() {
+    public HFViewDelegate footer() {
         return getDelegate(IDelegate.HF);
     }
 
@@ -404,7 +434,26 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder> 
     /**
      * @return SelectorDelegate 负责选择器功能
      */
-    public SelectorDelegate selector() {
+    public SelectorDelegate<D> selector() {
         return getDelegate(IDelegate.SELECTOR);
+    }
+
+    /**
+     * @return LoadingViewDelegate 加载动画功能
+     */
+    public LoadingViewDelegate loadingView() {
+        return getDelegate(IDelegate.LOADING);
+    }
+
+    /**
+     * @return EmptyViewDelegate 空白页面功能
+     */
+    public EmptyViewDelegate emptyView() {
+        return getDelegate(IDelegate.EMPTY);
+    }
+
+
+    public DragSwipeDelegate drag() {
+        return getDelegate(IDelegate.DRAG_SWIPE);
     }
 }

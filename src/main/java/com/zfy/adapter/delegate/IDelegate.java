@@ -15,13 +15,15 @@ import com.zfy.adapter.LightHolder;
  */
 public interface IDelegate {
 
-
     int HF = 1;
     int SPAN = 2;
     int LOAD_MORE = 3;
     int TOP_MORE = 4;
     int SELECTOR = 5;
     int NOTIFY = 6;
+    int EMPTY = 7;
+    int LOADING = 8;
+    int DRAG_SWIPE = 9;
 
     /**
      * 获取本代理的 key
@@ -76,6 +78,20 @@ public interface IDelegate {
      * @return 本代理的个数
      */
     int getItemCount();
+
+    /**
+     * @return content 底部固定的个数
+     */
+    int getTopItemCount();
+
+
+    /**
+     * 获取顶部占据的 count
+     *
+     * @param level 级别
+     * @return 底部 item count
+     */
+    int getAboveItemCount(int level);
 
     /**
      * 获取指定位置的 type

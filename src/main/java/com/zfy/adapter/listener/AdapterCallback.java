@@ -4,7 +4,7 @@ import com.zfy.adapter.LightAdapter;
 
 /**
  * CreateAt : 2018/10/31
- * Describe :
+ * Describe : Adapter 回调，仅 Adapter 参数
  *
  * @author chendong
  */

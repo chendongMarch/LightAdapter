@@ -18,6 +18,9 @@ public class NotifyDelegate extends BaseDelegate {
         return NOTIFY;
     }
 
+    public void post(Runnable runnable,int delay) {
+        mHandler.postDelayed(runnable,delay);
+    }
 
     private void notifyInUIThread(Runnable runnable) {
         if (Looper.getMainLooper() == Looper.myLooper()) {

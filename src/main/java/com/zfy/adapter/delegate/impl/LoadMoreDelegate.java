@@ -1,12 +1,11 @@
 package com.zfy.adapter.delegate.impl;
 
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 
+import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.delegate.IDelegate;
 import com.zfy.adapter.listener.AdapterCallback;
+import com.zfy.adapter.model.LoadingState;
 
 /**
  * CreateAt : 2018/10/30
@@ -19,12 +18,14 @@ public class LoadMoreDelegate extends BaseDelegate {
     private boolean mLoadingMore; // 是否在加载更多
     private int mStartTryLoadMoreItemCount; // 预加载的个数
     private boolean mReachBottom; // 是否到达底部
+    private boolean mLoadMoreEnable;
     private AdapterCallback mCallback; // 加载更多回调
 
     public LoadMoreDelegate() {
         mStartTryLoadMoreItemCount = 3;
         mCallback = adapter -> {
         };
+        mLoadMoreEnable = true;
     }
 
     @Override
@@ -39,57 +40,47 @@ public class LoadMoreDelegate extends BaseDelegate {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
+                if (!mLoadMoreEnable) {
+                    return;
+                }
                 // 停止，到达底部，没有在加载
                 if (isAttached() && newState == RecyclerView.SCROLL_STATE_IDLE && mReachBottom && !mLoadingMore) {
                     mLoadingMore = true;
                     mCallback.call(mAdapter);
+                    mAdapter.loadingView().setLoadingState(LoadingState.LOADING);
                 }
             }
 
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
+                if (!mLoadMoreEnable) {
+                    return;
+                }
                 if (isAttached() && dy > 0) {
-                    int lastVisiblePosition = getLastVisiblePosition(mView);
+                    int lastVisiblePosition = LightUtils.getLastVisiblePosition(mView);
                     mReachBottom = lastVisiblePosition + 1 + mStartTryLoadMoreItemCount >= mAdapter.getItemCount();
                 }
             }
         });
     }
 
-
-    // 获取最后一条展示的位置
-    private int getLastVisiblePosition(RecyclerView mRecyclerView) {
-        int position;
-        RecyclerView.LayoutManager manager = mRecyclerView.getLayoutManager();
-        if (manager instanceof GridLayoutManager) {
-            position = ((GridLayoutManager) manager).findLastVisibleItemPosition();
-        } else if (manager instanceof LinearLayoutManager) {
-            position = ((LinearLayoutManager) manager).findLastVisibleItemPosition();
-        } else if (manager instanceof StaggeredGridLayoutManager) {
-            StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) manager;
-            int[] lastPositions = layoutManager.findLastVisibleItemPositions(new int[layoutManager.getSpanCount()]);
-            position = getMaxPosition(lastPositions);
-        } else {
-            position = manager.getItemCount() - 1;
-        }
-        return position;
+    /**
+     * 加载更多是否可用
+     *
+     * @param enable
+     */
+    public void setLoadMoreEnable(boolean enable) {
+        mLoadMoreEnable = enable;
     }
 
-    // 获得最大的位置
-    private int getMaxPosition(int[] positions) {
-        int maxPosition = Integer.MIN_VALUE;
-        for (int position : positions) {
-            maxPosition = Math.max(maxPosition, position);
-        }
-        return maxPosition;
-    }
 
     /**
      * 结束加载，才能开启下次加载
      */
     public void finishLoadMore() {
         this.mLoadingMore = false;
+        mAdapter.loadingView().setLoadingState(LoadingState.FINISH);
     }
 
     /**
@@ -101,7 +92,6 @@ public class LoadMoreDelegate extends BaseDelegate {
         mCallback = callback;
         mStartTryLoadMoreItemCount = count;
     }
-
 
     /**
      * 设置加载更多监听

@@ -4,10 +4,10 @@ import com.zfy.adapter.LightHolder;
 
 /**
  * CreateAt : 2018/10/29
- * Describe :
+ * Describe : ViewHolder 回调
  *
  * @author chendong
  */
-public interface ViewHolderBinder {
-    void onBindViewHolder(LightHolder holder, int position);
+public interface ViewHolderCallback {
+    void bind(LightHolder holder, int position);
 }

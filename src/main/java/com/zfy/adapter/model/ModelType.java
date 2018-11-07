@@ -10,15 +10,25 @@ import com.zfy.adapter.common.LightValues;
  */
 public class ModelType {
 
-    private int type; // 类型
-    private int layout; // 布局资源
-    private int spanSize = LightValues.NONE; // 跨越行数
-    private boolean enableClick = true; // 是否允许点击事件
-    private boolean enableLongPress = true; // 是否允许长按事件
-    private boolean enableDbClick = false; // 是否允许双击事件，双击事件使用 gesture 实现，将会丧失一些效果
+    public int type; // 类型
+    public int layoutId; // 布局资源
+    public int spanSize = LightValues.NONE; // 跨越行数
+    public boolean enableClick = true; // 是否允许点击事件
+    public boolean enableLongPress = true; // 是否允许长按事件
+    public boolean enableDbClick = false; // 是否允许双击事件，双击事件使用 gesture 实现，将会丧失一些效果
+    public boolean enableDrag = false; // 是否允许拖动
+    public boolean enableSwipe = false; // 是否允许滑动
 
     public ModelType(int type) {
         this.type = type;
+    }
+
+    public boolean isBuildInType() {
+        return type == LightValues.TYPE_HEADER
+                || type == LightValues.TYPE_FOOTER
+                || type == LightValues.TYPE_CONTENT
+                || type == LightValues.TYPE_LOADING
+                || type == LightValues.TYPE_EMPTY;
     }
 
     public int getType() {
@@ -29,12 +39,12 @@ public class ModelType {
         this.type = type;
     }
 
-    public int getLayout() {
-        return layout;
+    public int getLayoutId() {
+        return layoutId;
     }
 
-    public void setLayout(int layout) {
-        this.layout = layout;
+    public void setLayoutId(int layoutId) {
+        this.layoutId = layoutId;
     }
 
     public int getSpanSize() {

@@ -5,10 +5,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.zfy.adapter.LightAdapter;
-import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.listener.OnItemListener;
-import com.zfy.adapter.listener.SimpleItemListener;
+import com.zfy.adapter.listener.EventCallback;
 import com.zfy.adapter.model.ModelType;
 
 /**
@@ -19,8 +16,20 @@ import com.zfy.adapter.model.ModelType;
  */
 public class LightEvent<D> {
 
+    public interface EventSetting<D> {
+
+        void setClickCallback(EventCallback<D> clickCallback);
+
+        void setLongPressCallback(EventCallback<D> longPressCallback);
+
+        void setDbClickCallback(EventCallback<D> dbClickCallback);
+    }
+
     private LightAdapter<D> mAdapter;
-    private OnItemListener mOnItemListener;
+
+    private EventCallback<D> mClickCallback;
+    private EventCallback<D> mLongPressCallback;
+    private EventCallback<D> mDbClickCallback;
 
     public LightEvent(LightAdapter<D> adapter) {
         mAdapter = adapter;
@@ -34,38 +43,16 @@ public class LightEvent<D> {
         }
     }
 
-    public void setOnItemListener(final OnItemListener<D> onItemListener) {
-        mOnItemListener = new SimpleItemListener<D>() {
-            @Override
-            public void onClick(int pos, LightHolder holder, D data) {
-                int position = mAdapter.toModelIndex(holder.getAdapterPosition());
-                D item = mAdapter.getItem(position);
-                ModelType type = mAdapter.getType(item);
-                if (type != null && type.isEnableClick()) {
-                    onItemListener.onClick(position, holder, item);
-                }
-            }
+    public void setClickCallback(EventCallback<D> clickCallback) {
+        mClickCallback = clickCallback;
+    }
 
-            @Override
-            public void onLongPress(int pos, LightHolder holder, D data) {
-                int position = mAdapter.toModelIndex(holder.getAdapterPosition());
-                D item = mAdapter.getItem(position);
-                ModelType type = mAdapter.getType(item);
-                if (type != null && type.isEnableLongPress()) {
-                    onItemListener.onLongPress(position, holder, item);
-                }
-            }
+    public void setLongPressCallback(EventCallback<D> longPressCallback) {
+        mLongPressCallback = longPressCallback;
+    }
 
-            @Override
-            public void onDoubleClick(int pos, LightHolder holder, D data) {
-                int position = mAdapter.toModelIndex(holder.getAdapterPosition());
-                D item = mAdapter.getItem(position);
-                ModelType type = mAdapter.getType(item);
-                if (type != null && type.isEnableDbClick()) {
-                    onItemListener.onDoubleClick(position, holder, item);
-                }
-            }
-        };
+    public void setDbClickCallback(EventCallback<D> dbClickCallback) {
+        mDbClickCallback = dbClickCallback;
     }
 
 
@@ -78,8 +65,8 @@ public class LightEvent<D> {
         GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
-                if (mOnItemListener != null) {
-                    mOnItemListener.onClick(0, holder, null);
+                if (mClickCallback != null) {
+                    tryCallClickEvent(holder);
                 }
                 return super.onSingleTapConfirmed(e);
             }
@@ -91,16 +78,16 @@ public class LightEvent<D> {
 
             @Override
             public boolean onDoubleTap(MotionEvent e) {
-                if (mOnItemListener != null) {
-                    mOnItemListener.onDoubleClick(0, holder, null);
+                if (mDbClickCallback != null) {
+                    tryCallDbClickEvent(holder);
                 }
                 return super.onDoubleTap(e);
             }
 
             @Override
             public void onLongPress(MotionEvent e) {
-                if (mOnItemListener != null) {
-                    mOnItemListener.onLongPress(0, holder, null);
+                if (mLongPressCallback != null) {
+                    tryCallLongPressEvent(holder);
                 }
             }
         };
@@ -108,12 +95,8 @@ public class LightEvent<D> {
         itemView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (mOnItemListener != null && modelType.isEnableDbClick()) {
-                    gestureDetector.onTouchEvent(motionEvent);
-                    return true;
-                } else {
-                    return false;
-                }
+                gestureDetector.onTouchEvent(motionEvent);
+                return true;
             }
         });
 
@@ -127,18 +110,48 @@ public class LightEvent<D> {
         View itemView = holder.getItemView();
         if (modelType.isEnableClick()) {
             itemView.setOnClickListener(view -> {
-                if (mOnItemListener != null) {
-                    mOnItemListener.onClick(0, holder, null);
+                if (mClickCallback != null) {
+                    tryCallClickEvent(holder);
                 }
             });
         }
         if (modelType.isEnableLongPress()) {
             itemView.setOnLongClickListener(view -> {
-                if (mOnItemListener != null) {
-                    mOnItemListener.onLongPress(0, holder, null);
+                if (mLongPressCallback != null) {
+                    tryCallLongPressEvent(holder);
                 }
                 return true;
             });
+        }
+    }
+
+    // 点击事件
+    private void tryCallClickEvent(LightHolder holder) {
+        int position = mAdapter.toModelIndex(holder.getAdapterPosition());
+        D item = mAdapter.getItem(position);
+        ModelType type = mAdapter.getType(item);
+        if (type != null && type.isEnableClick()) {
+            mClickCallback.call(holder, position, item);
+        }
+    }
+
+    // 长按事件
+    private void tryCallLongPressEvent(LightHolder holder) {
+        int position = mAdapter.toModelIndex(holder.getAdapterPosition());
+        D item = mAdapter.getItem(position);
+        ModelType type = mAdapter.getType(item);
+        if (type != null && type.isEnableLongPress()) {
+            mLongPressCallback.call(holder, position, item);
+        }
+    }
+
+    // 双击事件
+    private void tryCallDbClickEvent(LightHolder holder) {
+        int position = mAdapter.toModelIndex(holder.getAdapterPosition());
+        D item = mAdapter.getItem(position);
+        ModelType type = mAdapter.getType(item);
+        if (type != null && type.isEnableLongPress()) {
+            mDbClickCallback.call(holder, position, item);
         }
     }
 }

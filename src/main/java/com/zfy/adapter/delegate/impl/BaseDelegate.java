@@ -55,6 +55,16 @@ public abstract class BaseDelegate implements IDelegate {
     }
 
     @Override
+    public int getTopItemCount() {
+        return 0;
+    }
+
+    @Override
+    public int getAboveItemCount(int level) {
+        return 0;
+    }
+
+    @Override
     public int getItemViewType(int position) {
         return LightValues.NONE;
     }
