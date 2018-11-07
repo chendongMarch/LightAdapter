@@ -67,6 +67,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     // 多 ID 绑定
     private Ids mIds;
 
+
     /**
      * 单类型适配器构造函数
      *
@@ -395,7 +396,6 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         return mDelegateRegistry.get(key);
     }
 
-
     /**
      * @return HFDelegate 执行 header 相关功能
      */
@@ -452,8 +452,10 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         return getDelegate(IDelegate.EMPTY);
     }
 
-
-    public DragSwipeDelegate drag() {
+    /**
+     * @return DragSwipeDelegate 拖动和滑动 功能
+     */
+    public DragSwipeDelegate dragSwipe() {
         return getDelegate(IDelegate.DRAG_SWIPE);
     }
 }

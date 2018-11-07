@@ -51,12 +51,23 @@ public class LightHolder extends RecyclerView.ViewHolder {
     private SparseArray<View> mCacheViews;
     private ModelType mModelType;
     private LightAdapter mAdapter;
+    private int extra;
+
+
 
     public LightHolder(LightAdapter adapter, int type, View itemView) {
         super(itemView);
         this.mCacheViews = new SparseArray<>(5);
         this.mAdapter = adapter;
         this.mModelType = adapter.getType(type);
+    }
+
+    public int getExtra() {
+        return extra;
+    }
+
+    public void setExtra(int extra) {
+        this.extra = extra;
     }
 
     public View getItemView() {
@@ -477,6 +488,65 @@ public class LightHolder extends RecyclerView.ViewHolder {
         }
         return this;
     }
+
+    //////////////////////////////  -- dragSwipe & swipe --  //////////////////////////////
+
+    public LightHolder dragOnTouch(int... ids) {
+        if (ids.length == 0) {
+            mAdapter.dragSwipe().dragOnTouch(itemView, this);
+            return this;
+        }
+        for (int id : ids) {
+            View view = getView(id);
+            if (view != null) {
+                mAdapter.dragSwipe().dragOnTouch(view, this);
+            }
+        }
+        return this;
+    }
+
+    public LightHolder dragOnLongPress(int... ids) {
+        if (ids.length == 0) {
+            mAdapter.dragSwipe().dragOnLongPress(itemView, this);
+            return this;
+        }
+        for (int id : ids) {
+            View view = getView(id);
+            if (view != null) {
+                mAdapter.dragSwipe().dragOnLongPress(view, this);
+            }
+        }
+        return this;
+    }
+
+    public LightHolder swipeOnTouch(int... ids) {
+        if (ids.length == 0) {
+            mAdapter.dragSwipe().swipeOnTouch(itemView, this);
+            return this;
+        }
+        for (int id : ids) {
+            View view = getView(id);
+            if (view != null) {
+                mAdapter.dragSwipe().swipeOnTouch(view, this);
+            }
+        }
+        return this;
+    }
+
+    public LightHolder swipeOnLongPress(int... ids) {
+        if (ids.length == 0) {
+            mAdapter.dragSwipe().swipwOnLongPress(itemView, this);
+            return this;
+        }
+        for (int id : ids) {
+            View view = getView(id);
+            if (view != null) {
+                mAdapter.dragSwipe().swipwOnLongPress(view, this);
+            }
+        }
+        return this;
+    }
+
 
     //////////////////////////////  -- 公共方法 --  //////////////////////////////
 
