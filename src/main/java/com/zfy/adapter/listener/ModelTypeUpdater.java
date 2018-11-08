@@ -8,8 +8,8 @@ import com.zfy.adapter.model.ModelType;
  *
  * @author chendong
  */
-public interface ModelTypeFactory {
+public interface ModelTypeUpdater {
 
-    void update(ModelType type);
+    void update(ModelType modelType);
 }
 

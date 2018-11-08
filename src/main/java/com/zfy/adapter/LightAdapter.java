@@ -21,14 +21,16 @@ import com.zfy.adapter.delegate.impl.HFViewDelegate;
 import com.zfy.adapter.delegate.impl.LoadMoreDelegate;
 import com.zfy.adapter.delegate.impl.LoadingViewDelegate;
 import com.zfy.adapter.delegate.impl.NotifyDelegate;
+import com.zfy.adapter.delegate.impl.SectionDelegate;
 import com.zfy.adapter.delegate.impl.SelectorDelegate;
 import com.zfy.adapter.delegate.impl.SpanDelegate;
 import com.zfy.adapter.delegate.impl.TopMoreDelegate;
 import com.zfy.adapter.listener.EventCallback;
-import com.zfy.adapter.listener.ModelTypeFactory;
+import com.zfy.adapter.listener.ModelTypeUpdater;
 import com.zfy.adapter.model.Ids;
 import com.zfy.adapter.model.ModelType;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -57,16 +59,14 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     private Set<LightHolder> mHolderCache;
     // 类型和 TypeOptions 配置
     private SparseArray<ModelType> mModelTypeCache;
-    // 类型构造器
-    private ModelTypeFactory mModelTypeFactory;
-    private ModelTypeFactory mBuildInModelTypeFactory;
+    // 更新类型配置
+    private List<ModelTypeUpdater> mModelTypeUpdaters;
     // 代理注册表
     private DelegateRegistry mDelegateRegistry;
     // 负责完成事件的初始化和触发
     private LightEvent<D> mLightEvent;
     // 多 ID 绑定
     private Ids mIds;
-
 
     /**
      * 单类型适配器构造函数
@@ -76,7 +76,11 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
      * @param layoutId 布局
      */
     public LightAdapter(Context context, List<D> datas, int layoutId) {
-        this(context, datas, modelType -> modelType.setLayoutId(layoutId));
+        this(context, datas, modelType -> {
+            if (modelType.type == LightValues.TYPE_CONTENT) {
+                modelType.layoutId = layoutId;
+            }
+        });
     }
 
     /**
@@ -84,11 +88,11 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
      *
      * @param context 上下文
      * @param datas   数据源
-     * @param factory 类型构造工厂
+     * @param updater 类型构造工厂
      */
-    public LightAdapter(Context context, List<D> datas, ModelTypeFactory factory) {
+    public LightAdapter(Context context, List<D> datas, ModelTypeUpdater updater) {
         init(context, datas);
-        mModelTypeFactory = factory;
+        addModelUpdater(updater);
     }
 
     // 通用初始化方法
@@ -113,18 +117,20 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         mDelegateRegistry.register(IDelegate.LOADING, LoadingViewDelegate::new);
         mDelegateRegistry.register(IDelegate.EMPTY, EmptyViewDelegate::new);
         mDelegateRegistry.register(IDelegate.DRAG_SWIPE, DragSwipeDelegate::new);
+        mDelegateRegistry.register(IDelegate.SECTION, SectionDelegate::new);
         mDelegateRegistry.onAttachAdapter(this);
         // 事件处理
         mLightEvent = new LightEvent<>(this);
-        // 内置类型构建起
-        mBuildInModelTypeFactory = type -> {
+        mModelTypeUpdaters = new ArrayList<>();
+        // 内置类型参数构建
+        addModelUpdater(type -> {
             if (type.getType() == LightValues.TYPE_FOOTER
                     || type.getType() == LightValues.TYPE_HEADER
                     || type.getType() == LightValues.TYPE_LOADING
                     || type.getType() == LightValues.TYPE_EMPTY) {
                 type.setSpanSize(LightValues.SPAN_SIZE_ALL);
             }
-        };
+        });
     }
 
     @Override
@@ -341,6 +347,16 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         return mIds.obtain(ids);
     }
 
+
+    /**
+     * 添加类型更新器
+     *
+     * @param updater ModelTypeUpdater
+     */
+    public void addModelUpdater(ModelTypeUpdater updater) {
+        mModelTypeUpdaters.add(updater);
+    }
+
     /**
      * 根据类型获取 ModelType
      *
@@ -351,8 +367,9 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         ModelType modelType = mModelTypeCache.get(type);
         if (modelType == null) {
             modelType = new ModelType(type);
-            mBuildInModelTypeFactory.update(modelType);
-            mModelTypeFactory.update(modelType);
+            for (ModelTypeUpdater updater : mModelTypeUpdaters) {
+                updater.update(modelType);
+            }
             mModelTypeCache.put(type, modelType);
         }
         return modelType;
@@ -457,5 +474,12 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
      */
     public DragSwipeDelegate dragSwipe() {
         return getDelegate(IDelegate.DRAG_SWIPE);
+    }
+
+    /**
+     * @return SectionDelegate 隔断效果
+     */
+    public SectionDelegate<D> section() {
+        return getDelegate(IDelegate.SECTION);
     }
 }

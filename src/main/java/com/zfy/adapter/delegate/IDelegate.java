@@ -24,6 +24,7 @@ public interface IDelegate {
     int EMPTY = 7;
     int LOADING = 8;
     int DRAG_SWIPE = 9;
+    int SECTION = 10;
 
     /**
      * 获取本代理的 key

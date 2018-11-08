@@ -20,7 +20,7 @@ public abstract class BaseDelegate implements IDelegate {
     protected LightAdapter mAdapter;
     protected RecyclerView mView;
 
-    protected boolean isAttached() {
+    boolean isAttached() {
         return mAdapter != null && mView != null;
     }
 

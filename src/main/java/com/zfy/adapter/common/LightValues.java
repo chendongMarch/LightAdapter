@@ -1,5 +1,7 @@
 package com.zfy.adapter.common;
 
+import com.zfy.adapter.listener.ModelTypeUpdater;
+
 /**
  * CreateAt : 2018/10/26
  * Describe :
@@ -12,7 +14,7 @@ public class LightValues {
 
     /**
      * @see com.zfy.adapter.model.ModelType
-     * @see com.zfy.adapter.listener.ModelTypeFactory
+     * @see ModelTypeUpdater
      * 内部的类型
      */
     public static final int TYPE_HEADER = -0x21; // header type
@@ -20,6 +22,7 @@ public class LightValues {
     public static final int TYPE_CONTENT = -0x23; // 默认 type
     public static final int TYPE_LOADING = -0x24; // 加载中
     public static final int TYPE_EMPTY = -0x25; // 空白页
+    public static final int TYPE_SECTION = -0x26; // 空白页
 
     /**
      * @see com.zfy.adapter.delegate.impl.SpanDelegate

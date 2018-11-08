@@ -77,7 +77,7 @@ public class DragSwipeDelegate extends BaseDelegate {
         });
     }
 
-    public void swipwOnLongPress(View view, LightHolder holder) {
+    public void swipeOnLongPress(View view, LightHolder holder) {
         view.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {

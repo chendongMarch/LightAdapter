@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
@@ -20,6 +21,20 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
  * @author chendong
  */
 public class LightUtils {
+
+
+    /**
+     * 加载 View
+     *
+     * @param context  ctx
+     * @param layoutId 资源 id
+     * @return View
+     */
+    public static View inflateView(Context context, ViewGroup group, int layoutId) {
+        View inflate = LayoutInflater.from(context).inflate(layoutId, group, false);
+        return inflate;
+    }
+
 
 
     /**

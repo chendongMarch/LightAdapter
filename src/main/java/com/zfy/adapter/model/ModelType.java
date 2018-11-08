@@ -18,6 +18,7 @@ public class ModelType {
     public boolean enableDbClick = false; // 是否允许双击事件，双击事件使用 gesture 实现，将会丧失一些效果
     public boolean enableDrag = false; // 是否允许拖动
     public boolean enableSwipe = false; // 是否允许滑动
+    public boolean supportPin; // 钉住，会悬挂在顶部，后面的会有推的效果
 
     public ModelType(int type) {
         this.type = type;

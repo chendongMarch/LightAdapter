@@ -489,7 +489,7 @@ public class LightHolder extends RecyclerView.ViewHolder {
         return this;
     }
 
-    //////////////////////////////  -- dragSwipe & swipe --  //////////////////////////////
+    //////////////////////////////  -- drag & swipe --  //////////////////////////////
 
     public LightHolder dragOnTouch(int... ids) {
         if (ids.length == 0) {
@@ -535,13 +535,13 @@ public class LightHolder extends RecyclerView.ViewHolder {
 
     public LightHolder swipeOnLongPress(int... ids) {
         if (ids.length == 0) {
-            mAdapter.dragSwipe().swipwOnLongPress(itemView, this);
+            mAdapter.dragSwipe().swipeOnLongPress(itemView, this);
             return this;
         }
         for (int id : ids) {
             View view = getView(id);
             if (view != null) {
-                mAdapter.dragSwipe().swipwOnLongPress(view, this);
+                mAdapter.dragSwipe().swipeOnLongPress(view, this);
             }
         }
         return this;

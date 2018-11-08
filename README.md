@@ -20,21 +20,44 @@
 
 </div>
 
+## 优势
+
+- 使用简单，只有 `LightAdapter` 一个适配器，获取其中组件进行配置。
+- 更好的扩展性，更清晰的代码结构，支持单类型、多类型数据适配。
+- 更细粒度的配置，可针对每种数据类型进行自定义配置。
+- 更安全(线程检测)、更简单(`DiffUtil`)、更高效(`payloads`) 的数据更新。
+- 点击事件支持单击、双击、长按，可自定义开启。
+- 经过扩展和完善的 `LightHolder`，几乎可以直接完成所有数据绑定。
+- 支持 `Header&Footer` 叠加、数据绑定、即时更新。
+- 支持定制列表底部 `LoadingView` 效果。
+- 支持空白页面，并可自定义显示、事件。
+- 支持 顶部、底部预加载 更多数据。
+- 支持常见业务场景 - 选择器效果。
+- 支持拖拽、侧滑删除，使用简单、并高度可定制。
+- 列表顶部悬停效果，可以为任意一种类型的布局设置顶部悬停效果
+- 隔断显示，隔断同样支持悬停效果
+- 未来：分页器 - 对使用 `pageNo/pageSize` 的分页加载的的业务场景进行支持。
+- 未来：隔断支持/隔断悬挂
+- 未来：可以展开
 
 ## 设计分析
 
 由于功能比较多，当所有的逻辑都在 `Adapter` 里面实现时，会导致 `Adapter` 变得很臃肿，扩展功能变得越来越困难。
 
-为了解决这个问题，类库的设计借鉴了 **委托模式** 的设计方法，`Adapter` 只负责数据的加载，而其他功能都通过注册不同的 **功能代理** 实现，各个代理分工合作，都只关注自己负责的那部分功能，比如现在有如下代理实现：
+为了解决这个问题，类库的设计借鉴了 **委托模式** 的设计方法，`Adapter` 只负责数据的加载，而其他功能都通过注册不同的 **功能代理** 实现，各个代理分工合作，都只关注自己负责的那部分功能，现在内置如下几个代理实现：
 
-- `HFDelegate`： 负责 `Header`/`Footer` 的装载、更新、隐藏等功能；
+- `HFViewDelegate`： 负责 `Header`/`Footer` 的装载、更新、显示、隐藏等功能；
+- `LoadingViewDelegate`：负责完成加载更多底部提示的装载、更新、显示、隐藏等功能；
+- `EmptyViewDelegate`：负责完成空白页面的装载、更新、显示、隐藏等功能；
+- `DragSwipeDelegate`: 负责完成拖拽，侧滑等功能。
 - `LoadMoreDelegate`： 负责到达底部加载更多数据的功能；
 - `TopMoreDelegate`：负责到达顶部触发加载功能；
 - `NotifyDelegate`：负责数据更新的扩展功能；
 - `SelectorDelegate`：负责实现数据选择器功能；
 - `SpanDelegate`：负责处理某个 `item` 是否跨越整行的功能；
 
-所有的功能代理都统一被 `DelegateRegistry` 管理，内部维护一个注册表，所有的代理都在此处注册，由 `DelegateRegistry` 统一调度，同时，我们也可以根据自己的业务需求向 `DelegateRegistry` 注册代理实现；
+所有的功能代理都统一被 `DelegateRegistry` 管理，他们之间是完全戒内部维护一个注册表，所有的代理都在此处注册，由 `DelegateRegistry` 统一调度，同时，我们也可以根据自己的业务需求向 `DelegateRegistry` 注册代理实现；
+
 
 
 ## 单类型数据适配
@@ -42,7 +65,7 @@
 单类型的适配器其实是多类型的简化版本，只是针对大多数的使用场景暴露出来更简单的构造方法，内部仍旧使用多类型实现。
 
 ```java
-LightAdapter<Student> adapter = new LightAdapter<Student>(getContext(), list, R.layoutId.adapter_item) {
+LightAdapter<Student> adapter = new LightAdapter<Student>(getContext(), list, R.layout.adapter_item) {
     @Override
     public void onBindView(LightHolder holder, Student data, int pos) {
         holder.setText(R.id.tv, data.name + " " + data.age);
@@ -88,11 +111,11 @@ STEP2: 多类型适配器需要构造一个 `ModelTypeFactory`，他用来决定
 ModelTypeFactory factory = modelType -> {
     switch (modelType.getType()) {
         case Student.TYPE_A:
-            modelType.setLayout(R.layoutId.adapter_item);
+            modelType.setLayout(R.layout.adapter_item);
             break;
         case Student.TYPE_B:
             // 该类型的布局文件
-            modelType.setLayout(R.layoutId.adapter_item_b);
+            modelType.setLayout(R.layout.adapter_item_b);
             // 设置该类型跨越整行
             modelType.setSpanSize(Values.SPAN_SIZE_ALL);
             // 设置该类型不允许点击
@@ -117,129 +140,6 @@ mStudentAdapter = new LightAdapter<Student>(getContext(), mStudents, factory) {
 };
 ```
 
-## Header&Footer
-
-
-使用 `adapter.header()` 方法获取 `HFDelegate` 对 `Header` 进行操作
-
-```java
-// 使用布局资源添加一个 Header，你可以像在 adapter 中使用 holder 绑定数据
-adapter.header().addHeaderView(R.layoutId.adapter_item_header, (holder, position) -> {
-    holder.setText(R.id.header_tv, headerDesc);
-});
-// 使用创建好的 View 添加一个 Header
-adapter.header().addHeaderView(new ImageView(getContext()), (holder, position) -> {
-    // 绑定数据
-});
-// 显示/隐藏 Header
-adapter.header().setHeaderEnable(true);
-// 清除添加的所有 Header
-adapter.header().clearHeaderView();
-// 更新 Header，此方法会调用添加 Header 时的绑定方法
-adapter.header().notifyHeaderUpdate();
-```
-
-使用 `adapter.footer()` 方法获取 `HFDelegate` 对 `Footer` 进行操作
-
-```java
-// 使用布局资源添加一个 Footer，你可以像在 adapter 中使用 holder 绑定数据
-adapter.footer().addFooterView(R.layoutId.adapter_item_footer, (holder, position) -> {
-    holder.setText(R.id.footer_tv, headerDesc);
-});
-// 使用创建好的 View 添加一个 Footer
-adapter.footer().addFooterView(new ImageView(getContext()), (holder, position) -> {
-    // 绑定数据
-});
-// 显示/隐藏 Footer
-adapter.footer().setFooterEnable(true);
-// 清除添加的所有 Footer
-adapter.footer().clearFooterView();
-// 更新 Header，此方法会调用添加 Footer 时的绑定方法
-adapter.footer().notifyFooterUpdate();
-```
-
-## 加载更多
-
-使用 `adapter.loadMore()` 获取 `LoadMoreDelegete` 添加底部加载更多的监听，当列表滑动到底部时，会触发该事件：
-
-```java
-// 添加加载更多事件
-// count = 3 表示提前 3 个 item 到达底部开始加载
-adapter.loadMore().setLoadMoreListener(3, adapter -> {
-    // 请求数据
-    fetchData((data) -> {
-        // 存储和数据更新
-        saveUpdateData(data);
-        // 结束加载，才能开始新的加载
-        adapter.loadMore().finishLoadMore();
-    });
-});
-```
-
-使用 `adapter.topMore()` 获取 `TopMoreDelegete` 添加顶部加载更多的监听，当列表滑动到顶部时，会触发该事件：
-
-```java
-adapter.topMore().setTopMoreListener(3, adapter -> {
-    // 请求数据
-    fetchData((data) -> {
-        // 存储和数据更新
-        saveUpdateData(data);
-        // 结束加载
-        adapter.topMore().finishTopMore();
-    });
-});
-```
-
-## 选择器
-
-在开发过程中我们经常会遇到 **选中** 和 **取消选中** 列表中的某一项这种需求，针对这种场景增加了 `SelectorDelegate`，他负责实现选择器的选中、取消选中、数据更新等逻辑：
-
-为了能够存储和获取选择器的状态，数据结构需要实现 `Selectable` 接口，来表明它是一个可以支持选择器的数据类型。
-
-```java
-public class Student implements Selectable {
-
-    public boolean selected;
-
-    @Override
-    public boolean isSelected() {
-        return selected;
-    }
-
-    @Override
-    public void setSelected(boolean isSelected) {
-        selected = isSelected;
-    }
-}
-```
-
-使用 `adapter.selector()` 获取 `SelectorDelegate` 来初始化选择器需要的参数：
-
-- 类型，支持多选和单选，单选时，选中一个会自动取消其他选中。
-- 绑定回调，用来根据是否选中的状态来显示不同的 `UI`，如果需要使用具体的数据，可以将 `Selectable` 对象强转转换为目标对象；
-
-
-```java
-mStudentAdapter.selector().setSelectorBinder(LightValues.SINGLE, (holder, position, obj) -> {
-    holder.setTextColor(R.id.tv, obj.isSelected() ? Color.GREEN : Color.RED);
-});
-```
-
-然后可以在点击事件中选中或者取消选中某一项
-
-```java
-mStudentAdapter.setOnItemListener(new SimpleItemListener<Student>() {
-    @Override
-    public void onClick(int pos, LightHolder holder, Student data) {
-        // 选中切换为不选中，不选中切换为选中
-        mStudentAdapter.selector().toggleItem(data);
-        // 选中
-        mStudentAdapter.selector().selectItem(data);
-        // 不选中
-        mStudentAdapter.selector().releaseItem(data);
-    }
-});
-```
 
 ## 触摸事件
 
@@ -249,10 +149,10 @@ mStudentAdapter.setOnItemListener(new SimpleItemListener<Student>() {
 ModelTypeFactory factory = modelType -> {
     switch (modelType.getType()) {
         case Student.TYPE_A:
-            modelType.setLayout(R.layoutId.adapter_item);
+            modelType.setLayout(R.layout.adapter_item);
             break;
         case Student.TYPE_B:
-            modelType.setLayout(R.layoutId.adapter_item_b);
+            modelType.setLayout(R.layout.adapter_item_b);
             // 支持双击事件
             modelType.setEnableDbClick(true);
             break;
@@ -271,7 +171,7 @@ adapter.setOnItemListener(new SimpleItemListener<Student>() {
     }
     @Override
     public void onLongPress(int pos, LightHolder holder, Student data) {
-	    // 长按事件
+	// 长按事件
     }
     @Override
     public void onDoubleClick(int pos, LightHolder holder, Student data) {
@@ -290,7 +190,7 @@ Ids ids = Ids.all(R.id.test_tv, R.id.tv_count);
 为了更好的性能，每个 `Adapter` 会维护一个可复用的 `Ids`， 因此在 `Adapter` 建议直接使用 `all()` 方法创建，避免每次都创建新的。
 
 ```java
-new LightAdapter<Student>(getContext(), list, R.layoutId.adapter_item)
+new LightAdapter<Student>(getContext(), list, R.layout.adapter_item)
     @Override
     public void onBindView(LightHolder holder, Student data, int pos) {
         holder
@@ -401,6 +301,131 @@ static class GlideCallback implements LightHolder.Callback<ImageView> {
 holder.setCallback(R.id.tv, new GlideCallback("imgUrl", RequestOptions.overrideOf(100, 100).placeholder(R.drawable.wx_logo)));
 ```
 
+
+
+## Header&Footer
+
+
+使用 `adapter.header()` 方法获取 `HFDelegate` 对 `Header` 进行操作
+
+```java
+// 使用布局资源添加一个 Header，你可以像在 adapter 中使用 holder 绑定数据
+adapter.header().addHeaderView(R.layout.adapter_item_header, (holder, position) -> {
+    holder.setText(R.id.header_tv, headerDesc);
+});
+// 使用创建好的 View 添加一个 Header
+adapter.header().addHeaderView(new ImageView(getContext()), (holder, position) -> {
+    // 绑定数据
+});
+// 显示/隐藏 Header
+adapter.header().setHeaderEnable(true);
+// 清除添加的所有 Header
+adapter.header().clearHeaderView();
+// 更新 Header，此方法会调用添加 Header 时的绑定方法
+adapter.header().notifyHeaderUpdate();
+```
+
+使用 `adapter.footer()` 方法获取 `HFDelegate` 对 `Footer` 进行操作
+
+```java
+// 使用布局资源添加一个 Footer，你可以像在 adapter 中使用 holder 绑定数据
+adapter.footer().addFooterView(R.layout.adapter_item_footer, (holder, position) -> {
+    holder.setText(R.id.footer_tv, headerDesc);
+});
+// 使用创建好的 View 添加一个 Footer
+adapter.footer().addFooterView(new ImageView(getContext()), (holder, position) -> {
+    // 绑定数据
+});
+// 显示/隐藏 Footer
+adapter.footer().setFooterEnable(true);
+// 清除添加的所有 Footer
+adapter.footer().clearFooterView();
+// 更新 Header，此方法会调用添加 Footer 时的绑定方法
+adapter.footer().notifyFooterUpdate();
+```
+
+## 加载更多
+
+使用 `adapter.loadMore()` 获取 `LoadMoreDelegete` 添加底部加载更多的监听，当列表滑动到底部时，会触发该事件：
+
+```java
+// 添加加载更多事件
+// count = 3 表示提前 3 个 item 到达底部开始加载
+adapter.loadMore().setLoadMoreListener(3, adapter -> {
+    // 请求数据
+    fetchData((data) -> {
+        // 存储和数据更新
+        saveUpdateData(data);
+        // 结束加载，才能开始新的加载
+        adapter.loadMore().finishLoadMore();
+    });
+});
+```
+
+使用 `adapter.topMore()` 获取 `TopMoreDelegete` 添加顶部加载更多的监听，当列表滑动到顶部时，会触发该事件：
+
+```java
+adapter.topMore().setTopMoreListener(3, adapter -> {
+    // 请求数据
+    fetchData((data) -> {
+        // 存储和数据更新
+        saveUpdateData(data);
+        // 结束加载
+        adapter.topMore().finishTopMore();
+    });
+});
+```
+
+## 选择器
+
+在开发过程中我们经常会遇到 **选中** 和 **取消选中** 列表中的某一项这种需求，针对这种场景增加了 `SelectorDelegate`，他负责实现选择器的选中、取消选中、数据更新等逻辑：
+
+为了能够存储和获取选择器的状态，数据结构需要实现 `Selectable` 接口，来表明它是一个可以支持选择器的数据类型。
+
+```java
+public class Student implements Selectable {
+
+    public boolean selected;
+
+    @Override
+    public boolean isSelected() {
+        return selected;
+    }
+
+    @Override
+    public void setSelected(boolean isSelected) {
+        selected = isSelected;
+    }
+}
+```
+
+使用 `adapter.selector()` 获取 `SelectorDelegate` 来初始化选择器需要的参数：
+
+- 类型，支持多选和单选，单选时，选中一个会自动取消其他选中。
+- 绑定回调，用来根据是否选中的状态来显示不同的 `UI`，如果需要使用具体的数据，可以将 `Selectable` 对象强转转换为目标对象；
+
+
+```java
+mStudentAdapter.selector().setSelectorBinder(LightValues.SINGLE, (holder, position, obj) -> {
+    holder.setTextColor(R.id.tv, obj.isSelected() ? Color.GREEN : Color.RED);
+});
+```
+
+然后可以在点击事件中选中或者取消选中某一项
+
+```java
+mStudentAdapter.setOnItemListener(new SimpleItemListener<Student>() {
+    @Override
+    public void onClick(int pos, LightHolder holder, Student data) {
+        // 选中切换为不选中，不选中切换为选中
+        mStudentAdapter.selector().toggleItem(data);
+        // 选中
+        mStudentAdapter.selector().selectItem(data);
+        // 不选中
+        mStudentAdapter.selector().releaseItem(data);
+    }
+});
+```
 ## 数据更新
 
 可以使用 `NotifyDelegate` 代替 `Adapter` 进行数据的更新，与 `Adapter` 相比，`NotifyDelegate` 会把所有的更新操作发布到主线程执行，避免不小心在 **子线程** 更新造成闪退的问题。
@@ -550,6 +575,5 @@ new LightAdapter<Student>(getContext(), mStudents, factory) {
     }
 };
 ```
-
 
 
