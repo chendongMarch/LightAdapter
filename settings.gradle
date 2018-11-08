@@ -1,1 +1,3 @@
 include ':app'
+include ':component_basic'
+include ':lightadapter'
