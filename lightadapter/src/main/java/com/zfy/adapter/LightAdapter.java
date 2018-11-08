@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.zfy.adapter.able.ModelTypeable;
+import com.zfy.adapter.collections.AbstractLightList;
 import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.common.AdapterException;
 import com.zfy.adapter.common.LightValues;
@@ -96,8 +97,8 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
 
     // 通用初始化方法
     private void init(Context context, List<D> datas) {
-        if (datas instanceof LightDiffList) {
-            ((LightDiffList) datas).setLightAdapter(this);
+        if (datas instanceof AbstractLightList) {
+            ((LightDiffList) datas).setAdapter(this);
         }
         mContext = context;
         mHolderCache = new HashSet<>();

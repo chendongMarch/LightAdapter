@@ -1,0 +1,18 @@
+apply from: '../scripts/library.gradle'
+
+
+dependencies {
+    api libs.recyclerView_v7
+}
+
+apply plugin: 'bintray-release'
+publish {
+    userOrg = 'zfy'
+    groupId = 'com.zfy'
+    artifactId = 'lightadapter'
+    publishVersion = '0.0.2'
+    desc = 'lightadapter'
+    website = 'https://github.com/chendongMarch/LightAdapter'
+}
+
+

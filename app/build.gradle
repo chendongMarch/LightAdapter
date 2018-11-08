@@ -1,0 +1,14 @@
+apply from: '../scripts/app.gradle'
+
+android {
+    defaultConfig {
+        applicationId "com.zfy.light.sample"
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+//    implementation project(':lightadapter')
+//    implementation project(':component_basic')
+}
