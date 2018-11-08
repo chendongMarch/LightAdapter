@@ -25,9 +25,9 @@
 - 使用简单，只有 `LightAdapter` 一个适配器，获取其中组件进行配置。
 - 更好的扩展性，更清晰的代码结构，支持单类型、多类型数据适配。
 - 更细粒度的配置，可针对每种数据类型进行自定义配置。
-- 更安全(线程检测)、更简单(`DiffUtil`)、更高效(`payloads`) 的数据更新。
+- 更安全(线程检测)、更简单(`DiffUtil`)、更低耗(`payloads`)、更高效(异步更新)的数据更新。
 - 点击事件支持单击、双击、长按，可自定义开启。
-- 经过扩展和完善的 `LightHolder`，几乎可以直接完成所有数据绑定。
+- 经过扩展和完善的 `LightHolder`，可以直接完成所有情况的数据绑定。
 - 支持 `Header&Footer` 叠加、数据绑定、即时更新。
 - 支持定制列表底部 `LoadingView` 效果。
 - 支持空白页面，并可自定义显示、事件。
@@ -38,7 +38,6 @@
 - 隔断效果显示，隔断同样支持悬停效果
 - 未来：分页器 - 对使用 `pageNo/pageSize` 的分页加载的的业务场景进行支持。
 - 未来：ExpandableAdapter
-- 未来：AsyncLightDiffList，异步计算 `diff` 并更新数据
 
 ## 设计分析
 
@@ -54,10 +53,10 @@
 - `TopMoreDelegate`：负责到达顶部触发加载功能；
 - `NotifyDelegate`：负责数据更新的扩展功能；
 - `SelectorDelegate`：负责实现数据选择器功能；
+- `SectionDelegate`：负责实现隔断显示和悬停效果；
 - `SpanDelegate`：负责处理某个 `item` 是否跨越整行的功能；
 
 所有的功能代理都统一被 `DelegateRegistry` 管理，他们之间是完全戒内部维护一个注册表，所有的代理都在此处注册，由 `DelegateRegistry` 统一调度，同时，我们也可以根据自己的业务需求向 `DelegateRegistry` 注册代理实现；
-
 
 
 ## 单类型数据适配
