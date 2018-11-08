@@ -4,6 +4,7 @@ dependencies {
     // 基础库
     api project(':common')
     api libs.multidex
+    api libs.kotlin
     // 基础 UI
     api libs.appcompat_v7
     api libs.constraint
