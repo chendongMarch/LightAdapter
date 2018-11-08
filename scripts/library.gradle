@@ -1,0 +1,48 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion versions.compileSdkVersion
+    defaultConfig {
+        minSdkVersion versions.minSdkVersion
+        // ARouter
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [AROUTER_MODULE_NAME: project.getName(), AROUTER_GENERATE_DOC: "enable"]
+            }
+        }
+    }
+    buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_8
+    }
+    dataBinding {
+        enabled true
+    }
+    lintOptions {
+        abortOnError false
+    }
+    sourceSets {
+        main {
+            res.srcDirs = ['src/main/res']
+            jniLibs.srcDirs = ['src/main/jniLibs']
+        }
+    }
+}
+
+dependencies {
+//    add('annotationProcessor', libs.arouterCompiler, {})
+    add('annotationProcessor', libs.butterknifeProcessor, {})
+    add('annotationProcessor', lifecycle.compiler, {})
+}
