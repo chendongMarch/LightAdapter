@@ -1,0 +1,38 @@
+apply from: '../scripts/library.gradle'
+
+dependencies {
+    // 基础库
+    api project(':common')
+    api libs.multidex
+    // 基础 UI
+    api libs.appcompat_v7
+    api libs.constraint
+    api libs.recyclerView_v7
+    api libs.design
+    // 图片
+    api libs.glide4
+    api libs.glideOkHttp
+    // json
+    api libs.gson
+    // 网络
+    api libs.okhttp3
+    implementation libs.cookie
+    // retrofit
+    api libs.retrofit
+    api libs.converter_gson
+    api libs.adapter_rxjava2
+    // rx
+    api libs.rxjava2
+    api libs.rxandroid
+    // 通信
+    api libs.eventbus
+    api libs.butterknife
+    // router
+    api libs.arouterApi
+    // arch
+    api lifecycle.extensions
+    api lifecycle.runtime
+    // binding adapter
+    api databinding.bindingAdapter
+    api databinding.bindingAdapterRv
+}
