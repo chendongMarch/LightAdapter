@@ -1,5 +1,5 @@
 buildscript {
-    apply from: "./scripts/project.gradle"
+    apply from: "./scripts/dependence.gradle"
     repositories {
         google()
         jcenter()
