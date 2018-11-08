@@ -2,7 +2,7 @@ package com.zfy.adapter.model;
 
 /**
  * CreateAt : 2018/11/6
- * Describe :
+ * Describe : 加载中状态，可扩展
  *
  * @author chendong
  */

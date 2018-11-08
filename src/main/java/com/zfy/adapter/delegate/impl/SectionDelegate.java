@@ -11,6 +11,7 @@ import com.zfy.adapter.decoration.PinItemDecoration;
 import com.zfy.adapter.listener.BindCallback;
 import com.zfy.adapter.listener.ModelTypeUpdater;
 import com.zfy.adapter.model.ModelType;
+import com.zfy.adapter.model.SingleTypeUpdater;
 
 /**
  * CreateAt : 2018/10/30
@@ -53,13 +54,11 @@ public class SectionDelegate<D> extends BaseDelegate {
     }
 
     public void setSectionOptions(int layoutId, boolean supportPin, BindCallback<D> callback) {
-        mAdapter.addModelUpdater(modelType -> {
-            if (modelType.type == LightValues.TYPE_SECTION) {
-                modelType.layoutId = layoutId;
-                modelType.supportPin = supportPin;
-                modelType.spanSize = LightValues.SPAN_SIZE_ALL;
-            }
-        });
+        mAdapter.addModelUpdater(new SingleTypeUpdater(LightValues.TYPE_SECTION, data -> {
+            data.layoutId = layoutId;
+            data.supportPin = supportPin;
+            data.spanSize = LightValues.SPAN_SIZE_ALL;
+        }));
         setPinEnable(supportPin);
         mBindCallback = callback;
     }

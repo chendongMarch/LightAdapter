@@ -4,7 +4,7 @@ import com.zfy.adapter.common.LightValues;
 
 /**
  * CreateAt : 2018/10/26
- * Describe :
+ * Describe : 针对每种 type 的配置对象
  *
  * @author chendong
  */

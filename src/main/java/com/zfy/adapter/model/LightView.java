@@ -7,7 +7,7 @@ import com.zfy.adapter.common.LightUtils;
 
 /**
  * CreateAt : 2018/11/6
- * Describe :
+ * Describe : 使用 layout 和 View 添加子控件
  *
  * @author chendong
  */

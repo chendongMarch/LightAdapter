@@ -2,7 +2,7 @@ package com.zfy.adapter.model;
 
 /**
  * CreateAt : 2018/11/7
- * Describe :
+ * Describe : 拖拽和侧滑状态变化
  *
  * @author chendong
  */

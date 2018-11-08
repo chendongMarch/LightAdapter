@@ -11,5 +11,7 @@ import com.zfy.adapter.model.ModelType;
 public interface ModelTypeUpdater {
 
     void update(ModelType modelType);
+
+
 }
 

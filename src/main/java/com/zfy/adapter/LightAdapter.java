@@ -29,6 +29,7 @@ import com.zfy.adapter.listener.EventCallback;
 import com.zfy.adapter.listener.ModelTypeUpdater;
 import com.zfy.adapter.model.Ids;
 import com.zfy.adapter.model.ModelType;
+import com.zfy.adapter.model.SingleTypeUpdater;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -76,11 +77,9 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
      * @param layoutId 布局
      */
     public LightAdapter(Context context, List<D> datas, int layoutId) {
-        this(context, datas, modelType -> {
-            if (modelType.type == LightValues.TYPE_CONTENT) {
-                modelType.layoutId = layoutId;
-            }
-        });
+        this(context, datas, new SingleTypeUpdater(LightValues.TYPE_CONTENT, data -> {
+            data.layoutId = layoutId;
+        }));
     }
 
     /**

@@ -4,7 +4,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 
 /**
  * CreateAt : 2018/11/7
- * Describe :
+ * Describe : 拖拽和侧滑的配置选项
  *
  * @author chendong
  */
