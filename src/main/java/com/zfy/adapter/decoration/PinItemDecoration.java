@@ -10,7 +10,14 @@ import com.zfy.adapter.model.ModelType;
 
 /**
  * CreateAt : 2018/11/8
- * Describe : 固定头部
+ * Describe :
+ * 头部悬停效果实现
+ *
+ * 原理：
+ * 是在滑动时在列表顶部绘制一个  ItemDecoration，他会采集划出屏幕的需要悬停的那个 View
+ * 然后绘制在 Canvas 上面
+ *
+ * @see com.zfy.adapter.delegate.impl.SectionDelegate
  *
  * @author chendong
  */

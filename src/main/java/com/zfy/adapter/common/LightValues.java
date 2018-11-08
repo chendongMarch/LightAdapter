@@ -22,7 +22,7 @@ public class LightValues {
     public static final int TYPE_CONTENT = -0x23; // 默认 type
     public static final int TYPE_LOADING = -0x24; // 加载中
     public static final int TYPE_EMPTY = -0x25; // 空白页
-    public static final int TYPE_SECTION = -0x26; // 空白页
+    public static final int TYPE_SECTION = -0x26; // 隔断
 
     /**
      * @see com.zfy.adapter.delegate.impl.SpanDelegate

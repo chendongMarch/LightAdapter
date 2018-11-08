@@ -12,9 +12,9 @@ done - Notify
 
 done - Selector
 
-waiting - Swipe
+done - Swipe
 
-waiting - Drag
+done - Drag
 
 waiting - Expandable
 
@@ -34,3 +34,43 @@ waiting - Animation
 5. LoadingView
 
 
+
+收缩头
+
+
+描述
+
+设计理念
+
+单类型/多类型/类型更新器/ModelTypeable
+
+DiffUtil/payload/异步更新
+LightDiffList/AsyncDiffList/Diffable
+
+事件/点击/双击/长按
+
+LightHolder
+
+HFViewDelegate
+LoadingViewDelegate
+EmptyViewDelegate
+---
+SpanDelegate
+NotifyDelegate
+---
+DragSwipeDelegate
+---
+LoadMoreDelegate
+TopMoreDelegate
+---
+SectionDelegate
+SelectorDelegate
+
+GridSpaceItemDecoration
+LinearDividerDecoration
+LinearSpaceItemDecoration
+
+展望
+分页器/Expandable/Animation
+
+其他项目
