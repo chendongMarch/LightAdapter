@@ -138,7 +138,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         LightHolder holder = mDelegateRegistry.onCreateViewHolder(parent, viewType);
         if (holder == null) {
             View view = null;
-            ModelType type = getType(viewType);
+            ModelType type = getModelType(viewType);
             if (type != null && type.getLayoutId() > 0) {
                 view = mLayoutInflater.inflate(type.getLayoutId(), parent, false);
                 if (view != null) {
@@ -363,7 +363,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
      * @param type 类型
      * @return 数据的类型
      */
-    public ModelType getType(int type) {
+    public ModelType getModelType(int type) {
         ModelType modelType = mModelTypeCache.get(type);
         if (modelType == null) {
             modelType = new ModelType(type);
@@ -381,7 +381,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
      * @param data 数据
      * @return 数据的类型
      */
-    public @Nullable ModelType getType(D data) {
+    public @Nullable ModelType getModelType(D data) {
         if (data == null) {
             return null;
         }
@@ -391,7 +391,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         } else {
             type = LightValues.TYPE_CONTENT;
         }
-        return getType(type);
+        return getModelType(type);
     }
 
     /**

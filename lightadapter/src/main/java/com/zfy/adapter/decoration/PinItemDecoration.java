@@ -46,7 +46,7 @@ public class PinItemDecoration extends RecyclerView.ItemDecoration {
         View secondPinView = null;
         for (int index = 0; index < parent.getChildCount(); index++) {
             int position = parent.getChildAdapterPosition(parent.getChildAt(index));
-            ModelType type = adapter.getType(adapter.getItemViewType(position));
+            ModelType type = adapter.getModelType(adapter.getItemViewType(position));
             if (type.supportPin) {
                 View sectionView = parent.getChildAt(index);
                 if (!firstView.equals(sectionView)) {
@@ -80,7 +80,7 @@ public class PinItemDecoration extends RecyclerView.ItemDecoration {
     // 根据第一个显示的位置，反向向上查找需要固定显示的那一个
     private int getLastPinPosition(int adapterFirstVisible, LightAdapter adapter) {
         for (int index = adapterFirstVisible; index >= 0; index--) {
-            ModelType type = adapter.getType(adapter.getItemViewType(index));
+            ModelType type = adapter.getModelType(adapter.getItemViewType(index));
             if (type.supportPin) {
                 return index;
             }

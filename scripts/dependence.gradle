@@ -135,7 +135,7 @@ ext {
             walle               : "com.meituan.android.walle:library:1.1.6",
             mmkv                : 'com.tencent:mmkv:1.0.10',
             /************************************** 自定义 ***********************************/
-            common              : 'com.zfy:common:0.0.7',
+            common              : 'com.zfy:common:0.0.8',
             assistant           : 'com.zfy:assistant:0.0.1',
             lightadapter        : 'com.zfy:lightadapter:0.0.1',
             // 滑动选中

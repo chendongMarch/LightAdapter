@@ -49,7 +49,40 @@ public class LightUtils {
         return inflate;
     }
 
+    public static int getSpanSize(int spanSize, int spanCount) {
+        if (spanSize > 0) {
+            return spanSize;
+        }
+        if (spanSize == LightValues.SPAN_SIZE_ALL) {
+            spanSize = spanCount;
+        } else if (spanSize == LightValues.SPAN_SIZE_HALF && spanCount % 2 == 0) {
+            spanSize = spanCount / 2;
+        } else if (spanSize == LightValues.SPAN_SIZE_THIRD && spanCount % 3 == 0) {
+            spanSize = spanCount / 3;
+        }
+        return spanSize;
+    }
 
+
+    /**
+     * 获取 RecyclerView SpanCount
+     *
+     * @param view Rv
+     * @return span count
+     */
+    public static int getRecyclerViewSpanCount(RecyclerView view) {
+        RecyclerView.LayoutManager layoutManager = view.getLayoutManager();
+        if (layoutManager == null) {
+            return LightValues.NONE;
+        }
+        if (layoutManager instanceof GridLayoutManager) {
+            return ((GridLayoutManager) layoutManager).getSpanCount();
+        } else if (layoutManager instanceof StaggeredGridLayoutManager) {
+            return ((StaggeredGridLayoutManager) layoutManager).getSpanCount();
+        } else {
+            return 1;
+        }
+    }
     /**
      * 获取 RecyclerView 防线，默认垂直
      *

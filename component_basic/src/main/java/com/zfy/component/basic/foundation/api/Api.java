@@ -1,5 +1,7 @@
 package com.zfy.component.basic.foundation.api;
 
+import android.support.annotation.Nullable;
+
 import com.google.gson.Gson;
 import com.march.common.funcs.Consumer;
 import com.march.common.funcs.Function;
@@ -62,7 +64,11 @@ public class Api {
         return getInst().mApiConfig;
     }
 
-    public static ApiQueueMgr queue() {
+    public static @Nullable
+    ApiQueueMgr queue() {
+        if (getInst() == null) {
+            return null;
+        }
         return getInst().mApiQueueMgr;
     }
 

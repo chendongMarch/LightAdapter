@@ -50,7 +50,7 @@ public class SectionDelegate<D> extends BaseDelegate {
     public void setSectionOptions(ModelTypeUpdater updater, BindCallback<D> callback) {
         mAdapter.addModelUpdater(updater);
         mBindCallback = callback;
-        setPinEnable(mAdapter.getType(LightValues.TYPE_SECTION).supportPin);
+        setPinEnable(mAdapter.getModelType(LightValues.TYPE_SECTION).supportPin);
     }
 
     public void setSectionOptions(int layoutId, boolean supportPin, BindCallback<D> callback) {
@@ -66,7 +66,7 @@ public class SectionDelegate<D> extends BaseDelegate {
     @Override
     public LightHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == LightValues.TYPE_SECTION) {
-            ModelType type = mAdapter.getType(viewType);
+            ModelType type = mAdapter.getModelType(viewType);
             View view = LightUtils.inflateView(parent.getContext(), parent, type.layoutId);
             return new LightHolder(mAdapter, viewType, view);
         }

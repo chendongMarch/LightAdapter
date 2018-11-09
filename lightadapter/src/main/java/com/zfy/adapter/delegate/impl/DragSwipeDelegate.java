@@ -124,7 +124,7 @@ public class DragSwipeDelegate extends BaseDelegate {
 
         @Override
         public boolean isItemViewSwipeEnabled() {
-            return mOptions.itemViewSwipeEnable;
+            return mOptions.itemViewAutoSwipeEnable;
         }
 
         @Override
@@ -185,7 +185,7 @@ public class DragSwipeDelegate extends BaseDelegate {
         public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
             int dragFlags = mOptions.dragFlags;
             int swipeFlags = mOptions.swipeFlags;
-            ModelType type = mAdapter.getType(viewHolder.getItemViewType());
+            ModelType type = mAdapter.getModelType(viewHolder.getItemViewType());
             if (!type.enableDrag) {
                 dragFlags = 0;
             }

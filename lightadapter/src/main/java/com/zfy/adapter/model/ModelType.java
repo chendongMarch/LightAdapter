@@ -1,5 +1,7 @@
 package com.zfy.adapter.model;
 
+import android.graphics.Rect;
+
 import com.zfy.adapter.common.LightValues;
 
 /**
@@ -19,6 +21,8 @@ public class ModelType {
     public boolean enableDrag = false; // 是否允许拖动
     public boolean enableSwipe = false; // 是否允许滑动
     public boolean supportPin; // 钉住，会悬挂在顶部，后面的会有推的效果
+
+    public Rect spaceRect;
 
     public ModelType(int type) {
         this.type = type;

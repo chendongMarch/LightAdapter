@@ -37,7 +37,6 @@ waiting - Animation
 
 收缩头
 
-
 描述
 
 设计理念
@@ -69,6 +68,8 @@ SelectorDelegate
 GridSpaceItemDecoration
 LinearDividerDecoration
 LinearSpaceItemDecoration
+滑动选中
+
 
 展望
 分页器/Expandable/Animation

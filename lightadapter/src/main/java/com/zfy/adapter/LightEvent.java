@@ -129,7 +129,7 @@ public class LightEvent<D> {
     private void tryCallClickEvent(LightHolder holder) {
         int position = mAdapter.toModelIndex(holder.getAdapterPosition());
         D item = mAdapter.getItem(position);
-        ModelType type = mAdapter.getType(item);
+        ModelType type = mAdapter.getModelType(item);
         if (type != null && type.isEnableClick()) {
             mClickCallback.call(holder, position, item);
         }
@@ -139,7 +139,7 @@ public class LightEvent<D> {
     private void tryCallLongPressEvent(LightHolder holder) {
         int position = mAdapter.toModelIndex(holder.getAdapterPosition());
         D item = mAdapter.getItem(position);
-        ModelType type = mAdapter.getType(item);
+        ModelType type = mAdapter.getModelType(item);
         if (type != null && type.isEnableLongPress()) {
             mLongPressCallback.call(holder, position, item);
         }
@@ -149,7 +149,7 @@ public class LightEvent<D> {
     private void tryCallDbClickEvent(LightHolder holder) {
         int position = mAdapter.toModelIndex(holder.getAdapterPosition());
         D item = mAdapter.getItem(position);
-        ModelType type = mAdapter.getType(item);
+        ModelType type = mAdapter.getModelType(item);
         if (type != null && type.isEnableLongPress()) {
             mDbClickCallback.call(holder, position, item);
         }

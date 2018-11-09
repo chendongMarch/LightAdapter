@@ -59,7 +59,7 @@ public class LightHolder extends RecyclerView.ViewHolder {
         super(itemView);
         this.mCacheViews = new SparseArray<>(5);
         this.mAdapter = adapter;
-        this.mModelType = adapter.getType(type);
+        this.mModelType = adapter.getModelType(type);
     }
 
     public int getExtra() {
@@ -91,6 +91,9 @@ public class LightHolder extends RecyclerView.ViewHolder {
     // 使用资源 id 找到 view
     @SuppressWarnings("unchecked")
     public <T extends View> T getView(int resId) {
+        if (resId == R.id.item_view) {
+            return (T) itemView;
+        }
         View v = mCacheViews.get(resId);
         if (v == null) {
             v = itemView.findViewById(resId);

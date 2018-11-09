@@ -66,7 +66,7 @@ public class SelectorDelegate<D> extends BaseDelegate {
         int pos = mAdapter.toModelIndex(position);
         Object data = mAdapter.getItem(pos);
         if (data != null) {
-            ModelType type = mAdapter.getType(data);
+            ModelType type = mAdapter.getModelType(data);
             if (type != null) {
                 if (type.getType() == LightValues.TYPE_CONTENT || !type.isBuildInType()) {
                     mSelectorBinder.onBindSelectableViewHolder(holder, position, (D) data, isSelect((D) data));

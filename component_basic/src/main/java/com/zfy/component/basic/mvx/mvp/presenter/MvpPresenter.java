@@ -59,8 +59,10 @@ public abstract class MvpPresenter<R extends IRepository, V extends IMvpView> im
     @Override
     public void onDestroy() {
         Exts.unRegisterEvent(this);
-        Api.queue().cancelRequest(mView);
-        Api.queue().cancelRequest(this);
+        if (Api.queue() != null) {
+            Api.queue().cancelRequest(mView);
+            Api.queue().cancelRequest(this);
+        }
     }
 
     @Subscribe

@@ -83,7 +83,9 @@ public abstract class AppActivity extends AppCompatActivity implements IElegantV
     protected void onDestroy() {
         super.onDestroy();
         getAppDelegate().onDestroy();
-        Api.queue().cancelRequest(hashCode());
+        if (Api.queue() != null) {
+            Api.queue().cancelRequest(hashCode());
+        }
     }
 
     @Override

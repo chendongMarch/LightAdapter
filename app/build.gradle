@@ -8,6 +8,7 @@ android {
 }
 
 dependencies {
+    implementation libs.cardView_v7
     implementation project(':lightadapter')
     implementation project(':component_basic')
 }

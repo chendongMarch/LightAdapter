@@ -13,9 +13,9 @@ public class DragSwipeOptions {
     public int dragFlags; // 拖动方向
     public int swipeFlags; // 滑动方向
     public boolean itemViewLongPressDragEnable = true; // 长按自动触发拖拽
-    public boolean itemViewSwipeEnable = true; // 滑动自动触发滑动
-    public float moveThreshold = .5f; // 超过 0.5 触发 onMoved
-    public float swipeThreshold = .5f; // 超过 0.5 触发 onSwipe
+    public boolean itemViewAutoSwipeEnable     = true; // 滑动自动触发滑动
+    public float   moveThreshold               = .5f; // 超过 0.5 触发 onMoved
+    public float   swipeThreshold              = .5f; // 超过 0.5 触发 onSwipe
 
     public DragSwipeOptions() {
         dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END;
