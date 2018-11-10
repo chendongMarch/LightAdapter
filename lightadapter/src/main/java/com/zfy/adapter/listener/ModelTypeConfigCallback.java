@@ -9,9 +9,6 @@ import com.zfy.adapter.model.ModelType;
  * @author chendong
  */
 public interface ModelTypeConfigCallback {
-
-    void update(ModelType modelType);
-
-
+    void call(ModelType modelType);
 }
 

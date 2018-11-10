@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
 import com.zfy.adapter.LightHolder;
+import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.refs.LoadingViewRef;
@@ -37,7 +38,7 @@ public class LoadingViewDelegate extends BaseDelegate implements LoadingViewRef 
 
     @Override
     public LightHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == LightValues.TYPE_LOADING) {
+        if (viewType == ItemType.TYPE_LOADING) {
             mLightHolder = new LightHolder(mAdapter, viewType, mLoadingView);
             return mLightHolder;
         }
@@ -46,7 +47,7 @@ public class LoadingViewDelegate extends BaseDelegate implements LoadingViewRef 
 
     @Override
     public boolean onBindViewHolder(LightHolder holder, int position) {
-        if (mAdapter.getItemViewType(position) == LightValues.TYPE_LOADING) {
+        if (mAdapter.getItemViewType(position) == ItemType.TYPE_LOADING) {
             return true;
         }
         return super.onBindViewHolder(holder, position);
@@ -67,7 +68,7 @@ public class LoadingViewDelegate extends BaseDelegate implements LoadingViewRef 
     public int getItemViewType(int position) {
         int aboveItemCount = mAdapter.getDelegateRegistry().getAboveItemCount(LightValues.FLOW_LEVEL_LOADING);
         if (isLoadingEnable() && position == aboveItemCount) {
-            return LightValues.TYPE_LOADING;
+            return ItemType.TYPE_LOADING;
         }
         return super.getItemViewType(position);
     }

@@ -4,6 +4,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.zfy.adapter.LightHolder;
+import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.IDelegate;
@@ -53,8 +54,8 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
     @Override
     public LightHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LightHolder holder = null;
-        boolean isFooter = isFooterEnable() && viewType == LightValues.TYPE_FOOTER;
-        boolean isHeader = isHeaderEnable() && viewType == LightValues.TYPE_HEADER;
+        boolean isFooter = isFooterEnable() && viewType == ItemType.TYPE_FOOTER;
+        boolean isHeader = isHeaderEnable() && viewType == ItemType.TYPE_HEADER;
         if (isFooter) {
             holder = new LightHolder(mAdapter, viewType, mFooterView);
         } else if (isHeader) {
@@ -67,7 +68,7 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
     @Override
     public boolean onBindViewHolder(LightHolder holder, int position) {
         int itemViewType = mAdapter.getItemViewType(position);
-        if (itemViewType == LightValues.TYPE_HEADER || itemViewType == LightValues.TYPE_FOOTER) {
+        if (itemViewType == ItemType.TYPE_HEADER || itemViewType == ItemType.TYPE_FOOTER) {
             return true;
         }
         return super.onBindViewHolder(holder, position);
@@ -93,14 +94,14 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
     public int getItemViewType(int position) {
         // 有 header 且位置 0
         if (isHeaderEnable() && position == 0) {
-            return LightValues.TYPE_HEADER;
+            return ItemType.TYPE_HEADER;
         }
         // pos 超出
         int aboveItemCount = mAdapter.getDelegateRegistry().getAboveItemCount(LightValues.FLOW_LEVEL_FOOTER);
         if (isFooterEnable() && position == aboveItemCount) {
-            return LightValues.TYPE_FOOTER;
+            return ItemType.TYPE_FOOTER;
         }
-        return LightValues.NONE;
+        return ItemType.TYPE_NONE;
     }
 
 
@@ -169,7 +170,7 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
                 int pos = mAdapter.getDelegateRegistry().getAboveItemCount(LightValues.FLOW_LEVEL_HEADER);
                 mAdapter.notifyItemInserted(pos);
             }
-            LightHolder holder = new LightHolder(mAdapter, LightValues.TYPE_HEADER, lightView.view);
+            LightHolder holder = new LightHolder(mAdapter, ItemType.TYPE_HEADER, lightView.view);
             binder.bind(holder, LightValues.NONE);
             mHeaderBinders.add(new Binder(holder, binder));
         });
@@ -194,7 +195,7 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
             if (isNewFooter && mFooterView.getChildCount() == 1) {
                 mAdapter.notifyItemInserted(mAdapter.getDelegateRegistry().getAboveItemCount(LightValues.FLOW_LEVEL_FOOTER));
             }
-            LightHolder holder = new LightHolder(mAdapter, LightValues.TYPE_FOOTER, itemView);
+            LightHolder holder = new LightHolder(mAdapter, ItemType.TYPE_FOOTER, itemView);
             binder.bind(holder, LightValues.NONE);
             mFooterBinders.add(new Binder(holder, binder));
         });

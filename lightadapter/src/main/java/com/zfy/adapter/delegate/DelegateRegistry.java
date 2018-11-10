@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
+import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.impl.BaseDelegate;
 
@@ -118,10 +119,10 @@ public class DelegateRegistry extends BaseDelegate {
 
     @Override
     public int getItemViewType(int position) {
-        int type = LightValues.NONE;
+        int type = ItemType.TYPE_NONE;
         for (int i = 0; i < mDelegates.size(); i++) {
             type = mDelegates.valueAt(i).getItemViewType(position);
-            if (type != LightValues.NONE) {
+            if (type != ItemType.TYPE_NONE) {
                 break;
             }
         }

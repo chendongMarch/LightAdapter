@@ -4,6 +4,7 @@ import android.os.Parcel;
 
 import com.zfy.adapter.able.Diffable;
 import com.zfy.adapter.able.ModelTypeable;
+import com.zfy.adapter.able.Sectionable;
 
 /**
  * CreateAt : 2018/11/9
@@ -11,7 +12,7 @@ import com.zfy.adapter.able.ModelTypeable;
  *
  * @author chendong
  */
-public class MultiTypeEntity implements ModelTypeable, Diffable<MultiTypeEntity> {
+public class MultiTypeEntity implements ModelTypeable, Sectionable, Diffable<MultiTypeEntity> {
 
     public static final int TYPE_DESC      = 0; // 文本描述类型
     public static final int TYPE_BASIC     = 1; // 数据适配部分，单类型/多类型/ModelTypeable/ModelTypeConfigCallback
@@ -44,6 +45,8 @@ public class MultiTypeEntity implements ModelTypeable, Diffable<MultiTypeEntity>
     static int ID = 100;
 
 
+    public MultiTypeEntity() {
+    }
 
     public MultiTypeEntity(int type) {
         this.type = type;
@@ -60,6 +63,11 @@ public class MultiTypeEntity implements ModelTypeable, Diffable<MultiTypeEntity>
     @Override
     public int getModelType() {
         return type;
+    }
+
+    @Override
+    public boolean isSection() {
+        return sectionTitle != null;
     }
 
     @Override
@@ -99,4 +107,6 @@ public class MultiTypeEntity implements ModelTypeable, Diffable<MultiTypeEntity>
             return new MultiTypeEntity[size];
         }
     };
+
+
 }

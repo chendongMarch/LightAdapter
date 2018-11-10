@@ -3,7 +3,9 @@ package com.zfy.adapter.model;
 import android.graphics.Rect;
 import android.support.annotation.LayoutRes;
 
+import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.LightValues;
+import com.zfy.adapter.common.SpanSize;
 
 /**
  * CreateAt : 2018/10/26
@@ -15,7 +17,7 @@ public class ModelType {
 
     public            int type; // 数据类型
     @LayoutRes public int layoutId; // 布局资源
-    public int     spanSize        = LightValues.NONE; // 跨越行数
+    public int     spanSize        = SpanSize.NONE; // 跨越行数
     public boolean enableClick     = true; // 是否允许点击事件
     public boolean enableLongPress = true; // 是否允许长按事件
     public boolean enableDbClick   = false; // 是否允许双击事件
@@ -30,11 +32,11 @@ public class ModelType {
     }
 
     public boolean isBuildInType() {
-        return type == LightValues.TYPE_HEADER
-                || type == LightValues.TYPE_FOOTER
-                || type == LightValues.TYPE_CONTENT
-                || type == LightValues.TYPE_LOADING
-                || type == LightValues.TYPE_EMPTY;
+        return type == ItemType.TYPE_HEADER
+                || type == ItemType.TYPE_FOOTER
+                || type == ItemType.TYPE_CONTENT
+                || type == ItemType.TYPE_LOADING
+                || type == ItemType.TYPE_EMPTY;
     }
 
     public int getType() {

@@ -19,7 +19,7 @@
         </activity>
         <activity android:name=".DragSwipeActivity" />
         <activity android:name=".LoadTestActivity" />
-        <activity android:name=".SelectorActivity" />
+        <activity android:name=".SelectorTestActivity" />
         <activity android:name=".HFTestActivity" />
     </application>
 </manifest>

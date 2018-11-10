@@ -17,7 +17,7 @@ import com.march.common.exts.ToastX;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.collections.LightDiffList;
-import com.zfy.adapter.common.LightValues;
+import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.listener.ModelTypeConfigCallback;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
@@ -59,44 +59,44 @@ public class MainActivity extends MvpActivity {
             switch (modelType.type) {
                 case MultiTypeEntity.TYPE_LINK:
                     modelType.layoutId = R.layout.item_link;
-                    modelType.spanSize = LightValues.SPAN_SIZE_ALL;
+                    modelType.spanSize = SpanSize.SPAN_SIZE_ALL;
                     break;
                 case MultiTypeEntity.TYPE_DESC:
                     modelType.layoutId = R.layout.item_desc;
-                    modelType.spanSize = LightValues.SPAN_SIZE_ALL;
+                    modelType.spanSize = SpanSize.SPAN_SIZE_ALL;
                     break;
                 case MultiTypeEntity.TYPE_BASIC:
                     modelType.layoutId = R.layout.item_basic;
-                    modelType.spanSize = LightValues.SPAN_SIZE_HALF;
+                    modelType.spanSize = SpanSize.SPAN_SIZE_HALF;
                     break;
                 case MultiTypeEntity.TYPE_LIST:
                     modelType.layoutId = R.layout.item_list;
-                    modelType.spanSize = LightValues.SPAN_SIZE_HALF;
+                    modelType.spanSize = SpanSize.SPAN_SIZE_HALF;
                     break;
                 case MultiTypeEntity.TYPE_EVENT:
                     modelType.layoutId = R.layout.item_event;
-                    modelType.spanSize = LightValues.SPAN_SIZE_THIRD;
+                    modelType.spanSize = SpanSize.SPAN_SIZE_THIRD;
                     modelType.enableDbClick = true;
                     break;
                 case MultiTypeEntity.TYPE_HOLDER:
                     modelType.layoutId = R.layout.item_holder;
-                    modelType.spanSize = LightValues.SPAN_SIZE_ALL;
+                    modelType.spanSize = SpanSize.SPAN_SIZE_ALL;
                     break;
                 case MultiTypeEntity.TYPE_DELEGATE:
                     modelType.layoutId = R.layout.item_deleate;
-                    modelType.spanSize = LightValues.SPAN_SIZE_HALF;
+                    modelType.spanSize = SpanSize.SPAN_SIZE_HALF;
                     break;
                 case MultiTypeEntity.TYPE_ASSISTANT:
                     modelType.layoutId = R.layout.item_assistant;
-                    modelType.spanSize = LightValues.SPAN_SIZE_HALF;
+                    modelType.spanSize = SpanSize.SPAN_SIZE_HALF;
                     break;
                 case MultiTypeEntity.TYPE_FUTURE:
                     modelType.layoutId = R.layout.item_future;
-                    modelType.spanSize = LightValues.SPAN_SIZE_THIRD;
+                    modelType.spanSize = SpanSize.SPAN_SIZE_THIRD;
                     break;
                 case MultiTypeEntity.TYPE_PROJECT:
                     modelType.layoutId = R.layout.item_project;
-                    modelType.spanSize = LightValues.SPAN_SIZE_HALF;
+                    modelType.spanSize = SpanSize.SPAN_SIZE_HALF;
                     modelType.spaceRect = new Rect(20, 20, 20, 20);
                     break;
             }
@@ -169,7 +169,7 @@ public class MainActivity extends MvpActivity {
             }
         });
         // 设置可悬停 section
-        mAdapter.section().setSectionOptions(R.layout.item_section, true, (holder, pos, data) -> {
+        mAdapter.section().setOptions(R.layout.item_section, true, (holder, pos, data) -> {
             holder.setText(R.id.section_tv, data.sectionTitle);
         });
         mRecyclerView.setAdapter(mAdapter);
@@ -187,7 +187,7 @@ public class MainActivity extends MvpActivity {
         homeEntity.desc = "LightAdapter 的设计初衷是以 轻量 和 面向业务 为主要目的，一方面希望可以快速、简单的的完成数据的适配，另一方面针对业务中经常出现的场景能提供统一、简单的解决方案。";
         list.add(homeEntity);
         // 数据适配
-        homeEntity = new MultiTypeEntity(LightValues.TYPE_SECTION);
+        homeEntity = new MultiTypeEntity();
         homeEntity.sectionTitle = "数据适配";
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DESC);
@@ -219,7 +219,7 @@ public class MainActivity extends MvpActivity {
         homeEntity.msg = Values.getModelTypeConfigCallbackMsg();
         list.add(homeEntity);
         // 集合类 Diffable/payload/LightDiffList/LightAsyncDiffList
-        homeEntity = new MultiTypeEntity(LightValues.TYPE_SECTION);
+        homeEntity = new MultiTypeEntity();
         homeEntity.sectionTitle = "数据更新集合类";
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DESC);
@@ -242,7 +242,7 @@ public class MainActivity extends MvpActivity {
         homeEntity.desc = "在 LightDiffList 基础上，内部使用 AsyncListDiffer 来在子线程计算 Diff，异步更新数据";
         list.add(homeEntity);
         // 事件
-        homeEntity = new MultiTypeEntity(LightValues.TYPE_SECTION);
+        homeEntity = new MultiTypeEntity();
         homeEntity.sectionTitle = "事件绑定";
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DESC);
@@ -261,7 +261,7 @@ public class MainActivity extends MvpActivity {
         homeEntity.desc = "双击本条目触发双击事件";
         list.add(homeEntity);
         // holder
-        homeEntity = new MultiTypeEntity(LightValues.TYPE_SECTION);
+        homeEntity = new MultiTypeEntity();
         homeEntity.sectionTitle = "ViewHolder";
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DESC);
@@ -272,7 +272,7 @@ public class MainActivity extends MvpActivity {
         homeEntity.desc = "对 ViewHolder 进行扩展：\n支持多个 id 同时绑定 \n内部实现了常用调用绑定方法，可直接调用 \n借助 setCallback 避免链式调用被打断，可自定义扩展";
         list.add(homeEntity);
         // 功能代理
-        homeEntity = new MultiTypeEntity(LightValues.TYPE_SECTION);
+        homeEntity = new MultiTypeEntity();
         homeEntity.sectionTitle = "Delegate";
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DESC);
@@ -336,11 +336,11 @@ public class MainActivity extends MvpActivity {
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DELEGATE);
         homeEntity.title = "SelectorDelegate";
         homeEntity.subTitle = "adapter.selector()";
-        homeEntity.targetClazz = SelectorActivity.class;
+        homeEntity.targetClazz = SelectorTestActivity.class;
         homeEntity.desc = "选择器功能实现，主要为了解决业务中常见的选择器效果；";
         list.add(homeEntity);
         // 辅助
-        homeEntity = new MultiTypeEntity(LightValues.TYPE_SECTION);
+        homeEntity = new MultiTypeEntity();
         homeEntity.sectionTitle = "辅助";
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DESC);
@@ -361,10 +361,10 @@ public class MainActivity extends MvpActivity {
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_ASSISTANT);
         homeEntity.title = "滑动选中";
         homeEntity.desc = "实现类似 QQ 相册滑动时选中多个条目的效果；";
-        homeEntity.targetClazz = SelectorActivity.class;
+        homeEntity.targetClazz = SelectorTestActivity.class;
         list.add(homeEntity);
         // 未来
-        homeEntity = new MultiTypeEntity(LightValues.TYPE_SECTION);
+        homeEntity = new MultiTypeEntity();
         homeEntity.sectionTitle = "正在做的";
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DESC);
@@ -384,7 +384,7 @@ public class MainActivity extends MvpActivity {
         list.add(homeEntity);
 
         // 项目
-        homeEntity = new MultiTypeEntity(LightValues.TYPE_SECTION);
+        homeEntity = new MultiTypeEntity();
         homeEntity.sectionTitle = "我的项目";
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DESC);

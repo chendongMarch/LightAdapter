@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
+import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.model.ModelType;
 
 /**
@@ -27,7 +28,7 @@ public class SpanDelegate extends BaseDelegate {
         if (layoutManager instanceof StaggeredGridLayoutManager) {
             int type = holder.getItemViewType();
             ModelType modelType = mAdapter.getModelType(type);
-            if (modelType.getSpanSize() == LightValues.SPAN_SIZE_ALL) {
+            if (modelType.getSpanSize() == SpanSize.SPAN_SIZE_ALL) {
                 ViewGroup.LayoutParams originLp = holder.getItemView().getLayoutParams();
                 StaggeredGridLayoutManager.LayoutParams layoutParams =
                         new StaggeredGridLayoutManager.LayoutParams(originLp.width, originLp.height);

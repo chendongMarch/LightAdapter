@@ -11,10 +11,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.zfy.adapter.able.ModelTypeable;
+import com.zfy.adapter.able.Sectionable;
 import com.zfy.adapter.collections.AbstractLightList;
 import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.common.AdapterException;
+import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.LightValues;
+import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.delegate.DelegateRegistry;
 import com.zfy.adapter.delegate.IDelegate;
 import com.zfy.adapter.delegate.impl.DragSwipeDelegate;
@@ -91,7 +94,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     public LightAdapter(Context context, List<D> datas, @LayoutRes int layoutId) {
         this(context, datas, new SingleTypeConfigCallback(data -> {
             data.layoutId = layoutId;
-        }).setSingleType(LightValues.TYPE_CONTENT));
+        }).setSingleType(ItemType.TYPE_CONTENT));
     }
 
     /**
@@ -135,11 +138,11 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         mModelTypeConfigCallbacks = new ArrayList<>();
         // 内置类型参数构建
         addModelUpdater(type -> {
-            if (type.getType() == LightValues.TYPE_FOOTER
-                    || type.getType() == LightValues.TYPE_HEADER
-                    || type.getType() == LightValues.TYPE_LOADING
-                    || type.getType() == LightValues.TYPE_EMPTY) {
-                type.setSpanSize(LightValues.SPAN_SIZE_ALL);
+            if (type.getType() == ItemType.TYPE_FOOTER
+                    || type.getType() == ItemType.TYPE_HEADER
+                    || type.getType() == ItemType.TYPE_LOADING
+                    || type.getType() == ItemType.TYPE_EMPTY) {
+                type.setSpanSize(SpanSize.SPAN_SIZE_ALL);
             }
         });
     }
@@ -214,15 +217,17 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     @Override
     public int getItemViewType(int position) {
         int itemViewType = mDelegateRegistry.getItemViewType(position);
-        if (itemViewType != LightValues.NONE) {
+        if (itemViewType != ItemType.TYPE_NONE) {
             return itemViewType;
         }
         D d = getItem(toModelIndex(position));
-        if (d instanceof ModelTypeable) {
+        if (d instanceof Sectionable && ((Sectionable) d).isSection()) {
+            return ItemType.TYPE_SECTION;
+        } else if (d instanceof ModelTypeable) {
             ModelTypeable model = (ModelTypeable) d;
             return model.getModelType();
         } else {
-            return LightValues.TYPE_CONTENT;
+            return ItemType.TYPE_CONTENT;
         }
     }
 
@@ -379,7 +384,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         if (modelType == null) {
             modelType = new ModelType(type);
             for (ModelTypeConfigCallback updater : mModelTypeConfigCallbacks) {
-                updater.update(modelType);
+                updater.call(modelType);
             }
             mModelTypeCache.put(type, modelType);
         }
@@ -400,7 +405,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         if (data instanceof ModelTypeable) {
             type = ((ModelTypeable) data).getModelType();
         } else {
-            type = LightValues.TYPE_CONTENT;
+            type = ItemType.TYPE_CONTENT;
         }
         return getModelType(type);
     }

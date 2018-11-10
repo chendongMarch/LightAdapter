@@ -1,9 +1,12 @@
 package com.zfy.adapter.delegate.impl;
 
 import com.zfy.adapter.LightHolder;
+import com.zfy.adapter.able.Selectable;
 import com.zfy.adapter.assistant.SlidingSelectLayout;
+import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.refs.SelectorRef;
+import com.zfy.adapter.listener.BindCallback;
 import com.zfy.adapter.model.ModelType;
 
 import java.util.ArrayList;
@@ -17,7 +20,7 @@ import java.util.List;
  */
 public class SelectorDelegate<D> extends BaseDelegate implements SelectorRef<D> {
 
-    private SelectorBinder<D>   mSelectorBinder;
+    private BindCallback<D> mSelectorBinder;
     private int mSelectType = LightValues.SINGLE;
     private OnSelectListener<D> mOnSelectListener;
     private List<D> mResults = new ArrayList<>();
@@ -38,8 +41,8 @@ public class SelectorDelegate<D> extends BaseDelegate implements SelectorRef<D> 
         if (data != null) {
             ModelType type = mAdapter.getModelType(data);
             if (type != null) {
-                if (type.getType() == LightValues.TYPE_CONTENT || !type.isBuildInType()) {
-                    mSelectorBinder.onBindSelectableViewHolder(holder, position, (D) data, isSelect((D) data));
+                if (type.getType() == ItemType.TYPE_CONTENT || !type.isBuildInType()) {
+                    mSelectorBinder.bind(holder, position, (D) data);
                 }
             }
         }
@@ -57,13 +60,15 @@ public class SelectorDelegate<D> extends BaseDelegate implements SelectorRef<D> 
     }
 
     @Override
-    public void setSelectType(int selectType) {
-        mSelectType = selectType;
+    public void setSingleSelector(BindCallback<D> bindCallback) {
+        mSelectType = LightValues.SINGLE;
+        mSelectorBinder = bindCallback;
     }
 
     @Override
-    public void setSelectorBinder(SelectorBinder<D> selectorBinder) {
-        mSelectorBinder = selectorBinder;
+    public void setMultiSelector(BindCallback<D> bindCallback) {
+        mSelectType = LightValues.MULTI;
+        mSelectorBinder = bindCallback;
     }
 
     @Override
@@ -116,6 +121,9 @@ public class SelectorDelegate<D> extends BaseDelegate implements SelectorRef<D> 
             return;
         }
         mResults.add(data);
+        if (data instanceof Selectable) {
+            ((Selectable) data).setSelected(true);
+        }
         if (!isAttached()) {
             return;
         }
@@ -123,7 +131,7 @@ public class SelectorDelegate<D> extends BaseDelegate implements SelectorRef<D> 
         int layoutIndex = mAdapter.toLayoutIndex(pos);
         LightHolder holder = (LightHolder) mAdapter.getRecyclerView().findViewHolderForLayoutPosition(layoutIndex);
         if (holder != null) {
-            mSelectorBinder.onBindSelectableViewHolder(holder, pos, (D) data, true);
+            mSelectorBinder.bind(holder, pos, data);
         } else {
             mAdapter.notifyItem().change(layoutIndex);
         }
@@ -135,6 +143,9 @@ public class SelectorDelegate<D> extends BaseDelegate implements SelectorRef<D> 
             return;
         }
         if (mResults.remove(data)) {
+            if (data instanceof Selectable) {
+                ((Selectable) data).setSelected(false);
+            }
             if (!isAttached()) {
                 return;
             }
@@ -142,7 +153,7 @@ public class SelectorDelegate<D> extends BaseDelegate implements SelectorRef<D> 
             int layoutIndex = mAdapter.toLayoutIndex(pos);
             LightHolder holder = (LightHolder) mAdapter.getRecyclerView().findViewHolderForLayoutPosition(layoutIndex);
             if (holder != null) {
-                mSelectorBinder.onBindSelectableViewHolder(holder, pos, data, false);
+                mSelectorBinder.bind(holder, pos, data);
             } else {
                 mAdapter.notifyItem().change(layoutIndex);
             }

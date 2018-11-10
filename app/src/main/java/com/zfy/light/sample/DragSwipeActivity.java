@@ -12,6 +12,7 @@ import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.common.LightValues;
+import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.listener.BindCallback;
 import com.zfy.adapter.listener.ModelTypeConfigCallback;
 import com.zfy.adapter.listener.ViewHolderCallback;
@@ -51,12 +52,12 @@ public class DragSwipeActivity extends MvpActivity {
             switch (modelType.type) {
                 case MultiTypeEntity.TYPE_CAN_DRAG:
                     modelType.layoutId = R.layout.item_drag;
-                    modelType.spanSize = LightValues.SPAN_SIZE_HALF;
+                    modelType.spanSize = SpanSize.SPAN_SIZE_HALF;
                     modelType.enableDrag = true;
                     break;
                 case MultiTypeEntity.TYPE_CAN_SWIPE:
                     modelType.layoutId = R.layout.item_swipe;
-                    modelType.spanSize = LightValues.SPAN_SIZE_ALL;
+                    modelType.spanSize = SpanSize.SPAN_SIZE_ALL;
                     modelType.enableSwipe = true;
                     break;
             }

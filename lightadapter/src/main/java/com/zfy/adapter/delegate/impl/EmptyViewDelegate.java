@@ -3,6 +3,7 @@ package com.zfy.adapter.delegate.impl;
 import android.view.ViewGroup;
 
 import com.zfy.adapter.LightHolder;
+import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.refs.EmptyViewRef;
@@ -31,7 +32,7 @@ public class EmptyViewDelegate extends BaseViewDelegate implements EmptyViewRef 
 
     @Override
     public LightHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == LightValues.TYPE_EMPTY) {
+        if (viewType == ItemType.TYPE_EMPTY) {
             mEmptyHolder = new LightHolder(mAdapter, viewType, mEmptyView);
             return mEmptyHolder;
         }
@@ -40,7 +41,7 @@ public class EmptyViewDelegate extends BaseViewDelegate implements EmptyViewRef 
 
     @Override
     public boolean onBindViewHolder(LightHolder holder, int position) {
-        if (mAdapter.getItemViewType(position) == LightValues.TYPE_EMPTY) {
+        if (mAdapter.getItemViewType(position) == ItemType.TYPE_EMPTY) {
             return true;
         }
         return super.onBindViewHolder(holder, position);
@@ -51,7 +52,7 @@ public class EmptyViewDelegate extends BaseViewDelegate implements EmptyViewRef 
     public int getItemViewType(int position) {
         int aboveItemCount = mAdapter.getDelegateRegistry().getAboveItemCount(LightValues.FLOW_LEVEL_EMPTY);
         if (isEmptyEnable() && position == aboveItemCount) {
-            return LightValues.TYPE_EMPTY;
+            return ItemType.TYPE_EMPTY;
         }
         return super.getItemViewType(position);
     }
@@ -91,7 +92,7 @@ public class EmptyViewDelegate extends BaseViewDelegate implements EmptyViewRef 
                 mEmptyView = LightUtils.createMatchParentFrameContainer(mAdapter.getContext());
             }
             mEmptyView.addView(lightView.view);
-            mEmptyHolder = new LightHolder(mAdapter, LightValues.TYPE_EMPTY, mEmptyView);
+            mEmptyHolder = new LightHolder(mAdapter, ItemType.TYPE_EMPTY, mEmptyView);
             setEmptyState(EmptyState.NONE);
         });
     }

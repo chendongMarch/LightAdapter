@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
+import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.IDelegate;
 
@@ -66,6 +67,6 @@ public abstract class BaseDelegate implements IDelegate {
 
     @Override
     public int getItemViewType(int position) {
-        return LightValues.NONE;
+        return ItemType.TYPE_NONE;
     }
 }

@@ -6,8 +6,10 @@ import android.view.ViewGroup;
 
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.assistant.decoration.PinItemDecoration;
+import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
+import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.delegate.refs.SectionRef;
 import com.zfy.adapter.listener.BindCallback;
 import com.zfy.adapter.model.ModelType;
@@ -42,7 +44,7 @@ public class SectionDelegate<D> extends BaseDelegate implements SectionRef<D> {
 
     @Override
     public LightHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == LightValues.TYPE_SECTION) {
+        if (viewType == ItemType.TYPE_SECTION) {
             ModelType type = mAdapter.getModelType(viewType);
             View view = LightUtils.inflateView(parent.getContext(), parent, type.layoutId);
             return new LightHolder(mAdapter, viewType, view);
@@ -52,7 +54,7 @@ public class SectionDelegate<D> extends BaseDelegate implements SectionRef<D> {
 
     @Override
     public boolean onBindViewHolder(LightHolder holder, int position) {
-        if (mBindCallback != null && mAdapter.getItemViewType(position) == LightValues.TYPE_SECTION) {
+        if (mBindCallback != null && mAdapter.getItemViewType(position) == ItemType.TYPE_SECTION) {
             int pos = mAdapter.toModelIndex(position);
             D data = (D) mAdapter.getItem(pos);
             if (data != null) {
@@ -75,9 +77,9 @@ public class SectionDelegate<D> extends BaseDelegate implements SectionRef<D> {
 
     @Override
     public void setOptions(SingleTypeConfigCallback configCallback, BindCallback<D> bindCallback) {
-        mAdapter.addModelUpdater(configCallback.setSingleType(LightValues.TYPE_SECTION));
+        mAdapter.addModelUpdater(configCallback.setSingleType(ItemType.TYPE_SECTION));
         mBindCallback = bindCallback;
-        setPinEnable(mAdapter.getModelType(LightValues.TYPE_SECTION).supportPin);
+        setPinEnable(mAdapter.getModelType(ItemType.TYPE_SECTION).supportPin);
     }
 
     @Override
@@ -85,8 +87,8 @@ public class SectionDelegate<D> extends BaseDelegate implements SectionRef<D> {
         mAdapter.addModelUpdater(new SingleTypeConfigCallback(data -> {
             data.layoutId = layoutId;
             data.supportPin = supportPin;
-            data.spanSize = LightValues.SPAN_SIZE_ALL;
-        }).setSingleType(LightValues.TYPE_SECTION));
+            data.spanSize = SpanSize.SPAN_SIZE_ALL;
+        }).setSingleType(ItemType.TYPE_SECTION));
         setPinEnable(supportPin);
         mBindCallback = callback;
     }

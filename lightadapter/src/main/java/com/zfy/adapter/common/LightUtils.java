@@ -50,17 +50,17 @@ public class LightUtils {
     }
 
     public static int getSpanSize(int spanSize, int spanCount) {
-        if (spanSize == LightValues.NONE) {
+        if (spanSize == SpanSize.NONE) {
             return 1;
         }
         if (spanSize > 0) {
             return spanSize;
         }
-        if (spanSize == LightValues.SPAN_SIZE_ALL) {
+        if (spanSize == SpanSize.SPAN_SIZE_ALL) {
             spanSize = spanCount;
-        } else if (spanSize == LightValues.SPAN_SIZE_HALF && spanCount % 2 == 0) {
+        } else if (spanSize == SpanSize.SPAN_SIZE_HALF && spanCount % 2 == 0) {
             spanSize = spanCount / 2;
-        } else if (spanSize == LightValues.SPAN_SIZE_THIRD && spanCount % 3 == 0) {
+        } else if (spanSize == SpanSize.SPAN_SIZE_THIRD && spanCount % 3 == 0) {
             spanSize = spanCount / 3;
         }
         return spanSize;

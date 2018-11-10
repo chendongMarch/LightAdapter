@@ -1,8 +1,7 @@
 package com.zfy.adapter.delegate.refs;
 
-import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.impl.SelectorDelegate;
+import com.zfy.adapter.listener.BindCallback;
 
 import java.util.List;
 
@@ -14,32 +13,25 @@ import java.util.List;
  */
 public interface SelectorRef<D> {
 
-
-    interface SelectorBinder<D> {
-        void onBindSelectableViewHolder(LightHolder holder, int position, D data, boolean isSelect);
-    }
-
     interface OnSelectListener<D> {
         boolean onSelect(D data);
     }
 
     /**
      * {@inheritDoc}
-     * 设置选中的类型，支持单选和多选
+     * 设置单选数据绑定
      *
-     * @param selectType 选中类型
-     * @see LightValues#SINGLE
-     * @see LightValues#MULTI
+     * @param bindCallback 数据绑定
      */
-    void setSelectType(int selectType);
+    void setSingleSelector(BindCallback<D> bindCallback);
 
     /**
      * {@inheritDoc}
-     * 设置数据绑定
+     * 设置多选数据绑定
      *
-     * @param selectorBinder 数据绑定
+     * @param bindCallback 数据绑定
      */
-    void setSelectorBinder(SelectorDelegate.SelectorBinder<D> selectorBinder);
+    void setMultiSelector(BindCallback<D> bindCallback);
 
 
     /**

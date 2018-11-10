@@ -3,6 +3,7 @@ package com.zfy.light.sample.entity;
 import android.os.Parcel;
 
 import com.zfy.adapter.able.Diffable;
+import com.zfy.adapter.able.Selectable;
 
 /**
  * CreateAt : 2018/11/9
@@ -10,10 +11,17 @@ import com.zfy.adapter.able.Diffable;
  *
  * @author chendong
  */
-public class SingleTypeEntity implements Diffable<SingleTypeEntity>{
+public class SingleTypeEntity implements Diffable<SingleTypeEntity>,Selectable{
 
     public String desc;
     public String title;
+    public int id;
+
+    public SingleTypeEntity(int id, String desc, String title) {
+        this.desc = desc;
+        this.title = title;
+        this.id = id;
+    }
 
     public SingleTypeEntity(String title, String desc) {
         this.desc = desc;
@@ -51,5 +59,16 @@ public class SingleTypeEntity implements Diffable<SingleTypeEntity>{
     @Override
     public boolean areContentsTheSame(SingleTypeEntity newItem) {
         return false;
+    }
+
+    private boolean selected;
+    @Override
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
+    @Override
+    public boolean isSelected() {
+        return selected;
     }
 }

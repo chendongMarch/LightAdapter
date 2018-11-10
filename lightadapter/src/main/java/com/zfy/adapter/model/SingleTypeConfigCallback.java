@@ -30,7 +30,7 @@ public class SingleTypeConfigCallback implements ModelTypeConfigCallback {
     }
 
     @Override
-    public void update(ModelType modelType) {
+    public void call(ModelType modelType) {
         if (modelType.type == singleType) {
             mConsumer.accept(modelType);
         }
