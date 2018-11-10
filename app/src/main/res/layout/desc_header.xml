@@ -23,4 +23,17 @@
         android:textSize="15sp"
         app:layout_constraintTop_toBottomOf="@id/cover_iv"
         tools:text="sss" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/action_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:src="@mipmap/ic_launcher"
+        app:backgroundTint="@color/white"
+        app:elevation="5dp"
+        app:fabSize="normal"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:rippleColor="@color/colorPrimary" />
 </android.support.constraint.ConstraintLayout>

@@ -97,8 +97,8 @@ public abstract class AppDialog extends AppCompatDialog {
     }
 
     // 宽度 march;高度 wrap;alpha=1;dim=0.6;gravity=center
-    protected void setDialogAttributes() {
-        setDialogAttributes(MATCH, WRAP, 1f, .6f, Gravity.CENTER);
+    protected void setDialogAttributes(int MATCH, float v) {
+        setDialogAttributes(this.MATCH, WRAP, 1f, .6f, Gravity.CENTER);
     }
 
     protected <V extends View> V getView(int id) {

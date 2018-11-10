@@ -1,6 +1,7 @@
 package com.zfy.adapter.model;
 
 import android.graphics.Rect;
+import android.support.annotation.LayoutRes;
 
 import com.zfy.adapter.common.LightValues;
 
@@ -12,15 +13,15 @@ import com.zfy.adapter.common.LightValues;
  */
 public class ModelType {
 
-    public int type; // 类型
-    public int layoutId; // 布局资源
-    public int spanSize = LightValues.NONE; // 跨越行数
-    public boolean enableClick = true; // 是否允许点击事件
+    public            int type; // 数据类型
+    @LayoutRes public int layoutId; // 布局资源
+    public int     spanSize        = LightValues.NONE; // 跨越行数
+    public boolean enableClick     = true; // 是否允许点击事件
     public boolean enableLongPress = true; // 是否允许长按事件
-    public boolean enableDbClick = false; // 是否允许双击事件，双击事件使用 gesture 实现，将会丧失一些效果
-    public boolean enableDrag = false; // 是否允许拖动
-    public boolean enableSwipe = false; // 是否允许滑动
-    public boolean supportPin; // 钉住，会悬挂在顶部，后面的会有推的效果
+    public boolean enableDbClick   = false; // 是否允许双击事件
+    public boolean enableDrag      = false; // 是否允许拖动
+    public boolean enableSwipe     = false; // 是否允许滑动
+    public boolean supportPin; // 钉住，支持悬停效果
 
     public Rect spaceRect;
 

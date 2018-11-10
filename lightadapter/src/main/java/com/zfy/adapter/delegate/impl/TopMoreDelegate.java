@@ -3,6 +3,7 @@ package com.zfy.adapter.delegate.impl;
 import android.support.v7.widget.RecyclerView;
 
 import com.zfy.adapter.common.LightUtils;
+import com.zfy.adapter.delegate.refs.TopMoreRef;
 import com.zfy.adapter.listener.AdapterCallback;
 
 /**
@@ -11,13 +12,7 @@ import com.zfy.adapter.listener.AdapterCallback;
  *
  * @author chendong
  */
-public class TopMoreDelegate extends BaseDelegate {
-
-    @Override
-    public int getKey() {
-        return TOP_MORE;
-    }
-
+public class TopMoreDelegate extends BaseDelegate implements TopMoreRef {
 
     private boolean mLoadingMore; // 是否在加载更多
     private int mStartTryTopMoreItemCount; // 预加载个数
@@ -31,6 +26,13 @@ public class TopMoreDelegate extends BaseDelegate {
         };
         mTopMoreEnable = true;
     }
+
+
+    @Override
+    public int getKey() {
+        return TOP_MORE;
+    }
+
 
     @Override
     public void onAttachedToRecyclerView(final RecyclerView mRecyclerView) {
@@ -63,43 +65,26 @@ public class TopMoreDelegate extends BaseDelegate {
         });
     }
 
-    /**
-     * 加载更多是否可用
-     *
-     * @param enable
-     */
+    @Override
     public void setTopMoreEnable(boolean enable) {
         mTopMoreEnable = enable;
     }
 
-    /**
-     * 结束加载才能开启下次加载
-     */
+    @Override
     public void finishTopMore() {
         this.mLoadingMore = false;
     }
 
 
-    /**
-     * @param count 预加载个数
-     * @param callback 回调
-     */
+    @Override
     public void setTopMoreListener(int count, AdapterCallback callback) {
         mCallback = callback;
         mStartTryTopMoreItemCount = count;
     }
 
-    /**
-     * @param callback 回调
-     */
+    @Override
     public void setTopMoreListener(AdapterCallback callback) {
         mCallback = callback;
     }
 
-    /**
-     * @param count 预加载个数
-     */
-    public void setStartTryTopMoreItemCount(int count) {
-        mStartTryTopMoreItemCount = count;
-    }
 }

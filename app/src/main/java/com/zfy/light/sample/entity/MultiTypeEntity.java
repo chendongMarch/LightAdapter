@@ -14,7 +14,7 @@ import com.zfy.adapter.able.ModelTypeable;
 public class MultiTypeEntity implements ModelTypeable, Diffable<MultiTypeEntity> {
 
     public static final int TYPE_DESC      = 0; // 文本描述类型
-    public static final int TYPE_BASIC     = 1; // 数据适配部分，单类型/多类型/ModelTypeable/ModelTypeUpdater
+    public static final int TYPE_BASIC     = 1; // 数据适配部分，单类型/多类型/ModelTypeable/ModelTypeConfigCallback
     public static final int TYPE_LIST      = 2; // 内置集合类数据更新，DiffUtil/Diffable/payload/LightDiffList/LightAsyncDiffList
     public static final int TYPE_EVENT     = 3; // 事件。单击、双击、长按
     public static final int TYPE_HOLDER    = 4; // LightHolder
@@ -29,29 +29,42 @@ public class MultiTypeEntity implements ModelTypeable, Diffable<MultiTypeEntity>
     public static final int TYPE_CAN_SWIPE_VIEW = 13; // 手动触发滑动的
     public static final int TYPE_NORMAL         = 14; // 正常的
 
-    public int     type;
-    public boolean isSection;
-    public String  sectionTitle;
-    public String  desc;
-    public String  url;
-    public String  title;
-    public String  subTitle;
-    public String  cover;
+    public int      type;
+    public boolean  isSection;
+    public String   sectionTitle;
+    public String   desc;
+    public String   url;
+    public String   title;
+    public String   subTitle;
+    public String   cover;
     public Class<?> targetClazz;
+    public String   msg;
+    public int      id;
+
+    static int ID = 100;
+
 
 
     public MultiTypeEntity(int type) {
         this.type = type;
+        this.id = ID++;
     }
+
 
     public MultiTypeEntity(int type, String sectionTitle) {
         this.type = type;
         this.sectionTitle = sectionTitle;
+        this.id = ID++;
     }
 
     @Override
     public int getModelType() {
         return type;
+    }
+
+    @Override
+    public boolean areItemsTheSame(MultiTypeEntity newItem) {
+        return id == newItem.id;
     }
 
     @Override

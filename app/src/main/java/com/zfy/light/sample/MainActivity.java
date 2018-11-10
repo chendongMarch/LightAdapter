@@ -18,7 +18,7 @@ import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.common.LightValues;
-import com.zfy.adapter.listener.ModelTypeUpdater;
+import com.zfy.adapter.listener.ModelTypeConfigCallback;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.entity.MultiTypeEntity;
@@ -55,7 +55,7 @@ public class MainActivity extends MvpActivity {
         Glide.with(getContext()).load(coverUrl).into(mCoverIv);
 
         // updater
-        ModelTypeUpdater updater = modelType -> {
+        ModelTypeConfigCallback updater = modelType -> {
             switch (modelType.type) {
                 case MultiTypeEntity.TYPE_LINK:
                     modelType.layoutId = R.layout.item_link;
@@ -111,9 +111,9 @@ public class MainActivity extends MvpActivity {
                         .setText(R.id.desc_tv, data.desc);
                 switch (data.type) {
                     case MultiTypeEntity.TYPE_LINK:
-                        holder.setClick(R.id.github_tv, v -> openBrowser("https://github.com/chendongMarch/LightAdapter"))
-                                .setClick(R.id.blog_tv, v -> openBrowser("http://zfyx.coding.me/article/1632666977/"))
-                                .setClick(R.id.download_tv, v -> openBrowser("http://zfyx.coding.me/article/1632666977/"));
+                        holder.setClick(all(R.id.github_tv, R.id.github_iv), v -> openBrowser("https://github.com/chendongMarch/LightAdapter"))
+                                .setClick(all(R.id.blog_tv, R.id.blog_iv), v -> openBrowser("http://zfyx.coding.me/article/1632666977/"))
+                                .setClick(all(R.id.download_tv, R.id.download_iv), v -> openBrowser("http://zfyx.coding.me/article/1632666977/"));
                         break;
                     case MultiTypeEntity.TYPE_DESC:
                         break;
@@ -146,10 +146,16 @@ public class MainActivity extends MvpActivity {
             if (data.type == MultiTypeEntity.TYPE_EVENT) {
                 ToastX.show("单击事件");
             }
-            if (data.type == MultiTypeEntity.TYPE_DELEGATE) {
-                if (data.targetClazz != null) {
-                    launchActivity(new Intent(getContext(), data.targetClazz), 0);
-                }
+            if (data.type == MultiTypeEntity.TYPE_DESC) {
+                DescDialog.show(getContext(), data.desc);
+                return;
+            }
+            if (data.msg != null) {
+                DescDialog.show(getContext(), data.msg);
+                return;
+            }
+            if (data.targetClazz != null) {
+                launchActivity(new Intent(getContext(), data.targetClazz), 0);
             }
         });
         mAdapter.setLongPressCallback((holder, pos, data) -> {
@@ -171,6 +177,7 @@ public class MainActivity extends MvpActivity {
         mEntities.update(initData());
     }
 
+
     private List<MultiTypeEntity> initData() {
         List<MultiTypeEntity> list = new ArrayList<>();
         MultiTypeEntity homeEntity;
@@ -184,23 +191,32 @@ public class MainActivity extends MvpActivity {
         homeEntity.sectionTitle = "数据适配";
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DESC);
-        homeEntity.desc = "只有一个适配器 LightAdapter，支持单类型、多类型数据适配，多类型适配需要配合 ModelTypeUpdater 使用。";
+        homeEntity.desc = "只有一个适配器 LightAdapter，支持单类型、多类型数据适配，多类型适配需要配合 ModelTypeConfigCallback 使用。";
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_BASIC);
         homeEntity.title = "单类型";
         homeEntity.desc = "单类型数据适配";
+        homeEntity.msg = "单类型适配内部也基于多类型适配，他只是针对单类型包装了一个更友好的构造方法，你可以使用它快速的构建单类型的适配器。";
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_BASIC);
         homeEntity.title = "多类型";
         homeEntity.desc = "多类型数据适配";
+        homeEntity.msg = "多类型适配器支持多种类型数据的适配，它依赖于 ModelTypeable / ModelType / ModelTypeConfigCallback 完成针对每种类型数据的配置工作";
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_BASIC);
         homeEntity.title = "ModelTypeable";
         homeEntity.desc = "实现 ModelTypeable 接口声明支持多类型";
+        homeEntity.msg = "多类型数据适配时，数据结构需要实现 ModelTypeable 返回该数据的类型，这是首先也是必须的。";
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_BASIC);
-        homeEntity.title = "ModelTypeUpdater";
-        homeEntity.desc = "初始化 ModelTypeUpdater 来针对类型进行配置";
+        homeEntity.title = "ModelType";
+        homeEntity.desc = "每种类型的配置";
+        homeEntity.msg = Values.getModelTypeMsg();
+        list.add(homeEntity);
+        homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_BASIC);
+        homeEntity.title = "ModelTypeConfigCallback";
+        homeEntity.desc = "初始化 ModelTypeConfigCallback 来针对类型进行配置";
+        homeEntity.msg = Values.getModelTypeConfigCallbackMsg();
         list.add(homeEntity);
         // 集合类 Diffable/payload/LightDiffList/LightAsyncDiffList
         homeEntity = new MultiTypeEntity(LightValues.TYPE_SECTION);
@@ -266,26 +282,32 @@ public class MainActivity extends MvpActivity {
         homeEntity.title = "HFViewDelegate";
         homeEntity.subTitle = "adapter.header()/footer()";
         homeEntity.desc = "控制 header&footer 的叠加/更新/状态变化；";
+        homeEntity.targetClazz = HFTestActivity.class;
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DELEGATE);
         homeEntity.title = "LoadingViewDelegate";
         homeEntity.subTitle = "adapter.loadingView()";
         homeEntity.desc = "控制 Loading 条目状态，可与 LoadMoreDelegate 联动；";
+        homeEntity.targetClazz = LoadTestActivity.class;
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DELEGATE);
         homeEntity.title = "EmptyViewDelegate";
         homeEntity.subTitle = "adapter.emptyView()";
         homeEntity.desc = "控制空白页面的状态，可自定义扩展数据绑定和事件；";
+        homeEntity.targetClazz = LoadTestActivity.class;
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DELEGATE);
         homeEntity.title = "SpanDelegate";
         homeEntity.subTitle = "/";
-        homeEntity.desc = "控制条目跨越列数，一般不会直接使用它，而是在 ModelTypeUpdater 中配置某种类型的 spanSize，请关注 ModelType；";
+        homeEntity.msg = "控制条目跨越列数，一般不会直接使用它，设置 ModelType 的 spanSize，可以设置某种类型布局的跨越到列数；";
+        homeEntity.desc = "控制条目跨越列数，一般不会直接使用它，而是在 ModelTypeConfigCallback 中配置某种类型的 spanSize，请关注 ModelType；";
+
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DELEGATE);
         homeEntity.title = "NotifyDelegate";
         homeEntity.subTitle = "adapter.notifyItem()";
         homeEntity.desc = "控制数据更新，主要用来判断线程，将更新操作发送到主线程，避免在子线程更新数据造成问题；";
+        homeEntity.msg = "使用 NotifyDelegate 可以保证安全的在主线程更新数据，推荐调用 adapter.notifyItem().xxxxx() 代替 adapter.notifyXxxx()";
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DELEGATE);
         homeEntity.title = "DragSwipeDelegate";
@@ -297,20 +319,24 @@ public class MainActivity extends MvpActivity {
         homeEntity.title = "LoadMoreDelegate";
         homeEntity.subTitle = "adapter.loadMore()";
         homeEntity.desc = "完成列表到达底部加载更多功能，支持设置预加载个数；";
+        homeEntity.targetClazz = LoadTestActivity.class;
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DELEGATE);
         homeEntity.title = "TopMoreDelegate";
         homeEntity.subTitle = "adapter.topMore()";
         homeEntity.desc = "完成列表到达顶部加载更多功能，支持设置预加载个数；";
+        homeEntity.targetClazz = LoadTestActivity.class;
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DELEGATE);
         homeEntity.title = "SectionDelegate";
         homeEntity.subTitle = "adapter.section()";
         homeEntity.desc = "控制隔断的数据绑定和更新，支持任意布局的顶部悬停效果等；";
+        homeEntity.msg = Values.getSectionDelegateMsg();
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DELEGATE);
         homeEntity.title = "SelectorDelegate";
         homeEntity.subTitle = "adapter.selector()";
+        homeEntity.targetClazz = SelectorActivity.class;
         homeEntity.desc = "选择器功能实现，主要为了解决业务中常见的选择器效果；";
         list.add(homeEntity);
         // 辅助
@@ -335,6 +361,7 @@ public class MainActivity extends MvpActivity {
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_ASSISTANT);
         homeEntity.title = "滑动选中";
         homeEntity.desc = "实现类似 QQ 相册滑动时选中多个条目的效果；";
+        homeEntity.targetClazz = SelectorActivity.class;
         list.add(homeEntity);
         // 未来
         homeEntity = new MultiTypeEntity(LightValues.TYPE_SECTION);

@@ -1,6 +1,6 @@
 package com.zfy.adapter.common;
 
-import com.zfy.adapter.listener.ModelTypeUpdater;
+import com.zfy.adapter.listener.ModelTypeConfigCallback;
 
 /**
  * CreateAt : 2018/10/26
@@ -14,7 +14,7 @@ public class LightValues {
 
     /**
      * @see com.zfy.adapter.model.ModelType
-     * @see ModelTypeUpdater
+     * @see ModelTypeConfigCallback
      * 内部的类型
      */
     public static final int TYPE_HEADER = -0x21; // header type

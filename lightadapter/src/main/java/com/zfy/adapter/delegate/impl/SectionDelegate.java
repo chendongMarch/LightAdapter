@@ -5,13 +5,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.zfy.adapter.LightHolder;
+import com.zfy.adapter.assistant.decoration.PinItemDecoration;
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
-import com.zfy.adapter.decoration.PinItemDecoration;
+import com.zfy.adapter.delegate.refs.SectionRef;
 import com.zfy.adapter.listener.BindCallback;
-import com.zfy.adapter.listener.ModelTypeUpdater;
 import com.zfy.adapter.model.ModelType;
-import com.zfy.adapter.model.SingleTypeUpdater;
+import com.zfy.adapter.model.SingleTypeConfigCallback;
 
 /**
  * CreateAt : 2018/10/30
@@ -19,7 +19,7 @@ import com.zfy.adapter.model.SingleTypeUpdater;
  *
  * @author chendong
  */
-public class SectionDelegate<D> extends BaseDelegate {
+public class SectionDelegate<D> extends BaseDelegate implements SectionRef<D> {
 
     private BindCallback<D> mBindCallback; // section 绑定
     private boolean mPinEnable; // 是否支持悬停
@@ -39,29 +39,6 @@ public class SectionDelegate<D> extends BaseDelegate {
         }
     }
 
-    public void setPinEnable(boolean pinEnable) {
-        if (isAttached() && mPinItemDecoration == null) {
-            mPinItemDecoration = new PinItemDecoration();
-            mView.addItemDecoration(mPinItemDecoration);
-        }
-        mPinEnable = true;
-    }
-
-    public void setSectionOptions(ModelTypeUpdater updater, BindCallback<D> callback) {
-        mAdapter.addModelUpdater(updater);
-        mBindCallback = callback;
-        setPinEnable(mAdapter.getModelType(LightValues.TYPE_SECTION).supportPin);
-    }
-
-    public void setSectionOptions(int layoutId, boolean supportPin, BindCallback<D> callback) {
-        mAdapter.addModelUpdater(new SingleTypeUpdater(LightValues.TYPE_SECTION, data -> {
-            data.layoutId = layoutId;
-            data.supportPin = supportPin;
-            data.spanSize = LightValues.SPAN_SIZE_ALL;
-        }));
-        setPinEnable(supportPin);
-        mBindCallback = callback;
-    }
 
     @Override
     public LightHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -84,6 +61,34 @@ public class SectionDelegate<D> extends BaseDelegate {
             return true;
         }
         return super.onBindViewHolder(holder, position);
+    }
+
+
+    @Override
+    public void setPinEnable(boolean pinEnable) {
+        if (isAttached() && mPinItemDecoration == null && pinEnable) {
+            mPinItemDecoration = new PinItemDecoration();
+            mView.addItemDecoration(mPinItemDecoration);
+        }
+        mPinEnable = pinEnable;
+    }
+
+    @Override
+    public void setOptions(SingleTypeConfigCallback configCallback, BindCallback<D> bindCallback) {
+        mAdapter.addModelUpdater(configCallback.setSingleType(LightValues.TYPE_SECTION));
+        mBindCallback = bindCallback;
+        setPinEnable(mAdapter.getModelType(LightValues.TYPE_SECTION).supportPin);
+    }
+
+    @Override
+    public void setOptions(int layoutId, boolean supportPin, BindCallback<D> callback) {
+        mAdapter.addModelUpdater(new SingleTypeConfigCallback(data -> {
+            data.layoutId = layoutId;
+            data.supportPin = supportPin;
+            data.spanSize = LightValues.SPAN_SIZE_ALL;
+        }).setSingleType(LightValues.TYPE_SECTION));
+        setPinEnable(supportPin);
+        mBindCallback = callback;
     }
 
 }

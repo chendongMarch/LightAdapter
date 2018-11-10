@@ -50,6 +50,9 @@ public class LightUtils {
     }
 
     public static int getSpanSize(int spanSize, int spanCount) {
+        if (spanSize == LightValues.NONE) {
+            return 1;
+        }
         if (spanSize > 0) {
             return spanSize;
         }

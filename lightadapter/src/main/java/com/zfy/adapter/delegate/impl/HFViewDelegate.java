@@ -7,6 +7,8 @@ import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.IDelegate;
+import com.zfy.adapter.delegate.refs.FooterRef;
+import com.zfy.adapter.delegate.refs.HeaderRef;
 import com.zfy.adapter.listener.ViewHolderCallback;
 import com.zfy.adapter.model.LightView;
 
@@ -20,7 +22,7 @@ import java.util.List;
  *
  * @author chendong
  */
-public class HFViewDelegate extends BaseViewDelegate {
+public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, FooterRef {
 
     private ViewGroup mHeaderView;
     private ViewGroup mFooterView;
@@ -101,33 +103,26 @@ public class HFViewDelegate extends BaseViewDelegate {
         return LightValues.NONE;
     }
 
-    /**
-     * @return 获取 FooterView 容器
-     */
+
+    @Override
     public ViewGroup getFooterView() {
         return mFooterView;
     }
 
-    /**
-     * @return 获取 HeaderView 容器
-     */
+    @Override
     public ViewGroup getHeaderView() {
         return mHeaderView;
     }
 
-    /**
-     * 删除一个 View
-     *
-     * @param view view
-     */
-    public void removeHeaderView(View view) {
-        if (view == null || !isAttached() || !isHeaderEnable() || mHeaderView == null) {
+    @Override
+    public void removeHeaderView(LightView lightView) {
+        if (lightView == null || lightView.view == null || !isAttached() || !isHeaderEnable() || mHeaderView == null) {
             return;
         }
-        mHeaderView.removeView(view);
+        mHeaderView.removeView(lightView.view);
         Iterator<Binder> iterator = mHeaderBinders.iterator();
         while (iterator.hasNext()) {
-            if (iterator.next().holder.itemView.equals(view)) {
+            if (iterator.next().holder.itemView.equals(lightView.view)) {
                 iterator.remove();
                 break;
             }
@@ -137,20 +132,15 @@ public class HFViewDelegate extends BaseViewDelegate {
         }
     }
 
-
-    /**
-     * 删除一个 View
-     *
-     * @param view view
-     */
-    public void removeFooterView(View view) {
-        if (view == null || !isAttached() || !isFooterEnable() || mFooterView == null) {
+    @Override
+    public void removeFooterView(LightView lightView) {
+        if (lightView == null || lightView.view == null || !isAttached() || !isFooterEnable() || mFooterView == null) {
             return;
         }
-        mFooterView.removeView(view);
+        mFooterView.removeView(lightView.view);
         Iterator<Binder> iterator = mFooterBinders.iterator();
         while (iterator.hasNext()) {
-            if (iterator.next().holder.itemView.equals(view)) {
+            if (iterator.next().holder.itemView.equals(lightView.view)) {
                 iterator.remove();
                 break;
             }
@@ -160,12 +150,7 @@ public class HFViewDelegate extends BaseViewDelegate {
         }
     }
 
-    /**
-     * 添加 Header
-     *
-     * @param lightView LightView
-     * @param binder    数据绑定回调
-     */
+    @Override
     public void addHeaderView(LightView lightView, ViewHolderCallback binder) {
         postOnRecyclerViewAttach(() -> {
             lightView.inflate(mAdapter.getContext());
@@ -190,13 +175,7 @@ public class HFViewDelegate extends BaseViewDelegate {
         });
     }
 
-
-    /**
-     * 添加 Footer
-     *
-     * @param lightView LightView
-     * @param binder    binder
-     */
+    @Override
     public void addFooterView(LightView lightView, ViewHolderCallback binder) {
         postOnRecyclerViewAttach(() -> {
             lightView.inflate(mAdapter.getContext());
@@ -221,23 +200,17 @@ public class HFViewDelegate extends BaseViewDelegate {
         });
     }
 
-    /**
-     * @return 当前 Header 是否可用
-     */
+    @Override
     public boolean isHeaderEnable() {
         return mHeaderEnable;
     }
 
-    /**
-     * @return 当前 Footer 是否可用
-     */
+    @Override
     public boolean isFooterEnable() {
         return mFooterEnable;
     }
 
-    /**
-     * 删除全部的 header
-     */
+    @Override
     public void removeAllHeaderViews() {
         if (mHeaderView != null) {
             mHeaderView.removeAllViews();
@@ -246,9 +219,7 @@ public class HFViewDelegate extends BaseViewDelegate {
         setHeaderEnable(false);
     }
 
-    /**
-     * 删除全部的 footer
-     */
+    @Override
     public void removeAllFooterViews() {
         if (mFooterView != null) {
             mFooterView.removeAllViews();
@@ -257,12 +228,7 @@ public class HFViewDelegate extends BaseViewDelegate {
         setFooterEnable(false);
     }
 
-
-    /**
-     * 设置 Footer 是否展示
-     *
-     * @param footerEnable enable
-     */
+    @Override
     public void setFooterEnable(boolean footerEnable) {
         if (mFooterView == null) {
             return;
@@ -278,11 +244,7 @@ public class HFViewDelegate extends BaseViewDelegate {
         }
     }
 
-    /**
-     * 设置 Header 是否展示
-     *
-     * @param headerEnable enable
-     */
+    @Override
     public void setHeaderEnable(boolean headerEnable) {
         if (mHeaderView == null) {
             return;
@@ -298,9 +260,7 @@ public class HFViewDelegate extends BaseViewDelegate {
         }
     }
 
-    /**
-     * 回调所有的绑定更新 Header
-     */
+    @Override
     public void notifyHeaderUpdate() {
         if (mHeaderView == null) {
             return;
@@ -310,9 +270,7 @@ public class HFViewDelegate extends BaseViewDelegate {
         }
     }
 
-    /**
-     * 回调所有的绑定更新 Footer
-     */
+    @Override
     public void notifyFooterUpdate() {
         if (mFooterView == null) {
             return;

@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.delegate.IDelegate;
+import com.zfy.adapter.delegate.refs.LoadMoreRef;
 import com.zfy.adapter.listener.AdapterCallback;
 import com.zfy.adapter.model.LoadingState;
 
@@ -13,7 +14,7 @@ import com.zfy.adapter.model.LoadingState;
  *
  * @author chendong
  */
-public class LoadMoreDelegate extends BaseDelegate {
+public class LoadMoreDelegate extends BaseDelegate implements LoadMoreRef {
 
     private boolean mLoadingMore; // 是否在加载更多
     private int mStartTryLoadMoreItemCount; // 预加载的个数
@@ -65,39 +66,25 @@ public class LoadMoreDelegate extends BaseDelegate {
         });
     }
 
-    /**
-     * 加载更多是否可用
-     *
-     * @param enable
-     */
+    @Override
     public void setLoadMoreEnable(boolean enable) {
         mLoadMoreEnable = enable;
     }
 
 
-    /**
-     * 结束加载，才能开启下次加载
-     */
+    @Override
     public void finishLoadMore() {
         this.mLoadingMore = false;
         mAdapter.loadingView().setLoadingState(LoadingState.FINISH);
     }
 
-    /**
-     * 设置加载更多监听
-     * @param count 预加载的个数
-     * @param callback 回调
-     */
+    @Override
     public void setLoadMoreListener(int count, AdapterCallback callback) {
         mCallback = callback;
         mStartTryLoadMoreItemCount = count;
     }
 
-    /**
-     * 设置加载更多监听
-     *
-     * @param callback 回调
-     */
+    @Override
     public void setLoadMoreListener(AdapterCallback callback) {
         mCallback = callback;
     }

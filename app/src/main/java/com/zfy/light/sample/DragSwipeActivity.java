@@ -13,7 +13,7 @@ import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.listener.BindCallback;
-import com.zfy.adapter.listener.ModelTypeUpdater;
+import com.zfy.adapter.listener.ModelTypeConfigCallback;
 import com.zfy.adapter.listener.ViewHolderCallback;
 import com.zfy.adapter.model.DragSwipeOptions;
 import com.zfy.adapter.model.DragSwipeState;
@@ -47,7 +47,7 @@ public class DragSwipeActivity extends MvpActivity {
     @Override
     public void init() {
         mData = new LightDiffList<>();
-        ModelTypeUpdater updater = modelType -> {
+        ModelTypeConfigCallback updater = modelType -> {
             switch (modelType.type) {
                 case MultiTypeEntity.TYPE_CAN_DRAG:
                     modelType.layoutId = R.layout.item_drag;

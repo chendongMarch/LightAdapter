@@ -5,38 +5,73 @@
     android:background="@drawable/selector_common_click"
     android:layout_height="wrap_content">
 
+    <ImageView
+        android:id="@+id/github_iv"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/github"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/blog_iv"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/blog_iv"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:src="@drawable/blog"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/github_iv"
+        app:layout_constraintRight_toLeftOf="@id/download_iv"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/download_iv"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/download"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/blog_iv"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
     <TextView
+        android:padding="10dp"
+        android:textColor="#666"
+        android:textSize="17sp"
         android:id="@+id/github_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="15dp"
+        app:layout_constraintLeft_toLeftOf="@id/github_iv"
         android:text="GitHub"
-        android:textColor="#333"
-        android:textSize="15sp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/blog_tv" />
+        app:layout_constraintRight_toRightOf="@id/github_iv"
+        app:layout_constraintTop_toBottomOf="@id/github_iv" />
 
     <TextView
+        android:padding="10dp"
+        android:textColor="#666"
         android:id="@+id/blog_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="15dp"
+        android:textSize="17sp"
+        app:layout_constraintLeft_toLeftOf="@id/blog_iv"
         android:text="Blog"
-        android:textColor="#333"
-        android:textSize="15sp"
-        app:layout_constraintLeft_toRightOf="@id/github_tv"
-        app:layout_constraintRight_toLeftOf="@+id/download_tv" />
+        app:layout_constraintRight_toRightOf="@id/blog_iv"
+        app:layout_constraintTop_toBottomOf="@id/blog_iv" />
 
     <TextView
+        android:padding="10dp"
+        android:textColor="#666"
+        android:textSize="17sp"
         android:id="@+id/download_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="15dp"
+        app:layout_constraintLeft_toLeftOf="@id/download_iv"
         android:text="Download"
-        android:textColor="#333"
-        android:textSize="15sp"
         app:layout_constraintLeft_toRightOf="@id/blog_tv"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="@id/download_iv"
+        app:layout_constraintTop_toBottomOf="@id/download_iv" />
 
 
 </android.support.constraint.ConstraintLayout>

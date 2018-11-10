@@ -1,4 +1,4 @@
-package com.zfy.adapter.decoration;
+package com.zfy.adapter.assistant.decoration;
 
 
 import android.graphics.Rect;

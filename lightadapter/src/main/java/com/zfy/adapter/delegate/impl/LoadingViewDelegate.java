@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
+import com.zfy.adapter.delegate.refs.LoadingViewRef;
 import com.zfy.adapter.listener.BindCallback;
 import com.zfy.adapter.model.LightView;
 import com.zfy.adapter.model.LoadingState;
@@ -19,7 +20,7 @@ import java.util.List;
  *
  * @author chendong
  */
-public class LoadingViewDelegate extends BaseDelegate {
+public class LoadingViewDelegate extends BaseDelegate implements LoadingViewRef {
 
     private LoadingState mLoadingState; // 加载状态
     private ViewGroup mLoadingView; // 容器
@@ -85,12 +86,7 @@ public class LoadingViewDelegate extends BaseDelegate {
     }
 
 
-    /**
-     * 设置 LoadingView
-     *
-     * @param lightView LightView
-     * @param callback  绑定回调
-     */
+    @Override
     public void setLoadingView(LightView lightView, BindCallback<LoadingState> callback) {
         mBindCallback = callback;
         mLoadingState = LoadingState.from(LoadingState.INIT);
@@ -115,6 +111,7 @@ public class LoadingViewDelegate extends BaseDelegate {
         }
     }
 
+    @Override
     public void setLoadingEnable(boolean loadingEnable) {
         if (mLoadingView == null) {
             return;
@@ -130,22 +127,12 @@ public class LoadingViewDelegate extends BaseDelegate {
         }
     }
 
-    /**
-     * @return loadingView 功能是否可用
-     */
+    @Override
     public boolean isLoadingEnable() {
         return mLoadingEnable && mLoadingView != null;
     }
 
-    /**
-     * 设置 Loading 状态
-     *
-     * @param state 状态
-     * @see LoadingState#FINISH
-     * @see LoadingState#INIT
-     * @see LoadingState#LOADING
-     * @see LoadingState#NO_DATA
-     */
+    @Override
     public void setLoadingState(int state) {
         if (mLoadingState == null) {
             return;

@@ -5,6 +5,7 @@ import android.view.ViewGroup;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
+import com.zfy.adapter.delegate.refs.EmptyViewRef;
 import com.zfy.adapter.listener.BindCallback;
 import com.zfy.adapter.model.EmptyState;
 import com.zfy.adapter.model.LightView;
@@ -15,7 +16,7 @@ import com.zfy.adapter.model.LightView;
  *
  * @author chendong
  */
-public class EmptyViewDelegate extends BaseViewDelegate {
+public class EmptyViewDelegate extends BaseViewDelegate implements EmptyViewRef {
 
     private EmptyState mEmptyState; // 空白状态状态
     private ViewGroup mEmptyView; // 容器
@@ -80,12 +81,7 @@ public class EmptyViewDelegate extends BaseViewDelegate {
         }
     }
 
-    /**
-     * 设置 EmptyView
-     *
-     * @param lightView LightView
-     * @param callback  绑定回调
-     */
+    @Override
     public void setEmptyView(LightView lightView, BindCallback<EmptyState> callback) {
         mBindCallback = callback;
         mEmptyState = EmptyState.from(EmptyState.NONE);
@@ -100,22 +96,12 @@ public class EmptyViewDelegate extends BaseViewDelegate {
         });
     }
 
-    /**
-     * @return emptyView 功能是否可用
-     */
+    @Override
     public boolean isEmptyEnable() {
         return mEmptyEnable && mEmptyView != null && mEmptyState.state != EmptyState.NONE;
     }
 
-    /**
-     * 设置 Empty 状态
-     *
-     * @param state 状态
-     * @see EmptyState#NONE
-     * @see EmptyState#SUCCESS
-     * @see EmptyState#ERROR
-     * @see EmptyState#NO_DATA
-     */
+    @Override
     public void setEmptyState(int state) {
         mEmptyState.state = state;
         if (mBindCallback != null && mEmptyHolder != null) {
