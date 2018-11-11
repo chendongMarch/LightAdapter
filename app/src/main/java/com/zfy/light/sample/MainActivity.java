@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -28,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import jp.wasabeef.recyclerview.adapters.SlideInLeftAnimationAdapter;
 
 /**
  * CreateAt : 2018/11/8
@@ -102,9 +102,6 @@ public class MainActivity extends MvpActivity {
                     break;
             }
         };
-        // 分割线
-        mRecyclerView.addItemDecoration(new TypeGridSpaceItemDecoration());
-        mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 6));
         mAdapter = new LightAdapter<MultiTypeEntity>(getContext(), mEntities, updater) {
             @Override
             public void onBindView(LightHolder holder, MultiTypeEntity data, int pos) {
@@ -173,26 +170,14 @@ public class MainActivity extends MvpActivity {
         mAdapter.section().setOptions(R.layout.item_section, true, (holder, pos, data) -> {
             holder.setText(R.id.section_tv, data.sectionTitle);
         });
+        // 分割线
+        mRecyclerView.addItemDecoration(new TypeGridSpaceItemDecoration());
+        mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 6));
         mRecyclerView.setAdapter(mAdapter);
         // 更新数据
         mEntities.update(initData());
 
-        mRecyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
-            @Override
-            public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-                return false;
-            }
 
-            @Override
-            public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-
-            }
-
-            @Override
-            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-
-            }
-        });
     }
 
 

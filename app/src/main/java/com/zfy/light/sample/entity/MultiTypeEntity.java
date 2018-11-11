@@ -77,7 +77,7 @@ public class MultiTypeEntity implements ModelTypeable, Sectionable, Diffable<Mul
 
     @Override
     public boolean areContentsTheSame(MultiTypeEntity newItem) {
-        return false;
+        return true;
     }
 
     @Override

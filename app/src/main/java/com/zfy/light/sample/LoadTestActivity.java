@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
 
 /**
  * CreateAt : 2018/11/9
@@ -66,7 +67,7 @@ public class LoadTestActivity extends MvpActivity {
             @Override
             public void onBindView(LightHolder holder, MultiTypeEntity data, int pos) {
                 holder.setText(R.id.title_tv, "标题 " + data.id)
-                        .setText(R.id.desc_tv, "描述 " + data.id);
+                        .setText(R.id.desc_tv, "描述 " + data.id + " " + System.currentTimeMillis());
             }
         };
         // 底部加载更多
@@ -141,7 +142,7 @@ public class LoadTestActivity extends MvpActivity {
                         .setCallback(R.id.cover_iv, new GlideCallback(Utils.randomImage()));
             }
         });
-
+        mRecyclerView.setItemAnimator(new SlideInLeftAnimator());
         mRecyclerView.setAdapter(adapter);
         mData.update(ListX.range(20, index -> new MultiTypeEntity(index % 7 == 0 ? MultiTypeEntity.TYPE_CAN_SWIPE : MultiTypeEntity.TYPE_CAN_DRAG)));
     }

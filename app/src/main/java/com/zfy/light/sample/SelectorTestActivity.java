@@ -37,7 +37,7 @@ public class SelectorTestActivity extends MvpActivity {
         mAdapter = new LightAdapter<SingleTypeEntity>(getContext(), mData, R.layout.item_selector) {
             @Override
             public void onBindView(LightHolder holder, SingleTypeEntity data, int pos) {
-                holder.setText(R.id.desc_tv, data.title);
+                holder.setText(R.id.desc_tv, (data.id % 4 == 0) ? "不允许选中" : data.title);
             }
         };
         mAdapter.header().addHeaderView(LightView.from(R.layout.desc_header), (holder, position) -> {

@@ -1,5 +1,7 @@
 package com.zfy.adapter;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -148,7 +150,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     }
 
     @Override
-    public LightHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public final LightHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LightHolder holder = mDelegateRegistry.onCreateViewHolder(parent, viewType);
         if (holder == null) {
             View view = null;
@@ -173,7 +175,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     }
 
     @Override
-    public void onBindViewHolder(@NonNull LightHolder holder, int position) {
+    public final void onBindViewHolder(@NonNull LightHolder holder, int position) {
         if (!mDelegateRegistry.onBindViewHolder(holder, position)) {
             int pos = toModelIndex(position);
             D data = getItem(pos);
@@ -181,8 +183,9 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         }
     }
 
+
     @Override
-    public void onBindViewHolder(@NonNull LightHolder holder, int position, @NonNull List<Object> payloads) {
+    public final void onBindViewHolder(@NonNull LightHolder holder, int position, @NonNull List<Object> payloads) {
         if (payloads.isEmpty()) {
             super.onBindViewHolder(holder, position, payloads);
         } else {
@@ -203,19 +206,19 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     }
 
     @Override
-    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+    public final void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
         mRecyclerView = recyclerView;
         mDelegateRegistry.onAttachedToRecyclerView(recyclerView);
     }
 
     @Override
-    public int getItemCount() {
+    public final int getItemCount() {
         return this.mDatas.size() + mDelegateRegistry.getItemCount();
     }
 
     @Override
-    public int getItemViewType(int position) {
+    public final int getItemViewType(int position) {
         int itemViewType = mDelegateRegistry.getItemViewType(position);
         if (itemViewType != ItemType.TYPE_NONE) {
             return itemViewType;
@@ -497,5 +500,12 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
      */
     public SectionRef<D> section() {
         return getDelegate(IDelegate.SECTION);
+    }
+
+
+    protected Animator[] getAnimators(View view) {
+        return new Animator[]{
+                ObjectAnimator.ofFloat(view, "translationX", -view.getRootView().getWidth(), 0)
+        };
     }
 }

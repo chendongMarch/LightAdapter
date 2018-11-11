@@ -9,6 +9,7 @@ android {
 
 dependencies {
     implementation libs.cardView_v7
+    implementation 'jp.wasabeef:recyclerview-animators:2.3.0'
     implementation project(':lightadapter')
     implementation project(':component_basic')
 }
