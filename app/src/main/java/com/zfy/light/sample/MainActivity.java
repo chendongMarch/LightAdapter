@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -147,11 +148,11 @@ public class MainActivity extends MvpActivity {
                 ToastX.show("单击事件");
             }
             if (data.type == MultiTypeEntity.TYPE_DESC) {
-                DescDialog.show(getContext(), data.desc);
+                DescDialog.show(getContext(), data.title, data.desc);
                 return;
             }
             if (data.msg != null) {
-                DescDialog.show(getContext(), data.msg);
+                DescDialog.show(getContext(), data.title, data.msg);
                 return;
             }
             if (data.targetClazz != null) {
@@ -175,6 +176,23 @@ public class MainActivity extends MvpActivity {
         mRecyclerView.setAdapter(mAdapter);
         // 更新数据
         mEntities.update(initData());
+
+        mRecyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+                return false;
+            }
+
+            @Override
+            public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+
+            }
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+            }
+        });
     }
 
 

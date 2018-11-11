@@ -147,7 +147,7 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
             }
         }
         if (mFooterView.getChildCount() == 0) {
-            setHeaderEnable(false);
+            setFooterEnable(false);
         }
     }
 

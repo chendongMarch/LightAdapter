@@ -14,18 +14,31 @@
         android:padding="20dp">
 
         <ImageView
+            android:id="@+id/icon_iv"
             android:layout_width="20dp"
             android:layout_height="20dp"
+            app:layout_constraintBottom_toBottomOf="@+id/title_tv"
+            app:layout_constraintTop_toTopOf="@+id/title_tv"
             android:src="@mipmap/ic_launcher" />
 
         <TextView
+            android:id="@+id/title_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:textColor="#333"
+            android:textSize="18sp"
+            app:layout_constraintLeft_toRightOf="@+id/icon_iv"
+            tools:text="sss" />
+        <TextView
+            android:autoSizeMaxTextSize="5dp"
             android:id="@+id/content_tv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="30dp"
             android:gravity="center_vertical"
             android:maxWidth="400dp"
-            android:minHeight="200dp"
+            android:minHeight="100dp"
             android:textColor="#666"
             android:textSize="16sp"
             app:layout_constraintTop_toTopOf="parent"

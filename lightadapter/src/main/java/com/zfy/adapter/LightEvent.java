@@ -1,6 +1,8 @@
 package com.zfy.adapter;
 
+import android.os.Build;
 import android.support.v4.view.GestureDetectorCompat;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -92,9 +94,14 @@ public class LightEvent<D> {
             }
         };
         final GestureDetectorCompat gestureDetector = new GestureDetectorCompat(mAdapter.getContext(), gestureListener);
+        itemView.setClickable(true);
+        itemView.setOnClickListener(null);
+        itemView.setOnLongClickListener(null);
         itemView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
+                // 将事件发送给 view 显示触摸状态，但是不会回调事件监听
+                itemView.onTouchEvent(motionEvent);
                 gestureDetector.onTouchEvent(motionEvent);
                 return true;
             }

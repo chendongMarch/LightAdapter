@@ -17,13 +17,16 @@ import butterknife.BindView;
 public class DescDialog extends AppDialog {
 
     @BindView(R.id.content_tv) TextView mContentTv;
+    @BindView(R.id.title_tv)   TextView mTitleTv;
 
     private String mContent;
+    private String mTitle;
 
 
-    public static void show(Context context, String msg) {
+    public static void show(Context context, String title, String msg) {
         DescDialog descDialog = new DescDialog(context);
         descDialog.setContent(msg);
+        descDialog.setTitle(title);
         descDialog.show();
     }
 
@@ -34,10 +37,15 @@ public class DescDialog extends AppDialog {
     @Override
     protected void initViewOnCreate() {
         mContentTv.setText(mContent);
+        mTitleTv.setText(mTitle);
     }
 
     public void setContent(String content) {
         mContent = content;
+    }
+
+    public void setTitle(String title) {
+        mTitle = title;
     }
 
     @Override
