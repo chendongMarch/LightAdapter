@@ -40,7 +40,7 @@ object Values {
 
     2. 任意类型的布局，包括隔断，都支持悬停在列表顶部，并且布局滑动时具有挤压效果，你可以在首页看到悬停在顶部的模块标题。
 
-    3. 开启自定义类型的悬停效果，你需要在 ModelTypeConfigCallback 中对 ModelType 配置，设置 modelType.supportPin = true；
+    3. 开启自定义类型的悬停效果，你需要在 ModelTypeConfigCallback 中对 ModelType 配置，设置 modelType.enablePin = true；
     然后使用 adapter.section().setPinEnable() 开启支持悬停，则该类型就会悬停在顶部。
     """.trimIndent()
 
@@ -56,7 +56,7 @@ object Values {
     boolean enableDbClick = false; // 是否允许双击事件
     boolean enableDrag = false; // 是否允许拖动
     boolean enableSwipe = false; // 是否允许滑动
-    boolean supportPin; // 钉住，支持悬停效果
+    boolean enablePin; // 钉住，支持悬停效果
 
     每种类型都可以根据需要进行自定义的配置。
     """.trimIndent()

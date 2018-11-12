@@ -178,6 +178,7 @@ public class MainActivity extends MvpActivity {
         mEntities.update(initData());
 
 
+        LightAdapter.of()
     }
 
 

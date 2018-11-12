@@ -41,13 +41,13 @@ public class PinItemDecoration extends RecyclerView.ItemDecoration {
         adapter.onBindViewHolder(pinHolder, lastPinPosition);
         View pinView = pinHolder.itemView;
         measurePinView(pinView, parent);
-        // 计算两个 supportPin 的 view 推动的偏移，下面的那个推动上面那个，需要找到第二个的距离
+        // 计算两个 enablePin 的 view 推动的偏移，下面的那个推动上面那个，需要找到第二个的距离
         int pinOffset = 0;
         View secondPinView = null;
         for (int index = 0; index < parent.getChildCount(); index++) {
             int position = parent.getChildAdapterPosition(parent.getChildAt(index));
             ModelType type = adapter.getModelType(adapter.getItemViewType(position));
-            if (type.supportPin) {
+            if (type.enablePin) {
                 View sectionView = parent.getChildAt(index);
                 if (!firstView.equals(sectionView)) {
                     secondPinView = sectionView;
@@ -81,14 +81,14 @@ public class PinItemDecoration extends RecyclerView.ItemDecoration {
     private int getLastPinPosition(int adapterFirstVisible, LightAdapter adapter) {
         for (int index = adapterFirstVisible; index >= 0; index--) {
             ModelType type = adapter.getModelType(adapter.getItemViewType(index));
-            if (type.supportPin) {
+            if (type.enablePin) {
                 return index;
             }
         }
         return -1;
     }
 
-    // 测量 supportPin view，用来绘制
+    // 测量 enablePin view，用来绘制
     private void measurePinView(View pinView, RecyclerView recyclerView) {
         if (pinView.isLayoutRequested()) {
             RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) pinView.getLayoutParams();

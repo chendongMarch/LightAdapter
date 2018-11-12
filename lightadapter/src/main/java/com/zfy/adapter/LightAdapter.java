@@ -1,7 +1,5 @@
 package com.zfy.adapter;
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -42,6 +40,7 @@ import com.zfy.adapter.delegate.refs.NotifyRef;
 import com.zfy.adapter.delegate.refs.SectionRef;
 import com.zfy.adapter.delegate.refs.SelectorRef;
 import com.zfy.adapter.delegate.refs.TopMoreRef;
+import com.zfy.adapter.items.IItemAdapter;
 import com.zfy.adapter.listener.EventCallback;
 import com.zfy.adapter.listener.ModelTypeConfigCallback;
 import com.zfy.adapter.model.Ids;
@@ -503,9 +502,23 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     }
 
 
-    protected Animator[] getAnimators(View view) {
-        return new Animator[]{
-                ObjectAnimator.ofFloat(view, "translationX", -view.getRootView().getWidth(), 0)
+    public static <DATA> LightAdapter<DATA> of(List<DATA> list, IItemAdapter<DATA>... adapters) {
+        SparseArray<IItemAdapter<DATA>> array = new SparseArray<>();
+        for (IItemAdapter<DATA> itemAdapter : adapters) {
+            int type = itemAdapter.getModelType();
+            if (array.indexOfKey(type) > 0) {
+                throw new AdapterException("ItemAdapter Type 重复");
+            }
+            array.put(type, itemAdapter);
+        }
+        ModelTypeConfigCallback callback = modelType -> {
+            IItemAdapter iItemAdapter = array.get(modelType.type);
+            iItemAdapter.configModelType(modelType);
         };
+        return new LightMixAdapter<>(null, list, array, callback);
+    }
+
+    public static <DATA> LightAdapter<DATA> of(IItemAdapter<DATA>... adapters) {
+        return of(new ArrayList<>(), adapters);
     }
 }

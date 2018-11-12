@@ -4,7 +4,6 @@ import android.graphics.Rect;
 import android.support.annotation.LayoutRes;
 
 import com.zfy.adapter.common.ItemType;
-import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.common.SpanSize;
 
 /**
@@ -23,7 +22,7 @@ public class ModelType {
     public boolean enableDbClick   = false; // 是否允许双击事件
     public boolean enableDrag      = false; // 是否允许拖动
     public boolean enableSwipe     = false; // 是否允许滑动
-    public boolean supportPin; // 钉住，支持悬停效果
+    public boolean enablePin       = false; // 钉住，支持悬停效果
 
     public Rect spaceRect;
 

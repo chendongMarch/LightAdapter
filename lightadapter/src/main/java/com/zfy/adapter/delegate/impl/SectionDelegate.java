@@ -8,7 +8,6 @@ import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.assistant.decoration.PinItemDecoration;
 import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.LightUtils;
-import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.delegate.refs.SectionRef;
 import com.zfy.adapter.listener.BindCallback;
@@ -79,14 +78,14 @@ public class SectionDelegate<D> extends BaseDelegate implements SectionRef<D> {
     public void setOptions(SingleTypeConfigCallback configCallback, BindCallback<D> bindCallback) {
         mAdapter.addModelUpdater(configCallback.setSingleType(ItemType.TYPE_SECTION));
         mBindCallback = bindCallback;
-        setPinEnable(mAdapter.getModelType(ItemType.TYPE_SECTION).supportPin);
+        setPinEnable(mAdapter.getModelType(ItemType.TYPE_SECTION).enablePin);
     }
 
     @Override
     public void setOptions(int layoutId, boolean supportPin, BindCallback<D> callback) {
         mAdapter.addModelUpdater(new SingleTypeConfigCallback(data -> {
             data.layoutId = layoutId;
-            data.supportPin = supportPin;
+            data.enablePin = supportPin;
             data.spanSize = SpanSize.SPAN_SIZE_ALL;
         }).setSingleType(ItemType.TYPE_SECTION));
         setPinEnable(supportPin);
