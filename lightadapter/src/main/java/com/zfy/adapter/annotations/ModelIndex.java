@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 /**
  * CreateAt : 2018/11/12
- * Describe :
+ * Describe : 表明是数据里面的 index, 他和 RecyclerView 的 index 不同需要转换后使用
  *
  * @author chendong
  */

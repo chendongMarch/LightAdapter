@@ -1,7 +1,7 @@
 package com.zfy.adapter.items;
 
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.able.ModelTypeable;
+import com.zfy.adapter.able.Typeable;
 import com.zfy.adapter.annotations.ModelIndex;
 import com.zfy.adapter.model.ModelType;
 
@@ -11,7 +11,7 @@ import com.zfy.adapter.model.ModelType;
  *
  * @author chendong
  */
-public interface ItemAdapter<D> extends ModelTypeable {
+public interface ItemAdapter<D> extends Typeable {
 
     /**
      * {@inheritDoc}
@@ -20,7 +20,7 @@ public interface ItemAdapter<D> extends ModelTypeable {
      * @return 支持的数据类型
      */
     @Override
-    int getModelType();
+    int getItemType();
 
     /**
      * {@inheritDoc}

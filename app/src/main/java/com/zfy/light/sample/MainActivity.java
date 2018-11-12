@@ -203,12 +203,12 @@ public class MainActivity extends MvpActivity {
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_BASIC);
         homeEntity.title = "多类型";
         homeEntity.desc = "多类型数据适配";
-        homeEntity.msg = "多类型适配器支持多种类型数据的适配，它依赖于 ModelTypeable / ModelType / ModelTypeConfigCallback 完成针对每种类型数据的配置工作";
+        homeEntity.msg = "多类型适配器支持多种类型数据的适配，它依赖于 Typeable / ModelType / ModelTypeConfigCallback 完成针对每种类型数据的配置工作";
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_BASIC);
-        homeEntity.title = "ModelTypeable";
-        homeEntity.desc = "实现 ModelTypeable 接口声明支持多类型";
-        homeEntity.msg = "多类型数据适配时，数据结构需要实现 ModelTypeable 返回该数据的类型，这是首先也是必须的。";
+        homeEntity.title = "Typeable";
+        homeEntity.desc = "实现 Typeable 接口声明支持多类型";
+        homeEntity.msg = "多类型数据适配时，数据结构需要实现 Typeable 返回该数据的类型，这是首先也是必须的。";
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_BASIC);
         homeEntity.title = "ModelType";

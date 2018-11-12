@@ -39,6 +39,7 @@ public class SlidingSelectLayout extends FrameLayout {
     }
 
     private LightAdapter mAdapter;
+
     private float        mXTouchSlop; // 横轴滑动阈值，超过阈值表示触发横轴滑动
     private float        mYTouchSlop; // 纵轴滑动阈值，超过阈值表示触发纵轴滑动
     private int          mSpanCount; // 横向的item数量

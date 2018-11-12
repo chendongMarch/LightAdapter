@@ -3,7 +3,7 @@ package com.zfy.adapter.model;
 import android.graphics.Rect;
 import android.support.annotation.LayoutRes;
 
-import com.zfy.adapter.common.ItemType;
+import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.SpanSize;
 
 /**
@@ -31,11 +31,7 @@ public class ModelType {
     }
 
     public boolean isBuildInType() {
-        return type == ItemType.TYPE_HEADER
-                || type == ItemType.TYPE_FOOTER
-                || type == ItemType.TYPE_CONTENT
-                || type == ItemType.TYPE_LOADING
-                || type == ItemType.TYPE_EMPTY;
+        return LightUtils.isBuildInType(type);
     }
 
 

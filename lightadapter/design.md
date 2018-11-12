@@ -41,7 +41,7 @@ waiting - Animation
 
 设计理念
 
-单类型/多类型/类型更新器/ModelTypeable
+单类型/多类型/类型更新器/Typeable
 
 DiffUtil/payload/异步更新
 LightDiffList/AsyncDiffList/Diffable

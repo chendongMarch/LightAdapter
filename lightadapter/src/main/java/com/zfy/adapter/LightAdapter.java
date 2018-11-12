@@ -1,6 +1,7 @@
 package com.zfy.adapter;
 
 import android.content.Context;
+import android.support.annotation.CheckResult;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,13 +11,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.zfy.adapter.able.ModelTypeable;
+import com.zfy.adapter.able.Typeable;
 import com.zfy.adapter.able.Sectionable;
 import com.zfy.adapter.annotations.ModelIndex;
 import com.zfy.adapter.collections.AbstractLightList;
 import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.common.AdapterException;
 import com.zfy.adapter.common.ItemType;
+import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.delegate.DelegateRegistry;
@@ -223,9 +225,9 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         D d = getItem(toModelIndex(position));
         if (d instanceof Sectionable && ((Sectionable) d).isSection()) {
             return ItemType.TYPE_SECTION;
-        } else if (d instanceof ModelTypeable) {
-            ModelTypeable model = (ModelTypeable) d;
-            return model.getModelType();
+        } else if (d instanceof Typeable) {
+            Typeable model = (Typeable) d;
+            return model.getItemType();
         } else {
             return ItemType.TYPE_CONTENT;
         }
@@ -402,8 +404,8 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
             return null;
         }
         int type;
-        if (data instanceof ModelTypeable) {
-            type = ((ModelTypeable) data).getModelType();
+        if (data instanceof Typeable) {
+            type = ((Typeable) data).getItemType();
         } else {
             type = ItemType.TYPE_CONTENT;
         }
@@ -500,18 +502,34 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     }
 
 
+    /**
+     * 使用 ItemAdapter 构建 LightAdapter，将每个类型进行隔离，逻辑更清晰
+     *
+     * @param list     数据源
+     * @param adapters ItemAdapter 列表
+     * @param <DATA>   数据范型
+     * @return LightAdapter
+     * @see ItemAdapter
+     * @see com.zfy.adapter.items.LightItemAdapter
+     */
+    @CheckResult
     public static <DATA> LightAdapter<DATA> of(List<DATA> list, ItemAdapter<DATA>... adapters) {
         SparseArray<ItemAdapter<DATA>> array = new SparseArray<>();
         for (ItemAdapter<DATA> itemAdapter : adapters) {
-            int type = itemAdapter.getModelType();
+            int type = itemAdapter.getItemType();
+            if (LightUtils.isBuildInType(type)) {
+                throw new AdapterException(AdapterException.USE_BUILD_IN_TYPE);
+            }
             if (array.indexOfKey(type) > 0) {
                 throw new AdapterException("ItemAdapter Type 重复");
             }
             array.put(type, itemAdapter);
         }
         ModelTypeConfigCallback callback = modelType -> {
-            ItemAdapter iItemAdapter = array.get(modelType.type);
-            iItemAdapter.configModelType(modelType);
+            ItemAdapter itemAdapter = array.get(modelType.type);
+            if (itemAdapter != null) {
+                itemAdapter.configModelType(modelType);
+            }
         };
         return new LightMixAdapter<>(list, array, callback);
     }

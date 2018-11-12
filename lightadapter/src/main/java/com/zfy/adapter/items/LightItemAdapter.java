@@ -3,8 +3,7 @@ package com.zfy.adapter.items;
 import android.support.annotation.LayoutRes;
 
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.annotations.Types;
-import com.zfy.adapter.common.ItemType;
+import com.zfy.adapter.annotations.ItemType;
 import com.zfy.adapter.model.ModelType;
 
 /**
@@ -18,7 +17,7 @@ public abstract class LightItemAdapter<D> implements ItemAdapter<D> {
     private ModelType mModelType;
 
     public LightItemAdapter() {
-        Types option = getClass().getAnnotation(Types.class);
+        ItemType option = getClass().getAnnotation(ItemType.class);
         if (option != null) {
             mModelType = new ModelType(option.type());
             mModelType.spanSize = option.spanSize();
@@ -35,11 +34,11 @@ public abstract class LightItemAdapter<D> implements ItemAdapter<D> {
     int getLayoutId();
 
     @Override
-    public int getModelType() {
+    public int getItemType() {
         if (mModelType != null) {
             return mModelType.type;
         }
-        return ItemType.TYPE_NONE;
+        return com.zfy.adapter.common.ItemType.TYPE_NONE;
     }
 
     @Override

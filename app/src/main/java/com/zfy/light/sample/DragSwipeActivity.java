@@ -10,7 +10,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import com.march.common.exts.ListX;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.annotations.Types;
+import com.zfy.adapter.annotations.ItemType;
 import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.items.LightItemAdapter;
@@ -44,7 +44,7 @@ public class DragSwipeActivity extends MvpActivity {
     private LightDiffList<MultiTypeEntity> mData;
 
 
-    @Types(type = MultiTypeEntity.TYPE_CAN_DRAG,
+    @ItemType(type = MultiTypeEntity.TYPE_CAN_DRAG,
             spanSize = SpanSize.SPAN_SIZE_HALF,
             enableDrag = true)
     static class DragItemAdapter extends LightItemAdapter<MultiTypeEntity> {
@@ -63,7 +63,7 @@ public class DragSwipeActivity extends MvpActivity {
         }
     }
 
-    @Types(type = MultiTypeEntity.TYPE_CAN_SWIPE,
+    @ItemType(type = MultiTypeEntity.TYPE_CAN_SWIPE,
             spanSize = SpanSize.SPAN_SIZE_ALL,
             enableSwipe = true)
     static class SwipeItemAdapter extends LightItemAdapter<MultiTypeEntity> {

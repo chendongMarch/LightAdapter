@@ -24,6 +24,18 @@ public class LightUtils {
 
 
     /**
+     * @param type type
+     * @return 是不是内建类型
+     */
+    public static boolean isBuildInType(int type) {
+        return type == ItemType.TYPE_HEADER
+                || type == ItemType.TYPE_FOOTER
+                || type == ItemType.TYPE_CONTENT
+                || type == ItemType.TYPE_LOADING
+                || type == ItemType.TYPE_EMPTY;
+    }
+
+    /**
      * 加载 View
      *
      * @param context  ctx

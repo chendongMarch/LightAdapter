@@ -1,6 +1,5 @@
 package com.zfy.adapter.annotations;
 
-import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.common.SpanSize;
 
 import java.lang.annotation.ElementType;
@@ -11,14 +10,14 @@ import java.lang.annotation.Target;
 
 /**
  * CreateAt : 2018/11/12
- * Describe :
+ * Describe : 使用注解来构建 ModelType
  *
  * @author chendong
  */
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface Types {
+public @interface ItemType {
 
     int type();
 

@@ -1,7 +1,5 @@
 package com.zfy.adapter.common;
 
-import com.zfy.adapter.listener.ModelTypeConfigCallback;
-
 /**
  * CreateAt : 2018/10/26
  * Describe :

@@ -1,5 +1,7 @@
 package com.zfy.adapter.delegate.impl;
 
+import android.annotation.SuppressLint;
+import android.support.annotation.Size;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.MotionEvent;
@@ -12,6 +14,7 @@ import com.zfy.adapter.model.DragSwipeOptions;
 import com.zfy.adapter.model.DragSwipeState;
 import com.zfy.adapter.model.ModelType;
 
+import java.lang.annotation.Repeatable;
 import java.util.Collections;
 
 /**
@@ -58,52 +61,41 @@ public class DragSwipeDelegate extends BaseDelegate implements DragSwipeRef {
         mDragSwipeCallback = dragSwipeCallback;
     }
 
-
     @Override
     public void dragOnLongPress(View view, LightHolder holder) {
-        view.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                startDrag(holder);
-                return true;
-            }
+        view.setOnLongClickListener(v -> {
+            startDrag(holder);
+            return true;
         });
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void dragOnTouch(View view, LightHolder holder) {
-        view.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                    startDrag(holder);
-                }
-                return false;
+        view.setOnTouchListener((v, event) -> {
+            if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                startDrag(holder);
             }
+            return false;
         });
     }
 
     @Override
     public void swipeOnLongPress(View view, LightHolder holder) {
-        view.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                startSwipe(holder);
-                return true;
-            }
+        view.setOnLongClickListener(v -> {
+            startSwipe(holder);
+            return true;
         });
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void swipeOnTouch(View view, LightHolder holder) {
-        view.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                    startSwipe(holder);
-                }
-                return false;
+        view.setOnTouchListener((v, event) -> {
+            if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                startSwipe(holder);
             }
+            return false;
         });
     }
 

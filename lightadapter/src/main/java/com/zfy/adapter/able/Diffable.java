@@ -9,7 +9,8 @@ import java.util.Set;
 
 /**
  * CreateAt : 2018/11/1
- * Describe : 使用 DiffList 更新数据时需要实现该接口
+ * Describe :
+ * 该接口表明在 DiffUtil 中如何对数据进行对比，使用 {@link com.zfy.adapter.collections.AsyncLightDiffList} 更新数据时需要实现该接口
  * @see com.zfy.adapter.collections.LightDiffList
  * @see com.zfy.adapter.collections.AsyncLightDiffList
  * @author chendong

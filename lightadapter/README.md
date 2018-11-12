@@ -74,11 +74,11 @@ LightAdapter<Student> adapter = new LightAdapter<Student>(getContext(), list, R.
 
 ## 多类型数据适配
 
-STEP1: 首先数据结构应该继承 `ModelTypeable` 接口，来向外暴露数据的类型;
+STEP1: 首先数据结构应该继承 `Typeable` 接口，来向外暴露数据的类型;
 
 ```java
 // 分为了大于 12 岁和小于等于 12 岁两种类型
-class Student implements ModelTypeable {
+class Student implements Typeable {
 
     public static final int TYPE_BIG = 0;
     public static final int TYPE_SMALL = 1;

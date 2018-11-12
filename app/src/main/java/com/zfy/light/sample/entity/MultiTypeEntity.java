@@ -3,7 +3,7 @@ package com.zfy.light.sample.entity;
 import android.os.Parcel;
 
 import com.zfy.adapter.able.Diffable;
-import com.zfy.adapter.able.ModelTypeable;
+import com.zfy.adapter.able.Typeable;
 import com.zfy.adapter.able.Sectionable;
 
 /**
@@ -12,10 +12,10 @@ import com.zfy.adapter.able.Sectionable;
  *
  * @author chendong
  */
-public class MultiTypeEntity implements ModelTypeable, Sectionable, Diffable<MultiTypeEntity> {
+public class MultiTypeEntity implements Typeable, Sectionable, Diffable<MultiTypeEntity> {
 
     public static final int TYPE_DESC      = 0; // 文本描述类型
-    public static final int TYPE_BASIC     = 1; // 数据适配部分，单类型/多类型/ModelTypeable/ModelTypeConfigCallback
+    public static final int TYPE_BASIC     = 1; // 数据适配部分，单类型/多类型/Typeable/ModelTypeConfigCallback
     public static final int TYPE_LIST      = 2; // 内置集合类数据更新，DiffUtil/Diffable/payload/LightDiffList/LightAsyncDiffList
     public static final int TYPE_EVENT     = 3; // 事件。单击、双击、长按
     public static final int TYPE_HOLDER    = 4; // LightHolder
@@ -61,7 +61,7 @@ public class MultiTypeEntity implements ModelTypeable, Sectionable, Diffable<Mul
     }
 
     @Override
-    public int getModelType() {
+    public int getItemType() {
         return type;
     }
 
