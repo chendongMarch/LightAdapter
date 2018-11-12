@@ -1,4 +1,4 @@
-package com.zfy.adapter.items;
+package com.zfy.adapter.annotations;
 
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.common.SpanSize;
@@ -18,9 +18,9 @@ import java.lang.annotation.Target;
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface TypeOption {
+public @interface Types {
 
-    int type() default LightValues.NONE;
+    int type();
 
     int spanSize() default SpanSize.NONE; // 跨越
 

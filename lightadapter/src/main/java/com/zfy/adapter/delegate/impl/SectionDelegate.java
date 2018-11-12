@@ -75,8 +75,9 @@ public class SectionDelegate<D> extends BaseDelegate implements SectionRef<D> {
     }
 
     @Override
-    public void setOptions(SingleTypeConfigCallback configCallback, BindCallback<D> bindCallback) {
-        mAdapter.addModelUpdater(configCallback.setSingleType(ItemType.TYPE_SECTION));
+    public void setOptions(ModelType type, BindCallback<D> bindCallback) {
+        SingleTypeConfigCallback callback = new SingleTypeConfigCallback(type);
+        mAdapter.addModelUpdater(callback);
         mBindCallback = bindCallback;
         setPinEnable(mAdapter.getModelType(ItemType.TYPE_SECTION).enablePin);
     }

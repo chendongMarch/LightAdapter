@@ -35,7 +35,7 @@ public class HFTestActivity extends MvpActivity {
     public void init() {
         mData = new LightDiffList<>();
 
-        LightAdapter<SingleTypeEntity> adapter = new LightAdapter<SingleTypeEntity>(getContext(), mData, R.layout.item_selector) {
+        LightAdapter<SingleTypeEntity> adapter = new LightAdapter<SingleTypeEntity>( mData, R.layout.item_selector) {
             @Override
             public void onBindView(LightHolder holder, SingleTypeEntity data, int pos) {
                 holder.setText(R.id.desc_tv, data.title);

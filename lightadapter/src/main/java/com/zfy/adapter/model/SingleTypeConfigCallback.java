@@ -11,27 +11,31 @@ import com.zfy.adapter.listener.ModelTypeConfigCallback;
  */
 public class SingleTypeConfigCallback implements ModelTypeConfigCallback {
 
-    private int singleType;
+    private int                      mSingleType;
     private LightConsumer<ModelType> mConsumer;
 
     public SingleTypeConfigCallback(int singleType, LightConsumer<ModelType> consumer) {
-        this.singleType = singleType;
+        mSingleType = singleType;
         mConsumer = consumer;
     }
 
     public SingleTypeConfigCallback(LightConsumer<ModelType> consumer) {
-        this.singleType = singleType;
         mConsumer = consumer;
     }
 
+    public SingleTypeConfigCallback(ModelType modelType) {
+        mSingleType = modelType.type;
+        mConsumer = mt -> mt.updateByOtherModelType(modelType);
+    }
+
     public SingleTypeConfigCallback setSingleType(int singleType) {
-        this.singleType = singleType;
+        this.mSingleType = singleType;
         return this;
     }
 
     @Override
     public void call(ModelType modelType) {
-        if (modelType.type == singleType) {
+        if (modelType.type == mSingleType) {
             mConsumer.accept(modelType);
         }
     }

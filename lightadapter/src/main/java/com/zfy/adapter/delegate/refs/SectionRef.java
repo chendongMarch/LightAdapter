@@ -3,7 +3,7 @@ package com.zfy.adapter.delegate.refs;
 import android.support.annotation.LayoutRes;
 
 import com.zfy.adapter.listener.BindCallback;
-import com.zfy.adapter.model.SingleTypeConfigCallback;
+import com.zfy.adapter.model.ModelType;
 
 /**
  * CreateAt : 2018/11/10
@@ -25,10 +25,10 @@ public interface SectionRef<D> {
      * {@inheritDoc}
      * 设置隔断配置选项
      *
-     * @param configCallback 设置 section 类型的 configCallback
+     * @param type ModelType
      * @param bindCallback   绑定隔断显示
      */
-    void setOptions(SingleTypeConfigCallback configCallback, BindCallback<D> bindCallback);
+    void setOptions(ModelType type, BindCallback<D> bindCallback);
 
     /**
      * {@inheritDoc}

@@ -63,7 +63,7 @@ public class LoadTestActivity extends MvpActivity {
             }
         };
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        LightAdapter<MultiTypeEntity> adapter = new LightAdapter<MultiTypeEntity>(getContext(), mData, updater) {
+        LightAdapter<MultiTypeEntity> adapter = new LightAdapter<MultiTypeEntity>( mData, updater) {
             @Override
             public void onBindView(LightHolder holder, MultiTypeEntity data, int pos) {
                 holder.setText(R.id.title_tv, "标题 " + data.id)

@@ -38,6 +38,17 @@ public class ModelType {
                 || type == ItemType.TYPE_EMPTY;
     }
 
+
+    public void updateByOtherModelType(ModelType modelType) {
+        this.spanSize = modelType.spanSize;
+        this.enableClick = modelType.enableClick;
+        this.enableLongPress = modelType.enableLongPress;
+        this.enableDbClick = modelType.enableDbClick;
+        this.enableDrag = modelType.enableDrag;
+        this.enableSwipe = modelType.enableSwipe;
+        this.enablePin = modelType.enablePin;
+    }
+
     public int getType() {
         return type;
     }

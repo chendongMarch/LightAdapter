@@ -3,7 +3,8 @@ package com.zfy.adapter.items;
 import android.support.annotation.LayoutRes;
 
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.common.LightValues;
+import com.zfy.adapter.annotations.Types;
+import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.model.ModelType;
 
 /**
@@ -12,12 +13,12 @@ import com.zfy.adapter.model.ModelType;
  *
  * @author chendong
  */
-public abstract class SimpleItemAdapter<D> implements IItemAdapter<D> {
+public abstract class LightItemAdapter<D> implements ItemAdapter<D> {
 
     private ModelType mModelType;
 
-    public SimpleItemAdapter() {
-        TypeOption option = getClass().getAnnotation(TypeOption.class);
+    public LightItemAdapter() {
+        Types option = getClass().getAnnotation(Types.class);
         if (option != null) {
             mModelType = new ModelType(option.type());
             mModelType.spanSize = option.spanSize();
@@ -27,25 +28,25 @@ public abstract class SimpleItemAdapter<D> implements IItemAdapter<D> {
             mModelType.enableDrag = option.enableDrag();
             mModelType.enableSwipe = option.enableSwipe();
             mModelType.enablePin = option.enablePin();
-        } else {
-            mModelType = new ModelType(LightValues.NONE);
-            mModelType.type = getModelType();
-            configModelType(mModelType);
         }
     }
-
 
     public abstract @LayoutRes
     int getLayoutId();
 
     @Override
     public int getModelType() {
-        return mModelType.type;
+        if (mModelType != null) {
+            return mModelType.type;
+        }
+        return ItemType.TYPE_NONE;
     }
-
 
     @Override
     public void configModelType(ModelType modelType) {
+        if (mModelType == null) {
+            return;
+        }
         modelType.type = mModelType.type;
         modelType.layoutId = getLayoutId();
         modelType.spanSize = mModelType.spanSize;
@@ -73,9 +74,9 @@ public abstract class SimpleItemAdapter<D> implements IItemAdapter<D> {
 
     }
 
+
     @Override
     public void onDbClickEvent(LightHolder holder, D data, int pos) {
 
     }
-
 }

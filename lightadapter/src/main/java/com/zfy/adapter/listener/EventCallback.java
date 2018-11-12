@@ -1,6 +1,7 @@
 package com.zfy.adapter.listener;
 
 import com.zfy.adapter.LightHolder;
+import com.zfy.adapter.annotations.ModelIndex;
 
 /**
  * CreateAt : 2018/11/5
@@ -10,5 +11,5 @@ import com.zfy.adapter.LightHolder;
  */
 public interface EventCallback<D> {
 
-    void call(LightHolder holder, int pos, D data);
+    void call(LightHolder holder, @ModelIndex int pos, D data);
 }

@@ -34,7 +34,7 @@ public class SelectorTestActivity extends MvpActivity {
     @Override
     public void init() {
         mData = new LightDiffList<>();
-        mAdapter = new LightAdapter<SingleTypeEntity>(getContext(), mData, R.layout.item_selector) {
+        mAdapter = new LightAdapter<SingleTypeEntity>(mData, R.layout.item_selector) {
             @Override
             public void onBindView(LightHolder holder, SingleTypeEntity data, int pos) {
                 holder.setText(R.id.desc_tv, (data.id % 4 == 0) ? "不允许选中" : data.title);

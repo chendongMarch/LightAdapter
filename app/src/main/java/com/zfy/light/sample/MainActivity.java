@@ -102,7 +102,7 @@ public class MainActivity extends MvpActivity {
                     break;
             }
         };
-        mAdapter = new LightAdapter<MultiTypeEntity>(getContext(), mEntities, updater) {
+        mAdapter = new LightAdapter<MultiTypeEntity>( mEntities, updater) {
             @Override
             public void onBindView(LightHolder holder, MultiTypeEntity data, int pos) {
                 holder.setText(R.id.title_tv, data.title)
@@ -177,8 +177,6 @@ public class MainActivity extends MvpActivity {
         // 更新数据
         mEntities.update(initData());
 
-
-        LightAdapter.of()
     }
 
 

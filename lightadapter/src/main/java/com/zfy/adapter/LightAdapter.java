@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 
 import com.zfy.adapter.able.ModelTypeable;
 import com.zfy.adapter.able.Sectionable;
+import com.zfy.adapter.annotations.ModelIndex;
 import com.zfy.adapter.collections.AbstractLightList;
 import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.common.AdapterException;
@@ -40,7 +41,7 @@ import com.zfy.adapter.delegate.refs.NotifyRef;
 import com.zfy.adapter.delegate.refs.SectionRef;
 import com.zfy.adapter.delegate.refs.SelectorRef;
 import com.zfy.adapter.delegate.refs.TopMoreRef;
-import com.zfy.adapter.items.IItemAdapter;
+import com.zfy.adapter.items.ItemAdapter;
 import com.zfy.adapter.listener.EventCallback;
 import com.zfy.adapter.listener.ModelTypeConfigCallback;
 import com.zfy.adapter.model.Ids;
@@ -88,12 +89,11 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     /**
      * 单类型适配器构造函数
      *
-     * @param context  上下文
      * @param datas    数据源
      * @param layoutId 布局
      */
-    public LightAdapter(Context context, List<D> datas, @LayoutRes int layoutId) {
-        this(context, datas, new SingleTypeConfigCallback(data -> {
+    public LightAdapter(List<D> datas, @LayoutRes int layoutId) {
+        this(datas, new SingleTypeConfigCallback(data -> {
             data.layoutId = layoutId;
         }).setSingleType(ItemType.TYPE_CONTENT));
     }
@@ -101,23 +101,20 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     /**
      * 多类型适配器构造函数
      *
-     * @param context 上下文
      * @param datas   数据源
      * @param updater 类型构造工厂
      */
-    public LightAdapter(Context context, List<D> datas, ModelTypeConfigCallback updater) {
-        init(context, datas);
+    public LightAdapter(List<D> datas, ModelTypeConfigCallback updater) {
+        init(datas);
         addModelUpdater(updater);
     }
 
     // 通用初始化方法
-    private void init(Context context, List<D> datas) {
+    private void init(List<D> datas) {
         if (datas instanceof AbstractLightList) {
             ((LightDiffList) datas).setAdapter(this);
         }
-        mContext = context;
         mHolderCache = new HashSet<>();
-        mLayoutInflater = LayoutInflater.from(context);
         mDatas = datas;
         mModelTypeCache = new SparseArray<>();
         mHolderCache = new HashSet<>();
@@ -182,7 +179,6 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         }
     }
 
-
     @Override
     public final void onBindViewHolder(@NonNull LightHolder holder, int position, @NonNull List<Object> payloads) {
         if (payloads.isEmpty()) {
@@ -208,6 +204,8 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     public final void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
         mRecyclerView = recyclerView;
+        mContext = recyclerView.getContext();
+        mLayoutInflater = LayoutInflater.from(mContext);
         mDelegateRegistry.onAttachedToRecyclerView(recyclerView);
     }
 
@@ -281,7 +279,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
      * @param data   数据
      * @param pos    位置
      */
-    public abstract void onBindView(LightHolder holder, D data, int pos);
+    public abstract void onBindView(LightHolder holder, D data, @ModelIndex int pos);
 
     /**
      * 使用 payload 绑定数据
@@ -291,7 +289,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
      * @param pos    位置
      * @param msg    消息
      */
-    public void onBindViewUsePayload(LightHolder holder, D data, int pos, String msg) {
+    public void onBindViewUsePayload(LightHolder holder, D data, @ModelIndex int pos, String msg) {
     }
 
 
@@ -502,9 +500,9 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     }
 
 
-    public static <DATA> LightAdapter<DATA> of(List<DATA> list, IItemAdapter<DATA>... adapters) {
-        SparseArray<IItemAdapter<DATA>> array = new SparseArray<>();
-        for (IItemAdapter<DATA> itemAdapter : adapters) {
+    public static <DATA> LightAdapter<DATA> of(List<DATA> list, ItemAdapter<DATA>... adapters) {
+        SparseArray<ItemAdapter<DATA>> array = new SparseArray<>();
+        for (ItemAdapter<DATA> itemAdapter : adapters) {
             int type = itemAdapter.getModelType();
             if (array.indexOfKey(type) > 0) {
                 throw new AdapterException("ItemAdapter Type 重复");
@@ -512,13 +510,10 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
             array.put(type, itemAdapter);
         }
         ModelTypeConfigCallback callback = modelType -> {
-            IItemAdapter iItemAdapter = array.get(modelType.type);
+            ItemAdapter iItemAdapter = array.get(modelType.type);
             iItemAdapter.configModelType(modelType);
         };
-        return new LightMixAdapter<>(null, list, array, callback);
+        return new LightMixAdapter<>(list, array, callback);
     }
 
-    public static <DATA> LightAdapter<DATA> of(IItemAdapter<DATA>... adapters) {
-        return of(new ArrayList<>(), adapters);
-    }
 }
