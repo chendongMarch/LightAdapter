@@ -9,7 +9,18 @@ import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.LightValues;
+import com.zfy.adapter.delegate.impl.AnimationDelegate;
 import com.zfy.adapter.delegate.impl.BaseDelegate;
+import com.zfy.adapter.delegate.impl.DragSwipeDelegate;
+import com.zfy.adapter.delegate.impl.EmptyViewDelegate;
+import com.zfy.adapter.delegate.impl.HFViewDelegate;
+import com.zfy.adapter.delegate.impl.LoadMoreDelegate;
+import com.zfy.adapter.delegate.impl.LoadingViewDelegate;
+import com.zfy.adapter.delegate.impl.NotifyDelegate;
+import com.zfy.adapter.delegate.impl.SectionDelegate;
+import com.zfy.adapter.delegate.impl.SelectorDelegate;
+import com.zfy.adapter.delegate.impl.SpanDelegate;
+import com.zfy.adapter.delegate.impl.TopMoreDelegate;
 
 /**
  * CreateAt : 2018/10/28
@@ -31,6 +42,18 @@ public class DelegateRegistry extends BaseDelegate {
     public DelegateRegistry() {
         mDelegates = new SparseArray<>();
         mDelegateFactorys = new SparseArray<>();
+
+        register(new SpanDelegate());
+        register(new NotifyDelegate());
+        register(IDelegate.HF, HFViewDelegate::new);
+        register(IDelegate.TOP_MORE, TopMoreDelegate::new);
+        register(IDelegate.LOAD_MORE, LoadMoreDelegate::new);
+        register(IDelegate.SELECTOR, SelectorDelegate::new);
+        register(IDelegate.LOADING, LoadingViewDelegate::new);
+        register(IDelegate.EMPTY, EmptyViewDelegate::new);
+        register(IDelegate.DRAG_SWIPE, DragSwipeDelegate::new);
+        register(IDelegate.SECTION, SectionDelegate::new);
+        register(IDelegate.ANIMATOR, AnimationDelegate::new);
     }
 
     public void register(int key, DelegateFactory delegateFactory) {
@@ -69,10 +92,10 @@ public class DelegateRegistry extends BaseDelegate {
     }
 
     @Override
-    public boolean onBindViewHolder(LightHolder holder, int position) {
+    public boolean onBindViewHolder(LightHolder holder, int layoutIndex) {
         boolean result = false;
         for (int i = 0; i < mDelegates.size(); i++) {
-            if (mDelegates.valueAt(i).onBindViewHolder(holder, position)) {
+            if (mDelegates.valueAt(i).onBindViewHolder(holder, layoutIndex)) {
                 result = true;
                 break;
             }

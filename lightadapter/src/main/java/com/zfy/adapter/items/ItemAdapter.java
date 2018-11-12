@@ -2,8 +2,8 @@ package com.zfy.adapter.items;
 
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.able.Typeable;
-import com.zfy.adapter.annotations.ModelIndex;
 import com.zfy.adapter.model.ModelType;
+import com.zfy.adapter.model.Position;
 
 /**
  * CreateAt : 2018/11/12
@@ -38,7 +38,7 @@ public interface ItemAdapter<D> extends Typeable {
      * @param data   数据
      * @param pos    数据位置
      */
-    void onBindView(LightHolder holder, D data, @ModelIndex int pos);
+    void onBindView(LightHolder holder, D data, Position pos);
 
     /**
      * {@inheritDoc}
@@ -49,7 +49,7 @@ public interface ItemAdapter<D> extends Typeable {
      * @param pos    数据位置
      * @param msg    更新的信息
      */
-    void onBindViewUsePayload(LightHolder holder, D data, @ModelIndex int pos, String msg);
+    void onBindViewUsePayload(LightHolder holder, D data, Position pos, String msg);
 
     /**
      * {@inheritDoc}
@@ -59,7 +59,7 @@ public interface ItemAdapter<D> extends Typeable {
      * @param data   数据
      * @param pos    数据位置
      */
-    void onClickEvent(LightHolder holder, D data, @ModelIndex int pos);
+    void onClickEvent(LightHolder holder, D data, Position pos);
 
     /**
      * {@inheritDoc}
@@ -69,7 +69,7 @@ public interface ItemAdapter<D> extends Typeable {
      * @param data   数据
      * @param pos    数据位置
      */
-    void onLongPressEvent(LightHolder holder, D data, @ModelIndex int pos);
+    void onLongPressEvent(LightHolder holder, D data, Position pos);
 
     /**
      * {@inheritDoc}
@@ -79,6 +79,6 @@ public interface ItemAdapter<D> extends Typeable {
      * @param data   数据
      * @param pos    数据位置
      */
-    void onDbClickEvent(LightHolder holder, D data, @ModelIndex int pos);
+    void onDbClickEvent(LightHolder holder, D data, Position pos);
 
 }

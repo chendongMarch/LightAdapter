@@ -15,16 +15,17 @@ import com.zfy.adapter.LightHolder;
  */
 public interface IDelegate {
 
-    int HF = 1;
-    int SPAN = 2;
-    int LOAD_MORE = 3;
-    int TOP_MORE = 4;
-    int SELECTOR = 5;
-    int NOTIFY = 6;
-    int EMPTY = 7;
-    int LOADING = 8;
+    int HF         = 1;
+    int SPAN       = 2;
+    int LOAD_MORE  = 3;
+    int TOP_MORE   = 4;
+    int SELECTOR   = 5;
+    int NOTIFY     = 6;
+    int EMPTY      = 7;
+    int LOADING    = 8;
     int DRAG_SWIPE = 9;
-    int SECTION = 10;
+    int SECTION    = 10;
+    int ANIMATOR   = 11;
 
     /**
      * 获取本代理的 key
@@ -53,10 +54,10 @@ public interface IDelegate {
      * 绑定 ViewHolder
      *
      * @param holder   LightHolder
-     * @param position pos
+     * @param layoutIndex pos
      * @return 是否承担绑定 ViewHolder 的任务
      */
-    boolean onBindViewHolder(LightHolder holder, int position);
+    boolean onBindViewHolder(LightHolder holder, int layoutIndex);
 
     /**
      * 绑定到 RecyclerView

@@ -5,6 +5,7 @@ import android.support.annotation.LayoutRes;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.annotations.ItemType;
 import com.zfy.adapter.model.ModelType;
+import com.zfy.adapter.model.Position;
 
 /**
  * CreateAt : 2018/11/12
@@ -59,23 +60,23 @@ public abstract class LightItemAdapter<D> implements ItemAdapter<D> {
 
 
     @Override
-    public void onBindViewUsePayload(LightHolder holder, D data, int pos, String msg) {
+    public void onBindViewUsePayload(LightHolder holder, D data, Position pos, String msg) {
 
     }
 
     @Override
-    public void onClickEvent(LightHolder holder, D data, int pos) {
+    public void onClickEvent(LightHolder holder, D data, Position pos) {
 
     }
 
     @Override
-    public void onLongPressEvent(LightHolder holder, D data, int pos) {
+    public void onLongPressEvent(LightHolder holder, D data, Position pos) {
 
     }
 
 
     @Override
-    public void onDbClickEvent(LightHolder holder, D data, int pos) {
+    public void onDbClickEvent(LightHolder holder, D data, Position pos) {
 
     }
 }

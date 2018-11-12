@@ -40,11 +40,11 @@ public class EmptyViewDelegate extends BaseViewDelegate implements EmptyViewRef 
     }
 
     @Override
-    public boolean onBindViewHolder(LightHolder holder, int position) {
-        if (mAdapter.getItemViewType(position) == ItemType.TYPE_EMPTY) {
+    public boolean onBindViewHolder(LightHolder holder, int layoutIndex) {
+        if (mAdapter.getItemViewType(layoutIndex) == ItemType.TYPE_EMPTY) {
             return true;
         }
-        return super.onBindViewHolder(holder, position);
+        return super.onBindViewHolder(holder, layoutIndex);
     }
 
 
@@ -106,7 +106,7 @@ public class EmptyViewDelegate extends BaseViewDelegate implements EmptyViewRef 
     public void setEmptyState(int state) {
         mEmptyState.state = state;
         if (mBindCallback != null && mEmptyHolder != null) {
-            mBindCallback.bind(mEmptyHolder, LightValues.NONE, mEmptyState);
+            mBindCallback.bind(mEmptyHolder, null, mEmptyState);
         }
         displayEmptyView(mEmptyState.state != EmptyState.NONE);
     }

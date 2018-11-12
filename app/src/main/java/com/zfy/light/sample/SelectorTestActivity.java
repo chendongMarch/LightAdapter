@@ -10,6 +10,7 @@ import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.assistant.SlidingSelectLayout;
 import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.model.LightView;
+import com.zfy.adapter.model.Position;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.entity.SingleTypeEntity;
@@ -36,11 +37,12 @@ public class SelectorTestActivity extends MvpActivity {
         mData = new LightDiffList<>();
         mAdapter = new LightAdapter<SingleTypeEntity>(mData, R.layout.item_selector) {
             @Override
-            public void onBindView(LightHolder holder, SingleTypeEntity data, int pos) {
+            public void onBindView(LightHolder holder, SingleTypeEntity data, Position pos) {
                 holder.setText(R.id.desc_tv, (data.id % 4 == 0) ? "不允许选中" : data.title);
+
             }
         };
-        mAdapter.header().addHeaderView(LightView.from(R.layout.desc_header), (holder, position) -> {
+        mAdapter.header().addHeaderView(LightView.from(R.layout.desc_header), (holder) -> {
             holder.setText(R.id.desc_tv, Values.getSelectorDesc())
                     .setCallback(R.id.cover_iv, new GlideCallback(Utils.randomImage()))
                     .setClick(R.id.action_fab, v -> {

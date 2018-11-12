@@ -7,8 +7,10 @@ import android.view.ViewGroup;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.common.ItemType;
-import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.IDelegate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * CreateAt : 2018/10/28
@@ -25,6 +27,16 @@ public abstract class BaseDelegate implements IDelegate {
         return mAdapter != null && mView != null;
     }
 
+    protected List<Runnable> mAttachRecyclerViewPendingRunnables = new ArrayList<>();
+
+    protected void postOnRecyclerViewAttach(Runnable runnable) {
+        if (isAttached() && mView.getLayoutManager() != null) {
+            runnable.run();
+        } else {
+            mAttachRecyclerViewPendingRunnables.add(runnable);
+        }
+    }
+
     @Override
     public LightHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return null;
@@ -36,13 +48,19 @@ public abstract class BaseDelegate implements IDelegate {
     }
 
     @Override
-    public boolean onBindViewHolder(LightHolder holder, int position) {
+    public boolean onBindViewHolder(LightHolder holder, int layoutIndex) {
         return false;
     }
 
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         mView = recyclerView;
+        if (!mAttachRecyclerViewPendingRunnables.isEmpty()) {
+            for (Runnable pendingRunnable : mAttachRecyclerViewPendingRunnables) {
+                pendingRunnable.run();
+            }
+            mAttachRecyclerViewPendingRunnables.clear();
+        }
     }
 
     @Override

@@ -17,6 +17,7 @@ import com.zfy.adapter.items.LightItemAdapter;
 import com.zfy.adapter.model.DragSwipeOptions;
 import com.zfy.adapter.model.DragSwipeState;
 import com.zfy.adapter.model.LightView;
+import com.zfy.adapter.model.Position;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.entity.MultiTypeEntity;
@@ -55,7 +56,7 @@ public class DragSwipeActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LightHolder holder, MultiTypeEntity data, int pos) {
+        public void onBindView(LightHolder holder, MultiTypeEntity data, Position pos) {
             holder.setText(R.id.title_tv, "本项支持拖拽")
                     .setText(R.id.desc_tv, "底部按钮，触摸/长按拖拽")
                     .dragOnTouch(R.id.touch_drag_iv)
@@ -74,7 +75,7 @@ public class DragSwipeActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LightHolder holder, MultiTypeEntity data, int pos) {
+        public void onBindView(LightHolder holder, MultiTypeEntity data, Position pos) {
             holder.setText(R.id.title_tv, "本项支持侧滑")
                     .setText(R.id.desc_tv, "右侧按钮，触摸/长按侧滑")
                     .swipeOnTouch(R.id.touch_swipe_iv)
@@ -88,7 +89,7 @@ public class DragSwipeActivity extends MvpActivity {
         mData = new LightDiffList<>();
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         mAdapter = LightAdapter.of(mData, new DragItemAdapter(), new SwipeItemAdapter());
-        mAdapter.header().addHeaderView(LightView.from(R.layout.desc_header), (holder, position) -> {
+        mAdapter.header().addHeaderView(LightView.from(R.layout.desc_header), (holder) -> {
             holder.setText(R.id.desc_tv, Values.getDragSwipeDesc())
                     .setCallback(R.id.cover_iv, new GlideCallback(Utils.randomImage()));
         });

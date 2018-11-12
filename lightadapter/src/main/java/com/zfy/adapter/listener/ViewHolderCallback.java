@@ -9,5 +9,5 @@ import com.zfy.adapter.LightHolder;
  * @author chendong
  */
 public interface ViewHolderCallback {
-    void bind(LightHolder holder, int position);
+    void bind(LightHolder holder);
 }

@@ -9,15 +9,15 @@ import com.march.common.exts.ListX;
 import com.march.common.pool.ExecutorsPool;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
+import com.zfy.adapter.animations.SlideAnimator;
 import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.listener.AdapterCallback;
-import com.zfy.adapter.listener.BindCallback;
 import com.zfy.adapter.listener.ModelTypeConfigCallback;
-import com.zfy.adapter.listener.ViewHolderCallback;
 import com.zfy.adapter.model.EmptyState;
 import com.zfy.adapter.model.LightView;
 import com.zfy.adapter.model.LoadingState;
+import com.zfy.adapter.model.Position;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.entity.MultiTypeEntity;
@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
 
 /**
  * CreateAt : 2018/11/9
@@ -65,7 +64,7 @@ public class LoadTestActivity extends MvpActivity {
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         LightAdapter<MultiTypeEntity> adapter = new LightAdapter<MultiTypeEntity>( mData, updater) {
             @Override
-            public void onBindView(LightHolder holder, MultiTypeEntity data, int pos) {
+            public void onBindView(LightHolder holder, MultiTypeEntity data, Position pos) {
                 holder.setText(R.id.title_tv, "标题 " + data.id)
                         .setText(R.id.desc_tv, "描述 " + data.id + " " + System.currentTimeMillis());
             }
@@ -99,25 +98,20 @@ public class LoadTestActivity extends MvpActivity {
 //            }
 //        });
         // loadingView
-        adapter.loadingView().setLoadingView(LightView.from(R.layout.loading_view), new BindCallback<LoadingState>() {
-            @Override
-            public void bind(LightHolder holder, int pos, LoadingState data) {
-                switch (data.state) {
-                    case LoadingState.LOADING:
-                        holder.setVisible(R.id.pb)
-                                .setText(R.id.content_tv, "加载中请稍候～");
-                        break;
-                    case LoadingState.FINISH:
-                        holder.setGone(R.id.pb)
-                                .setText(R.id.content_tv, "加载完成");
-                        break;
-                }
+        adapter.loadingView().setLoadingView(LightView.from(R.layout.loading_view), (holder, pos, data) -> {
+            switch (data.state) {
+                case LoadingState.LOADING:
+                    holder.setVisible(R.id.pb)
+                            .setText(R.id.content_tv, "加载中请稍候～");
+                    break;
+                case LoadingState.FINISH:
+                    holder.setGone(R.id.pb)
+                            .setText(R.id.content_tv, "加载完成");
+                    break;
             }
         });
         // empty
-        adapter.emptyView().setEmptyView(LightView.from(R.layout.empty_view), new BindCallback<EmptyState>() {
-            @Override
-            public void bind(LightHolder holder, int pos, EmptyState data) {
+        adapter.emptyView().setEmptyView(LightView.from(R.layout.empty_view), (holder, pos, data) -> {
                 holder.setClick(R.id.refresh_tv, v -> {
                     adapter.header().setHeaderEnable(true);
                     mData.update(ListX.range(20, index -> new MultiTypeEntity(index % 7 == 0 ? MultiTypeEntity.TYPE_CAN_SWIPE : MultiTypeEntity.TYPE_CAN_DRAG)));
@@ -125,24 +119,20 @@ public class LoadTestActivity extends MvpActivity {
                     adapter.loadingView().setLoadingEnable(true);
                     adapter.loadMore().setLoadMoreEnable(true);
                 });
-            }
         });
         // header
-        adapter.header().addHeaderView(LightView.from(R.layout.desc_header), new ViewHolderCallback() {
-            @Override
-            public void bind(LightHolder holder, int position) {
-                holder.setText(R.id.desc_tv, Values.getLoadingDesc())
-                        .setClick(R.id.action_fab, v -> {
-                            mData.update(new ArrayList<>());
-                            adapter.header().setHeaderEnable(false);
-                            adapter.loadingView().setLoadingEnable(false);
-                            adapter.loadMore().setLoadMoreEnable(false);
-                            adapter.emptyView().setEmptyState(EmptyState.ERROR);
-                        })
-                        .setCallback(R.id.cover_iv, new GlideCallback(Utils.randomImage()));
-            }
+        adapter.header().addHeaderView(LightView.from(R.layout.desc_header), holder -> {
+            holder.setText(R.id.desc_tv, Values.getLoadingDesc())
+                    .setClick(R.id.action_fab, v -> {
+                        mData.update(new ArrayList<>());
+                        adapter.header().setHeaderEnable(false);
+                        adapter.loadingView().setLoadingEnable(false);
+                        adapter.loadMore().setLoadMoreEnable(false);
+                        adapter.emptyView().setEmptyState(EmptyState.ERROR);
+                    })
+                    .setCallback(R.id.cover_iv, new GlideCallback(Utils.randomImage()));
         });
-        mRecyclerView.setItemAnimator(new SlideInLeftAnimator());
+        adapter.animator().setBindAnimator(new SlideAnimator(SlideAnimator.LEFT));
         mRecyclerView.setAdapter(adapter);
         mData.update(ListX.range(20, index -> new MultiTypeEntity(index % 7 == 0 ? MultiTypeEntity.TYPE_CAN_SWIPE : MultiTypeEntity.TYPE_CAN_DRAG)));
     }

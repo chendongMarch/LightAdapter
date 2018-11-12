@@ -46,11 +46,11 @@ public class LoadingViewDelegate extends BaseDelegate implements LoadingViewRef 
     }
 
     @Override
-    public boolean onBindViewHolder(LightHolder holder, int position) {
-        if (mAdapter.getItemViewType(position) == ItemType.TYPE_LOADING) {
+    public boolean onBindViewHolder(LightHolder holder, int layoutIndex) {
+        if (mAdapter.getItemViewType(layoutIndex) == ItemType.TYPE_LOADING) {
             return true;
         }
-        return super.onBindViewHolder(holder, position);
+        return super.onBindViewHolder(holder, layoutIndex);
     }
 
     @Override
@@ -140,7 +140,7 @@ public class LoadingViewDelegate extends BaseDelegate implements LoadingViewRef 
         }
         mLoadingState.state = state;
         if (mBindCallback != null && mLightHolder != null) {
-            mBindCallback.bind(mLightHolder, LightValues.NONE, mLoadingState);
+            mBindCallback.bind(mLightHolder, null, mLoadingState);
         }
     }
 }

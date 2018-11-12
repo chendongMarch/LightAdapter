@@ -19,6 +19,7 @@ import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.listener.ModelTypeConfigCallback;
+import com.zfy.adapter.model.Position;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.entity.MultiTypeEntity;
@@ -103,8 +104,9 @@ public class MainActivity extends MvpActivity {
             }
         };
         mAdapter = new LightAdapter<MultiTypeEntity>( mEntities, updater) {
+
             @Override
-            public void onBindView(LightHolder holder, MultiTypeEntity data, int pos) {
+            public void onBindView(LightHolder holder, MultiTypeEntity data, Position pos) {
                 holder.setText(R.id.title_tv, data.title)
                         .setText(R.id.desc_tv, data.desc);
                 switch (data.type) {
@@ -135,6 +137,7 @@ public class MainActivity extends MvpActivity {
                         break;
                 }
             }
+
         };
         mAdapter.setClickCallback((holder, pos, data) -> {
             if (!EmptyX.isEmpty(data.url)) {

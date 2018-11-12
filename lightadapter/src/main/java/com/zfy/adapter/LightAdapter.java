@@ -11,9 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.zfy.adapter.able.Typeable;
 import com.zfy.adapter.able.Sectionable;
-import com.zfy.adapter.annotations.ModelIndex;
+import com.zfy.adapter.able.Typeable;
 import com.zfy.adapter.collections.AbstractLightList;
 import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.common.AdapterException;
@@ -23,16 +22,7 @@ import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.delegate.DelegateRegistry;
 import com.zfy.adapter.delegate.IDelegate;
-import com.zfy.adapter.delegate.impl.DragSwipeDelegate;
-import com.zfy.adapter.delegate.impl.EmptyViewDelegate;
-import com.zfy.adapter.delegate.impl.HFViewDelegate;
-import com.zfy.adapter.delegate.impl.LoadMoreDelegate;
-import com.zfy.adapter.delegate.impl.LoadingViewDelegate;
-import com.zfy.adapter.delegate.impl.NotifyDelegate;
-import com.zfy.adapter.delegate.impl.SectionDelegate;
-import com.zfy.adapter.delegate.impl.SelectorDelegate;
-import com.zfy.adapter.delegate.impl.SpanDelegate;
-import com.zfy.adapter.delegate.impl.TopMoreDelegate;
+import com.zfy.adapter.delegate.refs.AnimatorRef;
 import com.zfy.adapter.delegate.refs.DragSwipeRef;
 import com.zfy.adapter.delegate.refs.EmptyViewRef;
 import com.zfy.adapter.delegate.refs.FooterRef;
@@ -48,6 +38,7 @@ import com.zfy.adapter.listener.EventCallback;
 import com.zfy.adapter.listener.ModelTypeConfigCallback;
 import com.zfy.adapter.model.Ids;
 import com.zfy.adapter.model.ModelType;
+import com.zfy.adapter.model.Position;
 import com.zfy.adapter.model.SingleTypeConfigCallback;
 
 import java.util.ArrayList;
@@ -122,16 +113,6 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         mHolderCache = new HashSet<>();
         // 代理注册表
         mDelegateRegistry = new DelegateRegistry();
-        mDelegateRegistry.register(new SpanDelegate());
-        mDelegateRegistry.register(new NotifyDelegate());
-        mDelegateRegistry.register(IDelegate.HF, HFViewDelegate::new);
-        mDelegateRegistry.register(IDelegate.TOP_MORE, TopMoreDelegate::new);
-        mDelegateRegistry.register(IDelegate.LOAD_MORE, LoadMoreDelegate::new);
-        mDelegateRegistry.register(IDelegate.SELECTOR, SelectorDelegate::new);
-        mDelegateRegistry.register(IDelegate.LOADING, LoadingViewDelegate::new);
-        mDelegateRegistry.register(IDelegate.EMPTY, EmptyViewDelegate::new);
-        mDelegateRegistry.register(IDelegate.DRAG_SWIPE, DragSwipeDelegate::new);
-        mDelegateRegistry.register(IDelegate.SECTION, SectionDelegate::new);
         mDelegateRegistry.onAttachAdapter(this);
         // 事件处理
         mLightEvent = new LightEvent<>(this);
@@ -173,28 +154,27 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     }
 
     @Override
-    public final void onBindViewHolder(@NonNull LightHolder holder, int position) {
-        if (!mDelegateRegistry.onBindViewHolder(holder, position)) {
-            int pos = toModelIndex(position);
-            D data = getItem(pos);
-            onBindView(holder, data, pos);
+    public final void onBindViewHolder(@NonNull LightHolder holder, int layoutIndex) {
+        if (!mDelegateRegistry.onBindViewHolder(holder, layoutIndex)) {
+            Position position = obtainPositionByLayoutIndex(layoutIndex);
+            D data = getItem(position.modelIndex);
+            onBindView(holder, data, position);
         }
     }
 
     @Override
-    public final void onBindViewHolder(@NonNull LightHolder holder, int position, @NonNull List<Object> payloads) {
+    public final void onBindViewHolder(@NonNull LightHolder holder, int layoutIndex, @NonNull List<Object> payloads) {
         if (payloads.isEmpty()) {
-            super.onBindViewHolder(holder, position, payloads);
+            super.onBindViewHolder(holder, layoutIndex, payloads);
         } else {
-            int pos = toModelIndex(position);
-            D data = getItem(pos);
-            onBindView(holder, data, pos);
+            Position position = obtainPositionByLayoutIndex(layoutIndex);
+            D data = getItem(position.modelIndex);
             for (Object payload : payloads) {
                 if (payload instanceof Set && !((Set) payload).isEmpty()) {
                     Set msgSet = (Set) payload;
                     for (Object o : msgSet) {
                         if (o instanceof String) {
-                            onBindViewUsePayload(holder, data, pos, (String) o);
+                            onBindViewUsePayload(holder, data, position, (String) o);
                         }
                     }
                 }
@@ -274,6 +254,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         }
     }
 
+
     /**
      * 一般绑定数据
      *
@@ -281,7 +262,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
      * @param data   数据
      * @param pos    位置
      */
-    public abstract void onBindView(LightHolder holder, D data, @ModelIndex int pos);
+    public abstract void onBindView(LightHolder holder, D data, Position pos);
 
     /**
      * 使用 payload 绑定数据
@@ -291,7 +272,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
      * @param pos    位置
      * @param msg    消息
      */
-    public void onBindViewUsePayload(LightHolder holder, D data, @ModelIndex int pos, String msg) {
+    public void onBindViewUsePayload(LightHolder holder, D data, Position pos, String msg) {
     }
 
 
@@ -365,6 +346,14 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         return mIds.obtain(ids);
     }
 
+
+    public Position obtainPositionByLayoutIndex(int layoutIndex) {
+        return new Position(toModelIndex(layoutIndex), layoutIndex);
+    }
+
+    public Position obtainPositionByModelIndex(int modelIndex) {
+        return new Position(modelIndex, toLayoutIndex(modelIndex));
+    }
 
     /**
      * 添加类型更新器
@@ -501,6 +490,12 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         return getDelegate(IDelegate.SECTION);
     }
 
+    /**
+     * @return {@link com.zfy.adapter.delegate.impl.AnimationDelegate}
+     */
+    public AnimatorRef animator() {
+        return getDelegate(IDelegate.ANIMATOR);
+    }
 
     /**
      * 使用 ItemAdapter 构建 LightAdapter，将每个类型进行隔离，逻辑更清晰

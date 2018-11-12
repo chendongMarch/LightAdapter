@@ -1,12 +1,11 @@
 package com.zfy.adapter;
 
-import android.content.Context;
 import android.util.SparseArray;
 
-import com.zfy.adapter.annotations.ModelIndex;
 import com.zfy.adapter.items.ItemAdapter;
 import com.zfy.adapter.listener.ModelTypeConfigCallback;
 import com.zfy.adapter.model.ModelType;
+import com.zfy.adapter.model.Position;
 
 import java.util.List;
 
@@ -20,10 +19,9 @@ class LightMixAdapter<D> extends LightAdapter<D> {
 
     private SparseArray<ItemAdapter<D>> mItemAdapterArray;
 
-    public LightMixAdapter( List<D> datas, SparseArray<ItemAdapter<D>> array, ModelTypeConfigCallback callback) {
+    public LightMixAdapter(List<D> datas, SparseArray<ItemAdapter<D>> array, ModelTypeConfigCallback callback) {
         super( datas, callback);
         this.mItemAdapterArray = array;
-
         setClickCallback((holder, pos, data) -> {
             ModelType modelType = getModelType(data);
             if (modelType != null) {
@@ -47,7 +45,7 @@ class LightMixAdapter<D> extends LightAdapter<D> {
     }
 
     @Override
-    public void onBindView(LightHolder holder, D data, @ModelIndex int pos) {
+    public void onBindView(LightHolder holder, D data, Position pos) {
         ModelType modelType = getModelType(data);
         if (modelType != null) {
             mItemAdapterArray.get(modelType.type).onBindView(holder, data, pos);
@@ -55,7 +53,7 @@ class LightMixAdapter<D> extends LightAdapter<D> {
     }
 
     @Override
-    public void onBindViewUsePayload(LightHolder holder, D data, @ModelIndex int pos, String msg) {
+    public void onBindViewUsePayload(LightHolder holder, D data, Position pos, String msg) {
         ModelType modelType = getModelType(data);
         if (modelType != null) {
             mItemAdapterArray.get(modelType.type).onBindViewUsePayload(holder, data, pos, msg);

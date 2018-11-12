@@ -1,14 +1,13 @@
 package com.zfy.adapter;
 
-import android.os.Build;
 import android.support.v4.view.GestureDetectorCompat;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.zfy.adapter.listener.EventCallback;
 import com.zfy.adapter.model.ModelType;
+import com.zfy.adapter.model.Position;
 
 /**
  * CreateAt : 2018/11/2
@@ -132,10 +131,14 @@ public class LightEvent<D> {
         }
     }
 
+    private Position makePosition(LightHolder holder) {
+        return mAdapter.obtainPositionByLayoutIndex(holder.getAdapterPosition());
+    }
+
     // 点击事件
     private void tryCallClickEvent(LightHolder holder) {
-        int position = mAdapter.toModelIndex(holder.getAdapterPosition());
-        D item = mAdapter.getItem(position);
+        Position position = makePosition(holder);
+        D item = mAdapter.getItem(position.modelIndex);
         ModelType type = mAdapter.getModelType(item);
         if (type != null && type.isEnableClick()) {
             mClickCallback.call(holder, position, item);
@@ -144,8 +147,8 @@ public class LightEvent<D> {
 
     // 长按事件
     private void tryCallLongPressEvent(LightHolder holder) {
-        int position = mAdapter.toModelIndex(holder.getAdapterPosition());
-        D item = mAdapter.getItem(position);
+        Position position = makePosition(holder);
+        D item = mAdapter.getItem(position.modelIndex);
         ModelType type = mAdapter.getModelType(item);
         if (type != null && type.isEnableLongPress()) {
             mLongPressCallback.call(holder, position, item);
@@ -154,8 +157,8 @@ public class LightEvent<D> {
 
     // 双击事件
     private void tryCallDbClickEvent(LightHolder holder) {
-        int position = mAdapter.toModelIndex(holder.getAdapterPosition());
-        D item = mAdapter.getItem(position);
+        Position position = makePosition(holder);
+        D item = mAdapter.getItem(position.modelIndex);
         ModelType type = mAdapter.getModelType(item);
         if (type != null && type.isEnableLongPress()) {
             mDbClickCallback.call(holder, position, item);

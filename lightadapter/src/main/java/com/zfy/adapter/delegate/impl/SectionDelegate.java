@@ -12,6 +12,7 @@ import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.delegate.refs.SectionRef;
 import com.zfy.adapter.listener.BindCallback;
 import com.zfy.adapter.model.ModelType;
+import com.zfy.adapter.model.Position;
 import com.zfy.adapter.model.SingleTypeConfigCallback;
 
 /**
@@ -52,16 +53,17 @@ public class SectionDelegate<D> extends BaseDelegate implements SectionRef<D> {
     }
 
     @Override
-    public boolean onBindViewHolder(LightHolder holder, int position) {
-        if (mBindCallback != null && mAdapter.getItemViewType(position) == ItemType.TYPE_SECTION) {
-            int pos = mAdapter.toModelIndex(position);
-            D data = (D) mAdapter.getItem(pos);
+    @SuppressWarnings("unchecked")
+    public boolean onBindViewHolder(LightHolder holder, int layoutIndex) {
+        if (mBindCallback != null && mAdapter.getItemViewType(layoutIndex) == ItemType.TYPE_SECTION) {
+            Position position = mAdapter.obtainPositionByLayoutIndex(layoutIndex);
+            D data = (D) mAdapter.getItem(position.modelIndex);
             if (data != null) {
-                mBindCallback.bind(holder, pos, data);
+                mBindCallback.bind(holder, position, data);
             }
             return true;
         }
-        return super.onBindViewHolder(holder, position);
+        return super.onBindViewHolder(holder, layoutIndex);
     }
 
 

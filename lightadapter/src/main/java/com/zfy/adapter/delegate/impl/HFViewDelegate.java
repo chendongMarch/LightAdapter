@@ -66,12 +66,12 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
 
 
     @Override
-    public boolean onBindViewHolder(LightHolder holder, int position) {
-        int itemViewType = mAdapter.getItemViewType(position);
+    public boolean onBindViewHolder(LightHolder holder, int layoutIndex) {
+        int itemViewType = mAdapter.getItemViewType(layoutIndex);
         if (itemViewType == ItemType.TYPE_HEADER || itemViewType == ItemType.TYPE_FOOTER) {
             return true;
         }
-        return super.onBindViewHolder(holder, position);
+        return super.onBindViewHolder(holder, layoutIndex);
     }
 
     @Override
@@ -171,7 +171,7 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
                 mAdapter.notifyItemInserted(pos);
             }
             LightHolder holder = new LightHolder(mAdapter, ItemType.TYPE_HEADER, lightView.view);
-            binder.bind(holder, LightValues.NONE);
+            binder.bind(holder);
             mHeaderBinders.add(new Binder(holder, binder));
         });
     }
@@ -196,7 +196,7 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
                 mAdapter.notifyItemInserted(mAdapter.getDelegateRegistry().getAboveItemCount(LightValues.FLOW_LEVEL_FOOTER));
             }
             LightHolder holder = new LightHolder(mAdapter, ItemType.TYPE_FOOTER, itemView);
-            binder.bind(holder, LightValues.NONE);
+            binder.bind(holder);
             mFooterBinders.add(new Binder(holder, binder));
         });
     }
@@ -267,7 +267,7 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
             return;
         }
         for (Binder headerBinder : mHeaderBinders) {
-            headerBinder.callback.bind(headerBinder.holder, LightValues.NONE);
+            headerBinder.callback.bind(headerBinder.holder);
         }
     }
 
@@ -277,7 +277,7 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
             return;
         }
         for (Binder headerBinder : mFooterBinders) {
-            headerBinder.callback.bind(headerBinder.holder, LightValues.NONE);
+            headerBinder.callback.bind(headerBinder.holder);
         }
     }
 

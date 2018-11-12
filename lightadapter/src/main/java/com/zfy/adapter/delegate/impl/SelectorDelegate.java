@@ -1,5 +1,8 @@
 package com.zfy.adapter.delegate.impl;
 
+import android.support.v7.widget.RecyclerView;
+import android.view.View;
+
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.able.Selectable;
 import com.zfy.adapter.assistant.SlidingSelectLayout;
@@ -8,6 +11,7 @@ import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.refs.SelectorRef;
 import com.zfy.adapter.listener.BindCallback;
 import com.zfy.adapter.model.ModelType;
+import com.zfy.adapter.model.Position;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +24,7 @@ import java.util.List;
  */
 public class SelectorDelegate<D> extends BaseDelegate implements SelectorRef<D> {
 
-    private BindCallback<D> mSelectorBinder;
+    private BindCallback<D> mBindCallback;
     private int mSelectType = LightValues.SINGLE;
     private OnSelectListener<D> mOnSelectListener;
     private List<D> mResults = new ArrayList<>();
@@ -32,23 +36,24 @@ public class SelectorDelegate<D> extends BaseDelegate implements SelectorRef<D> 
 
     @Override
     @SuppressWarnings("unchecked")
-    public boolean onBindViewHolder(LightHolder holder, int position) {
-        if (mSelectorBinder == null) {
-            return super.onBindViewHolder(holder, position);
+    public boolean onBindViewHolder(LightHolder holder, int layoutIndex) {
+        if (mBindCallback == null) {
+            return super.onBindViewHolder(holder, layoutIndex);
         }
-        int pos = mAdapter.toModelIndex(position);
-        Object data = mAdapter.getItem(pos);
+        Position position = mAdapter.obtainPositionByLayoutIndex(layoutIndex);
+        Object data = mAdapter.getItem(position.modelIndex);
         if (data != null) {
             ModelType type = mAdapter.getModelType(data);
             if (type != null) {
                 if (type.getType() == ItemType.TYPE_CONTENT || !type.isBuildInType()) {
-                    mSelectorBinder.bind(holder, position, (D) data);
+                    mBindCallback.bind(holder, position, (D) data);
                 }
             }
         }
-        return super.onBindViewHolder(holder, position);
+        return super.onBindViewHolder(holder, layoutIndex);
     }
 
+    @SuppressWarnings("unchecked")
     public void setSlidingSelectLayout(SlidingSelectLayout slidingSelectLayout) {
         slidingSelectLayout.setOnSlidingSelectListener(data -> {
             if (mSelectType == LightValues.SINGLE) {
@@ -62,13 +67,13 @@ public class SelectorDelegate<D> extends BaseDelegate implements SelectorRef<D> 
     @Override
     public void setSingleSelector(BindCallback<D> bindCallback) {
         mSelectType = LightValues.SINGLE;
-        mSelectorBinder = bindCallback;
+        mBindCallback = bindCallback;
     }
 
     @Override
     public void setMultiSelector(BindCallback<D> bindCallback) {
         mSelectType = LightValues.MULTI;
-        mSelectorBinder = bindCallback;
+        mBindCallback = bindCallback;
     }
 
     @Override
@@ -127,13 +132,13 @@ public class SelectorDelegate<D> extends BaseDelegate implements SelectorRef<D> 
         if (!isAttached()) {
             return;
         }
-        int pos = mAdapter.getDatas().indexOf(data);
-        int layoutIndex = mAdapter.toLayoutIndex(pos);
-        LightHolder holder = (LightHolder) mAdapter.getRecyclerView().findViewHolderForLayoutPosition(layoutIndex);
+        int modelIndex = mAdapter.getDatas().indexOf(data);
+        Position position = mAdapter.obtainPositionByModelIndex(modelIndex);
+        LightHolder holder = (LightHolder) mAdapter.getRecyclerView().findViewHolderForLayoutPosition(position.layoutIndex);
         if (holder != null) {
-            mSelectorBinder.bind(holder, pos, data);
+            mBindCallback.bind(holder, position, data);
         } else {
-            mAdapter.notifyItem().change(layoutIndex);
+            mAdapter.notifyItem().change(position.layoutIndex);
         }
     }
 
@@ -149,13 +154,14 @@ public class SelectorDelegate<D> extends BaseDelegate implements SelectorRef<D> 
             if (!isAttached()) {
                 return;
             }
-            int pos = mAdapter.getDatas().indexOf(data);
-            int layoutIndex = mAdapter.toLayoutIndex(pos);
-            LightHolder holder = (LightHolder) mAdapter.getRecyclerView().findViewHolderForLayoutPosition(layoutIndex);
+
+            int modelIndex = mAdapter.getDatas().indexOf(data);
+            Position position = mAdapter.obtainPositionByModelIndex(modelIndex);
+            LightHolder holder = (LightHolder) mAdapter.getRecyclerView().findViewHolderForLayoutPosition(position.layoutIndex);
             if (holder != null) {
-                mSelectorBinder.bind(holder, pos, data);
+                mBindCallback.bind(holder, position, data);
             } else {
-                mAdapter.notifyItem().change(layoutIndex);
+                mAdapter.notifyItem().change(position.layoutIndex);
             }
         }
     }

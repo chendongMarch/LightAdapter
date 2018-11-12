@@ -22,6 +22,18 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
  */
 public class LightUtils {
 
+    /**
+     * @return how to find view holder
+     */
+    public static RecyclerView.ViewHolder findViewHolder() {
+//        RecyclerView recyclerView = mAdapter.getRecyclerView();
+//        View childViewUnder = recyclerView.findChildViewUnder(0, 0);
+//        RecyclerView.ViewHolder holder = recyclerView.findViewHolderForLayoutPosition(1);
+//        RecyclerView.ViewHolder holder = recyclerView.findViewHolderForItemId();
+//        RecyclerView.ViewHolder holder = recyclerView.findContainingViewHolder();
+//        RecyclerView.ViewHolder holder = recyclerView.getChildViewHolder()
+        return null;
+    }
 
     /**
      * @param type type

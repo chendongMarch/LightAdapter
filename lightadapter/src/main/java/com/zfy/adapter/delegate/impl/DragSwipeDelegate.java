@@ -1,7 +1,6 @@
 package com.zfy.adapter.delegate.impl;
 
 import android.annotation.SuppressLint;
-import android.support.annotation.Size;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.MotionEvent;
@@ -13,8 +12,8 @@ import com.zfy.adapter.listener.BindCallback;
 import com.zfy.adapter.model.DragSwipeOptions;
 import com.zfy.adapter.model.DragSwipeState;
 import com.zfy.adapter.model.ModelType;
+import com.zfy.adapter.model.Position;
 
-import java.lang.annotation.Repeatable;
 import java.util.Collections;
 
 /**
@@ -155,8 +154,8 @@ public class DragSwipeDelegate extends BaseDelegate implements DragSwipeRef {
                     break;
             }
             if (mDragSwipeCallback != null) {
-                int modelIndex = mAdapter.toModelIndex(viewHolder.getAdapterPosition());
-                mDragSwipeCallback.bind(lightHolder, modelIndex, mDragSwipeState);
+                Position position = mAdapter.obtainPositionByLayoutIndex(viewHolder.getAdapterPosition());
+                mDragSwipeCallback.bind(lightHolder, position, mDragSwipeState);
             }
         }
 
@@ -176,8 +175,8 @@ public class DragSwipeDelegate extends BaseDelegate implements DragSwipeRef {
                     break;
             }
             if (mDragSwipeCallback != null) {
-                int modelIndex = mAdapter.toModelIndex(lightHolder.getAdapterPosition());
-                mDragSwipeCallback.bind(lightHolder, modelIndex, mDragSwipeState);
+                Position position = mAdapter.obtainPositionByLayoutIndex(viewHolder.getAdapterPosition());
+                mDragSwipeCallback.bind(lightHolder, position, mDragSwipeState);
             }
         }
 
