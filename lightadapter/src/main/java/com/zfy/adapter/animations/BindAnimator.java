@@ -9,7 +9,7 @@ import android.view.animation.LinearInterpolator;
  *
  * @author chendong
  */
-public abstract class LightAnimator implements IAnimator {
+public abstract class BindAnimator implements IAnimator {
 
     private int duration = 300;
 
@@ -24,13 +24,13 @@ public abstract class LightAnimator implements IAnimator {
     }
 
     @Override
-    public IAnimator duration(int duration) {
+    public BindAnimator duration(int duration) {
         this.duration = duration;
         return this;
     }
 
     @Override
-    public IAnimator interceptor(Interpolator interceptor) {
+    public BindAnimator interceptor(Interpolator interceptor) {
         this.interceptor = interceptor;
         return this;
     }

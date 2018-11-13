@@ -5,7 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.animations.LightAnimator;
+import com.zfy.adapter.animations.BindAnimator;
 import com.zfy.adapter.delegate.refs.AnimatorRef;
 import com.zfy.adapter.model.ModelType;
 
@@ -15,11 +15,12 @@ import com.zfy.adapter.model.ModelType;
  *
  * @author chendong
  */
-public class AnimationDelegate extends BaseDelegate implements AnimatorRef {
+public class AnimatorDelegate extends BaseDelegate implements AnimatorRef {
 
     private int          mLastPosition = -1;
     private boolean mAnimOnce = true;
-    private LightAnimator mLightAnimator;
+    private BindAnimator mLightAnimator;
+    private boolean mEnableAnimator = false;
 
     @Override
     public int getKey() {
@@ -28,11 +29,14 @@ public class AnimationDelegate extends BaseDelegate implements AnimatorRef {
 
     @Override
     public boolean onBindViewHolder(LightHolder holder, int layoutIndex) {
-        if (mLightAnimator == null) {
+        if (!mEnableAnimator) {
             return super.onBindViewHolder(holder, layoutIndex);
         }
         ModelType modelType = mAdapter.getModelType(mAdapter.getItemViewType(layoutIndex));
-        LightAnimator animator = (modelType == null || modelType.animator == null) ? mLightAnimator : modelType.animator;
+        BindAnimator animator = (modelType == null || modelType.animator == null) ? mLightAnimator : modelType.animator;
+        if (animator == null) {
+            return super.onBindViewHolder(holder, layoutIndex);
+        }
         int adapterPosition = holder.getAdapterPosition();
         if (!mAnimOnce || adapterPosition > mLastPosition) {
             for (Animator anim : animator.getAnimators(holder.itemView)) {
@@ -47,20 +51,28 @@ public class AnimationDelegate extends BaseDelegate implements AnimatorRef {
     }
 
     @Override
-    public void setBindAnimator(LightAnimator animator) {
+    public void setBindAnimator(BindAnimator animator) {
         mLightAnimator = animator;
+        mEnableAnimator = true;
     }
 
     @Override
     public void setBindAnimatorOnlyOnce(boolean animOnlyOnce) {
         mAnimOnce = animOnlyOnce;
+        mEnableAnimator = true;
     }
 
     @Override
     public void setItemAnimator(RecyclerView.ItemAnimator animator) {
         postOnRecyclerViewAttach(() -> mView.setItemAnimator(animator));
+        mEnableAnimator = true;
     }
 
+
+    @Override
+    public void setAnimatorEnable(boolean enable) {
+        mEnableAnimator = enable;
+    }
 
     private void clear(View v) {
         v.setAlpha(1);

@@ -1,4 +1,4 @@
-package com.zfy.light.sample;
+package com.zfy.light.sample.cases;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +20,10 @@ import com.zfy.adapter.model.LightView;
 import com.zfy.adapter.model.Position;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
+import com.zfy.light.sample.GlideCallback;
+import com.zfy.light.sample.R;
+import com.zfy.light.sample.Utils;
+import com.zfy.light.sample.Values;
 import com.zfy.light.sample.entity.MultiTypeEntity;
 
 import butterknife.BindView;
@@ -31,12 +35,12 @@ import butterknife.BindView;
  * @author chendong
  */
 @MvpV(layout = R.layout.drag_swipe_activity)
-public class DragSwipeActivity extends MvpActivity {
+public class DragSwipeTestActivity extends MvpActivity {
 
     private LightAdapter<MultiTypeEntity> mAdapter;
 
     public static void startActivity(Context context) {
-        Intent intent = new Intent(context, DragSwipeActivity.class);
+        Intent intent = new Intent(context, DragSwipeTestActivity.class);
         context.startActivity(intent);
     }
 
@@ -88,7 +92,7 @@ public class DragSwipeActivity extends MvpActivity {
     public void init() {
         mData = new LightDiffList<>();
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        mAdapter = LightAdapter.of(mData, new DragItemAdapter(), new SwipeItemAdapter());
+        mAdapter = LightAdapter.ofItems(mData, new DragItemAdapter(), new SwipeItemAdapter());
         mAdapter.header().addHeaderView(LightView.from(R.layout.desc_header), (holder) -> {
             holder.setText(R.id.desc_tv, Values.getDragSwipeDesc())
                     .setCallback(R.id.cover_iv, new GlideCallback(Utils.randomImage()));

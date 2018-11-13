@@ -1,4 +1,4 @@
-package com.zfy.light.sample;
+package com.zfy.light.sample.cases;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -22,13 +22,17 @@ import com.zfy.adapter.listener.ModelTypeConfigCallback;
 import com.zfy.adapter.model.Position;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
+import com.zfy.light.sample.DescDialog;
+import com.zfy.light.sample.GlideCallback;
+import com.zfy.light.sample.R;
+import com.zfy.light.sample.TypeGridSpaceItemDecoration;
+import com.zfy.light.sample.Values;
 import com.zfy.light.sample.entity.MultiTypeEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import jp.wasabeef.recyclerview.adapters.SlideInLeftAnimationAdapter;
 
 /**
  * CreateAt : 2018/11/8
@@ -139,7 +143,7 @@ public class MainActivity extends MvpActivity {
             }
 
         };
-        mAdapter.setClickCallback((holder, pos, data) -> {
+        mAdapter.setClickEvent((holder, pos, data) -> {
             if (!EmptyX.isEmpty(data.url)) {
                 openBrowser(data.url);
                 return;
@@ -159,12 +163,12 @@ public class MainActivity extends MvpActivity {
                 launchActivity(new Intent(getContext(), data.targetClazz), 0);
             }
         });
-        mAdapter.setLongPressCallback((holder, pos, data) -> {
+        mAdapter.setLongPressEvent((holder, pos, data) -> {
             if (data.type == MultiTypeEntity.TYPE_EVENT) {
                 ToastX.show("长按事件");
             }
         });
-        mAdapter.setDbClickCallback((holder, pos, data) -> {
+        mAdapter.setDbClickEvent((holder, pos, data) -> {
             if (data.type == MultiTypeEntity.TYPE_EVENT) {
                 ToastX.show("双击事件");
             }
@@ -317,7 +321,7 @@ public class MainActivity extends MvpActivity {
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DELEGATE);
         homeEntity.title = "DragSwipeDelegate";
         homeEntity.subTitle = "adapter.dragSwipe()";
-        homeEntity.targetClazz = DragSwipeActivity.class;
+        homeEntity.targetClazz = DragSwipeTestActivity.class;
         homeEntity.desc = "控制条目的拖拽和侧滑，支持灵活的控制；";
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DELEGATE);
@@ -343,6 +347,12 @@ public class MainActivity extends MvpActivity {
         homeEntity.subTitle = "adapter.selector()";
         homeEntity.targetClazz = SelectorTestActivity.class;
         homeEntity.desc = "选择器功能实现，主要为了解决业务中常见的选择器效果；";
+        list.add(homeEntity);
+        homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DELEGATE);
+        homeEntity.title = "AnimatorDelegate";
+        homeEntity.subTitle = "mAdapter.animator()";
+        homeEntity.targetClazz = AnimatorTestActivity.class;
+        homeEntity.desc = "负责 Item 动画效果实现，支持 ItemAnimator 和 BindAnimator；";
         list.add(homeEntity);
         // 辅助
         homeEntity = new MultiTypeEntity();
@@ -383,10 +393,7 @@ public class MainActivity extends MvpActivity {
         homeEntity.title = "Expandable";
         homeEntity.desc = "分组列表，可展开和收起等；";
         list.add(homeEntity);
-        homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_FUTURE);
-        homeEntity.title = "Animation";
-        homeEntity.desc = "目前暂不考虑内置 Animation 的实现，更推荐使用专门做 RecyclerView Animation 的类库；";
-        list.add(homeEntity);
+
 
         // 项目
         homeEntity = new MultiTypeEntity();

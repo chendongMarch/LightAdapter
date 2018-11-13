@@ -19,11 +19,11 @@ public class LightEvent<D> {
 
     public interface EventSetting<D> {
 
-        void setClickCallback(EventCallback<D> clickCallback);
+        void setClickEvent(EventCallback<D> clickCallback);
 
-        void setLongPressCallback(EventCallback<D> longPressCallback);
+        void setLongPressEvent(EventCallback<D> longPressCallback);
 
-        void setDbClickCallback(EventCallback<D> dbClickCallback);
+        void setDbClickEvent(EventCallback<D> dbClickCallback);
     }
 
     private LightAdapter<D> mAdapter;

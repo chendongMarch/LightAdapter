@@ -1,4 +1,4 @@
-package com.zfy.light.sample;
+package com.zfy.light.sample.cases;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -9,10 +9,15 @@ import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.assistant.SlidingSelectLayout;
 import com.zfy.adapter.collections.LightDiffList;
+import com.zfy.adapter.listener.EventCallback;
 import com.zfy.adapter.model.LightView;
 import com.zfy.adapter.model.Position;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
+import com.zfy.light.sample.GlideCallback;
+import com.zfy.light.sample.R;
+import com.zfy.light.sample.Utils;
+import com.zfy.light.sample.Values;
 import com.zfy.light.sample.entity.SingleTypeEntity;
 
 import butterknife.BindView;
@@ -39,9 +44,17 @@ public class SelectorTestActivity extends MvpActivity {
             @Override
             public void onBindView(LightHolder holder, SingleTypeEntity data, Position pos) {
                 holder.setText(R.id.desc_tv, (data.id % 4 == 0) ? "不允许选中" : data.title);
-
             }
         };
+
+        mAdapter.setClickEvent(new EventCallback<SingleTypeEntity>() {
+            @Override
+            public void call(LightHolder holder, Position pos, SingleTypeEntity data) {
+                mAdapter.selector().toggleItem(data);
+            }
+        });
+
+
         mAdapter.header().addHeaderView(LightView.from(R.layout.desc_header), (holder) -> {
             holder.setText(R.id.desc_tv, Values.getSelectorDesc())
                     .setCallback(R.id.cover_iv, new GlideCallback(Utils.randomImage()))
@@ -59,10 +72,6 @@ public class SelectorTestActivity extends MvpActivity {
             }
             return true;
         });
-        mAdapter.setClickCallback((holder, pos, data) -> {
-            mAdapter.selector().toggleItem(data);
-        });
-
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
         mRecyclerView.setAdapter(mAdapter);
         mData.update(ListX.range(100, index -> new SingleTypeEntity(index, "title " + index, "desc " + index)));

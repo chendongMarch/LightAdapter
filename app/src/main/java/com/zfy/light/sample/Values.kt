@@ -113,4 +113,16 @@ object Values {
     2. Header/Footer 支持使用 Holder 绑定数据，并可以随时更新
     3. 点击封面上面的按钮增加 Header，点击封面删除 Header，点击列表项更新显示。
     """.trimIndent()
+
+
+    @JvmStatic
+    fun getAnimatorDesc() = """
+        动画效果展示，支持 ItemAnimator 和 BindAnimator
+
+        - ItemAnimator 是 RecyclerView 支持的动画，只有在调用局部更新方法时才会生效；ItemAnimator 推荐 GitHub - wasabeef/recyclerview-animators
+        - BindAnimator 是 Adapter 在执行 onBindViewHolder 时执行的 View 动画，他在 Item 被绑定时执行；
+
+        其中 BindAnimator 支持不同类型设置不同的动画， 如下两种类型加载的动画也不同，当然也支持全局动画设置。
+
+    """.trimIndent()
 }

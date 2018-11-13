@@ -10,7 +10,7 @@ import android.view.View;
  *
  * @author chendong
  */
-public class AlphaAnimator extends LightAnimator {
+public class AlphaAnimator extends BindAnimator {
 
     private float from = 0f;
 

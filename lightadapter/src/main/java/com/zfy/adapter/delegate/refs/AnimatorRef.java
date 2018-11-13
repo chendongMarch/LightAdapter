@@ -1,10 +1,9 @@
 package com.zfy.adapter.delegate.refs;
 
 import android.support.v7.widget.RecyclerView;
-import android.view.animation.Interpolator;
 
 import com.zfy.adapter.animations.IAnimator;
-import com.zfy.adapter.animations.LightAnimator;
+import com.zfy.adapter.animations.BindAnimator;
 
 /**
  * CreateAt : 2018/11/12
@@ -23,7 +22,7 @@ public interface AnimatorRef {
      * @see com.zfy.adapter.animations.ScaleAnimator
      * @see com.zfy.adapter.animations.SlideAnimator
      */
-    void setBindAnimator(LightAnimator animator);
+    void setBindAnimator(BindAnimator animator);
 
     /**
      * bind 动画只执行一次
@@ -40,4 +39,9 @@ public interface AnimatorRef {
      */
     void setItemAnimator(RecyclerView.ItemAnimator animator);
 
+    /**
+     * 设置动画是否可用
+     * @param enable 动画是否可用
+     */
+    void setAnimatorEnable(boolean enable);
 }

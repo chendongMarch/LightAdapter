@@ -9,7 +9,7 @@ import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.LightValues;
-import com.zfy.adapter.delegate.impl.AnimationDelegate;
+import com.zfy.adapter.delegate.impl.AnimatorDelegate;
 import com.zfy.adapter.delegate.impl.BaseDelegate;
 import com.zfy.adapter.delegate.impl.DragSwipeDelegate;
 import com.zfy.adapter.delegate.impl.EmptyViewDelegate;
@@ -53,7 +53,7 @@ public class DelegateRegistry extends BaseDelegate {
         register(IDelegate.EMPTY, EmptyViewDelegate::new);
         register(IDelegate.DRAG_SWIPE, DragSwipeDelegate::new);
         register(IDelegate.SECTION, SectionDelegate::new);
-        register(IDelegate.ANIMATOR, AnimationDelegate::new);
+        register(IDelegate.ANIMATOR, AnimatorDelegate::new);
     }
 
     public void register(int key, DelegateFactory delegateFactory) {

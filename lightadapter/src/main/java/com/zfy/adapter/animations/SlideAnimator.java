@@ -10,7 +10,7 @@ import android.view.View;
  *
  * @author chendong
  */
-public class SlideAnimator extends LightAnimator {
+public class SlideAnimator extends BindAnimator {
 
     public static final int BOTTOM = 0;
     public static final int RIGHT  = 1;

@@ -22,6 +22,7 @@ import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.delegate.DelegateRegistry;
 import com.zfy.adapter.delegate.IDelegate;
+import com.zfy.adapter.delegate.impl.AnimatorDelegate;
 import com.zfy.adapter.delegate.refs.AnimatorRef;
 import com.zfy.adapter.delegate.refs.DragSwipeRef;
 import com.zfy.adapter.delegate.refs.EmptyViewRef;
@@ -170,13 +171,15 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
             Position position = obtainPositionByLayoutIndex(layoutIndex);
             D data = getItem(position.modelIndex);
             for (Object payload : payloads) {
-                if (payload instanceof Set && !((Set) payload).isEmpty()) {
-                    Set msgSet = (Set) payload;
-                    for (Object o : msgSet) {
-                        if (o instanceof String) {
-                            onBindViewUsePayload(holder, data, position, (String) o);
-                        }
+                if (!(payload instanceof Set) || ((Set) payload).isEmpty()) {
+                    continue;
+                }
+                Set msgSet = (Set) payload;
+                for (Object o : msgSet) {
+                    if (!(o instanceof String)) {
+                        continue;
                     }
+                    onBindView(holder, data, position);
                 }
             }
         }
@@ -275,19 +278,32 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     public void onBindViewUsePayload(LightHolder holder, D data, Position pos, String msg) {
     }
 
+//    private BindCallback<D>        mBindCallback;
+//    private PayloadBindCallback<D> mPayloadBindCallback;
+//
+//
+//    public LightAdapter<D> onBindViewUsePayload(PayloadBindCallback<D> payloadBindCallback) {
+//        mPayloadBindCallback = payloadBindCallback;
+//        return this;
+//    }
+//
+//    public LightAdapter<D> onBindView(BindCallback<D> bindCallback) {
+//        mBindCallback = bindCallback;
+//        return this;
+//    }
 
     @Override
-    public void setClickCallback(EventCallback<D> clickCallback) {
+    public void setClickEvent(EventCallback<D> clickCallback) {
         mLightEvent.setClickCallback(clickCallback);
     }
 
     @Override
-    public void setLongPressCallback(EventCallback<D> longPressCallback) {
+    public void setLongPressEvent(EventCallback<D> longPressCallback) {
         mLightEvent.setLongPressCallback(longPressCallback);
     }
 
     @Override
-    public void setDbClickCallback(EventCallback<D> dbClickCallback) {
+    public void setDbClickEvent(EventCallback<D> dbClickCallback) {
         mLightEvent.setDbClickCallback(dbClickCallback);
     }
 
@@ -491,7 +507,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     }
 
     /**
-     * @return {@link com.zfy.adapter.delegate.impl.AnimationDelegate}
+     * @return {@link AnimatorDelegate}
      */
     public AnimatorRef animator() {
         return getDelegate(IDelegate.ANIMATOR);
@@ -508,7 +524,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
      * @see com.zfy.adapter.items.LightItemAdapter
      */
     @CheckResult
-    public static <DATA> LightAdapter<DATA> of(List<DATA> list, ItemAdapter<DATA>... adapters) {
+    public static <DATA> LightAdapter<DATA> ofItems(List<DATA> list, ItemAdapter<DATA>... adapters) {
         SparseArray<ItemAdapter<DATA>> array = new SparseArray<>();
         for (ItemAdapter<DATA> itemAdapter : adapters) {
             int type = itemAdapter.getItemType();

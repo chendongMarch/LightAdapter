@@ -22,21 +22,21 @@ class LightMixAdapter<D> extends LightAdapter<D> {
     public LightMixAdapter(List<D> datas, SparseArray<ItemAdapter<D>> array, ModelTypeConfigCallback callback) {
         super( datas, callback);
         this.mItemAdapterArray = array;
-        setClickCallback((holder, pos, data) -> {
+        setClickEvent((holder, pos, data) -> {
             ModelType modelType = getModelType(data);
             if (modelType != null) {
                 array.get(modelType.type).onClickEvent(holder, data, pos);
             }
         });
 
-        setLongPressCallback((holder, pos, data) -> {
+        setLongPressEvent((holder, pos, data) -> {
             ModelType modelType = getModelType(data);
             if (modelType != null) {
                 array.get(modelType.type).onLongPressEvent(holder, data, pos);
             }
         });
 
-        setDbClickCallback((holder, pos, data) -> {
+        setDbClickEvent((holder, pos, data) -> {
             ModelType modelType = getModelType(data);
             if (modelType != null) {
                 array.get(modelType.type).onDbClickEvent(holder, data, pos);

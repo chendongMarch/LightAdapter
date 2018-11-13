@@ -27,8 +27,6 @@ public class MultiTypeEntity implements Typeable, Sectionable, Diffable<MultiTyp
 
     public static final int TYPE_CAN_DRAG       = 10; // 长按拖拽，view 拖拽
     public static final int TYPE_CAN_SWIPE      = 12; // 自动开启滑动的
-    public static final int TYPE_CAN_SWIPE_VIEW = 13; // 手动触发滑动的
-    public static final int TYPE_NORMAL         = 14; // 正常的
 
     public int      type;
     public boolean  isSection;

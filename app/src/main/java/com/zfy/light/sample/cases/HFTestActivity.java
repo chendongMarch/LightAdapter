@@ -1,4 +1,4 @@
-package com.zfy.light.sample;
+package com.zfy.light.sample.cases;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +12,10 @@ import com.zfy.adapter.model.LightView;
 import com.zfy.adapter.model.Position;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
+import com.zfy.light.sample.GlideCallback;
+import com.zfy.light.sample.R;
+import com.zfy.light.sample.Utils;
+import com.zfy.light.sample.Values;
 import com.zfy.light.sample.entity.SingleTypeEntity;
 
 import butterknife.BindView;
@@ -45,7 +49,7 @@ public class HFTestActivity extends MvpActivity {
         addHeader(adapter);
         addFooter(adapter);
 
-        adapter.setClickCallback((holder, pos, data) -> {
+        adapter.setClickEvent((holder, pos, data) -> {
             testStr = String.valueOf(System.currentTimeMillis());
             adapter.header().notifyHeaderUpdate();
             adapter.footer().notifyFooterUpdate();

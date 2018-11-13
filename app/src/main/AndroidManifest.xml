@@ -11,15 +11,16 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".cases.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DragSwipeActivity" />
-        <activity android:name=".LoadTestActivity" />
-        <activity android:name=".SelectorTestActivity" />
-        <activity android:name=".HFTestActivity" />
+        <activity android:name=".cases.DragSwipeTestActivity" />
+        <activity android:name=".cases.LoadTestActivity" />
+        <activity android:name=".cases.SelectorTestActivity" />
+        <activity android:name=".cases.HFTestActivity" />
+        <activity android:name=".cases.AnimatorTestActivity" />
     </application>
 </manifest>

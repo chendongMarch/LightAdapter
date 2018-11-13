@@ -1,15 +1,15 @@
-package com.zfy.light.sample;
+package com.zfy.light.sample.cases;
 
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.animation.OvershootInterpolator;
 
 import com.march.common.exts.ListX;
 import com.march.common.pool.ExecutorsPool;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.animations.SlideAnimator;
 import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.listener.AdapterCallback;
@@ -20,12 +20,17 @@ import com.zfy.adapter.model.LoadingState;
 import com.zfy.adapter.model.Position;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
+import com.zfy.light.sample.GlideCallback;
+import com.zfy.light.sample.R;
+import com.zfy.light.sample.Utils;
+import com.zfy.light.sample.Values;
 import com.zfy.light.sample.entity.MultiTypeEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
 
 /**
  * CreateAt : 2018/11/9
@@ -76,9 +81,7 @@ public class LoadTestActivity extends MvpActivity {
                 ExecutorsPool.ui(() -> {
                     List<MultiTypeEntity> items = ListX.range(20, index -> new MultiTypeEntity(index % 7 == 0 ? MultiTypeEntity.TYPE_CAN_SWIPE : MultiTypeEntity.TYPE_CAN_DRAG));
                     adapter.loadMore().finishLoadMore();
-                    post(() -> {
-                        mData.append(items);
-                    }, 300);
+                    mData.append(items);
                 }, 1500);
             }
         });
@@ -132,7 +135,14 @@ public class LoadTestActivity extends MvpActivity {
                     })
                     .setCallback(R.id.cover_iv, new GlideCallback(Utils.randomImage()));
         });
-        adapter.animator().setBindAnimator(new SlideAnimator(SlideAnimator.LEFT));
+//        adapter.animator().setBindAnimator(new SlideAnimator(SlideAnimator.LEFT));
+//        adapter.animator().setItemAnimator(new SlideInLeftAnimator(new OvershootInterpolator()));
+        adapter.animator().setItemAnimator(new SlideInLeftAnimator(new OvershootInterpolator()){
+            @Override
+            protected long getAddDelay(RecyclerView.ViewHolder holder) {
+                return 50;
+            }
+        });
         mRecyclerView.setAdapter(adapter);
         mData.update(ListX.range(20, index -> new MultiTypeEntity(index % 7 == 0 ? MultiTypeEntity.TYPE_CAN_SWIPE : MultiTypeEntity.TYPE_CAN_DRAG)));
     }
