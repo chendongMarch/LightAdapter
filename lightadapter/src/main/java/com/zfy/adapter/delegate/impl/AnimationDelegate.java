@@ -3,8 +3,6 @@ package com.zfy.adapter.delegate.impl;
 import android.animation.Animator;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.animation.Interpolator;
-import android.view.animation.LinearInterpolator;
 
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.animations.LightAnimator;
@@ -18,8 +16,6 @@ import com.zfy.adapter.delegate.refs.AnimatorRef;
  */
 public class AnimationDelegate extends BaseDelegate implements AnimatorRef {
 
-    private int          mDuration     = 300;
-    private Interpolator mInterpolator = new LinearInterpolator();
     private int          mLastPosition = -1;
 
     private boolean mAnimOnce = true;
@@ -39,8 +35,8 @@ public class AnimationDelegate extends BaseDelegate implements AnimatorRef {
         int adapterPosition = holder.getAdapterPosition();
         if (!mAnimOnce || adapterPosition > mLastPosition) {
             for (Animator anim : mLightAnimator.getAnimators(holder.itemView)) {
-                anim.setDuration(mDuration).start();
-                anim.setInterpolator(mInterpolator);
+                anim.setDuration(mLightAnimator.getDuration()).start();
+                anim.setInterpolator(mLightAnimator.getInterceptor());
             }
             mLastPosition = adapterPosition;
         } else {
@@ -52,13 +48,6 @@ public class AnimationDelegate extends BaseDelegate implements AnimatorRef {
     @Override
     public void setBindAnimator(LightAnimator animator) {
         mLightAnimator = animator;
-    }
-
-    @Override
-    public void setBindAnimator(LightAnimator animator, int duration, Interpolator interpolator) {
-        mLightAnimator = animator;
-        mDuration = duration;
-        mInterpolator = interpolator;
     }
 
     @Override

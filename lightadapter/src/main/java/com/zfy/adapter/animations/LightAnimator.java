@@ -1,14 +1,37 @@
 package com.zfy.adapter.animations;
 
-import android.animation.Animator;
-import android.view.View;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 
 /**
- * CreateAt : 2018/11/12
+ * CreateAt : 2018/11/13
  * Describe :
  *
  * @author chendong
  */
-public interface LightAnimator {
-    Animator[] getAnimators(View view);
+public abstract class LightAnimator implements IAnimator {
+
+    private int duration = 300;
+
+    private Interpolator interceptor = new LinearInterpolator();
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public Interpolator getInterceptor() {
+        return interceptor;
+    }
+
+    @Override
+    public IAnimator duration(int duration) {
+        this.duration = duration;
+        return this;
+    }
+
+    @Override
+    public IAnimator interceptor(Interpolator interceptor) {
+        this.interceptor = interceptor;
+        return this;
+    }
 }

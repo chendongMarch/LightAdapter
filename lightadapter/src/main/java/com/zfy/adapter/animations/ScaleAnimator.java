@@ -10,7 +10,7 @@ import android.view.View;
  *
  * @author chendong
  */
-public class ScaleAnimator implements LightAnimator {
+public class ScaleAnimator extends LightAnimator {
 
     private float fromX = .5f, fromY = .5f;
 
