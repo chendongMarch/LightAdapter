@@ -3,6 +3,7 @@ package com.zfy.adapter.model;
 import android.graphics.Rect;
 import android.support.annotation.LayoutRes;
 
+import com.zfy.adapter.animations.LightAnimator;
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.SpanSize;
 
@@ -23,6 +24,7 @@ public class ModelType {
     public boolean enableDrag      = false; // 是否允许拖动
     public boolean enableSwipe     = false; // 是否允许滑动
     public boolean enablePin       = false; // 钉住，支持悬停效果
+    public LightAnimator animator;
 
     public Rect spaceRect;
 

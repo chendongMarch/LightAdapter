@@ -7,6 +7,7 @@ import android.view.View;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.animations.LightAnimator;
 import com.zfy.adapter.delegate.refs.AnimatorRef;
+import com.zfy.adapter.model.ModelType;
 
 /**
  * CreateAt : 2018/11/12
@@ -17,9 +18,7 @@ import com.zfy.adapter.delegate.refs.AnimatorRef;
 public class AnimationDelegate extends BaseDelegate implements AnimatorRef {
 
     private int          mLastPosition = -1;
-
     private boolean mAnimOnce = true;
-
     private LightAnimator mLightAnimator;
 
     @Override
@@ -32,11 +31,13 @@ public class AnimationDelegate extends BaseDelegate implements AnimatorRef {
         if (mLightAnimator == null) {
             return super.onBindViewHolder(holder, layoutIndex);
         }
+        ModelType modelType = mAdapter.getModelType(mAdapter.getItemViewType(layoutIndex));
+        LightAnimator animator = (modelType == null || modelType.animator == null) ? mLightAnimator : modelType.animator;
         int adapterPosition = holder.getAdapterPosition();
         if (!mAnimOnce || adapterPosition > mLastPosition) {
-            for (Animator anim : mLightAnimator.getAnimators(holder.itemView)) {
-                anim.setDuration(mLightAnimator.getDuration()).start();
-                anim.setInterpolator(mLightAnimator.getInterceptor());
+            for (Animator anim : animator.getAnimators(holder.itemView)) {
+                anim.setDuration(animator.getDuration()).start();
+                anim.setInterpolator(animator.getInterceptor());
             }
             mLastPosition = adapterPosition;
         } else {
