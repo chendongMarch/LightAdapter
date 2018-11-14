@@ -69,12 +69,18 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
         }
     }
 
-    protected LightAdapter               mAdapter;
-    protected LightAdapterUpdateCallback mCallback;
+    private LightAdapterUpdateCallback mCallback;
+
+    LightList() {
+        mCallback = new LightAdapterUpdateCallback();
+    }
 
     public void setAdapter(LightAdapter adapter) {
-        mAdapter = adapter;
-        mCallback.setAdapter(mAdapter);
+        mCallback.setAdapter(adapter);
+    }
+
+    public LightAdapterUpdateCallback getCallback() {
+        return mCallback;
     }
 
     /**
