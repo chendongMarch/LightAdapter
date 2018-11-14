@@ -1,6 +1,7 @@
 package com.zfy.adapter.collections;
 
 import android.os.Parcel;
+import android.support.annotation.IntRange;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.v7.util.ListUpdateCallback;
@@ -18,11 +19,11 @@ import java.util.ListIterator;
 
 /**
  * CreateAt : 2018/11/8
- * Describe :
+ * Describe : 对外支持更新的 List
  *
  * @author chendong
  */
-public abstract class AbstractLightList<T extends Diffable<T>> extends AbstractList<T> {
+public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
 
     /**
      * 发送 DiffResult 到 LightAdapter 更新
@@ -68,7 +69,7 @@ public abstract class AbstractLightList<T extends Diffable<T>> extends AbstractL
         }
     }
 
-    protected LightAdapter mAdapter;
+    protected LightAdapter               mAdapter;
     protected LightAdapterUpdateCallback mCallback;
 
     public void setAdapter(LightAdapter adapter) {
@@ -96,37 +97,38 @@ public abstract class AbstractLightList<T extends Diffable<T>> extends AbstractL
     }
 
     @Override
-    public int indexOf(Object o) {
+    public int indexOf(@NonNull Object o) {
         return getList().indexOf(o);
     }
 
     @Override
-    public int lastIndexOf(Object o) {
+    public int lastIndexOf(@NonNull Object o) {
         return getList().lastIndexOf(o);
     }
 
     @NonNull
     @Override
-    public List<T> subList(int fromIndex, int toIndex) {
+    public List<T> subList(@IntRange(from = 0) int fromIndex, @IntRange(from = 0) int toIndex) {
         return getList().subList(fromIndex, toIndex);
     }
 
     /******************************************写方法*********************************************/
 
     @Override
-    public T set(int index, T element) {
+    public T set(@IntRange(from = 0) int index, @NonNull T element) {
         return getList().set(index, element);
     }
 
     @Override
-    public boolean remove(Object o) {
+    public boolean remove(@NonNull Object o) {
         return getList().remove(o);
     }
 
     @Override
-    public T remove(int index) {
+    public T remove(@IntRange(from = 0) int index) {
         return getList().remove(index);
     }
+
     @Override
     public int hashCode() {
         return getList().hashCode();
@@ -153,7 +155,7 @@ public abstract class AbstractLightList<T extends Diffable<T>> extends AbstractL
      * @param newItems 新的数据源
      */
     @MainThread
-    public abstract void update(List<T> newItems);
+    public abstract void update(@NonNull List<T> newItems);
 
 
     /**
@@ -163,7 +165,7 @@ public abstract class AbstractLightList<T extends Diffable<T>> extends AbstractL
      * @see List#addAll(Collection)
      */
     @MainThread
-    public void updateAddAll(List<T> newItems) {
+    public void updateAddAll(@NonNull List<T> newItems) {
         List<T> snapshot = snapshot();
         snapshot.addAll(newItems);
         update(snapshot);
@@ -176,7 +178,7 @@ public abstract class AbstractLightList<T extends Diffable<T>> extends AbstractL
      * @see List#add(Object)
      */
     @MainThread
-    public void updateAdd(T newItem) {
+    public void updateAdd(@NonNull T newItem) {
         List<T> snapshot = snapshot();
         snapshot.add(newItem);
         update(snapshot);
@@ -189,7 +191,7 @@ public abstract class AbstractLightList<T extends Diffable<T>> extends AbstractL
      * @see List#addAll(int, Collection)
      */
     @MainThread
-    public void updateAddAll(int index, List<T> newItems) {
+    public void updateAddAll(@IntRange(from = 0) int index, @NonNull List<T> newItems) {
         List<T> snapshot = snapshot();
         snapshot.addAll(index, newItems);
         update(snapshot);
@@ -202,7 +204,7 @@ public abstract class AbstractLightList<T extends Diffable<T>> extends AbstractL
      * @see List#add(int, Object)
      */
     @MainThread
-    public void updateAdd(int index, T newItem) {
+    public void updateAdd(@IntRange(from = 0) int index, @NonNull T newItem) {
         List<T> snapshot = snapshot();
         snapshot.add(index, newItem);
         update(snapshot);
@@ -216,7 +218,7 @@ public abstract class AbstractLightList<T extends Diffable<T>> extends AbstractL
      * @see List#remove(int)
      */
     @MainThread
-    public void updateRemove(int index) {
+    public void updateRemove(@IntRange(from = 0) int index) {
         List<T> snapshot = snapshot();
         if (snapshot.remove(index) != null) {
             update(snapshot);
@@ -230,7 +232,7 @@ public abstract class AbstractLightList<T extends Diffable<T>> extends AbstractL
      * @see List#remove(Object)
      */
     @MainThread
-    public void updateRemove(T item) {
+    public void updateRemove(@NonNull T item) {
         List<T> snapshot = snapshot();
         if (snapshot.remove(item)) {
             update(snapshot);
@@ -246,7 +248,7 @@ public abstract class AbstractLightList<T extends Diffable<T>> extends AbstractL
      * @see List#set(int, Object)
      */
     @MainThread
-    public void updateSet(int index, LightConsumer<T> howToUpdateConsumer) {
+    public void updateSet(@IntRange(from = 0) int index, @NonNull LightConsumer<T> howToUpdateConsumer) {
         List<T> snapshot = snapshot();
         setItem(snapshot, index, howToUpdateConsumer);
     }
@@ -254,11 +256,11 @@ public abstract class AbstractLightList<T extends Diffable<T>> extends AbstractL
     /**
      * 循环更新列表中满足条件的所有数据时
      *
-     * @param shouldUpdate 返回是否需要更新这一项
-     * @param howToUpdateConsumer  如何更新该数据
+     * @param shouldUpdate        返回是否需要更新这一项
+     * @param howToUpdateConsumer 如何更新该数据
      */
     @MainThread
-    public void updateForEach(LightPredicate<T> shouldUpdate, LightConsumer<T> howToUpdateConsumer) {
+    public void updateForEach(@NonNull LightPredicate<T> shouldUpdate, @NonNull LightConsumer<T> howToUpdateConsumer) {
         List<T> ts = foreach(shouldUpdate, howToUpdateConsumer);
         update(ts);
     }

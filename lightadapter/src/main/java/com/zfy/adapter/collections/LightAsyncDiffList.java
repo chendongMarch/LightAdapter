@@ -16,11 +16,11 @@ import java.util.List;
  *
  * @author chendong
  */
-public class AsyncLightDiffList<T extends Diffable<T>> extends AbstractLightList<T> {
+public class LightAsyncDiffList<T extends Diffable<T>> extends LightList<T> {
 
     private final AsyncListDiffer<T> differ;
 
-    public AsyncLightDiffList() {
+    public LightAsyncDiffList() {
         mCallback = new LightAdapterUpdateCallback();
         DiffUtil.ItemCallback<T> itemCallback = new DiffUtil.ItemCallback<T>() {
             @Override

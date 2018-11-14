@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @author chendong
  */
-public class LightDiffList<T extends Diffable<T>> extends AbstractLightList<T> {
+public class LightDiffList<T extends Diffable<T>> extends LightList<T> {
 
     private final Object LIST_LOCK = new Object();
     private final DiffUtilCallback<T> mDiffUtilCallback;

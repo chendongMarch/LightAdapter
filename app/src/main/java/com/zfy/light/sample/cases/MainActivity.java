@@ -17,6 +17,7 @@ import com.march.common.exts.ToastX;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.collections.LightDiffList;
+import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.listener.ModelTypeConfigCallback;
 import com.zfy.adapter.model.Position;
@@ -49,8 +50,8 @@ public class MainActivity extends MvpActivity {
     @BindView(R.id.app_bar)    View         mAppBarLayout;
     @BindView(R.id.toolbar)    Toolbar      mToolbar;
 
-    private LightDiffList<MultiTypeEntity> mEntities;
-    private LightAdapter<MultiTypeEntity>  mAdapter;
+    private LightList<MultiTypeEntity>    mEntities;
+    private LightAdapter<MultiTypeEntity> mAdapter;
 
     @Override
     public void init() {
@@ -436,6 +437,40 @@ public class MainActivity extends MvpActivity {
     }
 
     public void openBrowser(String url) {
+
+//        MultiTypeEntity item = new MultiTypeEntity();
+//        List<MultiTypeEntity> list = new ArrayList<>();
+//        // 读方法
+//        mEntities.size();
+//        mEntities.indexOf(item);
+//        mEntities.lastIndexOf(item);
+//        // 写方法 - 列表变更
+//        mEntities.remove(0);
+//        mEntities.remove(item);
+//        mEntities.add(item);
+//        mEntities.add(0, item);
+//        mEntities.addAll(0, list);
+//        mEntities.addAll(list);
+//        // 写方法 - 对象变更
+//        mEntities.set(0, item);
+//
+//        // 写&更新
+//        mEntities.updateRemove(0);
+//        mEntities.updateRemove(item);
+//        mEntities.updateAdd(item);
+//        mEntities.updateAdd(0, item);
+//        mEntities.updateAddAll(list);
+//        mEntities.updateAddAll(0, list);
+//        mEntities.updateSet(0, entity -> {
+//            entity.title = "new title";
+//        });
+//        mEntities.updateForEach(entity-> {
+//            return entity.title.length()>10;
+//        },entity->{
+//            entity.title = "new title";
+//        });
+
+
         Uri uri = Uri.parse(url);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         startActivity(intent);
