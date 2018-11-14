@@ -1,8 +1,6 @@
 package com.zfy.adapter.collections;
 
-import android.os.Build;
 import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.v7.util.ListUpdateCallback;
@@ -14,6 +12,7 @@ import com.zfy.adapter.function.LightPredicate;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -72,7 +71,6 @@ public abstract class AbstractLightList<T extends Diffable<T>> extends AbstractL
     protected LightAdapter mAdapter;
     protected LightAdapterUpdateCallback mCallback;
 
-
     public void setAdapter(LightAdapter adapter) {
         mAdapter = adapter;
         mCallback.setAdapter(mAdapter);
@@ -85,6 +83,7 @@ public abstract class AbstractLightList<T extends Diffable<T>> extends AbstractL
      */
     public abstract List<T> getList();
 
+    /******************************************读方法*********************************************/
 
     @Override
     public T get(int i) {
@@ -94,21 +93,6 @@ public abstract class AbstractLightList<T extends Diffable<T>> extends AbstractL
     @Override
     public int size() {
         return getList().size();
-    }
-
-    @Override
-    public T set(int index, T element) {
-        return getList().set(index, element);
-    }
-
-    @Override
-    public boolean remove(Object o) {
-        return getList().remove(o);
-    }
-
-    @Override
-    public T remove(int index) {
-        return getList().remove(index);
     }
 
     @Override
@@ -127,6 +111,22 @@ public abstract class AbstractLightList<T extends Diffable<T>> extends AbstractL
         return getList().subList(fromIndex, toIndex);
     }
 
+    /******************************************写方法*********************************************/
+
+    @Override
+    public T set(int index, T element) {
+        return getList().set(index, element);
+    }
+
+    @Override
+    public boolean remove(Object o) {
+        return getList().remove(o);
+    }
+
+    @Override
+    public T remove(int index) {
+        return getList().remove(index);
+    }
     @Override
     public int hashCode() {
         return getList().hashCode();
@@ -160,67 +160,133 @@ public abstract class AbstractLightList<T extends Diffable<T>> extends AbstractL
      * 在原有数据基础上面追加数据
      *
      * @param newItems 新的数据源
+     * @see List#addAll(Collection)
      */
     @MainThread
-    public void append(List<T> newItems) {
-        List<T> newList = new ArrayList<>();
-        newList.addAll(getList());
-        newList.addAll(newItems);
-        update(newList);
+    public void updateAddAll(List<T> newItems) {
+        List<T> snapshot = snapshot();
+        snapshot.addAll(newItems);
+        update(snapshot);
+    }
+
+    /**
+     * 在原有数据基础上面追加数据
+     *
+     * @param newItem 新的单个数据源
+     * @see List#add(Object)
+     */
+    @MainThread
+    public void updateAdd(T newItem) {
+        List<T> snapshot = snapshot();
+        snapshot.add(newItem);
+        update(snapshot);
+    }
+
+    /**
+     * 在原有数据基础上面追加数据
+     *
+     * @param newItems 新的数据源
+     * @see List#addAll(int, Collection)
+     */
+    @MainThread
+    public void updateAddAll(int index, List<T> newItems) {
+        List<T> snapshot = snapshot();
+        snapshot.addAll(index, newItems);
+        update(snapshot);
+    }
+
+    /**
+     * 在原有数据基础上面追加数据
+     *
+     * @param newItem 新的单个数据源
+     * @see List#add(int, Object)
+     */
+    @MainThread
+    public void updateAdd(int index, T newItem) {
+        List<T> snapshot = snapshot();
+        snapshot.add(index, newItem);
+        update(snapshot);
     }
 
 
     /**
-     * 循环检测数据更新
+     * 删除指定位置的数据
+     *
+     * @param index 下标
+     * @see List#remove(int)
+     */
+    @MainThread
+    public void updateRemove(int index) {
+        List<T> snapshot = snapshot();
+        if (snapshot.remove(index) != null) {
+            update(snapshot);
+        }
+    }
+
+    /**
+     * 删除指定位置的数据
+     *
+     * @param item 数据
+     * @see List#remove(Object)
+     */
+    @MainThread
+    public void updateRemove(T item) {
+        List<T> snapshot = snapshot();
+        if (snapshot.remove(item)) {
+            update(snapshot);
+        }
+    }
+
+
+    /**
+     * 更新某个位置的数据
+     *
+     * @param index               下标
+     * @param howToUpdateConsumer 如何更新数据
+     * @see List#set(int, Object)
+     */
+    @MainThread
+    public void updateSet(int index, LightConsumer<T> howToUpdateConsumer) {
+        List<T> snapshot = snapshot();
+        setItem(snapshot, index, howToUpdateConsumer);
+    }
+
+    /**
+     * 循环更新列表中满足条件的所有数据时
      *
      * @param shouldUpdate 返回是否需要更新这一项
-     * @param howToUpdate  如何更新该数据
+     * @param howToUpdateConsumer  如何更新该数据
      */
     @MainThread
-    public void update(LightPredicate<T> shouldUpdate, LightConsumer<T> howToUpdate) {
-        List<T> ts = foreach(shouldUpdate, howToUpdate);
-        update(ts);
-    }
-
-    /**
-     * 更新某一项指定的
-     *
-     * @param pos         位置
-     * @param howToUpdate 如何更新该数据
-     */
-    @MainThread
-    public void update(int pos, LightConsumer<T> howToUpdate) {
-        List<T> ts = snapshot();
-        setItem(ts, pos, howToUpdate);
+    public void updateForEach(LightPredicate<T> shouldUpdate, LightConsumer<T> howToUpdateConsumer) {
+        List<T> ts = foreach(shouldUpdate, howToUpdateConsumer);
         update(ts);
     }
 
 
     // 循环数据执行操作
     private List<T> foreach(LightPredicate<T> needUpdate, LightConsumer<T> consumer) {
-        List<T> newItems = snapshot();
+        List<T> snapshot = snapshot();
         T t;
-        for (int i = 0; i < newItems.size(); i++) {
-            t = newItems.get(i);
+        for (int i = 0; i < snapshot.size(); i++) {
+            t = snapshot.get(i);
             if (needUpdate.test(t)) {
-                setItem(newItems, i, consumer);
+                setItem(snapshot, i, consumer);
             }
         }
-        return newItems;
+        return snapshot;
     }
 
-    // 设置某项
-    private void setItem(List<T> items, int pos, LightConsumer<T> consumer) {
-        T item = items.get(pos);
-        Parcelable newItem = copy(((Parcelable) item));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            consumer.accept((T) newItem);
-        }
-        items.set(pos, (T) newItem);
+    // 复制数据后实现 set(index, item) 功能
+    private void setItem(List<T> list, int pos, LightConsumer<T> consumer) {
+        T item = list.get(pos);
+        T copy = copy(item);
+        consumer.accept(copy);
+        list.set(pos, copy);
     }
 
-    // 复制新的数据
-    private <P extends Parcelable> P copy(P input) {
+    // 使用 Parcelable 复制一份新的数据
+    private T copy(T input) {
         Parcel parcel = null;
         try {
             parcel = Parcel.obtain();

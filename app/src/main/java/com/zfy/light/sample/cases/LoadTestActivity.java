@@ -81,7 +81,7 @@ public class LoadTestActivity extends MvpActivity {
                 ExecutorsPool.ui(() -> {
                     List<MultiTypeEntity> items = ListX.range(20, index -> new MultiTypeEntity(index % 7 == 0 ? MultiTypeEntity.TYPE_CAN_SWIPE : MultiTypeEntity.TYPE_CAN_DRAG));
                     adapter.loadMore().finishLoadMore();
-                    mData.append(items);
+                    mData.updateAddAll(items);
                 }, 1500);
             }
         });

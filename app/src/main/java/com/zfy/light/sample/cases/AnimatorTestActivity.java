@@ -100,6 +100,6 @@ public class AnimatorTestActivity extends MvpActivity {
             entity.subTitle = "SubTitle " + index;
             return entity;
         });
-        mEntities.append(list);
+        mEntities.updateAddAll(list);
     }
 }

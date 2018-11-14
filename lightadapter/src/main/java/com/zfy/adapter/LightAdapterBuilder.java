@@ -35,7 +35,6 @@ public class LightAdapterBuilder<D> {
         mList = datas;
     }
 
-
     public LightAdapterBuilder(List<D> datas, ModelTypeConfigCallback callback) {
         mCallback = callback;
         mList = datas;

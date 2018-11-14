@@ -27,5 +27,4 @@ public class LightValues {
     public static final int FLOW_LEVEL_CONTENT = 50; // content level
     public static final int FLOW_LEVEL_FOOTER = 60; // footer level
     public static final int FLOW_LEVEL_LOADING = 70; // footer level
-
 }
