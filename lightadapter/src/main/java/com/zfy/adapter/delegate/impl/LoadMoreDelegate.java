@@ -21,11 +21,12 @@ public class LoadMoreDelegate extends BaseDelegate implements LoadMoreRef {
     public static final int STRATEGY_SCROLL = 0; // 通过检测 scroll 获取加载更多
     public static final int STRATEGY_BIND   = 1; // 通过检测 onBindViewHolder 获取加载更多
 
-    private int mStrategy = STRATEGY_BIND;
-    private boolean mLoadingMore; // 是否在加载更多
-    private int mStartTryLoadMoreItemCount; // 预加载的个数
-    private boolean mReachBottom; // 是否到达底部
-    private boolean mLoadMoreEnable;
+    private int mStrategy = STRATEGY_SCROLL;
+    private boolean         mLoadingMore; // 是否在加载更多
+    private int             mStartTryLoadMoreItemCount; // 预加载的个数
+    private boolean         mReachBottom; // 是否到达底部
+    private boolean         mLoadMoreEnable; // 是否可以加载
+    private boolean         mLoadMoreEnableFlagInternal = true; // 是否可以加载
     private AdapterCallback mCallback; // 加载更多回调
 
     public LoadMoreDelegate() {
@@ -45,7 +46,7 @@ public class LoadMoreDelegate extends BaseDelegate implements LoadMoreRef {
         if (mStrategy == STRATEGY_SCROLL) {
             return super.onBindViewHolder(holder, layoutIndex);
         }
-        if (!mLoadMoreEnable) {
+        if (!mLoadMoreEnable || !mLoadMoreEnableFlagInternal) {
             return super.onBindViewHolder(holder, layoutIndex);
         }
         Position position = mAdapter.obtainPositionByLayoutIndex(layoutIndex);
@@ -67,7 +68,7 @@ public class LoadMoreDelegate extends BaseDelegate implements LoadMoreRef {
                 if (mStrategy == STRATEGY_BIND) {
                     return;
                 }
-                if (!mLoadMoreEnable) {
+                if (!mLoadMoreEnable || !mLoadMoreEnableFlagInternal) {
                     return;
                 }
                 // 停止，到达底部，没有在加载
@@ -84,7 +85,7 @@ public class LoadMoreDelegate extends BaseDelegate implements LoadMoreRef {
                 if (mStrategy == STRATEGY_BIND) {
                     return;
                 }
-                if (!mLoadMoreEnable) {
+                if (!mLoadMoreEnable || !mLoadMoreEnableFlagInternal) {
                     return;
                 }
                 if (isAttached() && dy > 0) {
@@ -118,4 +119,7 @@ public class LoadMoreDelegate extends BaseDelegate implements LoadMoreRef {
         mCallback = callback;
     }
 
+    public void setLoadMoreEnableFlagInternal(boolean loadMoreEnableFlagInternal) {
+        mLoadMoreEnableFlagInternal = loadMoreEnableFlagInternal;
+    }
 }

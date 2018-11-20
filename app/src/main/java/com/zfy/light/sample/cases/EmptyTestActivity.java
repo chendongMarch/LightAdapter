@@ -2,93 +2,81 @@ package com.zfy.light.sample.cases;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.animation.OvershootInterpolator;
 
 import com.march.common.exts.ListX;
 import com.march.common.exts.ToastX;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightAdapterBuilder;
 import com.zfy.adapter.animations.ScaleAnimator;
-import com.zfy.adapter.animations.SlideAnimator;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.listener.ModelTypeConfigCallback;
-import com.zfy.adapter.model.LightView;
+import com.zfy.adapter.model.EmptyState;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.GlideCallback;
 import com.zfy.light.sample.R;
 import com.zfy.light.sample.SampleUtils;
 import com.zfy.light.sample.Utils;
-import com.zfy.light.sample.Values;
 import com.zfy.light.sample.entity.MultiTypeEntity;
 
 import java.util.List;
 
 import butterknife.BindView;
-import jp.wasabeef.recyclerview.animators.ScaleInAnimator;
 
 /**
  * CreateAt : 2018/11/13
- * Describe : 测试动画效果，ItemAnimator/BindAnimator
+ * Describe : 空白页面测试
  *
  * @author chendong
  */
-@MvpV(layout = R.layout.animator_activity)
-public class AnimatorTestActivity extends MvpActivity {
-
-    private static boolean sUseBindAnimator = false;
+@MvpV(layout = R.layout.sample_activity)
+public class EmptyTestActivity extends MvpActivity {
 
     @BindView(R.id.content_rv) RecyclerView mContentRv;
+
+    private int mLoadCount = 0;
 
     private LightAdapter<MultiTypeEntity> mAdapter;
     private LightList<MultiTypeEntity>    mEntities;
 
     @Override
     public void init() {
-        sUseBindAnimator = !sUseBindAnimator;
         mEntities = LightList.diffList();
+        // type callback
         ModelTypeConfigCallback callback = modelType -> {
             switch (modelType.type) {
                 case MultiTypeEntity.TYPE_DELEGATE:
                     modelType.spanSize = SpanSize.SPAN_SIZE_HALF;
                     modelType.layoutId = R.layout.item_deleate;
-                    if (sUseBindAnimator) {
-                        modelType.animator = new ScaleAnimator(.1f).duration(500).interceptor(new OvershootInterpolator());
-                    }
                     break;
                 case MultiTypeEntity.TYPE_PROJECT:
                     modelType.spanSize = SpanSize.SPAN_SIZE_HALF;
                     modelType.layoutId = R.layout.item_cover;
-                    if (sUseBindAnimator) {
-                        modelType.animator = new SlideAnimator(SlideAnimator.LEFT).duration(500).interceptor(new OvershootInterpolator());
-                    }
                     break;
             }
         };
+        // adapter
         mAdapter = new LightAdapterBuilder<>(mEntities, callback).onBindView((holder, pos, data) -> {
             holder.setText(R.id.title_tv, data.title)
                     .setText(R.id.desc_tv, data.desc);
             switch (data.type) {
                 case MultiTypeEntity.TYPE_DELEGATE:
-                    holder.setText(R.id.subtitle_tv, sUseBindAnimator ? "BindAnimator-缩放动画" : "ItemAnimator-缩放动画");
+                    holder.setText(R.id.subtitle_tv, "子标题");
                     break;
                 case MultiTypeEntity.TYPE_PROJECT:
-                    holder.setCallback(R.id.cover_iv, new GlideCallback(Utils.randomImage()))
-                            .setText(R.id.desc_tv, sUseBindAnimator ? "BindAnimator-左滑动画" : "ItemAnimator-缩放动画");
+                    holder.setCallback(R.id.cover_iv, new GlideCallback(Utils.randomImage()));
                     break;
             }
         }).onClickEvent((holder, pos, data) -> {
             ToastX.show("click item");
         }).build();
         // header
-        mAdapter.header().addHeaderView(LightView.from(R.layout.desc_header), (holder) -> {
-            holder.setText(R.id.desc_tv, Values.getAnimatorDesc())
-                    .setCallback(R.id.cover_iv, new GlideCallback(Utils.randomImage()))
-                    .setClick(R.id.action_fab, v -> {
-                    });
+        // SampleUtils.addHeader(mAdapter, Values.getEmptyDesc(), null);
+        SampleUtils.addEmpty(mAdapter, v -> {
+            setEmpty(false);
+            appendData();
         });
-        //
         SampleUtils.addLoadingView(mAdapter);
         // loadMore
         mAdapter.loadMore().setLoadMoreListener(adapter -> {
@@ -98,31 +86,31 @@ public class AnimatorTestActivity extends MvpActivity {
             }, 2000);
         });
         // animator
-        mAdapter.animator().setAnimatorEnable(true);
-        if (sUseBindAnimator) {
-            mAdapter.animator().setBindAnimatorOnlyOnce(false);
-            ToastX.showLong("使用 BindAnimator，并且开启每次绑定都会执行动画，再次进入切换到 ItemAnimator");
-        } else {
-            mAdapter.animator().setItemAnimator(new ScaleInAnimator(new OvershootInterpolator()) {
-                @Override
-                public long getAddDuration() {
-                    return 200;
-                }
-
-                @Override
-                protected long getAddDelay(RecyclerView.ViewHolder holder) {
-                    return 50;
-                }
-            });
-            ToastX.showLong("使用 ItemAnimator，只有局部刷新才会触发动画，再次进入切换到 BindAnimator");
-        }
+        mAdapter.animator().setBindAnimator(new ScaleAnimator(.1f));
         mContentRv.setLayoutManager(new GridLayoutManager(getContext(), 2));
         mContentRv.setAdapter(mAdapter);
-        appendData();
+
+        // 模拟失败
+        setEmpty(true);
     }
 
 
+    public void setEmpty(boolean empty) {
+        if (empty) {
+            mLoadCount = 0;
+            mAdapter.emptyView().setEmptyState(EmptyState.ERROR);
+        } else {
+            mAdapter.emptyView().setEmptyState(EmptyState.NONE);
+        }
+    }
+
     private void appendData() {
+        mLoadCount++;
+        if (mLoadCount > 2) {
+            mEntities.updateClear();
+            setEmpty(true);
+            return;
+        }
         List<MultiTypeEntity> list = ListX.range(10, index -> {
             MultiTypeEntity entity = new MultiTypeEntity(index % 3 == 0 ? MultiTypeEntity.TYPE_DELEGATE : MultiTypeEntity.TYPE_PROJECT);
             entity.title = "Title " + index;

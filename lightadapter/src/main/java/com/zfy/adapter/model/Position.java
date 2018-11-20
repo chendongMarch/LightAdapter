@@ -17,6 +17,8 @@ public class Position {
     public int modelIndex;
     public int layoutIndex;
 
+    public boolean isSelect;
+
     public Position(int modelIndex, int layoutIndex) {
         this.modelIndex = modelIndex;
         this.layoutIndex = layoutIndex;

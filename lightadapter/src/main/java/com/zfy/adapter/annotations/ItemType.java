@@ -16,10 +16,10 @@ import java.lang.annotation.Target;
  */
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE, ElementType.FIELD})
 public @interface ItemType {
 
-    int type();
+    int type() default com.zfy.adapter.common.ItemType.TYPE_CONTENT;
 
     int spanSize() default SpanSize.NONE; // 跨越
 

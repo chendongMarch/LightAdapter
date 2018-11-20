@@ -22,5 +22,8 @@
         <activity android:name=".cases.SelectorTestActivity" />
         <activity android:name=".cases.HFTestActivity" />
         <activity android:name=".cases.AnimatorTestActivity" />
+        <activity android:name=".cases.SampleTestActivity" />
+        <activity android:name=".cases.EmptyTestActivity" />
+        <activity android:name=".cases.TopMoreTestActivity" />
     </application>
 </manifest>

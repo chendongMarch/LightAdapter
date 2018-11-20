@@ -11,7 +11,7 @@ import com.march.common.exts.ListX;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.annotations.ItemType;
-import com.zfy.adapter.collections.LightDiffList;
+import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.items.LightItemAdapter;
 import com.zfy.adapter.model.DragSwipeOptions;
@@ -46,12 +46,9 @@ public class DragSwipeTestActivity extends MvpActivity {
 
     @BindView(R.id.content_rv) RecyclerView mRecyclerView;
 
-    private LightDiffList<MultiTypeEntity> mData;
+    private LightList<MultiTypeEntity> mData;
 
-
-    @ItemType(type = MultiTypeEntity.TYPE_CAN_DRAG,
-            spanSize = SpanSize.SPAN_SIZE_HALF,
-            enableDrag = true)
+    @ItemType(type = MultiTypeEntity.TYPE_CAN_DRAG, spanSize = SpanSize.SPAN_SIZE_HALF)
     static class DragItemAdapter extends LightItemAdapter<MultiTypeEntity> {
 
         @Override
@@ -68,9 +65,7 @@ public class DragSwipeTestActivity extends MvpActivity {
         }
     }
 
-    @ItemType(type = MultiTypeEntity.TYPE_CAN_SWIPE,
-            spanSize = SpanSize.SPAN_SIZE_ALL,
-            enableSwipe = true)
+    @ItemType(type = MultiTypeEntity.TYPE_CAN_SWIPE, spanSize = SpanSize.SPAN_SIZE_ALL)
     static class SwipeItemAdapter extends LightItemAdapter<MultiTypeEntity> {
 
         @Override
@@ -90,7 +85,7 @@ public class DragSwipeTestActivity extends MvpActivity {
 
     @Override
     public void init() {
-        mData = new LightDiffList<>();
+        mData = LightList.diffList();
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         mAdapter = LightAdapter.ofItems(mData, new DragItemAdapter(), new SwipeItemAdapter());
         mAdapter.header().addHeaderView(LightView.from(R.layout.desc_header), (holder) -> {

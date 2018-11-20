@@ -1,12 +1,10 @@
 package com.zfy.adapter.delegate.impl;
 
-import android.support.v7.widget.RecyclerView;
-import android.view.View;
-
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.able.Selectable;
 import com.zfy.adapter.assistant.SlidingSelectLayout;
 import com.zfy.adapter.common.ItemType;
+import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.refs.SelectorRef;
 import com.zfy.adapter.listener.BindCallback;
@@ -43,9 +41,9 @@ public class SelectorDelegate<D> extends BaseDelegate implements SelectorRef<D> 
         Position position = mAdapter.obtainPositionByLayoutIndex(layoutIndex);
         Object data = mAdapter.getItem(position.modelIndex);
         if (data != null) {
-            ModelType type = mAdapter.getModelType(data);
-            if (type != null) {
-                if (type.getType() == ItemType.TYPE_CONTENT || !type.isBuildInType()) {
+            ModelType modelType = mAdapter.getModelType(data);
+            if (modelType != null) {
+                if (modelType.type == ItemType.TYPE_CONTENT || !LightUtils.isBuildInType(modelType.type)) {
                     mBindCallback.bind(holder, position, (D) data);
                 }
             }
@@ -122,7 +120,7 @@ public class SelectorDelegate<D> extends BaseDelegate implements SelectorRef<D> 
         if (isSelect(data)) {
             return;
         }
-        if (mOnSelectListener != null && !mOnSelectListener.onSelect(data)) {
+        if (mOnSelectListener != null && !mOnSelectListener.onSelect(data, true)) {
             return;
         }
         mResults.add(data);
@@ -145,6 +143,9 @@ public class SelectorDelegate<D> extends BaseDelegate implements SelectorRef<D> 
     @Override
     public void releaseItem(D data) {
         if (!isSelect(data)) {
+            return;
+        }
+        if (!mOnSelectListener.onSelect(data, false)) {
             return;
         }
         if (mResults.remove(data)) {

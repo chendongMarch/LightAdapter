@@ -67,6 +67,10 @@ public class DelegateRegistry extends BaseDelegate {
         mDelegates.append(delegate.getKey(), delegate);
     }
 
+    public boolean isLoaded(int type) {
+        return mDelegates.get(type) != null;
+    }
+
     @Override
     public int getKey() {
         return LightValues.NONE;

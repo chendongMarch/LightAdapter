@@ -386,6 +386,9 @@ public class LightHolder extends RecyclerView.ViewHolder {
     //////////////////////////////  -- View.Event Click --  //////////////////////////////
 
     public LightHolder setClick(Ids ids, View.OnClickListener listener) {
+        if(listener == null){
+            return this;
+        }
         for (int id : ids.ids()) {
             View view = getView(id);
             if (view == null) {

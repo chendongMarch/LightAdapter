@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -16,11 +17,13 @@ import com.march.common.exts.SizeX;
 import com.march.common.exts.ToastX;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.collections.LightDiffList;
+import com.zfy.adapter.annotations.ItemType;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.listener.ModelTypeConfigCallback;
+import com.zfy.adapter.model.ModelType;
 import com.zfy.adapter.model.Position;
+import com.zfy.adapter.type.ModelTypeRegistry;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.DescDialog;
@@ -51,64 +54,34 @@ public class MainActivity extends MvpActivity {
     @BindView(R.id.toolbar)    Toolbar      mToolbar;
 
     private LightList<MultiTypeEntity>    mEntities;
+
+    @ItemType()
     private LightAdapter<MultiTypeEntity> mAdapter;
 
     @Override
     public void init() {
-        mEntities = new LightDiffList<>();
+
+        Snackbar snackbar = Snackbar.make(mRecyclerView, "点击某项查看 Demo 效果，\n长按查看该模块相关文档", Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction("知道了～", v -> snackbar.dismiss()).show();
+
+
+        mEntities = LightList.diffList();
         mToolbar.setTitleTextColor(Color.WHITE);
         mAppBarLayout.getLayoutParams().height = (int) (SizeX.WIDTH * 9f / 16);
         String coverUrl = "http://cdn1.showjoy.com/shop/images/20181108/KFHSC1SYSMFYSUAUHPFV1541688945136.png";
         Glide.with(getContext()).load(coverUrl).into(mCoverIv);
 
-        // updater
-        ModelTypeConfigCallback updater = modelType -> {
-            switch (modelType.type) {
-                case MultiTypeEntity.TYPE_LINK:
-                    modelType.layoutId = R.layout.item_link;
-                    modelType.spanSize = SpanSize.SPAN_SIZE_ALL;
-                    break;
-                case MultiTypeEntity.TYPE_DESC:
-                    modelType.layoutId = R.layout.item_desc;
-                    modelType.spanSize = SpanSize.SPAN_SIZE_ALL;
-                    break;
-                case MultiTypeEntity.TYPE_BASIC:
-                    modelType.layoutId = R.layout.item_basic;
-                    modelType.spanSize = SpanSize.SPAN_SIZE_HALF;
-                    break;
-                case MultiTypeEntity.TYPE_LIST:
-                    modelType.layoutId = R.layout.item_list;
-                    modelType.spanSize = SpanSize.SPAN_SIZE_HALF;
-                    break;
-                case MultiTypeEntity.TYPE_EVENT:
-                    modelType.layoutId = R.layout.item_event;
-                    modelType.spanSize = SpanSize.SPAN_SIZE_THIRD;
-                    modelType.enableDbClick = true;
-                    break;
-                case MultiTypeEntity.TYPE_HOLDER:
-                    modelType.layoutId = R.layout.item_holder;
-                    modelType.spanSize = SpanSize.SPAN_SIZE_ALL;
-                    break;
-                case MultiTypeEntity.TYPE_DELEGATE:
-                    modelType.layoutId = R.layout.item_deleate;
-                    modelType.spanSize = SpanSize.SPAN_SIZE_HALF;
-                    break;
-                case MultiTypeEntity.TYPE_ASSISTANT:
-                    modelType.layoutId = R.layout.item_assistant;
-                    modelType.spanSize = SpanSize.SPAN_SIZE_HALF;
-                    break;
-                case MultiTypeEntity.TYPE_FUTURE:
-                    modelType.layoutId = R.layout.item_future;
-                    modelType.spanSize = SpanSize.SPAN_SIZE_THIRD;
-                    break;
-                case MultiTypeEntity.TYPE_PROJECT:
-                    modelType.layoutId = R.layout.item_project;
-                    modelType.spanSize = SpanSize.SPAN_SIZE_HALF;
-                    modelType.spaceRect = new Rect(20, 20, 20, 20);
-                    break;
-            }
-        };
-        mAdapter = new LightAdapter<MultiTypeEntity>( mEntities, updater) {
+        ModelTypeRegistry registry = ModelTypeRegistry.create()
+                .add(MultiTypeEntity.TYPE_LINK, R.layout.item_link, SpanSize.SPAN_SIZE_ALL)
+                .add(MultiTypeEntity.TYPE_DESC, R.layout.item_desc, SpanSize.SPAN_SIZE_ALL)
+                .add(MultiTypeEntity.TYPE_BASIC, R.layout.item_basic, SpanSize.SPAN_SIZE_HALF)
+                .add(MultiTypeEntity.TYPE_LIST, R.layout.item_list, SpanSize.SPAN_SIZE_HALF)
+                .add(MultiTypeEntity.TYPE_EVENT, R.layout.item_event, SpanSize.SPAN_SIZE_THIRD)
+                .add(MultiTypeEntity.TYPE_HOLDER, R.layout.item_holder, SpanSize.SPAN_SIZE_ALL)
+                .add(MultiTypeEntity.TYPE_ASSISTANT, R.layout.item_assistant, SpanSize.SPAN_SIZE_HALF)
+                .add(MultiTypeEntity.TYPE_FUTURE, R.layout.item_future, SpanSize.SPAN_SIZE_THIRD)
+                .add(new ModelType(MultiTypeEntity.TYPE_PROJECT, R.layout.item_project, SpanSize.SPAN_SIZE_HALF).spaceRect(new Rect(20, 20, 20, 20)));
+        mAdapter = new LightAdapter<MultiTypeEntity>(mEntities, registry) {
 
             @Override
             public void onBindView(LightHolder holder, MultiTypeEntity data, Position pos) {
@@ -142,7 +115,6 @@ public class MainActivity extends MvpActivity {
                         break;
                 }
             }
-
         };
         mAdapter.setClickEvent((holder, pos, data) -> {
             if (!EmptyX.isEmpty(data.url)) {
@@ -304,7 +276,7 @@ public class MainActivity extends MvpActivity {
         homeEntity.title = "EmptyViewDelegate";
         homeEntity.subTitle = "adapter.emptyView()";
         homeEntity.desc = "控制空白页面的状态，可自定义扩展数据绑定和事件；";
-        homeEntity.targetClazz = LoadTestActivity.class;
+        homeEntity.targetClazz = EmptyTestActivity.class;
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DELEGATE);
         homeEntity.title = "SpanDelegate";
@@ -335,7 +307,7 @@ public class MainActivity extends MvpActivity {
         homeEntity.title = "TopMoreDelegate";
         homeEntity.subTitle = "adapter.topMore()";
         homeEntity.desc = "完成列表到达顶部加载更多功能，支持设置预加载个数；";
-        homeEntity.targetClazz = LoadTestActivity.class;
+        homeEntity.targetClazz = TopMoreTestActivity.class;
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DELEGATE);
         homeEntity.title = "SectionDelegate";

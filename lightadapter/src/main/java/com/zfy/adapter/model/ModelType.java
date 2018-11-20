@@ -4,8 +4,9 @@ import android.graphics.Rect;
 import android.support.annotation.LayoutRes;
 
 import com.zfy.adapter.animations.BindAnimator;
-import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.SpanSize;
+
+import java.util.TreeMap;
 
 /**
  * CreateAt : 2018/10/26
@@ -32,12 +33,18 @@ public class ModelType {
         this.type = type;
     }
 
-    public boolean isBuildInType() {
-        return LightUtils.isBuildInType(type);
+    public ModelType(int type, int layoutId) {
+        this.type = type;
+        this.layoutId = layoutId;
     }
 
+    public ModelType(int type, int layoutId, int spanSize) {
+        this.type = type;
+        this.layoutId = layoutId;
+        this.spanSize = spanSize;
+    }
 
-    public void updateByOtherModelType(ModelType modelType) {
+    public ModelType update(ModelType modelType) {
         this.spanSize = modelType.spanSize;
         this.enableClick = modelType.enableClick;
         this.enableLongPress = modelType.enableLongPress;
@@ -45,53 +52,61 @@ public class ModelType {
         this.enableDrag = modelType.enableDrag;
         this.enableSwipe = modelType.enableSwipe;
         this.enablePin = modelType.enablePin;
+        return this;
     }
 
-    public int getType() {
-        return type;
-    }
-
-    public void setType(int type) {
+    public ModelType type(int type) {
         this.type = type;
+        return this;
     }
 
-    public int getLayoutId() {
-        return layoutId;
-    }
-
-    public void setLayoutId(int layoutId) {
+    public ModelType layoutId(int layoutId) {
         this.layoutId = layoutId;
+        return this;
     }
 
-    public int getSpanSize() {
-        return spanSize;
-    }
-
-    public void setSpanSize(int spanSize) {
+    public ModelType setSpanSize(int spanSize) {
         this.spanSize = spanSize;
+        return this;
     }
 
-    public boolean isEnableClick() {
-        return enableClick;
-    }
-
-    public void setEnableClick(boolean enableClick) {
+    public ModelType enableClick(boolean enableClick) {
         this.enableClick = enableClick;
+        return this;
     }
 
-    public boolean isEnableDbClick() {
-        return enableDbClick;
-    }
-
-    public void setEnableDbClick(boolean enableDbClick) {
+    public ModelType enableDbClick(boolean enableDbClick) {
         this.enableDbClick = enableDbClick;
+        return this;
     }
 
-    public boolean isEnableLongPress() {
-        return enableLongPress;
-    }
-
-    public void setEnableLongPress(boolean enableLongPress) {
+    public ModelType enableLongPress(boolean enableLongPress) {
         this.enableLongPress = enableLongPress;
+        return this;
+    }
+
+    public ModelType enableDrag(boolean enableDrag) {
+        this.enableDrag = enableDrag;
+        return this;
+    }
+
+    public ModelType enableSwipe(boolean enableSwipe) {
+        this.enableSwipe = enableSwipe;
+        return this;
+    }
+
+    public ModelType enablePin(boolean enablePin) {
+        this.enablePin = enablePin;
+        return this;
+    }
+
+    public ModelType animator(BindAnimator animator) {
+        this.animator = animator;
+        return this;
+    }
+
+    public ModelType spaceRect(Rect rect) {
+        this.spaceRect = rect;
+        return this;
     }
 }

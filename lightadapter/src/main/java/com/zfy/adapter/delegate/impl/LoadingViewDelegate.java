@@ -23,11 +23,12 @@ import java.util.List;
  */
 public class LoadingViewDelegate extends BaseDelegate implements LoadingViewRef {
 
-    private LoadingState mLoadingState; // 加载状态
-    private ViewGroup mLoadingView; // 容器
-    private LightHolder mLightHolder; // 当前 holder
+    private LoadingState               mLoadingState; // 加载状态
+    private ViewGroup                  mLoadingView; // 容器
+    private LightHolder                mLightHolder; // 当前 holder
     private BindCallback<LoadingState> mBindCallback; // 绑定回调
-    private boolean mLoadingEnable; // 是否支持 loadingView
+    private boolean                    mLoadingEnable; // 是否支持 loadingView
+    private boolean                    mLoadingEnableInternalFlag; // 是否支持 loadingView
 
     private List<Runnable> mPendingRunnableList = new ArrayList<>();
 
@@ -143,4 +144,6 @@ public class LoadingViewDelegate extends BaseDelegate implements LoadingViewRef 
             mBindCallback.bind(mLightHolder, null, mLoadingState);
         }
     }
+
+
 }

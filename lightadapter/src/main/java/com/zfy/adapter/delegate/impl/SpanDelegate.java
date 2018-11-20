@@ -28,7 +28,7 @@ public class SpanDelegate extends BaseDelegate {
         if (layoutManager instanceof StaggeredGridLayoutManager) {
             int type = holder.getItemViewType();
             ModelType modelType = mAdapter.getModelType(type);
-            if (modelType.getSpanSize() == SpanSize.SPAN_SIZE_ALL) {
+            if (modelType.spanSize == SpanSize.SPAN_SIZE_ALL) {
                 ViewGroup.LayoutParams originLp = holder.getItemView().getLayoutParams();
                 StaggeredGridLayoutManager.LayoutParams layoutParams =
                         new StaggeredGridLayoutManager.LayoutParams(originLp.width, originLp.height);
@@ -51,7 +51,7 @@ public class SpanDelegate extends BaseDelegate {
                     int type = mAdapter.getItemViewType(position);
                     ModelType modelType = mAdapter.getModelType(type);
                     int spanCount = gridLayoutManager.getSpanCount();
-                    modelType.spanSize = LightUtils.getSpanSize(modelType.getSpanSize(), spanCount);
+                    modelType.spanSize = LightUtils.getSpanSize(modelType.spanSize, spanCount);
                     return modelType.spanSize;
                 }
             });

@@ -8,7 +8,7 @@ import com.march.common.exts.ToastX;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.assistant.SlidingSelectLayout;
-import com.zfy.adapter.collections.LightDiffList;
+import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.listener.EventCallback;
 import com.zfy.adapter.model.LightView;
 import com.zfy.adapter.model.Position;
@@ -34,12 +34,12 @@ public class SelectorTestActivity extends MvpActivity {
     @BindView(R.id.content_rv) RecyclerView        mRecyclerView;
     @BindView(R.id.ssl)        SlidingSelectLayout mSlidingSelectLayout;
 
-    private LightDiffList<SingleTypeEntity> mData;
-    private LightAdapter<SingleTypeEntity>  mAdapter;
+    private LightList<SingleTypeEntity>    mData;
+    private LightAdapter<SingleTypeEntity> mAdapter;
 
     @Override
     public void init() {
-        mData = new LightDiffList<>();
+        mData = LightList.diffList();
         mAdapter = new LightAdapter<SingleTypeEntity>(mData, R.layout.item_selector) {
             @Override
             public void onBindView(LightHolder holder, SingleTypeEntity data, Position pos) {
@@ -65,12 +65,20 @@ public class SelectorTestActivity extends MvpActivity {
         mAdapter.selector().setMultiSelector((holder, pos, data) -> {
             holder.setChecked(R.id.checkbox, data.isSelected());
         });
-        mAdapter.selector().setOnSelectListener(data -> {
-            if (data.id % 4 == 0) {
-                ToastX.show("此项不允许选中");
-                return false;
+        mAdapter.selector().setOnSelectListener((data, toSelect) -> {
+            if (toSelect) {
+                if (data.id % 4 == 0) {
+                    ToastX.show("此项不允许选中");
+                    return false;
+                }
+                return true;
+            } else {
+                if (mAdapter.selector().getResults().size() <= 4) {
+                    ToastX.show("至少选中4个");
+                    return false;
+                }
+                return true;
             }
-            return true;
         });
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
         mRecyclerView.setAdapter(mAdapter);

@@ -7,7 +7,7 @@ import com.march.common.exts.ListX;
 import com.march.common.exts.ToastX;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.collections.LightDiffList;
+import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.model.LightView;
 import com.zfy.adapter.model.Position;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
@@ -33,11 +33,11 @@ public class HFTestActivity extends MvpActivity {
 
     @BindView(R.id.content_rv) RecyclerView mRecyclerView;
 
-    private LightDiffList<SingleTypeEntity> mData;
+    private LightList<SingleTypeEntity> mData;
 
     @Override
     public void init() {
-        mData = new LightDiffList<>();
+        mData = LightList.diffList();
 
         LightAdapter<SingleTypeEntity> adapter = new LightAdapter<SingleTypeEntity>( mData, R.layout.item_selector) {
 

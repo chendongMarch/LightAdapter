@@ -19,7 +19,7 @@
             android:layout_height="20dp"
             app:layout_constraintBottom_toBottomOf="@+id/title_tv"
             app:layout_constraintTop_toTopOf="@+id/title_tv"
-            android:src="@mipmap/ic_launcher" />
+            android:src="@drawable/light" />
 
         <TextView
             android:id="@+id/title_tv"

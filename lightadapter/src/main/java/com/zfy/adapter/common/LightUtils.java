@@ -86,6 +86,13 @@ public class LightUtils {
             spanSize = spanCount / 2;
         } else if (spanSize == SpanSize.SPAN_SIZE_THIRD && spanCount % 3 == 0) {
             spanSize = spanCount / 3;
+        } else if (spanSize == SpanSize.SPAN_SIZE_QUATER && spanCount % 4 == 0) {
+            spanSize = spanCount / 4;
+        }
+        if (spanSize == SpanSize.SPAN_SIZE_HALF && spanCount % 2 != 0
+                || spanSize == SpanSize.SPAN_SIZE_THIRD && spanCount % 3 != 0
+                || spanSize == SpanSize.SPAN_SIZE_QUATER && spanCount % 4 != 0) {
+            throw new AdapterException("SpanCount Set Error");
         }
         return spanSize;
     }

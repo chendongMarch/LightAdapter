@@ -62,6 +62,10 @@ public class DragSwipeDelegate extends BaseDelegate implements DragSwipeRef {
 
     @Override
     public void dragOnLongPress(View view, LightHolder holder) {
+        ModelType modelType = mAdapter.getModelType(holder.getItemViewType());
+        if (modelType != null) {
+            modelType.enableDrag = true;
+        }
         view.setOnLongClickListener(v -> {
             startDrag(holder);
             return true;
@@ -71,6 +75,10 @@ public class DragSwipeDelegate extends BaseDelegate implements DragSwipeRef {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void dragOnTouch(View view, LightHolder holder) {
+        ModelType modelType = mAdapter.getModelType(holder.getItemViewType());
+        if (modelType != null) {
+            modelType.enableDrag = true;
+        }
         view.setOnTouchListener((v, event) -> {
             if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
                 startDrag(holder);
@@ -81,6 +89,10 @@ public class DragSwipeDelegate extends BaseDelegate implements DragSwipeRef {
 
     @Override
     public void swipeOnLongPress(View view, LightHolder holder) {
+        ModelType modelType = mAdapter.getModelType(holder.getItemViewType());
+        if (modelType != null) {
+            modelType.enableSwipe = true;
+        }
         view.setOnLongClickListener(v -> {
             startSwipe(holder);
             return true;
@@ -90,6 +102,10 @@ public class DragSwipeDelegate extends BaseDelegate implements DragSwipeRef {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void swipeOnTouch(View view, LightHolder holder) {
+        ModelType modelType = mAdapter.getModelType(holder.getItemViewType());
+        if (modelType != null) {
+            modelType.enableSwipe = true;
+        }
         view.setOnTouchListener((v, event) -> {
             if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
                 startSwipe(holder);

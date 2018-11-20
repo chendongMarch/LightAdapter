@@ -10,7 +10,7 @@ import com.march.common.exts.ListX;
 import com.march.common.pool.ExecutorsPool;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.collections.LightDiffList;
+import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.listener.AdapterCallback;
 import com.zfy.adapter.listener.ModelTypeConfigCallback;
@@ -48,12 +48,12 @@ public class LoadTestActivity extends MvpActivity {
 
     @BindView(R.id.content_rv) RecyclerView mRecyclerView;
 
-    private LightDiffList<MultiTypeEntity> mData;
+    private LightList<MultiTypeEntity> mData;
 
 
     @Override
     public void init() {
-        mData = new LightDiffList<>();
+        mData = LightList.diffList();
         ModelTypeConfigCallback updater = modelType -> {
             switch (modelType.type) {
                 case MultiTypeEntity.TYPE_CAN_DRAG:

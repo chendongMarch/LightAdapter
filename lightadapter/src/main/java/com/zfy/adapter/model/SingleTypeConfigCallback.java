@@ -19,18 +19,9 @@ public class SingleTypeConfigCallback implements ModelTypeConfigCallback {
         mConsumer = consumer;
     }
 
-    public SingleTypeConfigCallback(LightConsumer<ModelType> consumer) {
-        mConsumer = consumer;
-    }
-
     public SingleTypeConfigCallback(ModelType modelType) {
         mSingleType = modelType.type;
-        mConsumer = mt -> mt.updateByOtherModelType(modelType);
-    }
-
-    public SingleTypeConfigCallback setSingleType(int singleType) {
-        this.mSingleType = singleType;
-        return this;
+        mConsumer = mt -> mt.update(modelType);
     }
 
     @Override

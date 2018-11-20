@@ -37,7 +37,7 @@ public class LightEvent<D> {
     }
 
     public void initEvent(LightHolder holder, ModelType modelType) {
-        if (modelType.isEnableDbClick()) {
+        if (modelType.enableDbClick) {
             setMultiEvent(holder, modelType);
         } else {
             setSimpleEvent(holder, modelType);
@@ -59,7 +59,7 @@ public class LightEvent<D> {
 
     @SuppressWarnings("unchecked")
     private void setMultiEvent(final LightHolder holder, ModelType modelType) {
-        if (!modelType.isEnableDbClick()) {
+        if (!modelType.enableDbClick) {
             return;
         }
         View itemView = holder.getItemView();
@@ -114,14 +114,14 @@ public class LightEvent<D> {
     @SuppressWarnings("unchecked")
     private void setSimpleEvent(LightHolder holder, ModelType modelType) {
         View itemView = holder.getItemView();
-        if (modelType.isEnableClick()) {
+        if (modelType.enableClick) {
             itemView.setOnClickListener(view -> {
                 if (mClickCallback != null) {
                     tryCallClickEvent(holder);
                 }
             });
         }
-        if (modelType.isEnableLongPress()) {
+        if (modelType.enableLongPress) {
             itemView.setOnLongClickListener(view -> {
                 if (mLongPressCallback != null) {
                     tryCallLongPressEvent(holder);
@@ -140,7 +140,7 @@ public class LightEvent<D> {
         Position position = makePosition(holder);
         D item = mAdapter.getItem(position.modelIndex);
         ModelType type = mAdapter.getModelType(item);
-        if (type != null && type.isEnableClick()) {
+        if (type != null && type.enableClick) {
             mClickCallback.call(holder, position, item);
         }
     }
@@ -150,7 +150,7 @@ public class LightEvent<D> {
         Position position = makePosition(holder);
         D item = mAdapter.getItem(position.modelIndex);
         ModelType type = mAdapter.getModelType(item);
-        if (type != null && type.isEnableLongPress()) {
+        if (type != null && type.enableLongPress) {
             mLongPressCallback.call(holder, position, item);
         }
     }
@@ -160,7 +160,7 @@ public class LightEvent<D> {
         Position position = makePosition(holder);
         D item = mAdapter.getItem(position.modelIndex);
         ModelType type = mAdapter.getModelType(item);
-        if (type != null && type.isEnableLongPress()) {
+        if (type != null && type.enableDbClick) {
             mDbClickCallback.call(holder, position, item);
         }
     }

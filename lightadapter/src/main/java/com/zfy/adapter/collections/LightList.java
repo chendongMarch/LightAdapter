@@ -14,6 +14,7 @@ import com.zfy.adapter.function.LightPredicate;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -24,6 +25,26 @@ import java.util.ListIterator;
  * @author chendong
  */
 public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
+
+    /**
+     * 创建一个 LightDiffList
+     *
+     * @param <D> 范型
+     * @return LightList
+     */
+    public static <D extends Diffable<D>> LightList<D> diffList() {
+        return new LightDiffList<>();
+    }
+
+    /**
+     * 创建一个 LightAsyncDiffList
+     *
+     * @param <D> 范型
+     * @return LightList
+     */
+    public static <D extends Diffable<D>> LightList<D> asyncList() {
+        return new LightAsyncDiffList<>();
+    }
 
     /**
      * 发送 DiffResult 到 LightAdapter 更新
@@ -146,13 +167,9 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
         return getList().listIterator(index);
     }
 
-    /**
-     * 获取数据快照
-     *
-     * @return 快照
-     */
-    public List<T> snapshot() {
-        return new ArrayList<>(getList());
+    @Override
+    public Iterator<T> iterator() {
+        return getList().iterator();
     }
 
     /**
@@ -165,16 +182,39 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
 
 
     /**
+     * 获取数据快照
+     *
+     * @return 快照
+     */
+    public List<T> snapshot() {
+        return new ArrayList<>(getList());
+    }
+
+    /**
+     * 更爱你清空列表
+     */
+    @MainThread
+    public void updateClear() {
+        List<T> snapshot = snapshot();
+        snapshot.clear();
+        update(snapshot);
+    }
+
+    /**
      * 在原有数据基础上面追加数据
      *
      * @param newItems 新的数据源
      * @see List#addAll(Collection)
+     * @return 添加是否成功
      */
     @MainThread
-    public void updateAddAll(@NonNull List<T> newItems) {
+    public boolean updateAddAll(@NonNull List<T> newItems) {
         List<T> snapshot = snapshot();
-        snapshot.addAll(newItems);
-        update(snapshot);
+        boolean result = snapshot.addAll(newItems);
+        if (result) {
+            update(snapshot);
+        }
+        return result;
     }
 
     /**
@@ -182,12 +222,16 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
      *
      * @param newItem 新的单个数据源
      * @see List#add(Object)
+     * @return 添加是否成功
      */
     @MainThread
-    public void updateAdd(@NonNull T newItem) {
+    public boolean updateAdd(@NonNull T newItem) {
         List<T> snapshot = snapshot();
-        snapshot.add(newItem);
-        update(snapshot);
+        boolean result = snapshot.add(newItem);
+        if (result) {
+            update(snapshot);
+        }
+        return result;
     }
 
     /**
@@ -195,12 +239,16 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
      *
      * @param newItems 新的数据源
      * @see List#addAll(int, Collection)
+     * @return 添加是否成功
      */
     @MainThread
-    public void updateAddAll(@IntRange(from = 0) int index, @NonNull List<T> newItems) {
+    public boolean updateAddAll(@IntRange(from = 0) int index, @NonNull List<T> newItems) {
         List<T> snapshot = snapshot();
-        snapshot.addAll(index, newItems);
-        update(snapshot);
+        boolean result = snapshot.addAll(index, newItems);
+        if (result) {
+            update(snapshot);
+        }
+        return result;
     }
 
     /**
@@ -222,13 +270,71 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
      *
      * @param index 下标
      * @see List#remove(int)
+     * @return 删除的那个元素
      */
     @MainThread
-    public void updateRemove(@IntRange(from = 0) int index) {
+    public T updateRemove(@IntRange(from = 0) int index) {
         List<T> snapshot = snapshot();
-        if (snapshot.remove(index) != null) {
+        T remove = snapshot.remove(index);
+        if (remove != null) {
             update(snapshot);
         }
+        return remove;
+    }
+
+    /**
+     * 删除满足条件的元素
+     *
+     * @param removeCount  删除的个数
+     * @param fromEnd      从列表尾部开始删除？
+     * @param shouldRemove 是否应该删除的条件
+     * @return 删除了多少个元素
+     */
+    @MainThread
+    public int updateRemove(int removeCount, boolean fromEnd, LightPredicate<T> shouldRemove) {
+        List<T> snapshot = snapshot();
+        int count = 0;
+        if (fromEnd) {
+            ListIterator<T> iterator = snapshot.listIterator(snapshot.size() - 1);
+            T previous;
+            while (iterator.hasPrevious()) {
+                if (removeCount >= 0 && count >= removeCount) {
+                    break;
+                }
+                previous = iterator.previous();
+                if (previous != null && shouldRemove.test(previous)) {
+                    iterator.remove();
+                    count++;
+                }
+            }
+        } else {
+            Iterator<T> iterator = snapshot.iterator();
+            T next;
+            while (iterator.hasNext()) {
+                if (removeCount >= 0 && count >= removeCount) {
+                    break;
+                }
+                next = iterator.next();
+                if (next != null && shouldRemove.test(next)) {
+                    iterator.remove();
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    /**
+     * 从头开始，删除全部满足条件的元素
+     *
+     * @param shouldRemove 是否应该删除
+     * @return 删除元素的个数
+     * @see LightList#updateRemove(int, boolean, LightPredicate)
+     */
+    @MainThread
+    public int updateRemove(LightPredicate<T> shouldRemove) {
+        return updateRemove(-1, false, shouldRemove);
+
     }
 
     /**
@@ -236,13 +342,16 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
      *
      * @param item 数据
      * @see List#remove(Object)
+     * @return 是否删除了元素
      */
     @MainThread
-    public void updateRemove(@NonNull T item) {
+    public boolean updateRemove(@NonNull T item) {
         List<T> snapshot = snapshot();
-        if (snapshot.remove(item)) {
+        boolean remove = snapshot.remove(item);
+        if (remove) {
             update(snapshot);
         }
+        return remove;
     }
 
 
@@ -254,9 +363,9 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
      * @see List#set(int, Object)
      */
     @MainThread
-    public void updateSet(@IntRange(from = 0) int index, @NonNull LightConsumer<T> howToUpdateConsumer) {
+    public T updateSet(@IntRange(from = 0) int index, @NonNull LightConsumer<T> howToUpdateConsumer) {
         List<T> snapshot = snapshot();
-        setItem(snapshot, index, howToUpdateConsumer);
+        return setItem(snapshot, index, howToUpdateConsumer);
     }
 
     /**
@@ -286,11 +395,11 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
     }
 
     // 复制数据后实现 set(index, item) 功能
-    private void setItem(List<T> list, int pos, LightConsumer<T> consumer) {
+    private T setItem(List<T> list, int pos, LightConsumer<T> consumer) {
         T item = list.get(pos);
         T copy = copy(item);
         consumer.accept(copy);
-        list.set(pos, copy);
+        return list.set(pos, copy);
     }
 
     // 使用 Parcelable 复制一份新的数据

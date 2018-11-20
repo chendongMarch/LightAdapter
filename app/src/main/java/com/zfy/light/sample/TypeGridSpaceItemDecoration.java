@@ -46,10 +46,9 @@ public class TypeGridSpaceItemDecoration extends RecyclerView.ItemDecoration {
                 typePosition = position - firstSameTypePosition - 1;
             }
         }
-        int spanSize = modelType.spanSize = LightUtils.getSpanSize(modelType.getSpanSize(), spanCount);
+        int spanSize = modelType.spanSize = LightUtils.getSpanSize(modelType.spanSize, spanCount);
         int columnCount = spanCount / spanSize;
 
-        Log.e("chendong", "modelType pos = " + typePosition + " col count = " + columnCount);
         if (typePosition % columnCount == 0) {
             // 开始
             outRect.left = modelType.spaceRect.left;

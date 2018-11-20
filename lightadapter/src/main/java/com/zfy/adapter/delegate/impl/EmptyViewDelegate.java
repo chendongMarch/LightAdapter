@@ -6,6 +6,7 @@ import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
+import com.zfy.adapter.delegate.IDelegate;
 import com.zfy.adapter.delegate.refs.EmptyViewRef;
 import com.zfy.adapter.listener.BindCallback;
 import com.zfy.adapter.model.EmptyState;
@@ -14,6 +15,8 @@ import com.zfy.adapter.model.LightView;
 /**
  * CreateAt : 2018/11/5
  * Describe :
+ *
+ * 当 Empty 显示时，LoadMore 会自动停止
  *
  * @author chendong
  */
@@ -76,9 +79,9 @@ public class EmptyViewDelegate extends BaseViewDelegate implements EmptyViewRef 
         }
         mEmptyEnable = emptyEnable;
         if (mEmptyEnable) {
-            mAdapter.notifyItem().insert(mAdapter.getDelegateRegistry().getAboveItemCount(LightValues.FLOW_LEVEL_FOOTER));
+            mAdapter.notifyItem().insert(mAdapter.getDelegateRegistry().getAboveItemCount(LightValues.FLOW_LEVEL_EMPTY));
         } else {
-            mAdapter.notifyItem().remove(mAdapter.getDelegateRegistry().getAboveItemCount(LightValues.FLOW_LEVEL_FOOTER));
+            mAdapter.notifyItem().remove(mAdapter.getDelegateRegistry().getAboveItemCount(LightValues.FLOW_LEVEL_EMPTY));
         }
     }
 
@@ -109,5 +112,21 @@ public class EmptyViewDelegate extends BaseViewDelegate implements EmptyViewRef 
             mBindCallback.bind(mEmptyHolder, null, mEmptyState);
         }
         displayEmptyView(mEmptyState.state != EmptyState.NONE);
+
+        if (mEmptyState.state == EmptyState.NONE) {
+            if (mAdapter.getDelegateRegistry().isLoaded(IDelegate.LOADING)) {
+                ((LoadingViewDelegate) mAdapter.loadingView()).setLoadingEnable(true);
+            }
+            if (mAdapter.getDelegateRegistry().isLoaded(IDelegate.LOAD_MORE)) {
+                ((LoadMoreDelegate) mAdapter.loadMore()).setLoadMoreEnableFlagInternal(true);
+            }
+        } else {
+            if (mAdapter.getDelegateRegistry().isLoaded(IDelegate.LOADING)) {
+                ((LoadingViewDelegate) mAdapter.loadingView()).setLoadingEnable(false);
+            }
+            if (mAdapter.getDelegateRegistry().isLoaded(IDelegate.LOAD_MORE)) {
+                ((LoadMoreDelegate) mAdapter.loadMore()).setLoadMoreEnableFlagInternal(false);
+            }
+        }
     }
 }

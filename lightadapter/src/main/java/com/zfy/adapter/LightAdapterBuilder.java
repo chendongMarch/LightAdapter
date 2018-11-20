@@ -29,9 +29,9 @@ public class LightAdapterBuilder<D> {
     private List<D>                 mList;
 
     public LightAdapterBuilder(List<D> datas, @LayoutRes int layoutId) {
-        mCallback = new SingleTypeConfigCallback(data -> {
+        mCallback = new SingleTypeConfigCallback(ItemType.TYPE_CONTENT, data -> {
             data.layoutId = layoutId;
-        }).setSingleType(ItemType.TYPE_CONTENT);
+        });
         mList = datas;
     }
 

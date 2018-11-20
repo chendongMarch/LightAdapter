@@ -125,4 +125,10 @@ object Values {
         其中 BindAnimator 支持不同类型设置不同的动画， 如下两种类型加载的动画也不同，当然也支持全局动画设置。
 
     """.trimIndent()
+
+
+    @JvmStatic
+    fun getEmptyDesc() = """
+     EmptyViewDelegate 完成空白页面功能
+    """.trimIndent()
 }

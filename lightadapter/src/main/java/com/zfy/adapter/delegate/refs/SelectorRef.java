@@ -1,6 +1,5 @@
 package com.zfy.adapter.delegate.refs;
 
-import com.zfy.adapter.delegate.impl.SelectorDelegate;
 import com.zfy.adapter.listener.BindCallback;
 
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.List;
 public interface SelectorRef<D> {
 
     interface OnSelectListener<D> {
-        boolean onSelect(D data);
+        boolean onSelect(D data, boolean toSelect);
     }
 
     /**
@@ -40,7 +39,7 @@ public interface SelectorRef<D> {
      *
      * @param onSelectListener 选中时的监听
      */
-    void setOnSelectListener(SelectorDelegate.OnSelectListener<D> onSelectListener);
+    void setOnSelectListener(OnSelectListener<D> onSelectListener);
 
     /**
      * {@inheritDoc}
