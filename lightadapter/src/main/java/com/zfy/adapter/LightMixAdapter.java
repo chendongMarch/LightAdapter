@@ -19,8 +19,8 @@ class LightMixAdapter<D> extends LightAdapter<D> {
 
     private SparseArray<ItemAdapter<D>> mItemAdapterArray;
 
-    public LightMixAdapter(List<D> datas, SparseArray<ItemAdapter<D>> array, ModelTypeConfigCallback callback) {
-        super( datas, callback);
+    LightMixAdapter(List<D> datas, SparseArray<ItemAdapter<D>> array, ModelTypeConfigCallback callback) {
+        super(datas, callback);
         this.mItemAdapterArray = array;
         setClickEvent((holder, pos, data) -> {
             ModelType modelType = getModelType(data);

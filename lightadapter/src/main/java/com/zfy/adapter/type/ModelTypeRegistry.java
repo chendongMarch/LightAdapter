@@ -1,5 +1,6 @@
 package com.zfy.adapter.type;
 
+import android.support.annotation.LayoutRes;
 import android.util.SparseArray;
 
 import com.zfy.adapter.listener.ModelTypeConfigCallback;
@@ -28,12 +29,12 @@ public class ModelTypeRegistry implements ModelTypeConfigCallback {
         return this;
     }
 
-    public ModelTypeRegistry add(int type, int layoutId) {
+    public ModelTypeRegistry add(int type, @LayoutRes int layoutId) {
         mTypeSparseArray.append(type, new ModelType(type, layoutId));
         return this;
     }
 
-    public ModelTypeRegistry add(int type, int layoutId, int spanSize) {
+    public ModelTypeRegistry add(int type, @LayoutRes int layoutId, int spanSize) {
         mTypeSparseArray.append(type, new ModelType(type, layoutId, spanSize));
         return this;
     }

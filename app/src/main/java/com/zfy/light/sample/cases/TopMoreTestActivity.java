@@ -6,10 +6,10 @@ import android.support.v7.widget.RecyclerView;
 import com.march.common.exts.ListX;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightAdapterBuilder;
-import com.zfy.adapter.animations.ScaleAnimator;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.listener.ModelTypeConfigCallback;
+import com.zfy.adapter.type.ModelTypeRegistry;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.GlideCallback;
@@ -53,8 +53,12 @@ public class TopMoreTestActivity extends MvpActivity {
                     break;
             }
         };
+        ModelTypeRegistry registry = ModelTypeRegistry.create()
+                .add(MultiTypeEntity.TYPE_DELEGATE, R.layout.item_deleate, SpanSize.SPAN_SIZE_HALF)
+                .add(MultiTypeEntity.TYPE_PROJECT, R.layout.item_cover, SpanSize.SPAN_SIZE_HALF);
+
         // adapter
-        mAdapter = new LightAdapterBuilder<>(mEntities, callback).onBindView((holder, pos, data) -> {
+        mAdapter = new LightAdapterBuilder<>(mEntities, registry).onBindView((holder, pos, data) -> {
             holder.setText(R.id.title_tv, data.title)
                     .setText(R.id.desc_tv, data.desc);
             switch (data.type) {

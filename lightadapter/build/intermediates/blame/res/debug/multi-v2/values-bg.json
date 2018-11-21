@@ -1,0 +1,34 @@
+{
+    "logs": [
+        {
+            "outputFile": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/incremental/mergeDebugResources/merged.dir/values-bg/values-bg.xml",
+            "map": [
+                {
+                    "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/70ee7951ac0069961c589eceedfdbeee/res/values-bg/values-bg.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "100",
+                        "endOffsets": "151"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/res/merged/debug/values-bg/values-bg.xml",
+            "map": [
+                {
+                    "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/70ee7951ac0069961c589eceedfdbeee/res/values-bg/values-bg.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "100",
+                        "endOffsets": "151"
+                    }
+                }
+            ]
+        }
+    ]
+}

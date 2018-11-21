@@ -74,6 +74,7 @@ public class MainActivity extends MvpActivity {
         ModelTypeRegistry registry = ModelTypeRegistry.create()
                 .add(MultiTypeEntity.TYPE_LINK, R.layout.item_link, SpanSize.SPAN_SIZE_ALL)
                 .add(MultiTypeEntity.TYPE_DESC, R.layout.item_desc, SpanSize.SPAN_SIZE_ALL)
+                .add(MultiTypeEntity.TYPE_DELEGATE, R.layout.item_deleate, SpanSize.SPAN_SIZE_HALF)
                 .add(MultiTypeEntity.TYPE_BASIC, R.layout.item_basic, SpanSize.SPAN_SIZE_HALF)
                 .add(MultiTypeEntity.TYPE_LIST, R.layout.item_list, SpanSize.SPAN_SIZE_HALF)
                 .add(MultiTypeEntity.TYPE_EVENT, R.layout.item_event, SpanSize.SPAN_SIZE_THIRD)

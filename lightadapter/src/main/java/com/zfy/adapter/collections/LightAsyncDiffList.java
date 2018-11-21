@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @author chendong
  */
-/*package*/ class LightAsyncDiffList<T extends Diffable<T>> extends LightList<T> {
+public class LightAsyncDiffList<T extends Diffable<T>> extends LightList<T> {
 
     private final AsyncListDiffer<T> differ;
 

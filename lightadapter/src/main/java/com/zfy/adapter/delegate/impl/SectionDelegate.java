@@ -12,7 +12,6 @@ import com.zfy.adapter.delegate.refs.SectionRef;
 import com.zfy.adapter.listener.BindCallback;
 import com.zfy.adapter.model.ModelType;
 import com.zfy.adapter.model.Position;
-import com.zfy.adapter.model.SingleTypeConfigCallback;
 
 /**
  * CreateAt : 2018/10/30
@@ -77,18 +76,23 @@ public class SectionDelegate<D> extends BaseDelegate implements SectionRef<D> {
 
     @Override
     public void setOptions(ModelType type, BindCallback<D> bindCallback) {
-        SingleTypeConfigCallback callback = new SingleTypeConfigCallback(type);
-        mAdapter.addModelTypeConfigCallback(callback);
+        mAdapter.addModelTypeConfigCallback(modelType -> {
+            if (modelType.type == ItemType.TYPE_SECTION) {
+                modelType.update(type);
+            }
+        });
         mBindCallback = bindCallback;
         setPinEnable(mAdapter.getModelType(ItemType.TYPE_SECTION).enablePin);
     }
 
     @Override
     public void setOptions(int layoutId, boolean supportPin, BindCallback<D> callback) {
-        mAdapter.addModelTypeConfigCallback(new SingleTypeConfigCallback(ItemType.TYPE_SECTION, data -> {
-            data.layoutId = layoutId;
-            data.enablePin = supportPin;
-        }));
+        mAdapter.addModelTypeConfigCallback(modelType -> {
+            if (modelType.type == ItemType.TYPE_SECTION) {
+                modelType.layoutId = layoutId;
+                modelType.enablePin = supportPin;
+            }
+        });
         setPinEnable(supportPin);
         mBindCallback = callback;
     }

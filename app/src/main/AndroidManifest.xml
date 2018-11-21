@@ -12,10 +12,10 @@
         android:theme="@style/AppTheme">
 
         <activity android:name=".cases.MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
         </activity>
         <activity android:name=".cases.DragSwipeTestActivity" />
         <activity android:name=".cases.LoadTestActivity" />
@@ -25,5 +25,11 @@
         <activity android:name=".cases.SampleTestActivity" />
         <activity android:name=".cases.EmptyTestActivity" />
         <activity android:name=".cases.TopMoreTestActivity" />
+        <activity android:name=".EntryActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

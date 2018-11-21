@@ -1,0 +1,232 @@
+{
+    "logs": [
+        {
+            "outputFile": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/incremental/mergeDebugResources/merged.dir/values/values.xml",
+            "map": [
+                {
+                    "source": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/res/values/ids.xml",
+                    "from": {
+                        "startLines": "-1,3",
+                        "startColumns": "-1,4",
+                        "startOffsets": "-1,96",
+                        "endColumns": "-1,39",
+                        "endOffsets": "-1,131"
+                    },
+                    "to": {
+                        "startLines": "112,115",
+                        "startColumns": "4,4",
+                        "startOffsets": "6160,6308",
+                        "endColumns": "40,38",
+                        "endOffsets": "6196,6342"
+                    }
+                },
+                {
+                    "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/70ee7951ac0069961c589eceedfdbeee/res/values/values.xml",
+                    "from": {
+                        "startLines": "-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1",
+                        "startColumns": "-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1",
+                        "startOffsets": "-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1"
+                    },
+                    "to": {
+                        "startLines": "3,4,5,6,84,85,86,87,88,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,116,117,120,121,122,124,125,127,128,129,133,134,138,139,140",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "116,185,248,306,4307,4377,4445,4517,4587,5034,5095,5156,5218,5282,5344,5405,5473,5573,5633,5699,5772,5841,5898,5950,6012,6084,6347,6382,6517,6567,6601,6677,6712,6832,6903,7020,7221,7331,7532,7661,7733",
+                        "endLines": "3,4,5,6,84,85,86,87,88,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,116,117,120,121,122,124,125,127,128,132,133,137,138,139,140",
+                        "endColumns": "68,62,57,73,69,67,71,69,60,60,60,61,63,61,60,67,99,59,65,72,68,56,51,61,71,75,34,34,49,33,34,34,69,70,116,12,109,12,128,71,66",
+                        "endOffsets": "180,243,301,375,4372,4440,4512,4582,4643,5090,5151,5213,5277,5339,5400,5468,5568,5628,5694,5767,5836,5893,5945,6007,6079,6155,6377,6412,6562,6596,6631,6707,6777,6898,7015,7216,7326,7527,7656,7728,7795"
+                    }
+                },
+                {
+                    "source": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/res/values/strings.xml",
+                    "from": {
+                        "startLines": "-1",
+                        "startColumns": "-1",
+                        "startOffsets": "-1"
+                    },
+                    "to": {
+                        "startLines": "126",
+                        "startColumns": "4",
+                        "startOffsets": "6782",
+                        "endColumns": "49",
+                        "endOffsets": "6827"
+                    }
+                },
+                {
+                    "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/recyclerview-v7-27.1.1.aar/c1631b129d93bd4f0e03763e7c3b2c11/res/values/values.xml",
+                    "from": {
+                        "startLines": "-1,-1,-1,-1,-1,-1,-1",
+                        "startColumns": "-1,-1,-1,-1,-1,-1,-1",
+                        "startOffsets": "-1,-1,-1,-1,-1,-1,-1"
+                    },
+                    "to": {
+                        "startLines": "89,90,91,92,93,94,114",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "4648,4707,4755,4811,4886,4962,6242",
+                        "endColumns": "58,47,55,74,75,71,65",
+                        "endOffsets": "4702,4750,4806,4881,4957,5029,6303"
+                    }
+                },
+                {
+                    "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/support-core-ui-27.1.1.aar/738210b3c7624476c7d6d70290c45627/res/values/values.xml",
+                    "from": {
+                        "startLines": "-1,-1",
+                        "startColumns": "-1,-1",
+                        "startOffsets": "-1,-1"
+                    },
+                    "to": {
+                        "startLines": "2,141",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,7800",
+                        "endLines": "2,143",
+                        "endColumns": "60,12",
+                        "endOffsets": "111,7940"
+                    }
+                },
+                {
+                    "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/adapters-3.1.4.aar/2bda090b924093f5bade7a2fe606fe95/res/values/values.xml",
+                    "from": {
+                        "startLines": "-1,-1,-1",
+                        "startColumns": "-1,-1,-1",
+                        "startOffsets": "-1,-1,-1"
+                    },
+                    "to": {
+                        "startLines": "118,119,123",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "6417,6474,6636",
+                        "endColumns": "56,42,40",
+                        "endOffsets": "6469,6512,6672"
+                    }
+                },
+                {
+                    "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/library-3.1.4.aar/b17c2fc34a3c753fdaf788af5f98c5bd/res/values/values.xml",
+                    "from": {
+                        "startLines": "-1",
+                        "startColumns": "-1",
+                        "startOffsets": "-1"
+                    },
+                    "to": {
+                        "startLines": "113",
+                        "startColumns": "4",
+                        "startOffsets": "6201",
+                        "endColumns": "40",
+                        "endOffsets": "6237"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/res/merged/debug/values/values.xml",
+            "map": [
+                {
+                    "source": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/res/values/ids.xml",
+                    "from": {
+                        "startLines": "-1,3",
+                        "startColumns": "-1,4",
+                        "startOffsets": "-1,96",
+                        "endColumns": "-1,39",
+                        "endOffsets": "-1,131"
+                    },
+                    "to": {
+                        "startLines": "112,115",
+                        "startColumns": "4,4",
+                        "startOffsets": "6160,6308",
+                        "endColumns": "40,38",
+                        "endOffsets": "6196,6342"
+                    }
+                },
+                {
+                    "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/70ee7951ac0069961c589eceedfdbeee/res/values/values.xml",
+                    "from": {
+                        "startLines": "-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1",
+                        "startColumns": "-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1",
+                        "startOffsets": "-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1"
+                    },
+                    "to": {
+                        "startLines": "3,4,5,6,84,85,86,87,88,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,116,117,120,121,122,124,125,127,128,129,133,134,138,139,140",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "116,185,248,306,4307,4377,4445,4517,4587,5034,5095,5156,5218,5282,5344,5405,5473,5573,5633,5699,5772,5841,5898,5950,6012,6084,6347,6382,6517,6567,6601,6677,6712,6832,6903,7020,7221,7331,7532,7661,7733",
+                        "endLines": "3,4,5,6,84,85,86,87,88,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,116,117,120,121,122,124,125,127,128,132,133,137,138,139,140",
+                        "endColumns": "68,62,57,73,69,67,71,69,60,60,60,61,63,61,60,67,99,59,65,72,68,56,51,61,71,75,34,34,49,33,34,34,69,70,116,12,109,12,128,71,66",
+                        "endOffsets": "180,243,301,375,4372,4440,4512,4582,4643,5090,5151,5213,5277,5339,5400,5468,5568,5628,5694,5767,5836,5893,5945,6007,6079,6155,6377,6412,6562,6596,6631,6707,6777,6898,7015,7216,7326,7527,7656,7728,7795"
+                    }
+                },
+                {
+                    "source": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/res/values/strings.xml",
+                    "from": {
+                        "startLines": "-1",
+                        "startColumns": "-1",
+                        "startOffsets": "-1"
+                    },
+                    "to": {
+                        "startLines": "126",
+                        "startColumns": "4",
+                        "startOffsets": "6782",
+                        "endColumns": "49",
+                        "endOffsets": "6827"
+                    }
+                },
+                {
+                    "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/recyclerview-v7-27.1.1.aar/c1631b129d93bd4f0e03763e7c3b2c11/res/values/values.xml",
+                    "from": {
+                        "startLines": "-1,-1,-1,-1,-1,-1,-1",
+                        "startColumns": "-1,-1,-1,-1,-1,-1,-1",
+                        "startOffsets": "-1,-1,-1,-1,-1,-1,-1"
+                    },
+                    "to": {
+                        "startLines": "89,90,91,92,93,94,114",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "4648,4707,4755,4811,4886,4962,6242",
+                        "endColumns": "58,47,55,74,75,71,65",
+                        "endOffsets": "4702,4750,4806,4881,4957,5029,6303"
+                    }
+                },
+                {
+                    "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/support-core-ui-27.1.1.aar/738210b3c7624476c7d6d70290c45627/res/values/values.xml",
+                    "from": {
+                        "startLines": "-1,-1",
+                        "startColumns": "-1,-1",
+                        "startOffsets": "-1,-1"
+                    },
+                    "to": {
+                        "startLines": "2,141",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,7800",
+                        "endLines": "2,143",
+                        "endColumns": "60,12",
+                        "endOffsets": "111,7940"
+                    }
+                },
+                {
+                    "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/adapters-3.1.4.aar/2bda090b924093f5bade7a2fe606fe95/res/values/values.xml",
+                    "from": {
+                        "startLines": "-1,-1,-1",
+                        "startColumns": "-1,-1,-1",
+                        "startOffsets": "-1,-1,-1"
+                    },
+                    "to": {
+                        "startLines": "118,119,123",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "6417,6474,6636",
+                        "endColumns": "56,42,40",
+                        "endOffsets": "6469,6512,6672"
+                    }
+                },
+                {
+                    "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/library-3.1.4.aar/b17c2fc34a3c753fdaf788af5f98c5bd/res/values/values.xml",
+                    "from": {
+                        "startLines": "-1",
+                        "startColumns": "-1",
+                        "startOffsets": "-1"
+                    },
+                    "to": {
+                        "startLines": "113",
+                        "startColumns": "4",
+                        "startOffsets": "6201",
+                        "endColumns": "40",
+                        "endOffsets": "6237"
+                    }
+                }
+            ]
+        }
+    ]
+}

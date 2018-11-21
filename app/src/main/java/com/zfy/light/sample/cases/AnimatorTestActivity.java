@@ -14,6 +14,8 @@ import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.listener.ModelTypeConfigCallback;
 import com.zfy.adapter.model.LightView;
+import com.zfy.adapter.model.ModelType;
+import com.zfy.adapter.type.ModelTypeRegistry;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.GlideCallback;
@@ -48,25 +50,12 @@ public class AnimatorTestActivity extends MvpActivity {
     public void init() {
         sUseBindAnimator = !sUseBindAnimator;
         mEntities = LightList.diffList();
-        ModelTypeConfigCallback callback = modelType -> {
-            switch (modelType.type) {
-                case MultiTypeEntity.TYPE_DELEGATE:
-                    modelType.spanSize = SpanSize.SPAN_SIZE_HALF;
-                    modelType.layoutId = R.layout.item_deleate;
-                    if (sUseBindAnimator) {
-                        modelType.animator = new ScaleAnimator(.1f).duration(500).interceptor(new OvershootInterpolator());
-                    }
-                    break;
-                case MultiTypeEntity.TYPE_PROJECT:
-                    modelType.spanSize = SpanSize.SPAN_SIZE_HALF;
-                    modelType.layoutId = R.layout.item_cover;
-                    if (sUseBindAnimator) {
-                        modelType.animator = new SlideAnimator(SlideAnimator.LEFT).duration(500).interceptor(new OvershootInterpolator());
-                    }
-                    break;
-            }
-        };
-        mAdapter = new LightAdapterBuilder<>(mEntities, callback).onBindView((holder, pos, data) -> {
+        ModelTypeRegistry registry = ModelTypeRegistry.create();
+        registry.add(new ModelType(MultiTypeEntity.TYPE_DELEGATE, R.layout.item_deleate, SpanSize.SPAN_SIZE_HALF)
+                .animator(sUseBindAnimator ? new ScaleAnimator(.1f).duration(500).interceptor(new OvershootInterpolator()) : null));
+        registry.add(new ModelType(MultiTypeEntity.TYPE_PROJECT,R.layout.item_cover, SpanSize.SPAN_SIZE_HALF)
+                .animator(sUseBindAnimator ? new SlideAnimator(SlideAnimator.LEFT).duration(500).interceptor(new OvershootInterpolator()) : null));
+        mAdapter = new LightAdapterBuilder<>(mEntities, registry).onBindView((holder, pos, data) -> {
             holder.setText(R.id.title_tv, data.title)
                     .setText(R.id.desc_tv, data.desc);
             switch (data.type) {

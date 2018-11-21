@@ -33,12 +33,12 @@ public class ModelType {
         this.type = type;
     }
 
-    public ModelType(int type, int layoutId) {
+    public ModelType(int type, @LayoutRes int layoutId) {
         this.type = type;
         this.layoutId = layoutId;
     }
 
-    public ModelType(int type, int layoutId, int spanSize) {
+    public ModelType(int type, @LayoutRes int layoutId, int spanSize) {
         this.type = type;
         this.layoutId = layoutId;
         this.spanSize = spanSize;
@@ -48,10 +48,13 @@ public class ModelType {
         this.spanSize = modelType.spanSize;
         this.enableClick = modelType.enableClick;
         this.enableLongPress = modelType.enableLongPress;
+        this.layoutId = modelType.layoutId;
         this.enableDbClick = modelType.enableDbClick;
         this.enableDrag = modelType.enableDrag;
         this.enableSwipe = modelType.enableSwipe;
         this.enablePin = modelType.enablePin;
+        this.animator = modelType.animator;
+        this.spaceRect = modelType.spaceRect;
         return this;
     }
 

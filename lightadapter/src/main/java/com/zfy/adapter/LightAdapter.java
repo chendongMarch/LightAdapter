@@ -112,12 +112,22 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     }
 
 
+    /**
+     * 扩展、单类型适配器构造函数
+     *
+     * @param datas    数据源
+     * @param callback ModelTypeConfigCallback
+     */
+    public LightAdapter(List<D> datas, ModelTypeConfigCallback callback) {
+        init(datas, callback);
+    }
+
+
     // 通用初始化方法
     private void init(List<D> datas, ModelTypeConfigCallback callback) {
         if (datas instanceof LightList) {
             ((LightList) datas).setAdapter(this);
         }
-        addModelTypeConfigCallback(callback);
         mHolderCache = new HashSet<>();
         mDatas = datas;
         mModelTypeCache = new SparseArray<>();
@@ -138,6 +148,7 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
                 type.setSpanSize(SpanSize.SPAN_SIZE_ALL);
             }
         });
+        addModelTypeConfigCallback(callback);
     }
 
     @Override
@@ -146,7 +157,10 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         if (holder == null) {
             View view;
             ModelType type = getModelType(viewType);
-            if (type != null && type.layoutId > 0) {
+            if (type != null) {
+                if(type.layoutId <= 0){
+                    throw new AdapterException("ModelType No LayoutId viewType = " + viewType);
+                }
                 view = mLayoutInflater.inflate(type.layoutId, parent, false);
                 if (view != null) {
                     holder = new LightHolder(this, viewType, view);
@@ -159,7 +173,6 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
             } else {
                 throw new AdapterException("can not find type viewType = " + viewType);
             }
-
         }
 
         return holder;
