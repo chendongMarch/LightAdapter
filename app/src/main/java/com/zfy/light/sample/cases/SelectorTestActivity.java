@@ -9,9 +9,8 @@ import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.assistant.SlidingSelectLayout;
 import com.zfy.adapter.collections.LightList;
-import com.zfy.adapter.listener.EventCallback;
+import com.zfy.adapter.model.Extra;
 import com.zfy.adapter.model.LightView;
-import com.zfy.adapter.model.Position;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.GlideCallback;
@@ -42,17 +41,12 @@ public class SelectorTestActivity extends MvpActivity {
         mData = LightList.diffList();
         mAdapter = new LightAdapter<SingleTypeEntity>(mData, R.layout.item_selector) {
             @Override
-            public void onBindView(LightHolder holder, SingleTypeEntity data, Position pos) {
+            public void onBindView(LightHolder holder, SingleTypeEntity data, Extra extra) {
                 holder.setText(R.id.desc_tv, (data.id % 4 == 0) ? "不允许选中" : data.title);
             }
         };
 
-        mAdapter.setClickEvent(new EventCallback<SingleTypeEntity>() {
-            @Override
-            public void call(LightHolder holder, Position pos, SingleTypeEntity data) {
-                mAdapter.selector().toggleItem(data);
-            }
-        });
+        mAdapter.setClickEvent((holder, data, extra) -> mAdapter.selector().toggleItem(data));
 
 
         mAdapter.header().addHeaderView(LightView.from(R.layout.desc_header), (holder) -> {
@@ -62,8 +56,8 @@ public class SelectorTestActivity extends MvpActivity {
                         ToastX.show("选中了 " + mAdapter.selector().getResults().size() + " 个");
                     });
         });
-        mAdapter.selector().setMultiSelector((holder, pos, data) -> {
-            holder.setChecked(R.id.checkbox, data.isSelected());
+        mAdapter.selector().setMultiSelector((holder, data, extra) -> {
+            holder.setChecked(R.id.checkbox, extra.selected);
         });
         mAdapter.selector().setOnSelectListener((data, toSelect) -> {
             if (toSelect) {
@@ -71,14 +65,12 @@ public class SelectorTestActivity extends MvpActivity {
                     ToastX.show("此项不允许选中");
                     return false;
                 }
-                return true;
-            } else {
-                if (mAdapter.selector().getResults().size() <= 4) {
-                    ToastX.show("至少选中4个");
+                if (mAdapter.selector().getResults().size() > 10) {
+                    ToastX.show("最多可以选中10个");
                     return false;
                 }
-                return true;
             }
+            return true;
         });
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
         mRecyclerView.setAdapter(mAdapter);

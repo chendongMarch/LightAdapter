@@ -1,15 +1,14 @@
 package com.zfy.adapter.delegate.impl;
 
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.able.Selectable;
 import com.zfy.adapter.assistant.SlidingSelectLayout;
 import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.refs.SelectorRef;
 import com.zfy.adapter.listener.BindCallback;
+import com.zfy.adapter.model.Extra;
 import com.zfy.adapter.model.ModelType;
-import com.zfy.adapter.model.Position;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,13 +37,15 @@ public class SelectorDelegate<D> extends BaseDelegate implements SelectorRef<D> 
         if (mBindCallback == null) {
             return super.onBindViewHolder(holder, layoutIndex);
         }
-        Position position = mAdapter.obtainPositionByLayoutIndex(layoutIndex);
-        Object data = mAdapter.getItem(position.modelIndex);
+        Extra extra = mAdapter.obtainExtraByLayoutIndex(layoutIndex);
+        Object data = mAdapter.getItem(extra.modelIndex);
         if (data != null) {
             ModelType modelType = mAdapter.getModelType(data);
             if (modelType != null) {
                 if (modelType.type == ItemType.TYPE_CONTENT || !LightUtils.isBuildInType(modelType.type)) {
-                    mBindCallback.bind(holder, position, (D) data);
+                    D d = (D) data;
+                    extra.selected = isSelect(d);
+                    mBindCallback.bind(holder, d, extra);
                 }
             }
         }
@@ -124,19 +125,17 @@ public class SelectorDelegate<D> extends BaseDelegate implements SelectorRef<D> 
             return;
         }
         mResults.add(data);
-        if (data instanceof Selectable) {
-            ((Selectable) data).setSelected(true);
-        }
         if (!isAttached()) {
             return;
         }
         int modelIndex = mAdapter.getDatas().indexOf(data);
-        Position position = mAdapter.obtainPositionByModelIndex(modelIndex);
-        LightHolder holder = (LightHolder) mAdapter.getRecyclerView().findViewHolderForLayoutPosition(position.layoutIndex);
+        Extra extra = mAdapter.obtainExtraByModelIndex(modelIndex);
+        LightHolder holder = (LightHolder) mAdapter.getView().findViewHolderForLayoutPosition(extra.layoutIndex);
+        extra.selected = true;
         if (holder != null) {
-            mBindCallback.bind(holder, position, data);
+            mBindCallback.bind(holder, data, extra);
         } else {
-            mAdapter.notifyItem().change(position.layoutIndex);
+            mAdapter.notifyItem().change(extra.layoutIndex);
         }
     }
 
@@ -149,20 +148,17 @@ public class SelectorDelegate<D> extends BaseDelegate implements SelectorRef<D> 
             return;
         }
         if (mResults.remove(data)) {
-            if (data instanceof Selectable) {
-                ((Selectable) data).setSelected(false);
-            }
             if (!isAttached()) {
                 return;
             }
-
             int modelIndex = mAdapter.getDatas().indexOf(data);
-            Position position = mAdapter.obtainPositionByModelIndex(modelIndex);
-            LightHolder holder = (LightHolder) mAdapter.getRecyclerView().findViewHolderForLayoutPosition(position.layoutIndex);
+            Extra extra = mAdapter.obtainExtraByModelIndex(modelIndex);
+            LightHolder holder = (LightHolder) mAdapter.getView().findViewHolderForLayoutPosition(extra.layoutIndex);
+            extra.selected = false;
             if (holder != null) {
-                mBindCallback.bind(holder, position, data);
+                mBindCallback.bind(holder, data, extra);
             } else {
-                mAdapter.notifyItem().change(position.layoutIndex);
+                mAdapter.notifyItem().change(extra.layoutIndex);
             }
         }
     }

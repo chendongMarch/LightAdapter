@@ -141,7 +141,7 @@ public class LoadingViewDelegate extends BaseDelegate implements LoadingViewRef 
         }
         mLoadingState.state = state;
         if (mBindCallback != null && mLightHolder != null) {
-            mBindCallback.bind(mLightHolder, null, mLoadingState);
+            mBindCallback.bind(mLightHolder, mLoadingState, null);
         }
     }
 

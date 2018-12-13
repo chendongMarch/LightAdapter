@@ -26,7 +26,7 @@ public class LightUtils {
      * @return how to find view holder
      */
     public static RecyclerView.ViewHolder findViewHolder() {
-//        RecyclerView recyclerView = mAdapter.getRecyclerView();
+//        RecyclerView recyclerView = mAdapter.getView();
 //        View childViewUnder = recyclerView.findChildViewUnder(0, 0);
 //        RecyclerView.ViewHolder holder = recyclerView.findViewHolderForLayoutPosition(1);
 //        RecyclerView.ViewHolder holder = recyclerView.findViewHolderForItemId();

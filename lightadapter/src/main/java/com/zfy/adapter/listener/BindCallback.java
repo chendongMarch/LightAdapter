@@ -1,7 +1,7 @@
 package com.zfy.adapter.listener;
 
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.model.Position;
+import com.zfy.adapter.model.Extra;
 
 /**
  * CreateAt : 2018/11/5
@@ -11,5 +11,5 @@ import com.zfy.adapter.model.Position;
  */
 public interface BindCallback<D> {
 
-    void bind(LightHolder holder, Position pos, D data);
+    void bind(LightHolder holder, D data, Extra extra);
 }

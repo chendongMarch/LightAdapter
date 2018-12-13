@@ -20,7 +20,7 @@ public class SampleUtils {
     // 添加 loading
     public static void addLoadingView(LightAdapter adapter) {
         LightView loadingView = LightView.from(R.layout.loading_view);
-        adapter.loadingView().setLoadingView(loadingView, (holder, pos, data) -> {
+        adapter.loadingView().setLoadingView(loadingView, (holder, data, extra) -> {
             switch (data.state) {
                 case LoadingState.LOADING:
                     holder.setVisible(R.id.pb)
@@ -46,7 +46,7 @@ public class SampleUtils {
 
     // 添加 empty
     public static void addEmpty(LightAdapter adapter, View.OnClickListener listener) {
-        adapter.emptyView().setEmptyView(LightView.from(R.layout.empty_view), (holder, pos, data) -> {
+        adapter.emptyView().setEmptyView(LightView.from(R.layout.empty_view), (holder, data, extra) -> {
             holder.setClick(R.id.refresh_tv, listener);
         });
     }

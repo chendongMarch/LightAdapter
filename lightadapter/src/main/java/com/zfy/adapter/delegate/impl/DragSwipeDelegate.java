@@ -12,7 +12,7 @@ import com.zfy.adapter.listener.BindCallback;
 import com.zfy.adapter.model.DragSwipeOptions;
 import com.zfy.adapter.model.DragSwipeState;
 import com.zfy.adapter.model.ModelType;
-import com.zfy.adapter.model.Position;
+import com.zfy.adapter.model.Extra;
 
 import java.util.Collections;
 
@@ -170,8 +170,8 @@ public class DragSwipeDelegate extends BaseDelegate implements DragSwipeRef {
                     break;
             }
             if (mDragSwipeCallback != null) {
-                Position position = mAdapter.obtainPositionByLayoutIndex(viewHolder.getAdapterPosition());
-                mDragSwipeCallback.bind(lightHolder, position, mDragSwipeState);
+                Extra extra = mAdapter.obtainExtraByLayoutIndex(viewHolder.getAdapterPosition());
+                mDragSwipeCallback.bind(lightHolder, mDragSwipeState, extra);
             }
         }
 
@@ -191,8 +191,8 @@ public class DragSwipeDelegate extends BaseDelegate implements DragSwipeRef {
                     break;
             }
             if (mDragSwipeCallback != null) {
-                Position position = mAdapter.obtainPositionByLayoutIndex(viewHolder.getAdapterPosition());
-                mDragSwipeCallback.bind(lightHolder, position, mDragSwipeState);
+                Extra extra = mAdapter.obtainExtraByLayoutIndex(viewHolder.getAdapterPosition());
+                mDragSwipeCallback.bind(lightHolder, mDragSwipeState, extra);
             }
         }
 

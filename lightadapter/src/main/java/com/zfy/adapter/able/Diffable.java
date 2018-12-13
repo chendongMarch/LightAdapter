@@ -4,7 +4,7 @@ import android.os.Parcelable;
 import android.support.v7.widget.RecyclerView;
 
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.model.Position;
+import com.zfy.adapter.model.Extra;
 
 import java.util.Set;
 
@@ -61,8 +61,7 @@ public interface Diffable<T> extends Parcelable {
      * 返回事件列表不为空，则会调用到 Adapter OnBindViewHolderUsePayload
      * 返回事件为空，会调用 Adapter OnBindViewHolder
      *
-     * @see com.zfy.adapter.LightAdapter#onBindView(LightHolder, Object, Position)
-     * @see com.zfy.adapter.LightAdapter#onBindViewUsePayload(LightHolder, Object, Position, String)
+     * @see com.zfy.adapter.LightAdapter#onBindView(LightHolder, Object, Extra)
      *
      * @param newItem 新的元素
      * @return 需要更新的事件信息，我们把比对的结果包装成一个 String 类型的信息，在 LightAdapter 绑定时再根据这个自定义信息选择性的更新绑定

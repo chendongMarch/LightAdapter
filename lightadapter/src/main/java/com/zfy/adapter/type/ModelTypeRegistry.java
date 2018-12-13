@@ -3,8 +3,11 @@ package com.zfy.adapter.type;
 import android.support.annotation.LayoutRes;
 import android.util.SparseArray;
 
-import com.zfy.adapter.listener.ModelTypeConfigCallback;
+import com.zfy.adapter.contract.ItemAdapter;
 import com.zfy.adapter.model.ModelType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * CreateAt : 2018/11/20
@@ -12,38 +15,42 @@ import com.zfy.adapter.model.ModelType;
  *
  * @author chendong
  */
-public class ModelTypeRegistry implements ModelTypeConfigCallback {
+public class ModelTypeRegistry {
 
     private SparseArray<ModelType> mTypeSparseArray;
+    private List<ItemAdapter>      mItemAdapters;
 
     public static ModelTypeRegistry create() {
         return new ModelTypeRegistry();
     }
 
-    private ModelTypeRegistry() {
+    public ModelTypeRegistry() {
         mTypeSparseArray = new SparseArray<>();
+        mItemAdapters = new ArrayList<>();
     }
 
-    public ModelTypeRegistry add(ModelType modelType) {
-        mTypeSparseArray.append(modelType.type, modelType);
-        return this;
+    public void add(ModelType modelType) {
+        mTypeSparseArray.put(modelType.type, modelType);
     }
 
-    public ModelTypeRegistry add(int type, @LayoutRes int layoutId) {
-        mTypeSparseArray.append(type, new ModelType(type, layoutId));
-        return this;
+    public void add(int type, @LayoutRes int layoutId) {
+        mTypeSparseArray.put(type, new ModelType(type, layoutId));
     }
 
-    public ModelTypeRegistry add(int type, @LayoutRes int layoutId, int spanSize) {
-        mTypeSparseArray.append(type, new ModelType(type, layoutId, spanSize));
-        return this;
+    public void add(int type, @LayoutRes int layoutId, int spanSize) {
+        mTypeSparseArray.put(type, new ModelType(type, layoutId, spanSize));
     }
 
-    @Override
-    public void call(ModelType modelType) {
-        ModelType type = mTypeSparseArray.get(modelType.type);
-        if (type != null) {
-            modelType.update(type);
-        }
+    public void add(ItemAdapter adapter) {
+        mItemAdapters.add(adapter);
+    }
+
+
+    public SparseArray<ModelType> getTypeSparseArray() {
+        return mTypeSparseArray;
+    }
+
+    public List<ItemAdapter> getItemAdapters() {
+        return mItemAdapters;
     }
 }

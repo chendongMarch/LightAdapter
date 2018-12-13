@@ -6,7 +6,6 @@ import android.support.v7.widget.RecyclerView;
 import com.march.common.exts.ListX;
 import com.march.common.exts.ToastX;
 import com.zfy.adapter.LightAdapter;
-import com.zfy.adapter.LightAdapterBuilder;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.listener.ModelTypeConfigCallback;
@@ -54,11 +53,12 @@ public class SampleTestActivity extends MvpActivity {
                     break;
             }
         };
-        ModelTypeRegistry registry = ModelTypeRegistry.create()
-                .add(MultiTypeEntity.TYPE_DELEGATE, R.layout.item_deleate, SpanSize.SPAN_SIZE_HALF)
-                .add(MultiTypeEntity.TYPE_PROJECT, R.layout.item_cover, SpanSize.SPAN_SIZE_HALF);
+        ModelTypeRegistry registry = ModelTypeRegistry.create();
+        registry.add(MultiTypeEntity.TYPE_DELEGATE, R.layout.item_deleate, SpanSize.SPAN_SIZE_HALF);
+        registry.add(MultiTypeEntity.TYPE_PROJECT, R.layout.item_cover, SpanSize.SPAN_SIZE_HALF);
         // adapter
-        mAdapter = new LightAdapterBuilder<>(mEntities, registry).onBindView((holder, pos, data) -> {
+        mAdapter = new LightAdapter<>(mEntities, registry);
+        mAdapter.setBindCallback((holder, data, extra) -> {
             holder.setText(R.id.title_tv, data.title)
                     .setText(R.id.desc_tv, data.desc);
             switch (data.type) {
@@ -69,9 +69,10 @@ public class SampleTestActivity extends MvpActivity {
                     holder.setCallback(R.id.cover_iv, new GlideCallback(Utils.randomImage()));
                     break;
             }
-        }).onClickEvent((holder, pos, data) -> {
+        });
+        mAdapter.setClickEvent((holder, data, extra) -> {
             ToastX.show("click item");
-        }).build();
+        });
         // header
         mAdapter.header().addHeaderView(LightView.from(R.layout.desc_header), (holder) -> {
             holder.setText(R.id.desc_tv, Values.getAnimatorDesc())

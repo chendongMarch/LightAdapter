@@ -7,12 +7,10 @@ import android.view.animation.OvershootInterpolator;
 import com.march.common.exts.ListX;
 import com.march.common.exts.ToastX;
 import com.zfy.adapter.LightAdapter;
-import com.zfy.adapter.LightAdapterBuilder;
 import com.zfy.adapter.animations.ScaleAnimator;
 import com.zfy.adapter.animations.SlideAnimator;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
-import com.zfy.adapter.listener.ModelTypeConfigCallback;
 import com.zfy.adapter.model.LightView;
 import com.zfy.adapter.model.ModelType;
 import com.zfy.adapter.type.ModelTypeRegistry;
@@ -55,7 +53,8 @@ public class AnimatorTestActivity extends MvpActivity {
                 .animator(sUseBindAnimator ? new ScaleAnimator(.1f).duration(500).interceptor(new OvershootInterpolator()) : null));
         registry.add(new ModelType(MultiTypeEntity.TYPE_PROJECT,R.layout.item_cover, SpanSize.SPAN_SIZE_HALF)
                 .animator(sUseBindAnimator ? new SlideAnimator(SlideAnimator.LEFT).duration(500).interceptor(new OvershootInterpolator()) : null));
-        mAdapter = new LightAdapterBuilder<>(mEntities, registry).onBindView((holder, pos, data) -> {
+        mAdapter = new LightAdapter<>(mEntities, registry);
+        mAdapter.setBindCallback((holder, data, extra) -> {
             holder.setText(R.id.title_tv, data.title)
                     .setText(R.id.desc_tv, data.desc);
             switch (data.type) {
@@ -67,9 +66,10 @@ public class AnimatorTestActivity extends MvpActivity {
                             .setText(R.id.desc_tv, sUseBindAnimator ? "BindAnimator-左滑动画" : "ItemAnimator-缩放动画");
                     break;
             }
-        }).onClickEvent((holder, pos, data) -> {
+        });
+        mAdapter.setClickEvent((holder, data, extra) -> {
             ToastX.show("click item");
-        }).build();
+        });
         // header
         mAdapter.header().addHeaderView(LightView.from(R.layout.desc_header), (holder) -> {
             holder.setText(R.id.desc_tv, Values.getAnimatorDesc())

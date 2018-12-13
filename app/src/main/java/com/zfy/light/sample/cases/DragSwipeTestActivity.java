@@ -8,16 +8,19 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 
 import com.march.common.exts.ListX;
+import com.march.common.exts.ToastX;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.annotations.ItemType;
+import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
-import com.zfy.adapter.items.LightItemAdapter;
+import com.zfy.adapter.LightItemAdapter;
 import com.zfy.adapter.model.DragSwipeOptions;
 import com.zfy.adapter.model.DragSwipeState;
+import com.zfy.adapter.model.Extra;
 import com.zfy.adapter.model.LightView;
-import com.zfy.adapter.model.Position;
+import com.zfy.adapter.model.ModelType;
+import com.zfy.adapter.type.ModelTypeRegistry;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.GlideCallback;
@@ -48,16 +51,14 @@ public class DragSwipeTestActivity extends MvpActivity {
 
     private LightList<MultiTypeEntity> mData;
 
-    @ItemType(type = MultiTypeEntity.TYPE_CAN_DRAG, spanSize = SpanSize.SPAN_SIZE_HALF)
     static class DragItemAdapter extends LightItemAdapter<MultiTypeEntity> {
 
-        @Override
-        public int getLayoutId() {
-            return R.layout.item_drag;
+        public DragItemAdapter() {
+            super(new ModelType(MultiTypeEntity.TYPE_CAN_DRAG, R.layout.item_drag, SpanSize.SPAN_SIZE_HALF));
         }
 
         @Override
-        public void onBindView(LightHolder holder, MultiTypeEntity data, Position pos) {
+        public void onBindView(LightHolder holder, MultiTypeEntity data, Extra extra) {
             holder.setText(R.id.title_tv, "本项支持拖拽")
                     .setText(R.id.desc_tv, "底部按钮，触摸/长按拖拽")
                     .dragOnTouch(R.id.touch_drag_iv)
@@ -65,29 +66,35 @@ public class DragSwipeTestActivity extends MvpActivity {
         }
     }
 
-    @ItemType(type = MultiTypeEntity.TYPE_CAN_SWIPE, spanSize = SpanSize.SPAN_SIZE_ALL)
     static class SwipeItemAdapter extends LightItemAdapter<MultiTypeEntity> {
 
-        @Override
-        public int getLayoutId() {
-            return R.layout.item_swipe;
+        public SwipeItemAdapter() {
+            super(new ModelType(MultiTypeEntity.TYPE_CAN_SWIPE, R.layout.item_swipe, SpanSize.SPAN_SIZE_ALL));
         }
 
         @Override
-        public void onBindView(LightHolder holder, MultiTypeEntity data, Position pos) {
+        public void onBindView(LightHolder holder, MultiTypeEntity data, Extra extra) {
             holder.setText(R.id.title_tv, "本项支持侧滑")
                     .setText(R.id.desc_tv, "右侧按钮，触摸/长按侧滑")
                     .swipeOnTouch(R.id.touch_swipe_iv)
                     .swipeOnLongPress(R.id.press_swipe_iv);
+        }
+
+        @Override
+        public void onClickEvent(LightHolder holder, MultiTypeEntity data, Extra extra) {
+            ToastX.show("swipe click");
         }
     }
 
 
     @Override
     public void init() {
-        mData = LightList.diffList();
+        mData = new LightDiffList<>();
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        mAdapter = LightAdapter.ofItems(mData, new DragItemAdapter(), new SwipeItemAdapter());
+        ModelTypeRegistry registry = new ModelTypeRegistry();
+        registry.add(new SwipeItemAdapter());
+        registry.add(new DragItemAdapter());
+        mAdapter = new LightAdapter<>(mData, registry);
         mAdapter.header().addHeaderView(LightView.from(R.layout.desc_header), (holder) -> {
             holder.setText(R.id.desc_tv, Values.getDragSwipeDesc())
                     .setCallback(R.id.cover_iv, new GlideCallback(Utils.randomImage()));
@@ -105,7 +112,7 @@ public class DragSwipeTestActivity extends MvpActivity {
         // 设置
         mAdapter.dragSwipe().setOptions(options);
         // 操作状态监听，做动画效果
-        mAdapter.dragSwipe().setDragSwipeCallback((holder, pos, data) -> {
+        mAdapter.dragSwipe().setDragSwipeCallback((holder, data, extra) -> {
             switch (data.state) {
                 case DragSwipeState.ACTIVE_DRAG:
                     holder.setBgRes(R.id.item_view, R.drawable.shape_selected)

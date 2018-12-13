@@ -17,12 +17,11 @@ import com.march.common.exts.SizeX;
 import com.march.common.exts.ToastX;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.annotations.ItemType;
+import com.zfy.adapter.annotations.XItemType;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
-import com.zfy.adapter.listener.ModelTypeConfigCallback;
+import com.zfy.adapter.model.Extra;
 import com.zfy.adapter.model.ModelType;
-import com.zfy.adapter.model.Position;
 import com.zfy.adapter.type.ModelTypeRegistry;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
@@ -55,7 +54,7 @@ public class MainActivity extends MvpActivity {
 
     private LightList<MultiTypeEntity>    mEntities;
 
-    @ItemType()
+    @XItemType()
     private LightAdapter<MultiTypeEntity> mAdapter;
 
     @Override
@@ -71,28 +70,27 @@ public class MainActivity extends MvpActivity {
         String coverUrl = "http://cdn1.showjoy.com/shop/images/20181108/KFHSC1SYSMFYSUAUHPFV1541688945136.png";
         Glide.with(getContext()).load(coverUrl).into(mCoverIv);
 
-        ModelTypeRegistry registry = ModelTypeRegistry.create()
-                .add(MultiTypeEntity.TYPE_LINK, R.layout.item_link, SpanSize.SPAN_SIZE_ALL)
-                .add(MultiTypeEntity.TYPE_DESC, R.layout.item_desc, SpanSize.SPAN_SIZE_ALL)
-                .add(MultiTypeEntity.TYPE_DELEGATE, R.layout.item_deleate, SpanSize.SPAN_SIZE_HALF)
-                .add(MultiTypeEntity.TYPE_BASIC, R.layout.item_basic, SpanSize.SPAN_SIZE_HALF)
-                .add(MultiTypeEntity.TYPE_LIST, R.layout.item_list, SpanSize.SPAN_SIZE_HALF)
-                .add(MultiTypeEntity.TYPE_EVENT, R.layout.item_event, SpanSize.SPAN_SIZE_THIRD)
-                .add(MultiTypeEntity.TYPE_HOLDER, R.layout.item_holder, SpanSize.SPAN_SIZE_ALL)
-                .add(MultiTypeEntity.TYPE_ASSISTANT, R.layout.item_assistant, SpanSize.SPAN_SIZE_HALF)
-                .add(MultiTypeEntity.TYPE_FUTURE, R.layout.item_future, SpanSize.SPAN_SIZE_THIRD)
-                .add(new ModelType(MultiTypeEntity.TYPE_PROJECT, R.layout.item_project, SpanSize.SPAN_SIZE_HALF).spaceRect(new Rect(20, 20, 20, 20)));
+        ModelTypeRegistry registry = ModelTypeRegistry.create();
+        registry.add(MultiTypeEntity.TYPE_LINK, R.layout.item_link, SpanSize.SPAN_SIZE_ALL);
+        registry.add(MultiTypeEntity.TYPE_DESC, R.layout.item_desc, SpanSize.SPAN_SIZE_ALL);
+        registry.add(MultiTypeEntity.TYPE_DELEGATE, R.layout.item_deleate, SpanSize.SPAN_SIZE_HALF);
+        registry.add(MultiTypeEntity.TYPE_BASIC, R.layout.item_basic, SpanSize.SPAN_SIZE_HALF);
+        registry.add(MultiTypeEntity.TYPE_LIST, R.layout.item_list, SpanSize.SPAN_SIZE_HALF);
+        registry.add(new ModelType(MultiTypeEntity.TYPE_EVENT, R.layout.item_event, SpanSize.SPAN_SIZE_THIRD).enableDbClick(true));
+        registry.add(MultiTypeEntity.TYPE_HOLDER, R.layout.item_holder, SpanSize.SPAN_SIZE_ALL);
+        registry.add(MultiTypeEntity.TYPE_ASSISTANT, R.layout.item_assistant, SpanSize.SPAN_SIZE_HALF);
+        registry.add(MultiTypeEntity.TYPE_FUTURE, R.layout.item_future, SpanSize.SPAN_SIZE_THIRD);
+        registry.add(new ModelType(MultiTypeEntity.TYPE_PROJECT, R.layout.item_project, SpanSize.SPAN_SIZE_HALF).spaceRect(new Rect(20, 20, 20, 20)));
         mAdapter = new LightAdapter<MultiTypeEntity>(mEntities, registry) {
-
             @Override
-            public void onBindView(LightHolder holder, MultiTypeEntity data, Position pos) {
+            public void onBindView(LightHolder holder, MultiTypeEntity data, Extra extra) {
                 holder.setText(R.id.title_tv, data.title)
                         .setText(R.id.desc_tv, data.desc);
                 switch (data.type) {
                     case MultiTypeEntity.TYPE_LINK:
-                        holder.setClick(all(R.id.github_tv, R.id.github_iv), v -> openBrowser("https://github.com/chendongMarch/LightAdapter"))
-                                .setClick(all(R.id.blog_tv, R.id.blog_iv), v -> openBrowser("http://zfyx.coding.me/article/1632666977/"))
-                                .setClick(all(R.id.download_tv, R.id.download_iv), v -> openBrowser("http://zfyx.coding.me/article/1632666977/"));
+                        holder.setClick(R.id.github_tv, R.id.github_iv,
+                                R.id.blog_tv, R.id.blog_iv,
+                                R.id.download_tv, R.id.download_iv);
                         break;
                     case MultiTypeEntity.TYPE_DESC:
                         break;
@@ -117,7 +115,25 @@ public class MainActivity extends MvpActivity {
                 }
             }
         };
-        mAdapter.setClickEvent((holder, pos, data) -> {
+        // view 点击事件
+        mAdapter.setChildViewClickEvent((holder, data, extra) -> {
+            switch (extra.viewId) {
+                case R.id.github_tv:
+                case R.id.github_iv:
+                    openBrowser("https://github.com/chendongMarch/LightAdapter");
+                    break;
+                case R.id.blog_tv:
+                case R.id.blog_iv:
+                    openBrowser("http://zfyx.coding.me/article/1632666977/");
+                    break;
+                case R.id.download_tv:
+                case R.id.download_iv:
+                    openBrowser("http://zfyx.coding.me/article/1632666977/");
+                    break;
+            }
+        });
+        // 单项点击事件
+        mAdapter.setClickEvent((holder, data, extra) -> {
             if (!EmptyX.isEmpty(data.url)) {
                 openBrowser(data.url);
                 return;
@@ -137,18 +153,20 @@ public class MainActivity extends MvpActivity {
                 launchActivity(new Intent(getContext(), data.targetClazz), 0);
             }
         });
-        mAdapter.setLongPressEvent((holder, pos, data) -> {
+        // 单项长按事件
+        mAdapter.setLongPressEvent((holder, data, extra) -> {
             if (data.type == MultiTypeEntity.TYPE_EVENT) {
                 ToastX.show("长按事件");
             }
         });
-        mAdapter.setDbClickEvent((holder, pos, data) -> {
+        // 单项双击事件
+        mAdapter.setDbClickEvent((holder, data, extra) -> {
             if (data.type == MultiTypeEntity.TYPE_EVENT) {
                 ToastX.show("双击事件");
             }
         });
         // 设置可悬停 section
-        mAdapter.section().setOptions(R.layout.item_section, true, (holder, pos, data) -> {
+        mAdapter.section().setOptions(R.layout.item_section, true, (holder, data, extra) -> {
             holder.setText(R.id.section_tv, data.sectionTitle);
         });
         // 分割线

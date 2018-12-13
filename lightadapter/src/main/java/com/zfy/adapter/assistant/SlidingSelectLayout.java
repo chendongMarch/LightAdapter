@@ -115,7 +115,7 @@ public class SlidingSelectLayout extends FrameLayout {
         if (onSlidingSelectListener == null) {
             return;
         }
-        RecyclerView recyclerView = mAdapter.getRecyclerView();
+        RecyclerView recyclerView = mAdapter.getView();
         View childViewUnder = recyclerView.findChildViewUnder(event.getX(), event.getY());
         if (childViewUnder == null) {
             return;
@@ -143,7 +143,7 @@ public class SlidingSelectLayout extends FrameLayout {
         if (mSpanCount != INVALID_PARAM) {
             return;
         }
-        mSpanCount = LightUtils.getRecyclerViewSpanCount(mAdapter.getRecyclerView());
+        mSpanCount = LightUtils.getRecyclerViewSpanCount(mAdapter.getView());
         if (mSpanCount < 0) {
             return;
         }

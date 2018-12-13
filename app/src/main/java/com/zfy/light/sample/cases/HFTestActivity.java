@@ -9,7 +9,7 @@ import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.model.LightView;
-import com.zfy.adapter.model.Position;
+import com.zfy.adapter.model.Extra;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.GlideCallback;
@@ -42,14 +42,14 @@ public class HFTestActivity extends MvpActivity {
         LightAdapter<SingleTypeEntity> adapter = new LightAdapter<SingleTypeEntity>( mData, R.layout.item_selector) {
 
             @Override
-            public void onBindView(LightHolder holder, SingleTypeEntity data, Position pos) {
+            public void onBindView(LightHolder holder, SingleTypeEntity data, Extra extra) {
                 holder.setText(R.id.desc_tv, data.title);
             }
         };
         addHeader(adapter);
         addFooter(adapter);
 
-        adapter.setClickEvent((holder, pos, data) -> {
+        adapter.setClickEvent((holder, data, extra) -> {
             testStr = String.valueOf(System.currentTimeMillis());
             adapter.header().notifyHeaderUpdate();
             adapter.footer().notifyFooterUpdate();

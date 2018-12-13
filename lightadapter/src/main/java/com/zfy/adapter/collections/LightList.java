@@ -11,6 +11,7 @@ import com.zfy.adapter.able.Diffable;
 import com.zfy.adapter.function.LightConsumer;
 import com.zfy.adapter.function.LightPredicate;
 
+import java.lang.ref.WeakReference;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -90,9 +91,11 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
         }
     }
 
-    private LightAdapterUpdateCallback mCallback;
+    private LightAdapterUpdateCallback        mCallback;
+    private List<WeakReference<LightAdapter>> mAdapters;
 
     LightList() {
+        mAdapters = new ArrayList<>();
         mCallback = new LightAdapterUpdateCallback();
     }
 

@@ -11,7 +11,7 @@ import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.delegate.refs.SectionRef;
 import com.zfy.adapter.listener.BindCallback;
 import com.zfy.adapter.model.ModelType;
-import com.zfy.adapter.model.Position;
+import com.zfy.adapter.model.Extra;
 
 /**
  * CreateAt : 2018/10/30
@@ -54,10 +54,10 @@ public class SectionDelegate<D> extends BaseDelegate implements SectionRef<D> {
     @SuppressWarnings("unchecked")
     public boolean onBindViewHolder(LightHolder holder, int layoutIndex) {
         if (mBindCallback != null && mAdapter.getItemViewType(layoutIndex) == ItemType.TYPE_SECTION) {
-            Position position = mAdapter.obtainPositionByLayoutIndex(layoutIndex);
-            D data = (D) mAdapter.getItem(position.modelIndex);
+            Extra extra = mAdapter.obtainExtraByLayoutIndex(layoutIndex);
+            D data = (D) mAdapter.getItem(extra.modelIndex);
             if (data != null) {
-                mBindCallback.bind(holder, position, data);
+                mBindCallback.bind(holder, data, extra);
             }
             return true;
         }

@@ -109,20 +109,20 @@ public class EmptyViewDelegate extends BaseViewDelegate implements EmptyViewRef 
     public void setEmptyState(int state) {
         mEmptyState.state = state;
         if (mBindCallback != null && mEmptyHolder != null) {
-            mBindCallback.bind(mEmptyHolder, null, mEmptyState);
+            mBindCallback.bind(mEmptyHolder, mEmptyState, null);
         }
         displayEmptyView(mEmptyState.state != EmptyState.NONE);
 
         if (mEmptyState.state == EmptyState.NONE) {
             if (mAdapter.getDelegateRegistry().isLoaded(IDelegate.LOADING)) {
-                ((LoadingViewDelegate) mAdapter.loadingView()).setLoadingEnable(true);
+                mAdapter.loadingView().setLoadingEnable(true);
             }
             if (mAdapter.getDelegateRegistry().isLoaded(IDelegate.LOAD_MORE)) {
                 ((LoadMoreDelegate) mAdapter.loadMore()).setLoadMoreEnableFlagInternal(true);
             }
         } else {
             if (mAdapter.getDelegateRegistry().isLoaded(IDelegate.LOADING)) {
-                ((LoadingViewDelegate) mAdapter.loadingView()).setLoadingEnable(false);
+                mAdapter.loadingView().setLoadingEnable(false);
             }
             if (mAdapter.getDelegateRegistry().isLoaded(IDelegate.LOAD_MORE)) {
                 ((LoadMoreDelegate) mAdapter.loadMore()).setLoadMoreEnableFlagInternal(false);

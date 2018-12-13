@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface ItemTypes {
+public @interface XItemTypes {
 
-    ItemType[] value();
+    XItemType[] value();
 }

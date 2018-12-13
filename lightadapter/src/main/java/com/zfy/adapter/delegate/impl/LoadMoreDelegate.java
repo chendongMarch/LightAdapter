@@ -8,7 +8,7 @@ import com.zfy.adapter.delegate.IDelegate;
 import com.zfy.adapter.delegate.refs.LoadMoreRef;
 import com.zfy.adapter.listener.AdapterCallback;
 import com.zfy.adapter.model.LoadingState;
-import com.zfy.adapter.model.Position;
+import com.zfy.adapter.model.Extra;
 
 /**
  * CreateAt : 2018/10/30
@@ -49,7 +49,7 @@ public class LoadMoreDelegate extends BaseDelegate implements LoadMoreRef {
         if (!mLoadMoreEnable || !mLoadMoreEnableFlagInternal) {
             return super.onBindViewHolder(holder, layoutIndex);
         }
-        Position position = mAdapter.obtainPositionByLayoutIndex(layoutIndex);
+        Extra position = mAdapter.obtainExtraByLayoutIndex(layoutIndex);
         if (isAttached() && !mLoadingMore && mAdapter.getDatas().size() - position.modelIndex <= mStartTryLoadMoreItemCount) {
             mLoadingMore = true;
             mCallback.call(mAdapter);
