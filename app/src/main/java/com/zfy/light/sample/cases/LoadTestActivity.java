@@ -1,7 +1,5 @@
 package com.zfy.light.sample.cases;
 
-import android.content.Context;
-import android.content.Intent;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.animation.OvershootInterpolator;
@@ -9,6 +7,7 @@ import android.view.animation.OvershootInterpolator;
 import com.march.common.exts.ListX;
 import com.march.common.pool.ExecutorsPool;
 import com.zfy.adapter.LightAdapter;
+import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.model.EmptyState;
@@ -32,28 +31,21 @@ import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
 
 /**
  * CreateAt : 2018/11/9
- * Describe :
+ * Describe : 底部加载更多测试
  *
  * @author chendong
  */
 @MvpV(layout = R.layout.load_test_activity)
 public class LoadTestActivity extends MvpActivity {
 
-    private LightAdapter<MultiTypeEntity> mAdapter;
-
-    public static void startActivity(Context context) {
-        Intent intent = new Intent(context, LoadTestActivity.class);
-        context.startActivity(intent);
-    }
-
     @BindView(R.id.content_rv) RecyclerView mRecyclerView;
 
+    private LightAdapter<MultiTypeEntity> mAdapter;
     private LightList<MultiTypeEntity> mData;
-
 
     @Override
     public void init() {
-        mData = LightList.diffList();
+        mData = new LightDiffList<>();
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         ModelTypeRegistry registry = ModelTypeRegistry.create();
         registry.add(new ModelType(MultiTypeEntity.TYPE_CAN_DRAG, R.layout.item_drag, SpanSize.SPAN_SIZE_HALF));

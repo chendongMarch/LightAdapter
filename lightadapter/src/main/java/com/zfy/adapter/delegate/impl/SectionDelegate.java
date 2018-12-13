@@ -39,7 +39,6 @@ public class SectionDelegate<D> extends BaseDelegate implements SectionRef<D> {
         }
     }
 
-
     @Override
     public LightHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == ItemType.TYPE_SECTION) {

@@ -25,7 +25,7 @@ import butterknife.BindView;
 
 /**
  * CreateAt : 2018/11/13
- * Describe :
+ * Describe : 简单的多类型适配器
  *
  * @author chendong
  */
@@ -41,18 +41,6 @@ public class SampleTestActivity extends MvpActivity {
     public void init() {
         mEntities = LightList.diffList();
         // type callback
-        ModelTypeConfigCallback callback = modelType -> {
-            switch (modelType.type) {
-                case MultiTypeEntity.TYPE_DELEGATE:
-                    modelType.spanSize = SpanSize.SPAN_SIZE_HALF;
-                    modelType.layoutId = R.layout.item_deleate;
-                    break;
-                case MultiTypeEntity.TYPE_PROJECT:
-                    modelType.spanSize = SpanSize.SPAN_SIZE_HALF;
-                    modelType.layoutId = R.layout.item_cover;
-                    break;
-            }
-        };
         ModelTypeRegistry registry = ModelTypeRegistry.create();
         registry.add(MultiTypeEntity.TYPE_DELEGATE, R.layout.item_deleate, SpanSize.SPAN_SIZE_HALF);
         registry.add(MultiTypeEntity.TYPE_PROJECT, R.layout.item_cover, SpanSize.SPAN_SIZE_HALF);

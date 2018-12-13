@@ -255,6 +255,7 @@ public class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     public final void onBindViewHolder(@NonNull LightHolder holder, int layoutIndex) {
         if (!mDelegateRegistry.onBindViewHolder(holder, layoutIndex)) {
             Extra extra = obtainExtraByLayoutIndex(layoutIndex);
+            extra.byPayload = false;
             D data = getItem(extra.modelIndex);
             ItemAdapter<D> itemAdapter = mItemAdapterArray.get(getItemViewType(layoutIndex));
             if (itemAdapter != null) {
@@ -280,6 +281,7 @@ public class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
                 for (Object o : msgSet) {
                     if (o instanceof String) {
                         extra.payloadMsg = (String) o;
+                        extra.byPayload = true;
                         onBindView(holder, data, extra);
                     }
                 }

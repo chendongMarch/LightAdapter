@@ -35,10 +35,12 @@ public class Extra {
      * 为子控件设置监听事件的id
      */
     public int     viewId;
+
     /**
      * 使用 payload 绑定时的 msg
      */
     public String  payloadMsg;
+    public boolean  byPayload;
 
 
     public Extra(int modelIndex, int layoutIndex) {

@@ -9,6 +9,7 @@ import com.march.common.exts.ToastX;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.animations.ScaleAnimator;
 import com.zfy.adapter.animations.SlideAnimator;
+import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.model.LightView;
@@ -47,7 +48,7 @@ public class AnimatorTestActivity extends MvpActivity {
     @Override
     public void init() {
         sUseBindAnimator = !sUseBindAnimator;
-        mEntities = LightList.diffList();
+        mEntities = new LightDiffList<>();
         ModelTypeRegistry registry = ModelTypeRegistry.create();
         registry.add(new ModelType(MultiTypeEntity.TYPE_DELEGATE, R.layout.item_deleate, SpanSize.SPAN_SIZE_HALF)
                 .animator(sUseBindAnimator ? new ScaleAnimator(.1f).duration(500).interceptor(new OvershootInterpolator()) : null));

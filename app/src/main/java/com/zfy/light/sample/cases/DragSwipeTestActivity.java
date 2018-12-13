@@ -1,7 +1,5 @@
 package com.zfy.light.sample.cases;
 
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,10 +9,10 @@ import com.march.common.exts.ListX;
 import com.march.common.exts.ToastX;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
+import com.zfy.adapter.LightItemAdapter;
 import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
-import com.zfy.adapter.LightItemAdapter;
 import com.zfy.adapter.model.DragSwipeOptions;
 import com.zfy.adapter.model.DragSwipeState;
 import com.zfy.adapter.model.Extra;
@@ -33,27 +31,21 @@ import butterknife.BindView;
 
 /**
  * CreateAt : 2018/11/9
- * Describe :
+ * Describe : 测试 长按/触摸 策划/拖动排序
  *
  * @author chendong
  */
 @MvpV(layout = R.layout.drag_swipe_activity)
 public class DragSwipeTestActivity extends MvpActivity {
 
-    private LightAdapter<MultiTypeEntity> mAdapter;
-
-    public static void startActivity(Context context) {
-        Intent intent = new Intent(context, DragSwipeTestActivity.class);
-        context.startActivity(intent);
-    }
-
     @BindView(R.id.content_rv) RecyclerView mRecyclerView;
 
+    private LightAdapter<MultiTypeEntity> mAdapter;
     private LightList<MultiTypeEntity> mData;
 
     static class DragItemAdapter extends LightItemAdapter<MultiTypeEntity> {
 
-        public DragItemAdapter() {
+        DragItemAdapter() {
             super(new ModelType(MultiTypeEntity.TYPE_CAN_DRAG, R.layout.item_drag, SpanSize.SPAN_SIZE_HALF));
         }
 

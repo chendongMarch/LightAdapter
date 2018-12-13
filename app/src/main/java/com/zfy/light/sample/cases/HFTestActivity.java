@@ -22,17 +22,16 @@ import butterknife.BindView;
 
 /**
  * CreateAt : 2018/11/9
- * Describe :
+ * Describe : 测试 Header/Footer
  *
  * @author chendong
  */
 @MvpV(layout = R.layout.recycler_activity)
 public class HFTestActivity extends MvpActivity {
 
-    private String testStr = String.valueOf(System.currentTimeMillis());
-
     @BindView(R.id.content_rv) RecyclerView mRecyclerView;
 
+    private String testStr = String.valueOf(System.currentTimeMillis());
     private LightList<SingleTypeEntity> mData;
 
     @Override
@@ -40,7 +39,6 @@ public class HFTestActivity extends MvpActivity {
         mData = LightList.diffList();
 
         LightAdapter<SingleTypeEntity> adapter = new LightAdapter<SingleTypeEntity>( mData, R.layout.item_selector) {
-
             @Override
             public void onBindView(LightHolder holder, SingleTypeEntity data, Extra extra) {
                 holder.setText(R.id.desc_tv, data.title);
@@ -67,12 +65,8 @@ public class HFTestActivity extends MvpActivity {
         adapter.header().addHeaderView(view, holder -> {
             holder.setText(R.id.desc_tv, testStr + "\n" + Values.getHFDesc())
                     .setCallback(R.id.cover_iv, new GlideCallback(Utils.randomImage()))
-                    .setClick(R.id.cover_iv, v -> {
-                        adapter.header().removeHeaderView(view);
-                    })
-                    .setClick(R.id.action_fab, v -> {
-                        addHeader(adapter);
-                    });
+                    .setClick(R.id.cover_iv, v -> adapter.header().removeHeaderView(view))
+                    .setClick(R.id.action_fab, v -> addHeader(adapter));
         });
     }
 
@@ -84,9 +78,7 @@ public class HFTestActivity extends MvpActivity {
                         adapter.footer().removeFooterView(lightView);
                         return true;
                     })
-                    .setClick(v -> {
-                        addFooter(adapter);
-                    });
+                    .setClick(v -> addFooter(adapter));
         });
     }
 

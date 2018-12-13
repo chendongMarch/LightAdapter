@@ -7,6 +7,7 @@ import com.march.common.exts.ListX;
 import com.march.common.exts.ToastX;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.animations.ScaleAnimator;
+import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.model.EmptyState;
@@ -41,7 +42,7 @@ public class EmptyTestActivity extends MvpActivity {
 
     @Override
     public void init() {
-        mEntities = LightList.diffList();
+        mEntities = new LightDiffList<>();
 
         ModelTypeRegistry registry = ModelTypeRegistry.create();
         registry.add(MultiTypeEntity.TYPE_DELEGATE, R.layout.item_deleate, SpanSize.SPAN_SIZE_HALF);

@@ -5,9 +5,9 @@ import android.support.v7.widget.RecyclerView;
 
 import com.march.common.exts.ListX;
 import com.zfy.adapter.LightAdapter;
+import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
-import com.zfy.adapter.listener.ModelTypeConfigCallback;
 import com.zfy.adapter.type.ModelTypeRegistry;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
@@ -24,7 +24,7 @@ import jp.wasabeef.recyclerview.animators.ScaleInAnimator;
 
 /**
  * CreateAt : 2018/11/13
- * Describe : 空白页面测试
+ * Describe : 顶部加载更多测试
  *
  * @author chendong
  */
@@ -38,20 +38,7 @@ public class TopMoreTestActivity extends MvpActivity {
 
     @Override
     public void init() {
-        mEntities = LightList.diffList();
-        // type callback
-        ModelTypeConfigCallback callback = modelType -> {
-            switch (modelType.type) {
-                case MultiTypeEntity.TYPE_DELEGATE:
-                    modelType.spanSize = SpanSize.SPAN_SIZE_HALF;
-                    modelType.layoutId = R.layout.item_deleate;
-                    break;
-                case MultiTypeEntity.TYPE_PROJECT:
-                    modelType.spanSize = SpanSize.SPAN_SIZE_HALF;
-                    modelType.layoutId = R.layout.item_cover;
-                    break;
-            }
-        };
+        mEntities = new LightDiffList<>();
         ModelTypeRegistry registry = ModelTypeRegistry.create();
         registry.add(MultiTypeEntity.TYPE_DELEGATE, R.layout.item_deleate, SpanSize.SPAN_SIZE_HALF);
         registry.add(MultiTypeEntity.TYPE_PROJECT, R.layout.item_cover, SpanSize.SPAN_SIZE_HALF);
@@ -95,7 +82,6 @@ public class TopMoreTestActivity extends MvpActivity {
         mContentRv.scrollToPosition(mAdapter.getDatas().size() / 2);
     }
 
-
     private void appendData(boolean top) {
         List<MultiTypeEntity> list = ListX.range(10, index -> {
             MultiTypeEntity entity = new MultiTypeEntity(index % 3 == 0 ? MultiTypeEntity.TYPE_DELEGATE : MultiTypeEntity.TYPE_PROJECT);
@@ -110,5 +96,4 @@ public class TopMoreTestActivity extends MvpActivity {
             mEntities.updateAddAll(list);
         }
     }
-
 }

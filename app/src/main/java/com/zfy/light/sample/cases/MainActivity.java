@@ -17,7 +17,7 @@ import com.march.common.exts.SizeX;
 import com.march.common.exts.ToastX;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.annotations.XItemType;
+import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.model.Extra;
@@ -39,7 +39,7 @@ import butterknife.BindView;
 
 /**
  * CreateAt : 2018/11/8
- * Describe :
+ * Describe : 主页
  *
  * @author chendong
  */
@@ -53,8 +53,6 @@ public class MainActivity extends MvpActivity {
     @BindView(R.id.toolbar)    Toolbar      mToolbar;
 
     private LightList<MultiTypeEntity>    mEntities;
-
-    @XItemType()
     private LightAdapter<MultiTypeEntity> mAdapter;
 
     @Override
@@ -63,8 +61,7 @@ public class MainActivity extends MvpActivity {
         Snackbar snackbar = Snackbar.make(mRecyclerView, "点击某项查看 Demo 效果，\n长按查看该模块相关文档", Snackbar.LENGTH_INDEFINITE);
         snackbar.setAction("知道了～", v -> snackbar.dismiss()).show();
 
-
-        mEntities = LightList.diffList();
+        mEntities = new LightDiffList<>();
         mToolbar.setTitleTextColor(Color.WHITE);
         mAppBarLayout.getLayoutParams().height = (int) (SizeX.WIDTH * 9f / 16);
         String coverUrl = "http://cdn1.showjoy.com/shop/images/20181108/KFHSC1SYSMFYSUAUHPFV1541688945136.png";
@@ -233,6 +230,7 @@ public class MainActivity extends MvpActivity {
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_LIST);
         homeEntity.title = "payload";
         homeEntity.desc = "借助 payload 实现增量更新，避免刷新整条 item";
+        homeEntity.targetClazz = PayloadTestActivity.class;
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_LIST);
         homeEntity.title = "LightDiffList";

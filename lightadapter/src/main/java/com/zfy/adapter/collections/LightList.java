@@ -383,6 +383,12 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
         update(ts);
     }
 
+    @MainThread
+    public void updateForEach(@NonNull LightConsumer<T> howToUpdateConsumer) {
+        List<T> ts = foreach(item -> true, howToUpdateConsumer);
+        update(ts);
+    }
+
 
     // 循环数据执行操作
     private List<T> foreach(LightPredicate<T> needUpdate, LightConsumer<T> consumer) {

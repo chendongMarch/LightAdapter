@@ -131,4 +131,13 @@ object Values {
     fun getEmptyDesc() = """
      EmptyViewDelegate 完成空白页面功能
     """.trimIndent()
+
+    @JvmStatic
+    fun getPayloadDesc() = """
+     借助 payload 实现局部更新，不需要更新整个条目，同样也不会造成闪烁现象
+
+     点击类型一更新标题字段，点击类型二更新描述字段
+
+     使用全局更新时，绑定后后会跟有全局字样，使用局部更新时，绑定后会带有局部字样
+    """.trimIndent()
 }
