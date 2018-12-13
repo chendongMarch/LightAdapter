@@ -63,22 +63,9 @@ object Values {
 
     @JvmStatic
     fun getModelTypeConfigCallbackMsg() = """
-    ModelTypeConfigCallback 是一个接口，当 Adapter 需要一个类型的详细配置时，将会借助它来设置 ModelType 的内容
+    ModelTypeRegistry 用来完成复杂多类型数据适配器的配置
 
-    ModelTypeConfigCallback updater = modelType -> {
-    switch (modelType.type) {
-        case MultiTypeEntity.TYPE_LINK:
-            modelType.layoutId = R.layout.item_link;
-            modelType.spanSize = LightValues.SPAN_SIZE_ALL;
-            break;
-        case MultiTypeEntity.TYPE_DESC:
-            modelType.layoutId = R.layout.item_desc;
-            modelType.spanSize = LightValues.SPAN_SIZE_ALL;
-            break;
-        }
-    };
 
-    设置 Updater 针对 type 更新 ModelType 内部的详细配置细节。
     """.trimIndent()
 
 
@@ -139,5 +126,13 @@ object Values {
      点击类型一更新标题字段，点击类型二更新描述字段
 
      使用全局更新时，绑定后后会跟有全局字样，使用局部更新时，绑定后会带有局部字样
+    """.trimIndent()
+
+
+    @JvmStatic
+    fun getFakeDesc() = """
+     先显示假数据
+
+     更新数据后再显示真实数据
     """.trimIndent()
 }

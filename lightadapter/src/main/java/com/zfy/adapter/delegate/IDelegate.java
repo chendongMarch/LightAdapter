@@ -26,6 +26,7 @@ public interface IDelegate {
     int DRAG_SWIPE = 9;
     int SECTION    = 10;
     int ANIMATOR   = 11;
+    int FAKE       = 12;
 
     /**
      * 获取本代理的 key

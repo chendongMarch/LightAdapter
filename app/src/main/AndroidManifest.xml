@@ -18,6 +18,7 @@
             <!--</intent-filter>-->
         </activity>
         <activity android:name=".cases.DragSwipeTestActivity" />
+        <activity android:name=".cases.FakeTestActivity" />
         <activity android:name=".cases.PayloadTestActivity" />
         <activity android:name=".cases.LoadTestActivity" />
         <activity android:name=".cases.SelectorTestActivity" />

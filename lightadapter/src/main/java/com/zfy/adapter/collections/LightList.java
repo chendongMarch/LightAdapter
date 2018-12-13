@@ -142,7 +142,13 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
         return getList().subList(fromIndex, toIndex);
     }
 
+
     /******************************************写方法*********************************************/
+
+    @Override
+    public boolean add(T t) {
+        return getList().add(t);
+    }
 
     @Override
     public T set(@IntRange(from = 0) int index, @NonNull T element) {

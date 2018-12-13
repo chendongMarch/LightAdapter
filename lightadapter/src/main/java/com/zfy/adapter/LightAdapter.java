@@ -27,6 +27,7 @@ import com.zfy.adapter.delegate.impl.AnimatorDelegate;
 import com.zfy.adapter.delegate.refs.AnimatorRef;
 import com.zfy.adapter.delegate.refs.DragSwipeRef;
 import com.zfy.adapter.delegate.refs.EmptyViewRef;
+import com.zfy.adapter.delegate.refs.FakeRef;
 import com.zfy.adapter.delegate.refs.FooterRef;
 import com.zfy.adapter.delegate.refs.HeaderRef;
 import com.zfy.adapter.delegate.refs.LoadMoreRef;
@@ -58,10 +59,6 @@ import java.util.Set;
  */
 public class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         implements IEventContract<D>, IAdapter<D> {
-
-    // 多 ID 绑定
-    private Ids   mIds;
-    private Extra mExtra;
 
     public static final ThreadLocal<Ids>   sIds   = new ThreadLocal<Ids>() {
         @Override
@@ -408,6 +405,9 @@ public class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         return mView;
     }
 
+    public LayoutInflater getLayoutInflater() {
+        return mLayoutInflater;
+    }
 
     /**
      * 复用 id 集合
@@ -594,6 +594,13 @@ public class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
      */
     public AnimatorRef animator() {
         return getDelegate(IDelegate.ANIMATOR);
+    }
+
+    /**
+     * @return {@link com.zfy.adapter.delegate.impl.FakeDelegate}
+     */
+    public FakeRef<D> fake() {
+        return getDelegate(IDelegate.FAKE);
     }
 
     private void addItemAdapter(ItemAdapter adapter) {

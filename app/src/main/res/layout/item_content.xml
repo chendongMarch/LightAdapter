@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="1dp"
+    android:background="@color/white"
+    android:padding="15dp">
+
+    <ImageView
+        android:id="@+id/icon_iv"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:padding="5dp"
+        android:src="@drawable/icon_chuyin"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <TextView
+        android:id="@+id/title_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:textColor="#333"
+        android:textSize="@dimen/titleSize"
+        app:layout_constraintLeft_toRightOf="@id/icon_iv"
+        app:layout_constraintTop_toTopOf="@id/icon_iv"
+        tools:text="title" />
+
+    <TextView
+        android:id="@+id/desc_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"
+        android:textColor="#666"
+        android:textSize="@dimen/descSize"
+        app:layout_constraintBottom_toBottomOf="@id/icon_iv"
+        app:layout_constraintLeft_toRightOf="@id/icon_iv"
+        tools:text="desc" />
+
+    <ImageView
+        android:id="@+id/touch_swipe_iv"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:padding="10dp"
+        android:src="@drawable/icon_swipe"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <ImageView
+        android:id="@+id/press_swipe_iv"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:padding="10dp"
+        android:src="@drawable/icon_longpress"
+        app:layout_constraintRight_toLeftOf="@id/touch_swipe_iv"
+        app:layout_constraintRight_toRightOf="parent" />
+
+</android.support.constraint.ConstraintLayout>

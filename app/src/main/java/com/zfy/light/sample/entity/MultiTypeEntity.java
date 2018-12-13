@@ -37,6 +37,8 @@ public class MultiTypeEntity implements Typeable, Sectionable, Diffable<MultiTyp
     public static final int TYPE_PAYLOAD1 = 13; // payload 测试1
     public static final int TYPE_PAYLOAD2 = 14; // payload 测试2
 
+    public static final int TYPE_CONTENT = 15; // payload 测试1
+
     public int      type;
     public boolean  isSection;
     public String   sectionTitle;

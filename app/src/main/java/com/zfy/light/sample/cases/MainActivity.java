@@ -212,8 +212,8 @@ public class MainActivity extends MvpActivity {
         homeEntity.msg = Values.getModelTypeMsg();
         list.add(homeEntity);
         homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_BASIC);
-        homeEntity.title = "ModelTypeConfigCallback";
-        homeEntity.desc = "初始化 ModelTypeConfigCallback 来针对类型进行配置";
+        homeEntity.title = "ModelTypeRegistry";
+        homeEntity.desc = "使用 ModelTypeRegistry 进行复杂多类型配置";
         homeEntity.msg = Values.getModelTypeConfigCallbackMsg();
         list.add(homeEntity);
         // 集合类 Diffable/payload/LightDiffList/LightAsyncDiffList
@@ -343,6 +343,11 @@ public class MainActivity extends MvpActivity {
         homeEntity.subTitle = "mAdapter.animator()";
         homeEntity.targetClazz = AnimatorTestActivity.class;
         homeEntity.desc = "负责 Item 动画效果实现，支持 ItemAnimator 和 BindAnimator；";
+        list.add(homeEntity);
+        homeEntity = new MultiTypeEntity(MultiTypeEntity.TYPE_DELEGATE);
+        homeEntity.title = "FakeDelegate";
+        homeEntity.targetClazz = FakeTestActivity.class;
+        homeEntity.desc = "假数据，用来实现先使用假数据展示一个预加载的列表，当数据更新时替换掉；";
         list.add(homeEntity);
         // 辅助
         homeEntity = new MultiTypeEntity();

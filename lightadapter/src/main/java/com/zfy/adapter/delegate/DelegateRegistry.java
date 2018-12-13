@@ -2,6 +2,7 @@ package com.zfy.adapter.delegate;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.transition.Fade;
 import android.util.SparseArray;
 import android.view.ViewGroup;
 
@@ -13,6 +14,7 @@ import com.zfy.adapter.delegate.impl.AnimatorDelegate;
 import com.zfy.adapter.delegate.impl.BaseDelegate;
 import com.zfy.adapter.delegate.impl.DragSwipeDelegate;
 import com.zfy.adapter.delegate.impl.EmptyViewDelegate;
+import com.zfy.adapter.delegate.impl.FakeDelegate;
 import com.zfy.adapter.delegate.impl.HFViewDelegate;
 import com.zfy.adapter.delegate.impl.LoadMoreDelegate;
 import com.zfy.adapter.delegate.impl.LoadingViewDelegate;
@@ -54,6 +56,7 @@ public class DelegateRegistry extends BaseDelegate {
         register(IDelegate.DRAG_SWIPE, DragSwipeDelegate::new);
         register(IDelegate.SECTION, SectionDelegate::new);
         register(IDelegate.ANIMATOR, AnimatorDelegate::new);
+        register(IDelegate.FAKE, FakeDelegate::new);
     }
 
     public void register(int key, DelegateFactory delegateFactory) {

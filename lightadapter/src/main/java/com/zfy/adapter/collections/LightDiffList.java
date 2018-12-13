@@ -19,10 +19,10 @@ import java.util.List;
  */
 public class LightDiffList<T extends Diffable<T>> extends LightList<T> {
 
-    private final Object LIST_LOCK = new Object();
+    private final Object              LIST_LOCK = new Object();
     private final DiffUtilCallback<T> mDiffUtilCallback;
-    private final boolean mDetectMoves;
-    private List<T> mList = Collections.emptyList();
+    private final boolean             mDetectMoves;
+    private       List<T>             mList     = Collections.emptyList();
 
 
     public LightDiffList() {
