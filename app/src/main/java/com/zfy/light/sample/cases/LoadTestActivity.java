@@ -21,7 +21,7 @@ import com.zfy.light.sample.GlideCallback;
 import com.zfy.light.sample.R;
 import com.zfy.light.sample.Utils;
 import com.zfy.light.sample.Values;
-import com.zfy.light.sample.entity.MultiTypeEntity;
+import com.zfy.light.sample.entity.Data;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,16 +40,16 @@ public class LoadTestActivity extends MvpActivity {
 
     @BindView(R.id.content_rv) RecyclerView mRecyclerView;
 
-    private LightAdapter<MultiTypeEntity> mAdapter;
-    private LightList<MultiTypeEntity> mData;
+    private LightAdapter<Data> mAdapter;
+    private LightList<Data>    mData;
 
     @Override
     public void init() {
         mData = new LightDiffList<>();
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         ModelTypeRegistry registry = ModelTypeRegistry.create();
-        registry.add(new ModelType(MultiTypeEntity.TYPE_CAN_DRAG, R.layout.item_drag, SpanSize.SPAN_SIZE_HALF));
-        registry.add(new ModelType(MultiTypeEntity.TYPE_CAN_SWIPE, R.layout.item_swipe, SpanSize.SPAN_SIZE_ALL));
+        registry.add(new ModelType(Data.TYPE_CAN_DRAG, R.layout.item_drag, SpanSize.SPAN_SIZE_HALF));
+        registry.add(new ModelType(Data.TYPE_CAN_SWIPE, R.layout.item_swipe, SpanSize.SPAN_SIZE_ALL));
         mAdapter = new LightAdapter<>(mData, registry);
         mAdapter.setBindCallback((holder, data, extra) -> {
             holder.setText(R.id.title_tv, "标题 " + data.id)
@@ -58,8 +58,8 @@ public class LoadTestActivity extends MvpActivity {
         // 底部加载更多
         mAdapter.loadMore().setLoadMoreListener(3, adapter -> {
             ExecutorsPool.ui(() -> {
-                List<MultiTypeEntity> items = ListX.range(20, index -> {
-                    return new MultiTypeEntity(index % 7 == 0 ? MultiTypeEntity.TYPE_CAN_SWIPE : MultiTypeEntity.TYPE_CAN_DRAG);
+                List<Data> items = ListX.range(20, index -> {
+                    return new Data(index % 7 == 0 ? Data.TYPE_CAN_SWIPE : Data.TYPE_CAN_DRAG);
                 });
                 mAdapter.loadMore().finishLoadMore();
                 mData.updateAddAll(items);
@@ -97,7 +97,7 @@ public class LoadTestActivity extends MvpActivity {
         mAdapter.emptyView().setEmptyView(LightView.from(R.layout.empty_view), (holder, data, extra) -> {
                 holder.setClick(R.id.refresh_tv, v -> {
                     mAdapter.header().setHeaderEnable(true);
-                    mData.update(ListX.range(20, index -> new MultiTypeEntity(index % 7 == 0 ? MultiTypeEntity.TYPE_CAN_SWIPE : MultiTypeEntity.TYPE_CAN_DRAG)));
+                    mData.update(ListX.range(20, index -> new Data(index % 7 == 0 ? Data.TYPE_CAN_SWIPE : Data.TYPE_CAN_DRAG)));
                     mAdapter.emptyView().setEmptyState(EmptyState.NONE);
                     mAdapter.loadingView().setLoadingEnable(true);
                     mAdapter.loadMore().setLoadMoreEnable(true);
@@ -124,6 +124,6 @@ public class LoadTestActivity extends MvpActivity {
             }
         });
         mRecyclerView.setAdapter(mAdapter);
-        mData.update(ListX.range(20, index -> new MultiTypeEntity(index % 7 == 0 ? MultiTypeEntity.TYPE_CAN_SWIPE : MultiTypeEntity.TYPE_CAN_DRAG)));
+        mData.update(ListX.range(20, index -> new Data(index % 7 == 0 ? Data.TYPE_CAN_SWIPE : Data.TYPE_CAN_DRAG)));
     }
 }

@@ -11,7 +11,7 @@ import com.zfy.adapter.collections.LightList;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.R;
-import com.zfy.light.sample.entity.MultiTypeEntity;
+import com.zfy.light.sample.entity.Data;
 
 import java.util.List;
 
@@ -30,8 +30,8 @@ public class FakeTestActivity extends MvpActivity {
 
     @BindView(R.id.content_rv) RecyclerView mContentRv;
 
-    private LightAdapter<MultiTypeEntity> mAdapter;
-    private LightList<MultiTypeEntity>    mEntities;
+    private LightAdapter<Data> mAdapter;
+    private LightList<Data>    mEntities;
 
     @Override
     public void init() {
@@ -66,8 +66,8 @@ public class FakeTestActivity extends MvpActivity {
 
 
     private void appendData() {
-        List<MultiTypeEntity> list = ListX.range(10, index -> {
-            MultiTypeEntity entity = new MultiTypeEntity(MultiTypeEntity.TYPE_CONTENT);
+        List<Data> list = ListX.range(10, index -> {
+            Data entity = new Data(Data.TYPE_CONTENT);
             entity.id = ID++;
             entity.title = "Title " + (entity.id);
             entity.desc = "Desc " + (entity.id);

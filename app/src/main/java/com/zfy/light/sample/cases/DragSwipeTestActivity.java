@@ -25,7 +25,7 @@ import com.zfy.light.sample.GlideCallback;
 import com.zfy.light.sample.R;
 import com.zfy.light.sample.Utils;
 import com.zfy.light.sample.Values;
-import com.zfy.light.sample.entity.MultiTypeEntity;
+import com.zfy.light.sample.entity.Data;
 
 import butterknife.BindView;
 
@@ -40,17 +40,19 @@ public class DragSwipeTestActivity extends MvpActivity {
 
     @BindView(R.id.content_rv) RecyclerView mRecyclerView;
 
-    private LightAdapter<MultiTypeEntity> mAdapter;
-    private LightList<MultiTypeEntity> mData;
+    private LightAdapter<Data> mAdapter;
+    private LightList<Data>    mData;
 
-    static class DragItemAdapter extends LightItemAdapter<MultiTypeEntity> {
+    static class DragItemAdapter extends LightItemAdapter<Data> {
 
-        DragItemAdapter() {
-            super(new ModelType(MultiTypeEntity.TYPE_CAN_DRAG, R.layout.item_drag, SpanSize.SPAN_SIZE_HALF));
+
+        @Override
+        public ModelType newModelType() {
+            return new ModelType(Data.TYPE_CAN_DRAG, R.layout.item_drag, SpanSize.SPAN_SIZE_HALF);
         }
 
         @Override
-        public void onBindView(LightHolder holder, MultiTypeEntity data, Extra extra) {
+        public void onBindView(LightHolder holder, Data data, Extra extra) {
             holder.setText(R.id.title_tv, "本项支持拖拽")
                     .setText(R.id.desc_tv, "底部按钮，触摸/长按拖拽")
                     .dragOnTouch(R.id.touch_drag_iv)
@@ -58,14 +60,16 @@ public class DragSwipeTestActivity extends MvpActivity {
         }
     }
 
-    static class SwipeItemAdapter extends LightItemAdapter<MultiTypeEntity> {
+    static class SwipeItemAdapter extends LightItemAdapter<Data> {
 
-        public SwipeItemAdapter() {
-            super(new ModelType(MultiTypeEntity.TYPE_CAN_SWIPE, R.layout.item_swipe, SpanSize.SPAN_SIZE_ALL));
+
+        @Override
+        public ModelType newModelType() {
+            return new ModelType(Data.TYPE_CAN_SWIPE, R.layout.item_swipe, SpanSize.SPAN_SIZE_ALL);
         }
 
         @Override
-        public void onBindView(LightHolder holder, MultiTypeEntity data, Extra extra) {
+        public void onBindView(LightHolder holder, Data data, Extra extra) {
             holder.setText(R.id.title_tv, "本项支持侧滑")
                     .setText(R.id.desc_tv, "右侧按钮，触摸/长按侧滑")
                     .swipeOnTouch(R.id.touch_swipe_iv)
@@ -73,7 +77,7 @@ public class DragSwipeTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onClickEvent(LightHolder holder, MultiTypeEntity data, Extra extra) {
+        public void onClickEvent(LightHolder holder, Data data, Extra extra) {
             ToastX.show("swipe click");
         }
     }
@@ -125,6 +129,6 @@ public class DragSwipeTestActivity extends MvpActivity {
             }
         });
         mRecyclerView.setAdapter(mAdapter);
-        mData.update(ListX.range(100, index -> new MultiTypeEntity(index % 7 == 0 ? MultiTypeEntity.TYPE_CAN_SWIPE : MultiTypeEntity.TYPE_CAN_DRAG)));
+        mData.update(ListX.range(100, index -> new Data(index % 7 == 0 ? Data.TYPE_CAN_SWIPE : Data.TYPE_CAN_DRAG)));
     }
 }

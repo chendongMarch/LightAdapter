@@ -4,9 +4,8 @@ import android.graphics.Rect;
 import android.support.annotation.LayoutRes;
 
 import com.zfy.adapter.animations.BindAnimator;
+import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.SpanSize;
-
-import java.util.TreeMap;
 
 /**
  * CreateAt : 2018/10/26
@@ -28,6 +27,24 @@ public class ModelType {
     public BindAnimator animator;
 
     public Rect spaceRect;
+
+    public static ModelType singleType(@LayoutRes int layoutId, int spanSize) {
+        return new ModelType(ItemType.TYPE_CONTENT, layoutId, spanSize);
+    }
+
+    public static ModelType singleType(@LayoutRes int layoutId) {
+        return new ModelType(ItemType.TYPE_CONTENT, layoutId, SpanSize.NONE);
+    }
+
+    public static ModelType multiType(int type, @LayoutRes int layoutId, int spanSize) {
+        return new ModelType(ItemType.TYPE_CONTENT, layoutId, spanSize);
+    }
+
+    public static ModelType multiType(int type, @LayoutRes int layoutId) {
+        return new ModelType(ItemType.TYPE_CONTENT, layoutId, SpanSize.NONE);
+    }
+
+
 
     public ModelType(int type) {
         this.type = type;

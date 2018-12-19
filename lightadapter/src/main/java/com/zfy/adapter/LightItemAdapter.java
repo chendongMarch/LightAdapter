@@ -1,7 +1,5 @@
 package com.zfy.adapter;
 
-import com.zfy.adapter.LightEvent;
-import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.contract.ItemAdapter;
 import com.zfy.adapter.model.Extra;
@@ -17,8 +15,8 @@ public abstract class LightItemAdapter<D> implements ItemAdapter<D> {
 
     private ModelType mModelType;
 
-    public LightItemAdapter(ModelType type) {
-        mModelType = type;
+    public LightItemAdapter() {
+        mModelType = newModelType();
     }
 
     @Override

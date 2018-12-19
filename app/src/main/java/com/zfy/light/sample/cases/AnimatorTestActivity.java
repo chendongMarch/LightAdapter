@@ -22,7 +22,7 @@ import com.zfy.light.sample.R;
 import com.zfy.light.sample.SampleUtils;
 import com.zfy.light.sample.Utils;
 import com.zfy.light.sample.Values;
-import com.zfy.light.sample.entity.MultiTypeEntity;
+import com.zfy.light.sample.entity.Data;
 
 import java.util.List;
 
@@ -42,27 +42,27 @@ public class AnimatorTestActivity extends MvpActivity {
 
     @BindView(R.id.content_rv) RecyclerView mContentRv;
 
-    private LightAdapter<MultiTypeEntity> mAdapter;
-    private LightList<MultiTypeEntity>    mEntities;
+    private LightAdapter<Data> mAdapter;
+    private LightList<Data>    mEntities;
 
     @Override
     public void init() {
         sUseBindAnimator = !sUseBindAnimator;
         mEntities = new LightDiffList<>();
         ModelTypeRegistry registry = ModelTypeRegistry.create();
-        registry.add(new ModelType(MultiTypeEntity.TYPE_DELEGATE, R.layout.item_deleate, SpanSize.SPAN_SIZE_HALF)
+        registry.add(new ModelType(Data.TYPE_DELEGATE, R.layout.item_deleate, SpanSize.SPAN_SIZE_HALF)
                 .animator(sUseBindAnimator ? new ScaleAnimator(.1f).duration(500).interceptor(new OvershootInterpolator()) : null));
-        registry.add(new ModelType(MultiTypeEntity.TYPE_PROJECT,R.layout.item_cover, SpanSize.SPAN_SIZE_HALF)
+        registry.add(new ModelType(Data.TYPE_PROJECT,R.layout.item_cover, SpanSize.SPAN_SIZE_HALF)
                 .animator(sUseBindAnimator ? new SlideAnimator(SlideAnimator.LEFT).duration(500).interceptor(new OvershootInterpolator()) : null));
         mAdapter = new LightAdapter<>(mEntities, registry);
         mAdapter.setBindCallback((holder, data, extra) -> {
             holder.setText(R.id.title_tv, data.title)
                     .setText(R.id.desc_tv, data.desc);
             switch (data.type) {
-                case MultiTypeEntity.TYPE_DELEGATE:
+                case Data.TYPE_DELEGATE:
                     holder.setText(R.id.subtitle_tv, sUseBindAnimator ? "BindAnimator-缩放动画" : "ItemAnimator-缩放动画");
                     break;
-                case MultiTypeEntity.TYPE_PROJECT:
+                case Data.TYPE_PROJECT:
                     holder.setCallback(R.id.cover_iv, new GlideCallback(Utils.randomImage()))
                             .setText(R.id.desc_tv, sUseBindAnimator ? "BindAnimator-左滑动画" : "ItemAnimator-缩放动画");
                     break;
@@ -113,8 +113,8 @@ public class AnimatorTestActivity extends MvpActivity {
 
 
     private void appendData() {
-        List<MultiTypeEntity> list = ListX.range(10, index -> {
-            MultiTypeEntity entity = new MultiTypeEntity(index % 3 == 0 ? MultiTypeEntity.TYPE_DELEGATE : MultiTypeEntity.TYPE_PROJECT);
+        List<Data> list = ListX.range(10, index -> {
+            Data entity = new Data(index % 3 == 0 ? Data.TYPE_DELEGATE : Data.TYPE_PROJECT);
             entity.title = "Title " + index;
             entity.desc = "Desc " + index;
             entity.subTitle = "SubTitle " + index;

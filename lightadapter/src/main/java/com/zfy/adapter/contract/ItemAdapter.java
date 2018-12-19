@@ -24,6 +24,9 @@ public interface ItemAdapter<D> extends Typeable, LightEvent.EventDispatcher<D> 
     int getItemType();
 
 
+    ModelType newModelType();
+
+
     ModelType getModelType();
 
     /**

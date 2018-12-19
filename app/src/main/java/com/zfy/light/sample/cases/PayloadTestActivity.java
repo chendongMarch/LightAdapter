@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import com.march.common.exts.ListX;
 import com.march.common.exts.ToastX;
 import com.zfy.adapter.LightAdapter;
+import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.model.LightView;
@@ -16,7 +17,7 @@ import com.zfy.light.sample.GlideCallback;
 import com.zfy.light.sample.R;
 import com.zfy.light.sample.Utils;
 import com.zfy.light.sample.Values;
-import com.zfy.light.sample.entity.MultiTypeEntity;
+import com.zfy.light.sample.entity.Data;
 
 import java.util.List;
 
@@ -35,26 +36,26 @@ public class PayloadTestActivity extends MvpActivity {
 
     @BindView(R.id.content_rv) RecyclerView mContentRv;
 
-    private LightAdapter<MultiTypeEntity> mAdapter;
-    private LightList<MultiTypeEntity>    mEntities;
+    private LightAdapter<Data> mAdapter;
+    private LightList<Data>    mEntities;
 
     @Override
     public void init() {
-        mEntities = LightList.diffList();
+        mEntities = new LightDiffList<>();
         // type callback
         ModelTypeRegistry registry = ModelTypeRegistry.create();
-        registry.add(MultiTypeEntity.TYPE_PAYLOAD1, R.layout.item_event, SpanSize.SPAN_SIZE_ALL);
-        registry.add(MultiTypeEntity.TYPE_PAYLOAD2, R.layout.item_swipe, SpanSize.SPAN_SIZE_ALL);
+        registry.add(Data.TYPE_PAYLOAD1, R.layout.item_event, SpanSize.SPAN_SIZE_ALL);
+        registry.add(Data.TYPE_PAYLOAD2, R.layout.item_swipe, SpanSize.SPAN_SIZE_ALL);
         // adapter
         mAdapter = new LightAdapter<>(mEntities, registry);
         mAdapter.setBindCallback((holder, data, extra) -> {
             // 局部绑定
             if (extra.byPayload) {
                 switch (extra.payloadMsg) {
-                    case MultiTypeEntity.DESC_CHANGED:
+                    case Data.DESC_CHANGED:
                         holder.setText(R.id.desc_tv, data.desc + " 局部");
                         break;
-                    case MultiTypeEntity.TITLE_CHANGED:
+                    case Data.TITLE_CHANGED:
                         holder.setText(R.id.title_tv, data.title + " 局部");
                         break;
                 }
@@ -66,13 +67,13 @@ public class PayloadTestActivity extends MvpActivity {
         });
         mAdapter.setClickEvent((holder, data, extra) -> {
             switch (data.getItemType()) {
-                case MultiTypeEntity.TYPE_PAYLOAD1:
+                case Data.TYPE_PAYLOAD1:
                     ToastX.show("点击类型1，更新所有的 title");
                     mEntities.updateForEach(item -> {
                         item.title = "Title " + (ID++);
                     });
                     break;
-                case MultiTypeEntity.TYPE_PAYLOAD2:
+                case Data.TYPE_PAYLOAD2:
                     ToastX.show("点击类型2，更新所有的 desc");
                     mEntities.updateForEach(item -> {
                         item.desc = "Desc " + (ID++);
@@ -96,8 +97,8 @@ public class PayloadTestActivity extends MvpActivity {
 
 
     private void appendData() {
-        List<MultiTypeEntity> list = ListX.range(10, index -> {
-            MultiTypeEntity entity = new MultiTypeEntity(index % 3 == 0 ? MultiTypeEntity.TYPE_PAYLOAD1 : MultiTypeEntity.TYPE_PAYLOAD2);
+        List<Data> list = ListX.range(10, index -> {
+            Data entity = new Data(index % 3 == 0 ? Data.TYPE_PAYLOAD1 : Data.TYPE_PAYLOAD2);
             entity.id = ID++;
             entity.title = "Title " + (entity.id);
             entity.desc = "Desc " + (entity.id);

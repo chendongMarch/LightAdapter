@@ -40,7 +40,6 @@ import com.zfy.adapter.listener.BindCallback;
 import com.zfy.adapter.listener.EventCallback;
 import com.zfy.adapter.listener.ModelTypeConfigCallback;
 import com.zfy.adapter.model.Extra;
-import com.zfy.adapter.model.Ids;
 import com.zfy.adapter.model.ModelType;
 import com.zfy.adapter.type.ModelTypeRegistry;
 
@@ -59,19 +58,6 @@ import java.util.Set;
  */
 public class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         implements IEventContract<D>, IAdapter<D> {
-
-    public static final ThreadLocal<Ids>   sIds   = new ThreadLocal<Ids>() {
-        @Override
-        protected Ids initialValue() {
-            return Ids.all();
-        }
-    };
-    public static final ThreadLocal<Extra> sExtra = new ThreadLocal<Extra>() {
-        @Override
-        protected Extra initialValue() {
-            return new Extra();
-        }
-    };
 
     // View
     private RecyclerView                  mView;
@@ -149,7 +135,7 @@ public class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     // 通用初始化方法
     private void init(List<D> datas, ModelTypeConfigCallback callback) {
         if (datas instanceof LightList) {
-            ((LightList) datas).setAdapter(this);
+            ((LightList) datas).register(this);
         }
         mDatas = datas;
         mModelTypeCache = new SparseArray<>();
@@ -409,15 +395,6 @@ public class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         return mLayoutInflater;
     }
 
-    /**
-     * 复用 id 集合
-     *
-     * @param ids id 集合
-     * @return Ids
-     */
-    public Ids all(int... ids) {
-        return sIds.get().obtain(ids);
-    }
 
     /**
      * 布局中的位置 转换为 数据里面的 位置
@@ -441,14 +418,14 @@ public class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
 
 
     public Extra obtainExtraByLayoutIndex(int layoutIndex) {
-        Extra extra = sExtra.get();
+        Extra extra = Extra.extra();
         extra.layoutIndex = layoutIndex;
         extra.modelIndex = toModelIndex(layoutIndex);
         return extra;
     }
 
     public Extra obtainExtraByModelIndex(int modelIndex) {
-        Extra extra = sExtra.get();
+        Extra extra = Extra.extra();
         extra.layoutIndex = toLayoutIndex(modelIndex);
         extra.modelIndex = modelIndex;
         return extra;

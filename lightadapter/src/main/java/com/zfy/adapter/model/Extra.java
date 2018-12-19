@@ -1,53 +1,61 @@
 package com.zfy.adapter.model;
 
 import com.zfy.adapter.LightAdapter;
+import com.zfy.adapter.listener.EventCallback;
 
 /**
  * CreateAt : 2018/11/12
  * Describe :
- *
- *
- *
- *
- *
- *
+
  * @author chendong
  */
 public class Extra {
 
+    private static final ThreadLocal<Extra> sExtra = new ThreadLocal<Extra>() {
+        @Override
+        protected Extra initialValue() {
+            return new Extra();
+        }
+    };
+
+    // 数据集索引和布局索引的差异是因为内置了很多自定义的类型，比如 Header 等，因此他们并不一致
+    // 原则就是操作数据，则使用 modelIndex, 操作布局则使用 layoutIndex
+
     /**
-     * 因为自定义类型的存在，布局的的 pos 和数据中的 pos 并不完全对应，需要做一下转化
-     * 当从数据源中取数据时，使用 modelIndex，比如 {@link LightAdapter#getDatas().get(int)}
+     * 数据集索引，使用他从集合中获取数据
+     * adapter.getDatas().get(modelIndex)
      */
-    public int     modelIndex;
+    public int modelIndex;
+
     /**
-     * 因为自定义类型的存在，布局的 pos 和数据中的 pos 并不完全对应，需要做一下转化
-     * 当更新布局时，使用 layoutIndex，比如 {@link LightAdapter#notifyItem().change(int)}
+     * 布局索引，使用它来更新界面显示
+     * adapter.notifyItem.change(layoutIndex)
      */
-    public int     layoutIndex;
+    public int layoutIndex;
+
     /**
-     * 用来标记当前数据是否处于绑定状态
-     *
-     * @see com.zfy.adapter.delegate.impl.SelectorDelegate
+     * 用来标记当前数据是否处于绑定状态，配合选择器使用
      */
     public boolean selected;
     /**
-     * 为子控件设置监听事件的id
+     * 子控件 id
+     * 配合 {@link LightAdapter#setChildViewClickEvent(EventCallback)} 使用
      */
     public int     viewId;
-
     /**
      * 使用 payload 绑定时的 msg
      */
     public String  payloadMsg;
-    public boolean  byPayload;
+    /**
+     * 当前是不是 payload 更新
+     */
+    public boolean byPayload;
 
 
-    public Extra(int modelIndex, int layoutIndex) {
-        this.modelIndex = modelIndex;
-        this.layoutIndex = layoutIndex;
+    private Extra() {
     }
 
-    public Extra() {
+    public static Extra extra() {
+        return sExtra.get();
     }
 }

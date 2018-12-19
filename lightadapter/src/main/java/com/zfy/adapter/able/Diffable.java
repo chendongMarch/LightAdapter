@@ -51,7 +51,9 @@ public interface Diffable<T> extends Parcelable {
      * @param newItem 新的元素
      * @return 内容是否相同
      */
-    boolean areContentsTheSame(T newItem);
+    default boolean areContentsTheSame(T newItem) {
+        return false;
+    }
 
     /**
      * 使用 payload(有效载荷) 增量更新

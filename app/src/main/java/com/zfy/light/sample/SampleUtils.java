@@ -2,12 +2,9 @@ package com.zfy.light.sample;
 
 import android.view.View;
 
-import com.march.common.exts.ListX;
 import com.zfy.adapter.LightAdapter;
-import com.zfy.adapter.model.EmptyState;
 import com.zfy.adapter.model.LightView;
 import com.zfy.adapter.model.LoadingState;
-import com.zfy.light.sample.entity.MultiTypeEntity;
 
 /**
  * CreateAt : 2018/11/14

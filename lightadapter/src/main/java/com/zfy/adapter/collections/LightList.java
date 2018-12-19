@@ -28,65 +28,67 @@ import java.util.ListIterator;
 public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
 
     /**
-     * 创建一个 LightDiffList
-     *
-     * @param <D> 范型
-     * @return LightList
-     */
-    public static <D extends Diffable<D>> LightList<D> diffList() {
-        return new LightDiffList<>();
-    }
-
-    /**
-     * 创建一个 LightAsyncDiffList
-     *
-     * @param <D> 范型
-     * @return LightList
-     */
-    public static <D extends Diffable<D>> LightList<D> asyncList() {
-        return new LightAsyncDiffList<>();
-    }
-
-    /**
      * 发送 DiffResult 到 LightAdapter 更新
      */
-    static class LightAdapterUpdateCallback implements ListUpdateCallback {
-
-        private LightAdapter adapter;
-
-        public void setAdapter(LightAdapter adapter) {
-            this.adapter = adapter;
-        }
+    class LightAdapterUpdateCallback implements ListUpdateCallback {
 
         @Override
         public void onInserted(int position, int count) {
-            if (adapter != null) {
-                adapter.notifyItem().insert(adapter.toLayoutIndex(position), count);
-                // adapter.notifyItemRangeInserted(adapter.toLayoutIndex(position), count);
+            LightAdapter adapter;
+            Iterator<WeakReference<LightAdapter>> iterator = mAdapters.iterator();
+            while (iterator.hasNext()) {
+                adapter = iterator.next().get();
+                if (adapter != null) {
+                    adapter.notifyItem().insert(adapter.toLayoutIndex(position), count);
+                    // adapter.notifyItemRangeInserted(adapter.toLayoutIndex(position), count);
+                } else {
+                    iterator.remove();
+                }
             }
         }
 
         @Override
         public void onRemoved(int position, int count) {
-            if (adapter != null) {
-                adapter.notifyItem().remove(adapter.toLayoutIndex(position), count);
-                // adapter.notifyItemRangeRemoved(adapter.toLayoutIndex(position), count);
+            LightAdapter adapter;
+            Iterator<WeakReference<LightAdapter>> iterator = mAdapters.iterator();
+            while (iterator.hasNext()) {
+                adapter = iterator.next().get();
+                if (adapter != null) {
+                    adapter.notifyItem().remove(adapter.toLayoutIndex(position), count);
+                    // adapter.notifyItemRangeRemoved(adapter.toLayoutIndex(position), count);
+                } else {
+                    iterator.remove();
+                }
             }
         }
 
         @Override
         public void onMoved(int fromPosition, int toPosition) {
-            if (adapter != null) {
-                adapter.notifyItem().move(adapter.toLayoutIndex(fromPosition), adapter.toLayoutIndex(toPosition));
-                // adapter.notifyItemMoved(adapter.toLayoutIndex(fromPosition), adapter.toLayoutIndex(toPosition));
+            LightAdapter adapter;
+            Iterator<WeakReference<LightAdapter>> iterator = mAdapters.iterator();
+            while (iterator.hasNext()) {
+                adapter = iterator.next().get();
+                if (adapter != null) {
+                    adapter.notifyItem().move(adapter.toLayoutIndex(fromPosition), adapter.toLayoutIndex(toPosition));
+                    // adapter.notifyItemMoved(adapter.toLayoutIndex(fromPosition), adapter.toLayoutIndex(toPosition));
+                } else {
+                    iterator.remove();
+                }
             }
         }
 
         @Override
         public void onChanged(int position, int count, Object payload) {
-            if (adapter != null) {
-                adapter.notifyItem().change(adapter.toLayoutIndex(position), count, payload);
-                // adapter.notifyItemRangeChanged(adapter.toLayoutIndex(position), count, payload);
+            LightAdapter adapter;
+            Iterator<WeakReference<LightAdapter>> iterator = mAdapters.iterator();
+            while (iterator.hasNext()) {
+                adapter = iterator.next().get();
+                if (adapter != null) {
+                    adapter.notifyItem().change(adapter.toLayoutIndex(position), count, payload);
+                    // adapter.notifyItemRangeChanged(adapter.toLayoutIndex(position), count, payload);
+                } else {
+                    iterator.remove();
+                }
             }
         }
     }
@@ -99,8 +101,20 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
         mCallback = new LightAdapterUpdateCallback();
     }
 
-    public void setAdapter(LightAdapter adapter) {
-        mCallback.setAdapter(adapter);
+    public void register(LightAdapter adapter) {
+        unregister(adapter);
+        mAdapters.add(new WeakReference<>(adapter));
+    }
+
+    public void unregister(LightAdapter adapter) {
+        LightAdapter item;
+        Iterator<WeakReference<LightAdapter>> iterator = mAdapters.iterator();
+        while (iterator.hasNext()) {
+            item = iterator.next().get();
+            if (item.equals(adapter)) {
+                iterator.remove();
+            }
+        }
     }
 
     public LightAdapterUpdateCallback getCallback() {

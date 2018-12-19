@@ -637,8 +637,8 @@ public class LightHolder extends RecyclerView.ViewHolder {
     //////////////////////////////  -- 公共方法 --  //////////////////////////////
 
 
-    public Ids all(@IdRes int ... resIds) {
-        return mAdapter.all(resIds);
+    private Ids all(@IdRes int... resIds) {
+        return Ids.all(resIds);
     }
 
     public interface Callback<T extends View> {

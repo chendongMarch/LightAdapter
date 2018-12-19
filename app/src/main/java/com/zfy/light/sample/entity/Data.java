@@ -15,7 +15,7 @@ import java.util.Set;
  *
  * @author chendong
  */
-public class MultiTypeEntity implements Typeable, Sectionable, Diffable<MultiTypeEntity> {
+public class Data implements Typeable, Sectionable, Diffable<Data> {
 
     public static final String TITLE_CHANGED = "TITLE_CHANGED";
     public static final String DESC_CHANGED  = "DESC_CHANGED";
@@ -54,15 +54,15 @@ public class MultiTypeEntity implements Typeable, Sectionable, Diffable<MultiTyp
     static int ID = 100;
 
 
-    public MultiTypeEntity() {
+    public Data() {
     }
 
-    public MultiTypeEntity(int type) {
+    public Data(int type) {
         this.type = type;
         this.id = ID++;
     }
 
-    public MultiTypeEntity(int type, String sectionTitle) {
+    public Data(int type, String sectionTitle) {
         this.type = type;
         this.sectionTitle = sectionTitle;
         this.id = ID++;
@@ -79,12 +79,12 @@ public class MultiTypeEntity implements Typeable, Sectionable, Diffable<MultiTyp
     }
 
     @Override
-    public boolean areItemsTheSame(MultiTypeEntity newItem) {
+    public boolean areItemsTheSame(Data newItem) {
         return id == newItem.id && type == newItem.type;
     }
 
     @Override
-    public boolean areContentsTheSame(MultiTypeEntity newItem) {
+    public boolean areContentsTheSame(Data newItem) {
         if (type == TYPE_PAYLOAD1 && newItem.type == TYPE_PAYLOAD1 || type == TYPE_PAYLOAD2 && newItem.type == TYPE_PAYLOAD2) {
             if (!title.equals(newItem.title) || !desc.equals(newItem.desc)) {
                 return false;
@@ -94,7 +94,7 @@ public class MultiTypeEntity implements Typeable, Sectionable, Diffable<MultiTyp
     }
 
     @Override
-    public Set<String> getChangePayload(MultiTypeEntity newItem) {
+    public Set<String> getChangePayload(Data newItem) {
         Set<String> set = new HashSet<>();
         if (!title.equals(newItem.title)) {
             set.add(TITLE_CHANGED);
@@ -126,7 +126,7 @@ public class MultiTypeEntity implements Typeable, Sectionable, Diffable<MultiTyp
         dest.writeInt(this.id);
     }
 
-    protected MultiTypeEntity(Parcel in) {
+    protected Data(Parcel in) {
         this.type = in.readInt();
         this.isSection = in.readByte() != 0;
         this.sectionTitle = in.readString();
@@ -140,15 +140,15 @@ public class MultiTypeEntity implements Typeable, Sectionable, Diffable<MultiTyp
         this.id = in.readInt();
     }
 
-    public static final Creator<MultiTypeEntity> CREATOR = new Creator<MultiTypeEntity>() {
+    public static final Creator<Data> CREATOR = new Creator<Data>() {
         @Override
-        public MultiTypeEntity createFromParcel(Parcel source) {
-            return new MultiTypeEntity(source);
+        public Data createFromParcel(Parcel source) {
+            return new Data(source);
         }
 
         @Override
-        public MultiTypeEntity[] newArray(int size) {
-            return new MultiTypeEntity[size];
+        public Data[] newArray(int size) {
+            return new Data[size];
         }
     };
 }
