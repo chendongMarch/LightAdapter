@@ -7,8 +7,10 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.ViewGroup;
 
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.model.ModelType;
+import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
+import com.zfy.adapter.common.SpanSize;
+import com.zfy.adapter.model.ModelType;
 
 /**
  * CreateAt : 2018/2/24
@@ -25,8 +27,8 @@ public class SpanDelegate extends BaseDelegate {
         RecyclerView.LayoutManager layoutManager = mView.getLayoutManager();
         if (layoutManager instanceof StaggeredGridLayoutManager) {
             int type = holder.getItemViewType();
-            ModelType modelType = mAdapter.getType(type);
-            if (modelType.getSpanSize() == LightValues.SPAN_SIZE_ALL) {
+            ModelType modelType = mAdapter.getModelType(type);
+            if (modelType.spanSize == SpanSize.SPAN_SIZE_ALL) {
                 ViewGroup.LayoutParams originLp = holder.getItemView().getLayoutParams();
                 StaggeredGridLayoutManager.LayoutParams layoutParams =
                         new StaggeredGridLayoutManager.LayoutParams(originLp.width, originLp.height);
@@ -47,19 +49,10 @@ public class SpanDelegate extends BaseDelegate {
                 @Override
                 public int getSpanSize(int position) {
                     int type = mAdapter.getItemViewType(position);
-                    ModelType modelType = mAdapter.getType(type);
+                    ModelType modelType = mAdapter.getModelType(type);
                     int spanCount = gridLayoutManager.getSpanCount();
-                    int spanSize = modelType.getSpanSize();
-                    if (spanSize == LightValues.SPAN_SIZE_ALL) {
-                        spanSize = spanCount;
-                    } else if (spanSize == LightValues.SPAN_SIZE_HALF && spanCount % 2 == 0) {
-                        spanSize = spanCount / 2;
-                    } else if (spanSize == LightValues.SPAN_SIZE_HALF && spanCount % 3 == 0) {
-                        spanSize = spanCount / 3;
-                    } else if (spanSize <= 0) {
-                        spanSize = 1;
-                    }
-                    return spanSize;
+                    modelType.spanSize = LightUtils.getSpanSize(modelType.spanSize, spanCount);
+                    return modelType.spanSize;
                 }
             });
         }

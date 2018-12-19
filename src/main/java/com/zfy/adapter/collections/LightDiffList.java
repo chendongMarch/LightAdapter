@@ -1,6 +1,7 @@
 package com.zfy.adapter.collections;
 
 import android.support.annotation.MainThread;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.util.DiffUtil;
 
@@ -16,21 +17,22 @@ import java.util.List;
  *
  * @author chendong
  */
-public class LightDiffList<T extends Diffable<T>> extends AbstractLightList<T> {
+public class LightDiffList<T extends Diffable<T>> extends LightList<T> {
 
-    private final Object LIST_LOCK = new Object();
+    private final Object              LIST_LOCK = new Object();
     private final DiffUtilCallback<T> mDiffUtilCallback;
-    private final boolean mDetectMoves;
-    private List<T> mList = Collections.emptyList();
+    private final boolean             mDetectMoves;
+    private       List<T>             mList     = Collections.emptyList();
 
 
     public LightDiffList() {
         this(false);
     }
 
+
     public LightDiffList(boolean detectMoves) {
+        super();
         mDetectMoves = detectMoves;
-        mCallback = new LightAdapterUpdateCallback();
         mDiffUtilCallback = new DiffUtilCallback<>();
     }
 
@@ -55,10 +57,10 @@ public class LightDiffList<T extends Diffable<T>> extends AbstractLightList<T> {
 
     @Override
     @MainThread
-    public void update(List<T> newItems) {
+    public void update(@NonNull List<T> newItems) {
         DiffUtil.DiffResult diffResult = doCalculateDiff(mList, newItems);
         mList = newItems;
-        diffResult.dispatchUpdatesTo(mCallback);
+        diffResult.dispatchUpdatesTo(getCallback());
     }
 
     // 计算 DiffResult

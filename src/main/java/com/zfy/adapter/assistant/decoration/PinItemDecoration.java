@@ -1,4 +1,4 @@
-package com.zfy.adapter.decoration;
+package com.zfy.adapter.assistant.decoration;
 
 import android.graphics.Canvas;
 import android.support.v7.widget.RecyclerView;
@@ -41,13 +41,13 @@ public class PinItemDecoration extends RecyclerView.ItemDecoration {
         adapter.onBindViewHolder(pinHolder, lastPinPosition);
         View pinView = pinHolder.itemView;
         measurePinView(pinView, parent);
-        // 计算两个 supportPin 的 view 推动的偏移，下面的那个推动上面那个，需要找到第二个的距离
+        // 计算两个 enablePin 的 view 推动的偏移，下面的那个推动上面那个，需要找到第二个的距离
         int pinOffset = 0;
         View secondPinView = null;
         for (int index = 0; index < parent.getChildCount(); index++) {
             int position = parent.getChildAdapterPosition(parent.getChildAt(index));
-            ModelType type = adapter.getType(adapter.getItemViewType(position));
-            if (type.supportPin) {
+            ModelType type = adapter.getModelType(adapter.getItemViewType(position));
+            if (type.enablePin) {
                 View sectionView = parent.getChildAt(index);
                 if (!firstView.equals(sectionView)) {
                     secondPinView = sectionView;
@@ -80,15 +80,15 @@ public class PinItemDecoration extends RecyclerView.ItemDecoration {
     // 根据第一个显示的位置，反向向上查找需要固定显示的那一个
     private int getLastPinPosition(int adapterFirstVisible, LightAdapter adapter) {
         for (int index = adapterFirstVisible; index >= 0; index--) {
-            ModelType type = adapter.getType(adapter.getItemViewType(index));
-            if (type.supportPin) {
+            ModelType type = adapter.getModelType(adapter.getItemViewType(index));
+            if (type.enablePin) {
                 return index;
             }
         }
         return -1;
     }
 
-    // 测量 supportPin view，用来绘制
+    // 测量 enablePin view，用来绘制
     private void measurePinView(View pinView, RecyclerView recyclerView) {
         if (pinView.isLayoutRequested()) {
             RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) pinView.getLayoutParams();

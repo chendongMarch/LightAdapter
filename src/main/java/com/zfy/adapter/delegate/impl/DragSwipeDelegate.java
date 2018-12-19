@@ -1,15 +1,18 @@
 package com.zfy.adapter.delegate.impl;
 
+import android.annotation.SuppressLint;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.zfy.adapter.LightHolder;
+import com.zfy.adapter.delegate.refs.DragSwipeRef;
 import com.zfy.adapter.listener.BindCallback;
 import com.zfy.adapter.model.DragSwipeOptions;
 import com.zfy.adapter.model.DragSwipeState;
 import com.zfy.adapter.model.ModelType;
+import com.zfy.adapter.model.Extra;
 
 import java.util.Collections;
 
@@ -19,7 +22,7 @@ import java.util.Collections;
  *
  * @author chendong
  */
-public class DragSwipeDelegate extends BaseDelegate {
+public class DragSwipeDelegate extends BaseDelegate implements DragSwipeRef {
 
     public static final int TAG_DRAG = 100;
     public static final int TAG_SWIPE = 101;
@@ -47,59 +50,71 @@ public class DragSwipeDelegate extends BaseDelegate {
         }
     }
 
-    public void setDragSwipeCallback(BindCallback<DragSwipeState> dragSwipeCallback) {
-        mDragSwipeCallback = dragSwipeCallback;
-    }
-
+    @Override
     public void setOptions(DragSwipeOptions options) {
         mOptions = options;
     }
 
+    @Override
+    public void setDragSwipeCallback(BindCallback<DragSwipeState> dragSwipeCallback) {
+        mDragSwipeCallback = dragSwipeCallback;
+    }
+
+    @Override
     public void dragOnLongPress(View view, LightHolder holder) {
-        view.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                startDrag(holder);
-                return true;
-            }
+        ModelType modelType = mAdapter.getModelType(holder.getItemViewType());
+        if (modelType != null) {
+            modelType.enableDrag = true;
+        }
+        view.setOnLongClickListener(v -> {
+            startDrag(holder);
+            return true;
         });
     }
 
+    @SuppressLint("ClickableViewAccessibility")
+    @Override
     public void dragOnTouch(View view, LightHolder holder) {
-        view.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                    startDrag(holder);
-                }
-                return false;
+        ModelType modelType = mAdapter.getModelType(holder.getItemViewType());
+        if (modelType != null) {
+            modelType.enableDrag = true;
+        }
+        view.setOnTouchListener((v, event) -> {
+            if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                startDrag(holder);
             }
+            return false;
         });
     }
 
+    @Override
     public void swipeOnLongPress(View view, LightHolder holder) {
-        view.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                startSwipe(holder);
-                return true;
-            }
+        ModelType modelType = mAdapter.getModelType(holder.getItemViewType());
+        if (modelType != null) {
+            modelType.enableSwipe = true;
+        }
+        view.setOnLongClickListener(v -> {
+            startSwipe(holder);
+            return true;
         });
     }
 
+    @SuppressLint("ClickableViewAccessibility")
+    @Override
     public void swipeOnTouch(View view, LightHolder holder) {
-        view.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                    startSwipe(holder);
-                }
-                return false;
+        ModelType modelType = mAdapter.getModelType(holder.getItemViewType());
+        if (modelType != null) {
+            modelType.enableSwipe = true;
+        }
+        view.setOnTouchListener((v, event) -> {
+            if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                startSwipe(holder);
             }
+            return false;
         });
     }
 
-
+    @Override
     public void startDrag(LightHolder holder) {
         if (mItemTouchHelper == null) {
             return;
@@ -107,7 +122,7 @@ public class DragSwipeDelegate extends BaseDelegate {
         mItemTouchHelper.startDrag(holder);
     }
 
-
+    @Override
     public void startSwipe(LightHolder holder) {
         if (mItemTouchHelper == null) {
             return;
@@ -124,7 +139,7 @@ public class DragSwipeDelegate extends BaseDelegate {
 
         @Override
         public boolean isItemViewSwipeEnabled() {
-            return mOptions.itemViewSwipeEnable;
+            return mOptions.itemViewAutoSwipeEnable;
         }
 
         @Override
@@ -155,8 +170,8 @@ public class DragSwipeDelegate extends BaseDelegate {
                     break;
             }
             if (mDragSwipeCallback != null) {
-                int modelIndex = mAdapter.toModelIndex(viewHolder.getAdapterPosition());
-                mDragSwipeCallback.bind(lightHolder, modelIndex, mDragSwipeState);
+                Extra extra = mAdapter.obtainExtraByLayoutIndex(viewHolder.getAdapterPosition());
+                mDragSwipeCallback.bind(lightHolder, mDragSwipeState, extra);
             }
         }
 
@@ -176,8 +191,8 @@ public class DragSwipeDelegate extends BaseDelegate {
                     break;
             }
             if (mDragSwipeCallback != null) {
-                int modelIndex = mAdapter.toModelIndex(lightHolder.getAdapterPosition());
-                mDragSwipeCallback.bind(lightHolder, modelIndex, mDragSwipeState);
+                Extra extra = mAdapter.obtainExtraByLayoutIndex(viewHolder.getAdapterPosition());
+                mDragSwipeCallback.bind(lightHolder, mDragSwipeState, extra);
             }
         }
 
@@ -185,7 +200,7 @@ public class DragSwipeDelegate extends BaseDelegate {
         public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
             int dragFlags = mOptions.dragFlags;
             int swipeFlags = mOptions.swipeFlags;
-            ModelType type = mAdapter.getType(viewHolder.getItemViewType());
+            ModelType type = mAdapter.getModelType(viewHolder.getItemViewType());
             if (!type.enableDrag) {
                 dragFlags = 0;
             }

@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.zfy.adapter.listener.EventCallback;
 import com.zfy.adapter.model.Ids;
 import com.zfy.adapter.model.ModelType;
 
@@ -59,7 +60,7 @@ public class LightHolder extends RecyclerView.ViewHolder {
         super(itemView);
         this.mCacheViews = new SparseArray<>(5);
         this.mAdapter = adapter;
-        this.mModelType = adapter.getType(type);
+        this.mModelType = adapter.getModelType(type);
     }
 
     public int getExtra() {
@@ -91,6 +92,9 @@ public class LightHolder extends RecyclerView.ViewHolder {
     // 使用资源 id 找到 view
     @SuppressWarnings("unchecked")
     public <T extends View> T getView(int resId) {
+        if (resId == R.id.item_view) {
+            return (T) itemView;
+        }
         View v = mCacheViews.get(resId);
         if (v == null) {
             v = itemView.findViewById(resId);
@@ -382,21 +386,64 @@ public class LightHolder extends RecyclerView.ViewHolder {
 
     //////////////////////////////  -- View.Event Click --  //////////////////////////////
 
+    /**
+     * 设置 View 点击监听
+     * 回调给 ${@link LightAdapter#setChildViewClickEvent(EventCallback)}
+     *
+     * @param ids view id 数组
+     * @return holder
+     */
+    public LightHolder setClick(int... ids) {
+        for (int id : ids) {
+            View view = getView(id);
+            if (view == null) {
+                continue;
+            }
+            mAdapter.mLightEvent.setChildViewClickListener(this, view);
+        }
+        return this;
+    }
+
+
+    /**
+     * 设置 View 点击监听
+     *
+     * @param ids      Ids
+     * @param listener 点击事件
+     * @return holder
+     */
     public LightHolder setClick(Ids ids, View.OnClickListener listener) {
+        if (listener == null) {
+            return this;
+        }
         for (int id : ids.ids()) {
             View view = getView(id);
             if (view == null) {
                 continue;
             }
+            view.setClickable(true);
             view.setOnClickListener(listener);
         }
         return this;
     }
 
+    /**
+     * 设置 View 点击监听
+     *
+     * @param resId    view id
+     * @param listener 点击事件
+     * @return holder
+     */
     public LightHolder setClick(int resId, View.OnClickListener listener) {
         return setClick(all(resId), listener);
     }
 
+    /**
+     * 给 ItemView 设置监听
+     *
+     * @param listener 监听事件
+     * @return holder
+     */
     public LightHolder setClick(View.OnClickListener listener) {
         itemView.setOnClickListener(listener);
         return this;
@@ -405,21 +452,60 @@ public class LightHolder extends RecyclerView.ViewHolder {
 
     //////////////////////////////  -- View.Event Long Click --  //////////////////////////////
 
+    /**
+     * 设置长按监听
+     *
+     * @param ids view id 数组
+     * @return holder
+     */
+    public LightHolder setLongClick(int... ids) {
+        for (int id : ids) {
+            View view = getView(id);
+            if (view == null) {
+                continue;
+            }
+            mAdapter.mLightEvent.setChildViewLongPressListener(this, view);
+        }
+        return this;
+    }
 
+    /**
+     * 设置长按监听
+     *
+     * @param ids      view id 数组
+     * @param listener 监听事件
+     * @return holder
+     */
     public LightHolder setLongClick(Ids ids, View.OnLongClickListener listener) {
         for (int id : ids.ids()) {
             View view = getView(id);
             if (view == null) {
                 continue;
             }
+            view.setLongClickable(true);
             view.setOnLongClickListener(listener);
         }
         return this;
     }
 
+    /**
+     * 设置长按监听
+     *
+     * @param resId    view id
+     * @param listener 监听
+     * @return holder
+     */
     public LightHolder setLongClick(int resId, View.OnLongClickListener listener) {
         return setLongClick(all(resId), listener);
     }
+
+    public LightHolder setLongClick(View.OnLongClickListener listener) {
+        itemView.setLongClickable(true);
+        itemView.setOnLongClickListener(listener);
+        return this;
+    }
+
+
 
     //////////////////////////////  -- View LayoutParams --  //////////////////////////////
 
@@ -551,10 +637,9 @@ public class LightHolder extends RecyclerView.ViewHolder {
     //////////////////////////////  -- 公共方法 --  //////////////////////////////
 
 
-    public Ids all(@IdRes int ... resIds) {
-        return mAdapter.all(resIds);
+    private Ids all(@IdRes int... resIds) {
+        return Ids.all(resIds);
     }
-
 
     public interface Callback<T extends View> {
         void bind(T view);

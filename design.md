@@ -37,12 +37,11 @@ waiting - Animation
 
 收缩头
 
-
 描述
 
 设计理念
 
-单类型/多类型/类型更新器/ModelTypeable
+单类型/多类型/类型更新器/Typeable
 
 DiffUtil/payload/异步更新
 LightDiffList/AsyncDiffList/Diffable
@@ -69,6 +68,8 @@ SelectorDelegate
 GridSpaceItemDecoration
 LinearDividerDecoration
 LinearSpaceItemDecoration
+滑动选中
+
 
 展望
 分页器/Expandable/Animation

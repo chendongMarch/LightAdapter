@@ -1,7 +1,13 @@
 package com.zfy.adapter.delegate.impl;
 
 import com.zfy.adapter.LightHolder;
+import com.zfy.adapter.assistant.SlidingSelectLayout;
+import com.zfy.adapter.common.ItemType;
+import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
+import com.zfy.adapter.delegate.refs.SelectorRef;
+import com.zfy.adapter.listener.BindCallback;
+import com.zfy.adapter.model.Extra;
 import com.zfy.adapter.model.ModelType;
 
 import java.util.ArrayList;
@@ -13,44 +19,12 @@ import java.util.List;
  *
  * @author chendong
  */
-public class SelectorDelegate<D> extends BaseDelegate {
+public class SelectorDelegate<D> extends BaseDelegate implements SelectorRef<D> {
 
-    public interface SelectorBinder<D> {
-        void onBindSelectableViewHolder(LightHolder holder, int position, D data, boolean isSelect);
-    }
-
-    public interface OnSelectListener<D> {
-        void onSelect(D data);
-    }
-
-    private SelectorBinder<D> mSelectorBinder;
+    private BindCallback<D> mBindCallback;
     private int mSelectType = LightValues.SINGLE;
     private OnSelectListener<D> mOnSelectListener;
     private List<D> mResults = new ArrayList<>();
-
-
-    public void setSelectType(int selectType) {
-        mSelectType = selectType;
-    }
-
-    public void setSelectorBinder(SelectorBinder<D> selectorBinder) {
-        mSelectorBinder = selectorBinder;
-    }
-
-    public void setOnSelectListener(OnSelectListener<D> onSelectListener) {
-        mOnSelectListener = onSelectListener;
-    }
-
-    public List<D> getResults() {
-        return mResults;
-    }
-
-    public D getResult(D defaultValue) {
-        if(mResults.size() == 0){
-            return defaultValue;
-        }
-        return mResults.get(0);
-    }
 
     @Override
     public int getKey() {
@@ -59,28 +33,71 @@ public class SelectorDelegate<D> extends BaseDelegate {
 
     @Override
     @SuppressWarnings("unchecked")
-    public boolean onBindViewHolder(LightHolder holder, int position) {
-        if (mSelectorBinder == null) {
-            return super.onBindViewHolder(holder, position);
+    public boolean onBindViewHolder(LightHolder holder, int layoutIndex) {
+        if (mBindCallback == null) {
+            return super.onBindViewHolder(holder, layoutIndex);
         }
-        int pos = mAdapter.toModelIndex(position);
-        Object data = mAdapter.getItem(pos);
+        Extra extra = mAdapter.obtainExtraByLayoutIndex(layoutIndex);
+        Object data = mAdapter.getItem(extra.modelIndex);
         if (data != null) {
-            ModelType type = mAdapter.getType(data);
-            if (type != null) {
-                if (type.getType() == LightValues.TYPE_CONTENT || !type.isBuildInType()) {
-                    mSelectorBinder.onBindSelectableViewHolder(holder, position, (D) data, isSelect((D) data));
+            ModelType modelType = mAdapter.getModelType(data);
+            if (modelType != null) {
+                if (modelType.type == ItemType.TYPE_CONTENT || !LightUtils.isBuildInType(modelType.type)) {
+                    D d = (D) data;
+                    extra.selected = isSelect(d);
+                    mBindCallback.bind(holder, d, extra);
                 }
             }
         }
-        return super.onBindViewHolder(holder, position);
+        return super.onBindViewHolder(holder, layoutIndex);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void setSlidingSelectLayout(SlidingSelectLayout slidingSelectLayout) {
+        slidingSelectLayout.setOnSlidingSelectListener(data -> {
+            if (mSelectType == LightValues.SINGLE) {
+                selectItem((D) data);
+            } else {
+                toggleItem((D) data);
+            }
+        });
+    }
+
+    @Override
+    public void setSingleSelector(BindCallback<D> bindCallback) {
+        mSelectType = LightValues.SINGLE;
+        mBindCallback = bindCallback;
+    }
+
+    @Override
+    public void setMultiSelector(BindCallback<D> bindCallback) {
+        mSelectType = LightValues.MULTI;
+        mBindCallback = bindCallback;
+    }
+
+    @Override
+    public void setOnSelectListener(OnSelectListener<D> onSelectListener) {
+        mOnSelectListener = onSelectListener;
+    }
+
+    @Override
+    public List<D> getResults() {
+        return mResults;
+    }
+
+    @Override
+    public D getResult(D defaultValue) {
+        if (mResults.size() == 0) {
+            return defaultValue;
+        }
+        return mResults.get(0);
     }
 
 
-    public boolean isSelect(D object) {
-        return mResults.contains(object);
+    @Override
+    public boolean isSelect(D data) {
+        return mResults.contains(data);
     }
-
 
     // 单选时，选中一个，取消选中其他的
     private void releaseOthers(D selectable) {
@@ -96,69 +113,62 @@ public class SelectorDelegate<D> extends BaseDelegate {
         }
     }
 
-    /**
-     * 选中某一项
-     *
-     * @param selectable 继承 Selectable 接口
-     */
-    public void selectItem(D selectable) {
+    @Override
+    public void selectItem(D data) {
         if (mSelectType == LightValues.SINGLE) {
-            releaseOthers(selectable);
+            releaseOthers(data);
         }
-        if (isSelect(selectable)) {
+        if (isSelect(data)) {
             return;
         }
-        mResults.add(selectable);
-        if (mOnSelectListener != null) {
-            mOnSelectListener.onSelect(selectable);
+        if (mOnSelectListener != null && !mOnSelectListener.onSelect(data, true)) {
+            return;
         }
+        mResults.add(data);
         if (!isAttached()) {
             return;
         }
-        int pos = mAdapter.getDatas().indexOf(selectable);
-        int layoutIndex = mAdapter.toLayoutIndex(pos);
-        LightHolder holder = (LightHolder) mAdapter.getRecyclerView().findViewHolderForLayoutPosition(layoutIndex);
+        int modelIndex = mAdapter.getDatas().indexOf(data);
+        Extra extra = mAdapter.obtainExtraByModelIndex(modelIndex);
+        LightHolder holder = (LightHolder) mAdapter.getView().findViewHolderForLayoutPosition(extra.layoutIndex);
+        extra.selected = true;
         if (holder != null) {
-            mSelectorBinder.onBindSelectableViewHolder(holder, pos, (D) selectable, true);
+            mBindCallback.bind(holder, data, extra);
         } else {
-            mAdapter.notifyItem().change(layoutIndex);
+            mAdapter.notifyItem().change(extra.layoutIndex);
         }
     }
 
-    /**
-     * 释放某一项
-     *
-     * @param selectable 继承 Selectable 接口
-     */
-    public void releaseItem(D selectable) {
-        if (!isSelect(selectable)) {
+    @Override
+    public void releaseItem(D data) {
+        if (!isSelect(data)) {
             return;
         }
-        if (mResults.remove(selectable)) {
+        if (!mOnSelectListener.onSelect(data, false)) {
+            return;
+        }
+        if (mResults.remove(data)) {
             if (!isAttached()) {
                 return;
             }
-            int pos = mAdapter.getDatas().indexOf(selectable);
-            int layoutIndex = mAdapter.toLayoutIndex(pos);
-            LightHolder holder = (LightHolder) mAdapter.getRecyclerView().findViewHolderForLayoutPosition(layoutIndex);
+            int modelIndex = mAdapter.getDatas().indexOf(data);
+            Extra extra = mAdapter.obtainExtraByModelIndex(modelIndex);
+            LightHolder holder = (LightHolder) mAdapter.getView().findViewHolderForLayoutPosition(extra.layoutIndex);
+            extra.selected = false;
             if (holder != null) {
-                mSelectorBinder.onBindSelectableViewHolder(holder, pos, selectable, false);
+                mBindCallback.bind(holder, data, extra);
             } else {
-                mAdapter.notifyItem().change(layoutIndex);
+                mAdapter.notifyItem().change(extra.layoutIndex);
             }
         }
     }
 
-    /**
-     * 选中改为不选中，不选中改为选中
-     *
-     * @param selectable 继承 Selectable 接口
-     */
-    public void toggleItem(D selectable) {
-        if (isSelect(selectable)) {
-            releaseItem(selectable);
+    @Override
+    public void toggleItem(D data) {
+        if (isSelect(data)) {
+            releaseItem(data);
         } else {
-            selectItem(selectable);
+            selectItem(data);
         }
     }
 }

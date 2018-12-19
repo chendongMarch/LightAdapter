@@ -10,6 +10,13 @@ import android.support.annotation.IdRes;
  */
 public class Ids {
 
+    private static final ThreadLocal<Ids> sIds = new ThreadLocal<Ids>() {
+        @Override
+        protected Ids initialValue() {
+            return Ids.all();
+        }
+    };
+
     private int[] viewIds;
 
     private Ids(@IdRes int[] resIds) {
@@ -20,13 +27,12 @@ public class Ids {
         return viewIds;
     }
 
-    public Ids obtain(@IdRes int... resIds) {
+    private Ids obtain(@IdRes int... resIds) {
         this.viewIds = resIds;
         return this;
     }
 
     public static Ids all(@IdRes int... resIds) {
-        Ids ids = new Ids(resIds);
-        return ids;
+        return sIds.get().obtain(resIds);
     }
 }

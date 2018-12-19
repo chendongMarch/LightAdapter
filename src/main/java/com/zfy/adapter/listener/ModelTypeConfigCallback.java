@@ -8,10 +8,7 @@ import com.zfy.adapter.model.ModelType;
  *
  * @author chendong
  */
-public interface ModelTypeUpdater {
-
-    void update(ModelType modelType);
-
-
+public interface ModelTypeConfigCallback {
+    void call(ModelType modelType);
 }
 

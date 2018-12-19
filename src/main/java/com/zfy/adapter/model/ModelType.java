@@ -1,6 +1,11 @@
 package com.zfy.adapter.model;
 
-import com.zfy.adapter.common.LightValues;
+import android.graphics.Rect;
+import android.support.annotation.LayoutRes;
+
+import com.zfy.adapter.animations.BindAnimator;
+import com.zfy.adapter.common.ItemType;
+import com.zfy.adapter.common.SpanSize;
 
 /**
  * CreateAt : 2018/10/26
@@ -10,73 +15,118 @@ import com.zfy.adapter.common.LightValues;
  */
 public class ModelType {
 
-    public int type; // 类型
-    public int layoutId; // 布局资源
-    public int spanSize = LightValues.NONE; // 跨越行数
-    public boolean enableClick = true; // 是否允许点击事件
+    public            int type; // 数据类型
+    @LayoutRes public int layoutId; // 布局资源
+    public int     spanSize        = SpanSize.NONE; // 跨越行数
+    public boolean enableClick     = true; // 是否允许点击事件
     public boolean enableLongPress = true; // 是否允许长按事件
-    public boolean enableDbClick = false; // 是否允许双击事件，双击事件使用 gesture 实现，将会丧失一些效果
-    public boolean enableDrag = false; // 是否允许拖动
-    public boolean enableSwipe = false; // 是否允许滑动
-    public boolean supportPin; // 钉住，会悬挂在顶部，后面的会有推的效果
+    public boolean enableDbClick   = false; // 是否允许双击事件
+    public boolean enableDrag      = false; // 是否允许拖动
+    public boolean enableSwipe     = false; // 是否允许滑动
+    public boolean enablePin       = false; // 钉住，支持悬停效果
+    public BindAnimator animator;
+
+    public Rect spaceRect;
+
+    public static ModelType singleType(@LayoutRes int layoutId, int spanSize) {
+        return new ModelType(ItemType.TYPE_CONTENT, layoutId, spanSize);
+    }
+
+    public static ModelType singleType(@LayoutRes int layoutId) {
+        return new ModelType(ItemType.TYPE_CONTENT, layoutId, SpanSize.NONE);
+    }
+
+    public static ModelType multiType(int type, @LayoutRes int layoutId, int spanSize) {
+        return new ModelType(ItemType.TYPE_CONTENT, layoutId, spanSize);
+    }
+
+    public static ModelType multiType(int type, @LayoutRes int layoutId) {
+        return new ModelType(ItemType.TYPE_CONTENT, layoutId, SpanSize.NONE);
+    }
+
+
 
     public ModelType(int type) {
         this.type = type;
     }
 
-    public boolean isBuildInType() {
-        return type == LightValues.TYPE_HEADER
-                || type == LightValues.TYPE_FOOTER
-                || type == LightValues.TYPE_CONTENT
-                || type == LightValues.TYPE_LOADING
-                || type == LightValues.TYPE_EMPTY;
-    }
-
-    public int getType() {
-        return type;
-    }
-
-    public void setType(int type) {
+    public ModelType(int type, @LayoutRes int layoutId) {
         this.type = type;
-    }
-
-    public int getLayoutId() {
-        return layoutId;
-    }
-
-    public void setLayoutId(int layoutId) {
         this.layoutId = layoutId;
     }
 
-    public int getSpanSize() {
-        return spanSize;
-    }
-
-    public void setSpanSize(int spanSize) {
+    public ModelType(int type, @LayoutRes int layoutId, int spanSize) {
+        this.type = type;
+        this.layoutId = layoutId;
         this.spanSize = spanSize;
     }
 
-    public boolean isEnableClick() {
-        return enableClick;
+    public ModelType update(ModelType modelType) {
+        this.spanSize = modelType.spanSize;
+        this.enableClick = modelType.enableClick;
+        this.enableLongPress = modelType.enableLongPress;
+        this.layoutId = modelType.layoutId;
+        this.enableDbClick = modelType.enableDbClick;
+        this.enableDrag = modelType.enableDrag;
+        this.enableSwipe = modelType.enableSwipe;
+        this.enablePin = modelType.enablePin;
+        this.animator = modelType.animator;
+        this.spaceRect = modelType.spaceRect;
+        return this;
     }
 
-    public void setEnableClick(boolean enableClick) {
+    public ModelType type(int type) {
+        this.type = type;
+        return this;
+    }
+
+    public ModelType layoutId(int layoutId) {
+        this.layoutId = layoutId;
+        return this;
+    }
+
+    public ModelType setSpanSize(int spanSize) {
+        this.spanSize = spanSize;
+        return this;
+    }
+
+    public ModelType enableClick(boolean enableClick) {
         this.enableClick = enableClick;
+        return this;
     }
 
-    public boolean isEnableDbClick() {
-        return enableDbClick;
-    }
-
-    public void setEnableDbClick(boolean enableDbClick) {
+    public ModelType enableDbClick(boolean enableDbClick) {
         this.enableDbClick = enableDbClick;
+        return this;
     }
 
-    public boolean isEnableLongPress() {
-        return enableLongPress;
-    }
-
-    public void setEnableLongPress(boolean enableLongPress) {
+    public ModelType enableLongPress(boolean enableLongPress) {
         this.enableLongPress = enableLongPress;
+        return this;
+    }
+
+    public ModelType enableDrag(boolean enableDrag) {
+        this.enableDrag = enableDrag;
+        return this;
+    }
+
+    public ModelType enableSwipe(boolean enableSwipe) {
+        this.enableSwipe = enableSwipe;
+        return this;
+    }
+
+    public ModelType enablePin(boolean enablePin) {
+        this.enablePin = enablePin;
+        return this;
+    }
+
+    public ModelType animator(BindAnimator animator) {
+        this.animator = animator;
+        return this;
+    }
+
+    public ModelType spaceRect(Rect rect) {
+        this.spaceRect = rect;
+        return this;
     }
 }

@@ -1,6 +1,7 @@
 package com.zfy.adapter;
 
 import android.content.Context;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -9,31 +10,40 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.zfy.adapter.able.ModelTypeable;
-import com.zfy.adapter.collections.AbstractLightList;
-import com.zfy.adapter.collections.LightDiffList;
+import com.zfy.adapter.able.Sectionable;
+import com.zfy.adapter.able.Typeable;
+import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.AdapterException;
+import com.zfy.adapter.common.ItemType;
+import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
+import com.zfy.adapter.common.SpanSize;
+import com.zfy.adapter.contract.IAdapter;
+import com.zfy.adapter.contract.IEventContract;
+import com.zfy.adapter.contract.ItemAdapter;
 import com.zfy.adapter.delegate.DelegateRegistry;
 import com.zfy.adapter.delegate.IDelegate;
-import com.zfy.adapter.delegate.impl.DragSwipeDelegate;
-import com.zfy.adapter.delegate.impl.EmptyViewDelegate;
-import com.zfy.adapter.delegate.impl.HFViewDelegate;
-import com.zfy.adapter.delegate.impl.LoadMoreDelegate;
-import com.zfy.adapter.delegate.impl.LoadingViewDelegate;
-import com.zfy.adapter.delegate.impl.NotifyDelegate;
-import com.zfy.adapter.delegate.impl.SectionDelegate;
-import com.zfy.adapter.delegate.impl.SelectorDelegate;
-import com.zfy.adapter.delegate.impl.SpanDelegate;
-import com.zfy.adapter.delegate.impl.TopMoreDelegate;
+import com.zfy.adapter.delegate.impl.AnimatorDelegate;
+import com.zfy.adapter.delegate.refs.AnimatorRef;
+import com.zfy.adapter.delegate.refs.DragSwipeRef;
+import com.zfy.adapter.delegate.refs.EmptyViewRef;
+import com.zfy.adapter.delegate.refs.FakeRef;
+import com.zfy.adapter.delegate.refs.FooterRef;
+import com.zfy.adapter.delegate.refs.HeaderRef;
+import com.zfy.adapter.delegate.refs.LoadMoreRef;
+import com.zfy.adapter.delegate.refs.LoadingViewRef;
+import com.zfy.adapter.delegate.refs.NotifyRef;
+import com.zfy.adapter.delegate.refs.SectionRef;
+import com.zfy.adapter.delegate.refs.SelectorRef;
+import com.zfy.adapter.delegate.refs.TopMoreRef;
+import com.zfy.adapter.listener.BindCallback;
 import com.zfy.adapter.listener.EventCallback;
-import com.zfy.adapter.listener.ModelTypeUpdater;
-import com.zfy.adapter.model.Ids;
+import com.zfy.adapter.listener.ModelTypeConfigCallback;
+import com.zfy.adapter.model.Extra;
 import com.zfy.adapter.model.ModelType;
-import com.zfy.adapter.model.SingleTypeUpdater;
+import com.zfy.adapter.type.ModelTypeRegistry;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -46,105 +56,172 @@ import java.util.Set;
  * 其他各个功能由 Delegate 实现
  * @author chendong
  */
-public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
-        implements LightEvent.EventSetting<D> {
+public class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
+        implements IEventContract<D>, IAdapter<D> {
 
     // View
-    private RecyclerView mRecyclerView;
+    private RecyclerView                  mView;
     // 上下文
-    private Context mContext;
+    private Context                       mContext;
     // 数据源
-    private List<D> mDatas;
+    private List<D>                       mDatas;
     // 布局加载
-    private LayoutInflater mLayoutInflater;
-    // 用来存储创建的所有holder，你可以使用holder来直接更新item，而不必调用 notify
-    private Set<LightHolder> mHolderCache;
+    private LayoutInflater                mLayoutInflater;
     // 类型和 TypeOptions 配置
-    private SparseArray<ModelType> mModelTypeCache;
+    private SparseArray<ModelType>        mModelTypeCache;
     // 更新类型配置
-    private List<ModelTypeUpdater> mModelTypeUpdaters;
+    private List<ModelTypeConfigCallback> mModelTypeConfigCallbacks;
     // 代理注册表
-    private DelegateRegistry mDelegateRegistry;
-    // 负责完成事件的初始化和触发
-    private LightEvent<D> mLightEvent;
-    // 多 ID 绑定
-    private Ids mIds;
+    private DelegateRegistry              mDelegateRegistry;
+    private BindCallback<D>               mBindCallback;
 
     /**
-     * 单类型适配器构造函数
+     * 事件部分，负责完成事件的初始化和触发
+     */
+    /*package*/ LightEvent<D> mLightEvent;
+    private EventCallback<D> mClickCallback;
+    private EventCallback<D> mLongPressCallback;
+    private EventCallback<D> mDbClickCallback;
+    private EventCallback<D> mChildViewClickCallback;
+    private EventCallback<D> mChildViewLongPressCallback;
+
+    /**
+     * ItemAdapter 部分，可以将一个 Adapter 拆分为多个可复用的 ItemAdapter
+     */
+    private SparseArray<ItemAdapter<D>> mItemAdapterArray;
+
+
+    /**
+     * 简单、单类型适配器构造函数
      *
-     * @param context  上下文
      * @param datas    数据源
      * @param layoutId 布局
      */
-    public LightAdapter(Context context, List<D> datas, int layoutId) {
-        this(context, datas, new SingleTypeUpdater(LightValues.TYPE_CONTENT, data -> {
-            data.layoutId = layoutId;
-        }));
+    public LightAdapter(List<D> datas, @LayoutRes int layoutId) {
+        init(datas, modelType -> modelType.layoutId = layoutId);
     }
 
     /**
-     * 多类型适配器构造函数
+     * 扩展，单类型适配器构造函数
      *
-     * @param context 上下文
-     * @param datas   数据源
-     * @param updater 类型构造工厂
+     * @param datas     数据源
+     * @param modelType 扩展类型
      */
-    public LightAdapter(Context context, List<D> datas, ModelTypeUpdater updater) {
-        init(context, datas);
-        addModelUpdater(updater);
+    public LightAdapter(List<D> datas, ModelType modelType) {
+        init(datas, type -> type.update(modelType));
     }
 
-    // 通用初始化方法
-    private void init(Context context, List<D> datas) {
-        if (datas instanceof AbstractLightList) {
-            ((LightDiffList) datas).setAdapter(this);
+
+    /**
+     * 多类型适配器构造
+     *
+     * @param datas             数据源
+     * @param modelTypeRegistry ModelTypeRegistry
+     */
+    public LightAdapter(List<D> datas, ModelTypeRegistry modelTypeRegistry) {
+        for (ItemAdapter adapter : modelTypeRegistry.getItemAdapters()) {
+            addItemAdapter(adapter);
         }
-        mContext = context;
-        mHolderCache = new HashSet<>();
-        mLayoutInflater = LayoutInflater.from(context);
+        init(datas, modelType -> {
+            SparseArray<ModelType> array = modelTypeRegistry.getTypeSparseArray();
+            ModelType type = array.get(modelType.type);
+            if (type != null) {
+                modelType.update(type);
+            }
+        });
+    }
+
+
+    // 通用初始化方法
+    private void init(List<D> datas, ModelTypeConfigCallback callback) {
+        if (datas instanceof LightList) {
+            ((LightList) datas).register(this);
+        }
         mDatas = datas;
         mModelTypeCache = new SparseArray<>();
-        mHolderCache = new HashSet<>();
+        if (mItemAdapterArray == null) {
+            mItemAdapterArray = new SparseArray<>();
+        }
         // 代理注册表
         mDelegateRegistry = new DelegateRegistry();
-        mDelegateRegistry.register(new SpanDelegate());
-        mDelegateRegistry.register(new NotifyDelegate());
-        mDelegateRegistry.register(IDelegate.HF, HFViewDelegate::new);
-        mDelegateRegistry.register(IDelegate.TOP_MORE, TopMoreDelegate::new);
-        mDelegateRegistry.register(IDelegate.LOAD_MORE, LoadMoreDelegate::new);
-        mDelegateRegistry.register(IDelegate.SELECTOR, SelectorDelegate::new);
-        mDelegateRegistry.register(IDelegate.LOADING, LoadingViewDelegate::new);
-        mDelegateRegistry.register(IDelegate.EMPTY, EmptyViewDelegate::new);
-        mDelegateRegistry.register(IDelegate.DRAG_SWIPE, DragSwipeDelegate::new);
-        mDelegateRegistry.register(IDelegate.SECTION, SectionDelegate::new);
         mDelegateRegistry.onAttachAdapter(this);
         // 事件处理
-        mLightEvent = new LightEvent<>(this);
-        mModelTypeUpdaters = new ArrayList<>();
+        mLightEvent = new LightEvent<>(this, (eventType, holder, extra, data) -> {
+            ItemAdapter<D> itemAdapter = mItemAdapterArray.get(getItemViewType(extra.layoutIndex));
+            if (itemAdapter != null) {
+                itemAdapter.onEventDispatch(eventType, holder, extra, data);
+                return;
+            }
+            switch (eventType) {
+                case LightEvent.TYPE_ITEM_CLICK:
+                    if (mClickCallback != null) {
+                        mClickCallback.call(holder, data, extra);
+                    }
+                    break;
+                case LightEvent.TYPE_ITEM_LONG_PRESS:
+                    if (mLongPressCallback != null) {
+                        mLongPressCallback.call(holder, data, extra);
+                    }
+                    break;
+                case LightEvent.TYPE_ITEM_DB_CLICK:
+                    if (mDbClickCallback != null) {
+                        mDbClickCallback.call(holder, data, extra);
+                    }
+                    break;
+                case LightEvent.TYPE_CHILD_CLICK:
+                    if (mChildViewClickCallback != null) {
+                        mChildViewClickCallback.call(holder, data, extra);
+                    }
+                    break;
+                case LightEvent.TYPE_CHILD_LONG_PRESS:
+                    if (mChildViewLongPressCallback != null) {
+                        mChildViewLongPressCallback.call(holder, data, extra);
+                    }
+                    break;
+                default:
+            }
+        });
+        mModelTypeConfigCallbacks = new ArrayList<>();
         // 内置类型参数构建
-        addModelUpdater(type -> {
-            if (type.getType() == LightValues.TYPE_FOOTER
-                    || type.getType() == LightValues.TYPE_HEADER
-                    || type.getType() == LightValues.TYPE_LOADING
-                    || type.getType() == LightValues.TYPE_EMPTY) {
-                type.setSpanSize(LightValues.SPAN_SIZE_ALL);
+        addModelTypeConfigCallback(type -> {
+            if (type.type == ItemType.TYPE_FOOTER
+                    || type.type == ItemType.TYPE_SECTION
+                    || type.type == ItemType.TYPE_HEADER
+                    || type.type == ItemType.TYPE_LOADING
+                    || type.type == ItemType.TYPE_EMPTY) {
+                type.setSpanSize(SpanSize.SPAN_SIZE_ALL);
+            }
+        });
+        // 外部类型参数构建
+        if (callback != null) {
+            addModelTypeConfigCallback(callback);
+        }
+        // ItemAdapter 类型参数构建
+        addModelTypeConfigCallback(modelType -> {
+            if (mItemAdapterArray == null) {
+                return;
+            }
+            ItemAdapter itemAdapter = mItemAdapterArray.get(modelType.type);
+            if (itemAdapter != null) {
+                modelType.update(itemAdapter.getModelType());
             }
         });
     }
 
     @Override
-    public LightHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public final LightHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LightHolder holder = mDelegateRegistry.onCreateViewHolder(parent, viewType);
         if (holder == null) {
-            View view = null;
-            ModelType type = getType(viewType);
-            if (type != null && type.getLayoutId() > 0) {
-                view = mLayoutInflater.inflate(type.getLayoutId(), parent, false);
+            View view;
+            ModelType type = getModelType(viewType);
+            if (type != null) {
+                if(type.layoutId <= 0){
+                    throw new AdapterException("ModelType No LayoutId viewType = " + viewType);
+                }
+                view = mLayoutInflater.inflate(type.layoutId, parent, false);
                 if (view != null) {
                     holder = new LightHolder(this, viewType, view);
                     mLightEvent.initEvent(holder, type);
-                    mHolderCache.add(holder);
                 }
                 if (holder == null) {
                     throw new AdapterException("holder is null layout = " + type.layoutId + " , type = " + type.type);
@@ -152,36 +229,43 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
             } else {
                 throw new AdapterException("can not find type viewType = " + viewType);
             }
-
         }
 
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull LightHolder holder, int position) {
-        if (!mDelegateRegistry.onBindViewHolder(holder, position)) {
-            int pos = toModelIndex(position);
-            D data = getItem(pos);
-            onBindView(holder, data, pos);
+    public final void onBindViewHolder(@NonNull LightHolder holder, int layoutIndex) {
+        if (!mDelegateRegistry.onBindViewHolder(holder, layoutIndex)) {
+            Extra extra = obtainExtraByLayoutIndex(layoutIndex);
+            extra.byPayload = false;
+            D data = getItem(extra.modelIndex);
+            ItemAdapter<D> itemAdapter = mItemAdapterArray.get(getItemViewType(layoutIndex));
+            if (itemAdapter != null) {
+                itemAdapter.onBindView(holder, data, extra);
+            } else {
+                onBindView(holder, data, extra);
+            }
         }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull LightHolder holder, int position, @NonNull List<Object> payloads) {
+    public final void onBindViewHolder(@NonNull LightHolder holder, int layoutIndex, @NonNull List<Object> payloads) {
         if (payloads.isEmpty()) {
-            super.onBindViewHolder(holder, position, payloads);
+            super.onBindViewHolder(holder, layoutIndex, payloads);
         } else {
-            int pos = toModelIndex(position);
-            D data = getItem(pos);
-            onBindView(holder, data, pos);
+            Extra extra = obtainExtraByLayoutIndex(layoutIndex);
+            D data = getItem(extra.modelIndex);
             for (Object payload : payloads) {
-                if (payload instanceof Set && !((Set) payload).isEmpty()) {
-                    Set msgSet = (Set) payload;
-                    for (Object o : msgSet) {
-                        if (o instanceof String) {
-                            onBindViewUsePayload(holder, data, pos, (String) o);
-                        }
+                if (!(payload instanceof Set) || ((Set) payload).isEmpty()) {
+                    continue;
+                }
+                Set msgSet = (Set) payload;
+                for (Object o : msgSet) {
+                    if (o instanceof String) {
+                        extra.payloadMsg = (String) o;
+                        extra.byPayload = true;
+                        onBindView(holder, data, extra);
                     }
                 }
             }
@@ -189,29 +273,33 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     }
 
     @Override
-    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+    public final void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
-        mRecyclerView = recyclerView;
+        mView = recyclerView;
+        mContext = recyclerView.getContext();
+        mLayoutInflater = LayoutInflater.from(mContext);
         mDelegateRegistry.onAttachedToRecyclerView(recyclerView);
     }
 
     @Override
-    public int getItemCount() {
+    public final int getItemCount() {
         return this.mDatas.size() + mDelegateRegistry.getItemCount();
     }
 
     @Override
-    public int getItemViewType(int position) {
+    public final int getItemViewType(int position) {
         int itemViewType = mDelegateRegistry.getItemViewType(position);
-        if (itemViewType != LightValues.NONE) {
+        if (itemViewType != ItemType.TYPE_NONE) {
             return itemViewType;
         }
         D d = getItem(toModelIndex(position));
-        if (d instanceof ModelTypeable) {
-            ModelTypeable model = (ModelTypeable) d;
-            return model.getModelType();
+        if (d instanceof Sectionable && ((Sectionable) d).isSection()) {
+            return ItemType.TYPE_SECTION;
+        } else if (d instanceof Typeable) {
+            Typeable model = (Typeable) d;
+            return model.getItemType();
         } else {
-            return LightValues.TYPE_CONTENT;
+            return ItemType.TYPE_CONTENT;
         }
     }
 
@@ -220,27 +308,6 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         super.onViewAttachedToWindow(holder);
         mDelegateRegistry.onViewAttachedToWindow(holder);
     }
-
-    /**
-     * 布局中的位置 转换为 数据里面的 位置
-     *
-     * @param position 布局中的位置
-     * @return 数据中的位置
-     */
-    public int toModelIndex(int position) {
-        return position - mDelegateRegistry.getAboveItemCount(LightValues.FLOW_LEVEL_CONTENT);
-    }
-
-    /**
-     * 数据位置 转换为 布局中的位置
-     *
-     * @param position 数据中的位置
-     * @return 布局中的位置
-     */
-    public int toLayoutIndex(int position) {
-        return position + mDelegateRegistry.getAboveItemCount(LightValues.FLOW_LEVEL_CONTENT);
-    }
-
 
     /**
      * 获取一个 Item
@@ -256,49 +323,40 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         }
     }
 
-    /**
-     * 一般绑定数据
-     *
-     * @param holder LightHolder
-     * @param data   数据
-     * @param pos    位置
-     */
-    public abstract void onBindView(LightHolder holder, D data, int pos);
-
-    /**
-     * 使用 payload 绑定数据
-     *
-     * @param holder LightHolder
-     * @param data   数据
-     * @param pos    位置
-     * @param msg    消息
-     */
-    public void onBindViewUsePayload(LightHolder holder, D data, int pos, String msg) {
+    @Override
+    public void onBindView(LightHolder holder, D data, Extra extra) {
+        if (mBindCallback != null) {
+            mBindCallback.bind(holder, data, extra);
+        }
     }
 
-
-    @Override
-    public void setClickCallback(EventCallback<D> clickCallback) {
-        mLightEvent.setClickCallback(clickCallback);
+    public void setBindCallback(BindCallback<D> bindCallback) {
+        mBindCallback = bindCallback;
     }
 
     @Override
-    public void setLongPressCallback(EventCallback<D> longPressCallback) {
-        mLightEvent.setLongPressCallback(longPressCallback);
+    public void setClickEvent(EventCallback<D> clickCallback) {
+        mClickCallback = clickCallback;
     }
 
     @Override
-    public void setDbClickCallback(EventCallback<D> dbClickCallback) {
-        mLightEvent.setDbClickCallback(dbClickCallback);
+    public void setLongPressEvent(EventCallback<D> longPressCallback) {
+        mLongPressCallback = longPressCallback;
     }
 
-    /**
-     * 获取创建的 所有 holder
-     *
-     * @return holder set
-     */
-    public Set<LightHolder> getHolderCache() {
-        return mHolderCache;
+    @Override
+    public void setDbClickEvent(EventCallback<D> dbClickCallback) {
+        mDbClickCallback = dbClickCallback;
+    }
+
+    @Override
+    public void setChildViewClickEvent(EventCallback<D> childViewClickEvent) {
+        mChildViewClickCallback = childViewClickEvent;
+    }
+
+    @Override
+    public void setChildViewLongPressEvent(EventCallback<D> childViewLongPressEvent) {
+        mChildViewLongPressCallback = childViewLongPressEvent;
     }
 
     /**
@@ -329,32 +387,57 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
      *
      * @return RecyclerView
      */
-    public RecyclerView getRecyclerView() {
-        return mRecyclerView;
+    public RecyclerView getView() {
+        return mView;
+    }
+
+    public LayoutInflater getLayoutInflater() {
+        return mLayoutInflater;
     }
 
 
     /**
-     * 复用 id 集合
+     * 布局中的位置 转换为 数据里面的 位置
      *
-     * @param ids id 集合
-     * @return Ids
+     * @param position 布局中的位置
+     * @return 数据中的位置
      */
-    public Ids all(int... ids) {
-        if (mIds == null) {
-            mIds = Ids.all();
-        }
-        return mIds.obtain(ids);
+    public int toModelIndex(int position) {
+        return position - mDelegateRegistry.getAboveItemCount(LightValues.FLOW_LEVEL_CONTENT);
     }
 
+    /**
+     * 数据位置 转换为 布局中的位置
+     *
+     * @param position 数据中的位置
+     * @return 布局中的位置
+     */
+    public int toLayoutIndex(int position) {
+        return position + mDelegateRegistry.getAboveItemCount(LightValues.FLOW_LEVEL_CONTENT);
+    }
+
+
+    public Extra obtainExtraByLayoutIndex(int layoutIndex) {
+        Extra extra = Extra.extra();
+        extra.layoutIndex = layoutIndex;
+        extra.modelIndex = toModelIndex(layoutIndex);
+        return extra;
+    }
+
+    public Extra obtainExtraByModelIndex(int modelIndex) {
+        Extra extra = Extra.extra();
+        extra.layoutIndex = toLayoutIndex(modelIndex);
+        extra.modelIndex = modelIndex;
+        return extra;
+    }
 
     /**
      * 添加类型更新器
      *
-     * @param updater ModelTypeUpdater
+     * @param updater ModelTypeConfigCallback
      */
-    public void addModelUpdater(ModelTypeUpdater updater) {
-        mModelTypeUpdaters.add(updater);
+    public void addModelTypeConfigCallback(ModelTypeConfigCallback updater) {
+        mModelTypeConfigCallbacks.add(updater);
     }
 
     /**
@@ -363,12 +446,12 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
      * @param type 类型
      * @return 数据的类型
      */
-    public ModelType getType(int type) {
+    public ModelType getModelType(int type) {
         ModelType modelType = mModelTypeCache.get(type);
         if (modelType == null) {
             modelType = new ModelType(type);
-            for (ModelTypeUpdater updater : mModelTypeUpdaters) {
-                updater.update(modelType);
+            for (ModelTypeConfigCallback updater : mModelTypeConfigCallbacks) {
+                updater.call(modelType);
             }
             mModelTypeCache.put(type, modelType);
         }
@@ -381,17 +464,17 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
      * @param data 数据
      * @return 数据的类型
      */
-    public @Nullable ModelType getType(D data) {
+    public @Nullable ModelType getModelType(D data) {
         if (data == null) {
             return null;
         }
         int type;
-        if (data instanceof ModelTypeable) {
-            type = ((ModelTypeable) data).getModelType();
+        if (data instanceof Typeable) {
+            type = ((Typeable) data).getItemType();
         } else {
-            type = LightValues.TYPE_CONTENT;
+            type = ItemType.TYPE_CONTENT;
         }
-        return getType(type);
+        return getModelType(type);
     }
 
     /**
@@ -416,70 +499,98 @@ public abstract class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     /**
      * @return HFDelegate 执行 header 相关功能
      */
-    public HFViewDelegate header() {
+    public HeaderRef header() {
         return getDelegate(IDelegate.HF);
     }
 
     /**
      * @return HFDelegate 执行 footer 相关功能
      */
-    public HFViewDelegate footer() {
+    public FooterRef footer() {
         return getDelegate(IDelegate.HF);
     }
 
     /**
      * @return NotifyDelegate 执行 数据更新 相关功能
      */
-    public NotifyDelegate notifyItem() {
+    public NotifyRef notifyItem() {
         return getDelegate(IDelegate.NOTIFY);
     }
 
     /**
      * @return LoadMoreDelegate 执行底部加载更多功能
      */
-    public LoadMoreDelegate loadMore() {
+    public LoadMoreRef loadMore() {
         return getDelegate(IDelegate.LOAD_MORE);
     }
 
     /**
      * @return TopMoreDelegate 执行顶部加载更多功能
      */
-    public TopMoreDelegate topMore() {
+    public TopMoreRef topMore() {
         return getDelegate(IDelegate.TOP_MORE);
     }
 
     /**
      * @return SelectorDelegate 负责选择器功能
      */
-    public SelectorDelegate<D> selector() {
+    public SelectorRef<D> selector() {
         return getDelegate(IDelegate.SELECTOR);
     }
 
     /**
      * @return LoadingViewDelegate 加载动画功能
      */
-    public LoadingViewDelegate loadingView() {
+    public LoadingViewRef loadingView() {
         return getDelegate(IDelegate.LOADING);
     }
 
     /**
      * @return EmptyViewDelegate 空白页面功能
      */
-    public EmptyViewDelegate emptyView() {
+    public EmptyViewRef emptyView() {
         return getDelegate(IDelegate.EMPTY);
     }
 
     /**
      * @return DragSwipeDelegate 拖动和滑动 功能
      */
-    public DragSwipeDelegate dragSwipe() {
+    public DragSwipeRef dragSwipe() {
         return getDelegate(IDelegate.DRAG_SWIPE);
     }
 
     /**
      * @return SectionDelegate 隔断效果
      */
-    public SectionDelegate<D> section() {
+    public SectionRef<D> section() {
         return getDelegate(IDelegate.SECTION);
+    }
+
+    /**
+     * @return {@link AnimatorDelegate}
+     */
+    public AnimatorRef animator() {
+        return getDelegate(IDelegate.ANIMATOR);
+    }
+
+    /**
+     * @return {@link com.zfy.adapter.delegate.impl.FakeDelegate}
+     */
+    public FakeRef<D> fake() {
+        return getDelegate(IDelegate.FAKE);
+    }
+
+    private void addItemAdapter(ItemAdapter adapter) {
+        if (mItemAdapterArray == null) {
+            mItemAdapterArray = new SparseArray<>();
+        }
+        int type = adapter.getItemType();
+        if (LightUtils.isBuildInType(type)) {
+            throw new AdapterException(AdapterException.USE_BUILD_IN_TYPE);
+        }
+        if (mItemAdapterArray.indexOfKey(type) > 0) {
+            throw new AdapterException("ItemAdapter Type 重复");
+        }
+        mItemAdapterArray.put(type, adapter);
     }
 }

@@ -4,8 +4,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
 import com.zfy.adapter.LightHolder;
+import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
+import com.zfy.adapter.delegate.refs.LoadingViewRef;
 import com.zfy.adapter.listener.BindCallback;
 import com.zfy.adapter.model.LightView;
 import com.zfy.adapter.model.LoadingState;
@@ -19,13 +21,14 @@ import java.util.List;
  *
  * @author chendong
  */
-public class LoadingViewDelegate extends BaseDelegate {
+public class LoadingViewDelegate extends BaseDelegate implements LoadingViewRef {
 
-    private LoadingState mLoadingState; // 加载状态
-    private ViewGroup mLoadingView; // 容器
-    private LightHolder mLightHolder; // 当前 holder
+    private LoadingState               mLoadingState; // 加载状态
+    private ViewGroup                  mLoadingView; // 容器
+    private LightHolder                mLightHolder; // 当前 holder
     private BindCallback<LoadingState> mBindCallback; // 绑定回调
-    private boolean mLoadingEnable; // 是否支持 loadingView
+    private boolean                    mLoadingEnable; // 是否支持 loadingView
+    private boolean                    mLoadingEnableInternalFlag; // 是否支持 loadingView
 
     private List<Runnable> mPendingRunnableList = new ArrayList<>();
 
@@ -36,7 +39,7 @@ public class LoadingViewDelegate extends BaseDelegate {
 
     @Override
     public LightHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == LightValues.TYPE_LOADING) {
+        if (viewType == ItemType.TYPE_LOADING) {
             mLightHolder = new LightHolder(mAdapter, viewType, mLoadingView);
             return mLightHolder;
         }
@@ -44,11 +47,11 @@ public class LoadingViewDelegate extends BaseDelegate {
     }
 
     @Override
-    public boolean onBindViewHolder(LightHolder holder, int position) {
-        if (mAdapter.getItemViewType(position) == LightValues.TYPE_LOADING) {
+    public boolean onBindViewHolder(LightHolder holder, int layoutIndex) {
+        if (mAdapter.getItemViewType(layoutIndex) == ItemType.TYPE_LOADING) {
             return true;
         }
-        return super.onBindViewHolder(holder, position);
+        return super.onBindViewHolder(holder, layoutIndex);
     }
 
     @Override
@@ -66,7 +69,7 @@ public class LoadingViewDelegate extends BaseDelegate {
     public int getItemViewType(int position) {
         int aboveItemCount = mAdapter.getDelegateRegistry().getAboveItemCount(LightValues.FLOW_LEVEL_LOADING);
         if (isLoadingEnable() && position == aboveItemCount) {
-            return LightValues.TYPE_LOADING;
+            return ItemType.TYPE_LOADING;
         }
         return super.getItemViewType(position);
     }
@@ -85,12 +88,7 @@ public class LoadingViewDelegate extends BaseDelegate {
     }
 
 
-    /**
-     * 设置 LoadingView
-     *
-     * @param lightView LightView
-     * @param callback  绑定回调
-     */
+    @Override
     public void setLoadingView(LightView lightView, BindCallback<LoadingState> callback) {
         mBindCallback = callback;
         mLoadingState = LoadingState.from(LoadingState.INIT);
@@ -115,6 +113,7 @@ public class LoadingViewDelegate extends BaseDelegate {
         }
     }
 
+    @Override
     public void setLoadingEnable(boolean loadingEnable) {
         if (mLoadingView == null) {
             return;
@@ -130,29 +129,21 @@ public class LoadingViewDelegate extends BaseDelegate {
         }
     }
 
-    /**
-     * @return loadingView 功能是否可用
-     */
+    @Override
     public boolean isLoadingEnable() {
         return mLoadingEnable && mLoadingView != null;
     }
 
-    /**
-     * 设置 Loading 状态
-     *
-     * @param state 状态
-     * @see LoadingState#FINISH
-     * @see LoadingState#INIT
-     * @see LoadingState#LOADING
-     * @see LoadingState#NO_DATA
-     */
+    @Override
     public void setLoadingState(int state) {
         if (mLoadingState == null) {
             return;
         }
         mLoadingState.state = state;
         if (mBindCallback != null && mLightHolder != null) {
-            mBindCallback.bind(mLightHolder, LightValues.NONE, mLoadingState);
+            mBindCallback.bind(mLightHolder, mLoadingState, null);
         }
     }
+
+
 }

@@ -16,12 +16,12 @@ import java.util.List;
  *
  * @author chendong
  */
-public class AsyncLightDiffList<T extends Diffable<T>> extends AbstractLightList<T> {
+public class LightAsyncDiffList<T extends Diffable<T>> extends LightList<T> {
 
     private final AsyncListDiffer<T> differ;
 
-    public AsyncLightDiffList() {
-        mCallback = new LightAdapterUpdateCallback();
+    public LightAsyncDiffList() {
+        super();
         DiffUtil.ItemCallback<T> itemCallback = new DiffUtil.ItemCallback<T>() {
             @Override
             public boolean areItemsTheSame(T oldItem, T newItem) {
@@ -39,7 +39,7 @@ public class AsyncLightDiffList<T extends Diffable<T>> extends AbstractLightList
             }
         };
         AsyncDifferConfig<T> config = new AsyncDifferConfig.Builder<T>(itemCallback).build();
-        differ = new AsyncListDiffer<>(mCallback, config);
+        differ = new AsyncListDiffer<>(getCallback(), config);
     }
 
     @MainThread

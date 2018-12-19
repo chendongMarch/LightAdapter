@@ -5,7 +5,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.zfy.adapter.listener.EventCallback;
+import com.zfy.adapter.model.Extra;
 import com.zfy.adapter.model.ModelType;
 
 /**
@@ -16,58 +16,43 @@ import com.zfy.adapter.model.ModelType;
  */
 public class LightEvent<D> {
 
-    public interface EventSetting<D> {
-
-        void setClickCallback(EventCallback<D> clickCallback);
-
-        void setLongPressCallback(EventCallback<D> longPressCallback);
-
-        void setDbClickCallback(EventCallback<D> dbClickCallback);
+    public interface EventDispatcher<D> {
+        void onEventDispatch(int eventType,LightHolder holder, Extra extra, D data);
     }
 
-    private LightAdapter<D> mAdapter;
+    public static final int TYPE_ITEM_CLICK       = 0;
+    public static final int TYPE_ITEM_LONG_PRESS  = 1;
+    public static final int TYPE_ITEM_DB_CLICK    = 2;
+    public static final int TYPE_CHILD_CLICK      = 3;
+    public static final int TYPE_CHILD_LONG_PRESS = 4;
 
-    private EventCallback<D> mClickCallback;
-    private EventCallback<D> mLongPressCallback;
-    private EventCallback<D> mDbClickCallback;
+    private LightAdapter<D>    mAdapter;
+    private EventDispatcher<D> mDispatcher;
 
-    public LightEvent(LightAdapter<D> adapter) {
+
+    public LightEvent(LightAdapter<D> adapter, EventDispatcher<D> dispatcher) {
         mAdapter = adapter;
+        mDispatcher = dispatcher;
     }
 
     public void initEvent(LightHolder holder, ModelType modelType) {
-        if (modelType.isEnableDbClick()) {
+        if (modelType.enableDbClick) {
             setMultiEvent(holder, modelType);
         } else {
             setSimpleEvent(holder, modelType);
         }
     }
 
-    public void setClickCallback(EventCallback<D> clickCallback) {
-        mClickCallback = clickCallback;
-    }
-
-    public void setLongPressCallback(EventCallback<D> longPressCallback) {
-        mLongPressCallback = longPressCallback;
-    }
-
-    public void setDbClickCallback(EventCallback<D> dbClickCallback) {
-        mDbClickCallback = dbClickCallback;
-    }
-
-
     @SuppressWarnings("unchecked")
     private void setMultiEvent(final LightHolder holder, ModelType modelType) {
-        if (!modelType.isEnableDbClick()) {
+        if (!modelType.enableDbClick) {
             return;
         }
         View itemView = holder.getItemView();
         GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
-                if (mClickCallback != null) {
-                    tryCallClickEvent(holder);
-                }
+                tryCallClickEvent(holder);
                 return super.onSingleTapConfirmed(e);
             }
 
@@ -78,23 +63,24 @@ public class LightEvent<D> {
 
             @Override
             public boolean onDoubleTap(MotionEvent e) {
-                if (mDbClickCallback != null) {
-                    tryCallDbClickEvent(holder);
-                }
+                tryCallDbClickEvent(holder);
                 return super.onDoubleTap(e);
             }
 
             @Override
             public void onLongPress(MotionEvent e) {
-                if (mLongPressCallback != null) {
-                    tryCallLongPressEvent(holder);
-                }
+                tryCallLongPressEvent(holder);
             }
         };
         final GestureDetectorCompat gestureDetector = new GestureDetectorCompat(mAdapter.getContext(), gestureListener);
+        itemView.setClickable(true);
+        itemView.setOnClickListener(null);
+        itemView.setOnLongClickListener(null);
         itemView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
+                // 将事件发送给 view 显示触摸状态，但是不会回调事件监听
+                itemView.onTouchEvent(motionEvent);
                 gestureDetector.onTouchEvent(motionEvent);
                 return true;
             }
@@ -104,54 +90,78 @@ public class LightEvent<D> {
         itemView.setOnLongClickListener(null);
     }
 
-
     @SuppressWarnings("unchecked")
     private void setSimpleEvent(LightHolder holder, ModelType modelType) {
         View itemView = holder.getItemView();
-        if (modelType.isEnableClick()) {
+        if (modelType.enableClick) {
             itemView.setOnClickListener(view -> {
-                if (mClickCallback != null) {
-                    tryCallClickEvent(holder);
-                }
+                tryCallClickEvent(holder);
             });
         }
-        if (modelType.isEnableLongPress()) {
+        if (modelType.enableLongPress) {
             itemView.setOnLongClickListener(view -> {
-                if (mLongPressCallback != null) {
-                    tryCallLongPressEvent(holder);
-                }
+                tryCallLongPressEvent(holder);
                 return true;
             });
         }
     }
 
+    public void setChildViewClickListener(LightHolder holder, View view) {
+        if (view.getId() == View.NO_ID) {
+            throw new IllegalArgumentException("View.getId() is NO_ID;");
+        }
+        view.setOnClickListener(v -> {
+            Extra extra = makeExtra(holder);
+            extra.viewId = v.getId();
+            D item = mAdapter.getItem(extra.modelIndex);
+            mDispatcher.onEventDispatch(TYPE_CHILD_CLICK, holder, extra, item);
+        });
+    }
+
+    public void setChildViewLongPressListener(LightHolder holder, View view) {
+        if (view.getId() == View.NO_ID) {
+            throw new IllegalArgumentException("View.getId() is NO_ID;");
+        }
+        view.setOnLongClickListener(v -> {
+            Extra extra = makeExtra(holder);
+            extra.viewId = v.getId();
+            D item = mAdapter.getItem(extra.modelIndex);
+            mDispatcher.onEventDispatch(TYPE_CHILD_LONG_PRESS, holder, extra, item);
+            return true;
+        });
+    }
+
+    private Extra makeExtra(LightHolder holder) {
+        return mAdapter.obtainExtraByLayoutIndex(holder.getAdapterPosition());
+    }
+
     // 点击事件
     private void tryCallClickEvent(LightHolder holder) {
-        int position = mAdapter.toModelIndex(holder.getAdapterPosition());
-        D item = mAdapter.getItem(position);
-        ModelType type = mAdapter.getType(item);
-        if (type != null && type.isEnableClick()) {
-            mClickCallback.call(holder, position, item);
+        Extra extra = makeExtra(holder);
+        D item = mAdapter.getItem(extra.modelIndex);
+        ModelType type = mAdapter.getModelType(item);
+        if (type != null && type.enableClick) {
+            mDispatcher.onEventDispatch(TYPE_ITEM_CLICK, holder, extra, item);
         }
     }
 
     // 长按事件
     private void tryCallLongPressEvent(LightHolder holder) {
-        int position = mAdapter.toModelIndex(holder.getAdapterPosition());
-        D item = mAdapter.getItem(position);
-        ModelType type = mAdapter.getType(item);
-        if (type != null && type.isEnableLongPress()) {
-            mLongPressCallback.call(holder, position, item);
+        Extra extra = makeExtra(holder);
+        D item = mAdapter.getItem(extra.modelIndex);
+        ModelType type = mAdapter.getModelType(item);
+        if (type != null && type.enableLongPress) {
+            mDispatcher.onEventDispatch(TYPE_ITEM_LONG_PRESS, holder, extra, item);
         }
     }
 
     // 双击事件
     private void tryCallDbClickEvent(LightHolder holder) {
-        int position = mAdapter.toModelIndex(holder.getAdapterPosition());
-        D item = mAdapter.getItem(position);
-        ModelType type = mAdapter.getType(item);
-        if (type != null && type.isEnableLongPress()) {
-            mDbClickCallback.call(holder, position, item);
+        Extra extra = makeExtra(holder);
+        D item = mAdapter.getItem(extra.modelIndex);
+        ModelType type = mAdapter.getModelType(item);
+        if (type != null && type.enableDbClick) {
+            mDispatcher.onEventDispatch(TYPE_ITEM_DB_CLICK, holder, extra, item);
         }
     }
 }
