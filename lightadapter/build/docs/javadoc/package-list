@@ -1,0 +1,15 @@
+com.zfy.adapter
+com.zfy.adapter.animation
+com.zfy.adapter.annotation
+com.zfy.adapter.callback
+com.zfy.adapter.collections
+com.zfy.adapter.common
+com.zfy.adapter.contract
+com.zfy.adapter.data
+com.zfy.adapter.delegate
+com.zfy.adapter.delegate.impl
+com.zfy.adapter.delegate.refs
+com.zfy.adapter.extend
+com.zfy.adapter.extend.decoration
+com.zfy.adapter.function
+com.zfy.adapter.model

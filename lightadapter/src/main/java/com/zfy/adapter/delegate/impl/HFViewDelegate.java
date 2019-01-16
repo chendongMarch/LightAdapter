@@ -4,13 +4,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.zfy.adapter.LightHolder;
+import com.zfy.adapter.callback.ViewHolderCallback;
 import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.IDelegate;
 import com.zfy.adapter.delegate.refs.FooterRef;
 import com.zfy.adapter.delegate.refs.HeaderRef;
-import com.zfy.adapter.callback.ViewHolderCallback;
 import com.zfy.adapter.model.LightView;
 
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ import java.util.List;
 
 /**
  * CreateAt : 16/8/20
- * Describe : 完成添加 header&footer 功能
+ * Describe : 完成添加 header footer 功能
  *
  * @author chendong
  */

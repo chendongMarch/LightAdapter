@@ -18,7 +18,7 @@ public class LinearSpaceItemDecoration extends RecyclerView.ItemDecoration {
 
     /**
      * @param spacing     列中间的space
-     * @param includeEdge
+     * @param includeEdge 是否包含边界
      */
     public LinearSpaceItemDecoration(int spacing, boolean includeEdge) {
         this.spacing = spacing;
