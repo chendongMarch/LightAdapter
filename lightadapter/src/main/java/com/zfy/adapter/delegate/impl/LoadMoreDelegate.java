@@ -6,7 +6,7 @@ import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.delegate.IDelegate;
 import com.zfy.adapter.delegate.refs.LoadMoreRef;
-import com.zfy.adapter.listener.AdapterCallback;
+import com.zfy.adapter.callback.AdapterCallback;
 import com.zfy.adapter.model.LoadingState;
 import com.zfy.adapter.model.Extra;
 

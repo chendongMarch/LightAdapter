@@ -4,7 +4,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.delegate.refs.TopMoreRef;
-import com.zfy.adapter.listener.AdapterCallback;
+import com.zfy.adapter.callback.AdapterCallback;
 
 /**
  * CreateAt : 2018/10/30

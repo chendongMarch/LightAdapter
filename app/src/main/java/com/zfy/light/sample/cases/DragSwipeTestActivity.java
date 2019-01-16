@@ -9,7 +9,7 @@ import com.march.common.exts.ListX;
 import com.march.common.exts.ToastX;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.LightItemAdapter;
+import com.zfy.adapter.LightItemBinder;
 import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
@@ -18,7 +18,7 @@ import com.zfy.adapter.model.DragSwipeState;
 import com.zfy.adapter.model.Extra;
 import com.zfy.adapter.model.LightView;
 import com.zfy.adapter.model.ModelType;
-import com.zfy.adapter.type.ModelTypeRegistry;
+import com.zfy.adapter.ModelTypeRegistry;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.GlideCallback;
@@ -43,7 +43,7 @@ public class DragSwipeTestActivity extends MvpActivity {
     private LightAdapter<Data> mAdapter;
     private LightList<Data>    mData;
 
-    static class DragItemAdapter extends LightItemAdapter<Data> {
+    static class DragItemAdapter extends LightItemBinder<Data> {
 
 
         @Override
@@ -60,8 +60,13 @@ public class DragSwipeTestActivity extends MvpActivity {
         }
     }
 
-    static class SwipeItemAdapter extends LightItemAdapter<Data> {
+    static class SwipeItemAdapter extends LightItemBinder<Data> {
 
+        public SwipeItemAdapter() {
+            setClickEvent((holder, data, extra) -> {
+                ToastX.show("swipe click");
+            });
+        }
 
         @Override
         public ModelType newModelType() {
@@ -76,10 +81,6 @@ public class DragSwipeTestActivity extends MvpActivity {
                     .swipeOnLongPress(R.id.press_swipe_iv);
         }
 
-        @Override
-        public void onClickEvent(LightHolder holder, Data data, Extra extra) {
-            ToastX.show("swipe click");
-        }
     }
 
 

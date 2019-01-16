@@ -1,10 +1,11 @@
 package com.zfy.light.sample.entity;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 
-import com.zfy.adapter.able.Diffable;
-import com.zfy.adapter.able.Sectionable;
-import com.zfy.adapter.able.Typeable;
+import com.zfy.adapter.data.Diffable;
+import com.zfy.adapter.data.Sectionable;
+import com.zfy.adapter.data.Typeable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +16,7 @@ import java.util.Set;
  *
  * @author chendong
  */
-public class Data implements Typeable, Sectionable, Diffable<Data> {
+public class Data implements Typeable, Sectionable, Diffable<Data>, Parcelable {
 
     public static final String TITLE_CHANGED = "TITLE_CHANGED";
     public static final String DESC_CHANGED  = "DESC_CHANGED";

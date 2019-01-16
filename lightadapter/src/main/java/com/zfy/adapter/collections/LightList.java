@@ -1,13 +1,14 @@
 package com.zfy.adapter.collections;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.IntRange;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.v7.util.ListUpdateCallback;
 
 import com.zfy.adapter.LightAdapter;
-import com.zfy.adapter.able.Diffable;
+import com.zfy.adapter.data.Diffable;
 import com.zfy.adapter.function.LightConsumer;
 import com.zfy.adapter.function.LightPredicate;
 
@@ -432,13 +433,19 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
     }
 
     // 使用 Parcelable 复制一份新的数据
+    @SuppressWarnings("unchecked")
     private T copy(T input) {
+        if (!(input instanceof Parcelable)) {
+            throw new IllegalStateException("model should impl Parcelable to use set operate;");
+        }
+        Parcelable parcelable = (Parcelable) input;
         Parcel parcel = null;
         try {
             parcel = Parcel.obtain();
-            parcel.writeParcelable(input, 0);
+            parcel.writeParcelable(parcelable, 0);
             parcel.setDataPosition(0);
-            return parcel.readParcelable(input.getClass().getClassLoader());
+            Parcelable copy = parcel.readParcelable(input.getClass().getClassLoader());
+            return (T) copy;
         } finally {
             if (parcel != null) {
                 parcel.recycle();

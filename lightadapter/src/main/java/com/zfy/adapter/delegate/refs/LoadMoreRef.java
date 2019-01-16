@@ -1,6 +1,6 @@
 package com.zfy.adapter.delegate.refs;
 
-import com.zfy.adapter.listener.AdapterCallback;
+import com.zfy.adapter.callback.AdapterCallback;
 
 /**
  * CreateAt : 2018/11/10

@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.delegate.refs.FakeRef;
-import com.zfy.adapter.listener.BindCallback;
+import com.zfy.adapter.callback.BindCallback;
 import com.zfy.adapter.model.Extra;
 
 import java.util.ArrayList;

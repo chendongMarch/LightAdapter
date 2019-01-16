@@ -2,8 +2,8 @@ package com.zfy.adapter.delegate.refs;
 
 import android.support.v7.widget.RecyclerView;
 
-import com.zfy.adapter.animations.IAnimator;
-import com.zfy.adapter.animations.BindAnimator;
+import com.zfy.adapter.animation.IAnimator;
+import com.zfy.adapter.animation.BindAnimator;
 
 /**
  * CreateAt : 2018/11/12
@@ -18,9 +18,9 @@ public interface AnimatorRef {
      *
      * @param animator animator
      * @see IAnimator
-     * @see com.zfy.adapter.animations.AlphaAnimator
-     * @see com.zfy.adapter.animations.ScaleAnimator
-     * @see com.zfy.adapter.animations.SlideAnimator
+     * @see com.zfy.adapter.animation.AlphaAnimator
+     * @see com.zfy.adapter.animation.ScaleAnimator
+     * @see com.zfy.adapter.animation.SlideAnimator
      */
     void setBindAnimator(BindAnimator animator);
 

@@ -13,14 +13,14 @@ public class Ids {
     private static final ThreadLocal<Ids> sIds = new ThreadLocal<Ids>() {
         @Override
         protected Ids initialValue() {
-            return Ids.all();
+            return new Ids();
         }
     };
 
     private int[] viewIds;
 
-    private Ids(@IdRes int[] resIds) {
-        viewIds = resIds;
+    private Ids() {
+
     }
 
     public int[] ids() {

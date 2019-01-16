@@ -7,14 +7,16 @@ import android.view.animation.OvershootInterpolator;
 import com.march.common.exts.ListX;
 import com.march.common.pool.ExecutorsPool;
 import com.zfy.adapter.LightAdapter;
+import com.zfy.adapter.ModelTypeRegistry;
 import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
+import com.zfy.adapter.data.Diffable;
+import com.zfy.adapter.data.Typeable;
 import com.zfy.adapter.model.EmptyState;
 import com.zfy.adapter.model.LightView;
 import com.zfy.adapter.model.LoadingState;
 import com.zfy.adapter.model.ModelType;
-import com.zfy.adapter.type.ModelTypeRegistry;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.GlideCallback;
@@ -40,9 +42,26 @@ public class LoadTestActivity extends MvpActivity {
 
     @BindView(R.id.content_rv) RecyclerView mRecyclerView;
 
-    private LightAdapter<Data> mAdapter;
-    private LightList<Data>    mData;
+    private LightAdapter<LoadData> mAdapter;
+    private LightList<LoadData>    mData;
 
+    static class LoadData implements Typeable, Diffable<LoadData> {
+
+        static int ID = 100;
+
+        int id;
+        int type;
+
+        public LoadData(int type) {
+            this.type = type;
+            this.id = ID++;
+        }
+
+        @Override
+        public int getItemType() {
+            return type;
+        }
+    }
     @Override
     public void init() {
         mData = new LightDiffList<>();
@@ -58,8 +77,8 @@ public class LoadTestActivity extends MvpActivity {
         // 底部加载更多
         mAdapter.loadMore().setLoadMoreListener(3, adapter -> {
             ExecutorsPool.ui(() -> {
-                List<Data> items = ListX.range(20, index -> {
-                    return new Data(index % 7 == 0 ? Data.TYPE_CAN_SWIPE : Data.TYPE_CAN_DRAG);
+                List<LoadData> items = ListX.range(20, index -> {
+                    return new LoadData(index % 7 == 0 ? Data.TYPE_CAN_SWIPE : Data.TYPE_CAN_DRAG);
                 });
                 mAdapter.loadMore().finishLoadMore();
                 mData.updateAddAll(items);
@@ -97,7 +116,7 @@ public class LoadTestActivity extends MvpActivity {
         mAdapter.emptyView().setEmptyView(LightView.from(R.layout.empty_view), (holder, data, extra) -> {
                 holder.setClick(R.id.refresh_tv, v -> {
                     mAdapter.header().setHeaderEnable(true);
-                    mData.update(ListX.range(20, index -> new Data(index % 7 == 0 ? Data.TYPE_CAN_SWIPE : Data.TYPE_CAN_DRAG)));
+                    mData.update(ListX.range(20, index -> new LoadData(index % 7 == 0 ? Data.TYPE_CAN_SWIPE : Data.TYPE_CAN_DRAG)));
                     mAdapter.emptyView().setEmptyState(EmptyState.NONE);
                     mAdapter.loadingView().setLoadingEnable(true);
                     mAdapter.loadMore().setLoadMoreEnable(true);
@@ -124,6 +143,6 @@ public class LoadTestActivity extends MvpActivity {
             }
         });
         mRecyclerView.setAdapter(mAdapter);
-        mData.update(ListX.range(20, index -> new Data(index % 7 == 0 ? Data.TYPE_CAN_SWIPE : Data.TYPE_CAN_DRAG)));
+        mData.update(ListX.range(20, index -> new LoadData(index % 7 == 0 ? Data.TYPE_CAN_SWIPE : Data.TYPE_CAN_DRAG)));
     }
 }

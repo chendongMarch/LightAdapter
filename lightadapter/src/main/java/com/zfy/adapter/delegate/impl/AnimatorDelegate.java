@@ -5,7 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.animations.BindAnimator;
+import com.zfy.adapter.animation.BindAnimator;
 import com.zfy.adapter.delegate.refs.AnimatorRef;
 import com.zfy.adapter.model.ModelType;
 

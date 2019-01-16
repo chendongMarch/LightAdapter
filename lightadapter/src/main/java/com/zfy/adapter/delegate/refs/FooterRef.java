@@ -2,7 +2,7 @@ package com.zfy.adapter.delegate.refs;
 
 import android.view.ViewGroup;
 
-import com.zfy.adapter.listener.ViewHolderCallback;
+import com.zfy.adapter.callback.ViewHolderCallback;
 import com.zfy.adapter.model.LightView;
 
 /**

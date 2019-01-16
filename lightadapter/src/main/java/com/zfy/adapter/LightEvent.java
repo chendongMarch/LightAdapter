@@ -17,7 +17,7 @@ import com.zfy.adapter.model.ModelType;
 public class LightEvent<D> {
 
     public interface EventDispatcher<D> {
-        void onEventDispatch(int eventType,LightHolder holder, Extra extra, D data);
+        void onEventDispatch(int eventType, LightHolder holder, Extra extra, D data);
     }
 
     public static final int TYPE_ITEM_CLICK       = 0;

@@ -17,12 +17,12 @@ import com.march.common.exts.SizeX;
 import com.march.common.exts.ToastX;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
+import com.zfy.adapter.ModelTypeRegistry;
 import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.model.Extra;
 import com.zfy.adapter.model.ModelType;
-import com.zfy.adapter.type.ModelTypeRegistry;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.DescDialog;
@@ -163,7 +163,7 @@ public class MainActivity extends MvpActivity {
             }
         });
         // 设置可悬停 section
-        mAdapter.section().setOptions(R.layout.item_section, true, (holder, data, extra) -> {
+        mAdapter.section().setOptions(R.layout.item_section, false, (holder, data, extra) -> {
             holder.setText(R.id.section_tv, data.sectionTitle);
         });
         // 分割线

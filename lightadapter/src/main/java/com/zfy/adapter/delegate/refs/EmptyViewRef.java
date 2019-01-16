@@ -1,6 +1,6 @@
 package com.zfy.adapter.delegate.refs;
 
-import com.zfy.adapter.listener.BindCallback;
+import com.zfy.adapter.callback.BindCallback;
 import com.zfy.adapter.model.EmptyState;
 import com.zfy.adapter.model.LightView;
 

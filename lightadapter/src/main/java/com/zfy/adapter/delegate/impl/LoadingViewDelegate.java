@@ -8,7 +8,7 @@ import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.refs.LoadingViewRef;
-import com.zfy.adapter.listener.BindCallback;
+import com.zfy.adapter.callback.BindCallback;
 import com.zfy.adapter.model.LightView;
 import com.zfy.adapter.model.LoadingState;
 

@@ -1,7 +1,7 @@
 package com.zfy.adapter.model;
 
 import com.zfy.adapter.LightAdapter;
-import com.zfy.adapter.listener.EventCallback;
+import com.zfy.adapter.callback.EventCallback;
 
 /**
  * CreateAt : 2018/11/12
@@ -56,6 +56,6 @@ public class Extra {
     }
 
     public static Extra extra() {
-        return sExtra.get();
+        return new Extra();
     }
 }

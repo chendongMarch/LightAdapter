@@ -3,7 +3,7 @@ package com.zfy.adapter.model;
 import android.graphics.Rect;
 import android.support.annotation.LayoutRes;
 
-import com.zfy.adapter.animations.BindAnimator;
+import com.zfy.adapter.animation.BindAnimator;
 import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.SpanSize;
 
@@ -15,16 +15,16 @@ import com.zfy.adapter.common.SpanSize;
  */
 public class ModelType {
 
-    public            int type; // 数据类型
-    @LayoutRes public int layoutId; // 布局资源
-    public int     spanSize        = SpanSize.NONE; // 跨越行数
-    public boolean enableClick     = true; // 是否允许点击事件
-    public boolean enableLongPress = true; // 是否允许长按事件
-    public boolean enableDbClick   = false; // 是否允许双击事件
-    public boolean enableDrag      = false; // 是否允许拖动
-    public boolean enableSwipe     = false; // 是否允许滑动
-    public boolean enablePin       = false; // 钉住，支持悬停效果
-    public BindAnimator animator;
+    public            int          type            = ItemType.TYPE_NONE; // 数据类型
+    @LayoutRes public int          layoutId; // 布局资源
+    public            int          spanSize        = SpanSize.NONE; // 跨越行数
+    public            boolean      enableClick     = true; // 是否允许点击事件
+    public            boolean      enableLongPress = true; // 是否允许长按事件
+    public            boolean      enableDbClick   = false; // 是否允许双击事件
+    public            boolean      enableDrag      = false; // 是否允许拖动
+    public            boolean      enableSwipe     = false; // 是否允许滑动
+    public            boolean      enablePin       = false; // 钉住，支持悬停效果
+    public            BindAnimator animator;
 
     public Rect spaceRect;
 

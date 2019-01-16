@@ -10,7 +10,7 @@ import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.IDelegate;
 import com.zfy.adapter.delegate.refs.FooterRef;
 import com.zfy.adapter.delegate.refs.HeaderRef;
-import com.zfy.adapter.listener.ViewHolderCallback;
+import com.zfy.adapter.callback.ViewHolderCallback;
 import com.zfy.adapter.model.LightView;
 
 import java.util.ArrayList;
@@ -171,7 +171,9 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
                 mAdapter.notifyItemInserted(pos);
             }
             LightHolder holder = new LightHolder(mAdapter, ItemType.TYPE_HEADER, lightView.view);
-            binder.bind(holder);
+            if(binder!=null){
+                binder.bind(holder);
+            }
             mHeaderBinders.add(new Binder(holder, binder));
         });
     }
@@ -196,7 +198,9 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
                 mAdapter.notifyItemInserted(mAdapter.getDelegateRegistry().getAboveItemCount(LightValues.FLOW_LEVEL_FOOTER));
             }
             LightHolder holder = new LightHolder(mAdapter, ItemType.TYPE_FOOTER, itemView);
-            binder.bind(holder);
+            if(binder!=null){
+                binder.bind(holder);
+            }
             mFooterBinders.add(new Binder(holder, binder));
         });
     }
@@ -227,6 +231,7 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
         }
         mFooterBinders.clear();
         setFooterEnable(false);
+        mFooterView = null;
     }
 
     @Override
@@ -266,8 +271,10 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
         if (mHeaderView == null) {
             return;
         }
-        for (Binder headerBinder : mHeaderBinders) {
-            headerBinder.callback.bind(headerBinder.holder);
+        for (Binder binder : mHeaderBinders) {
+            if(binder.callback!=null) {
+                binder.callback.bind(binder.holder);
+            }
         }
     }
 
@@ -276,8 +283,10 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
         if (mFooterView == null) {
             return;
         }
-        for (Binder headerBinder : mFooterBinders) {
-            headerBinder.callback.bind(headerBinder.holder);
+        for (Binder binder : mFooterBinders) {
+            if(binder.callback!=null) {
+                binder.callback.bind(binder.holder);
+            }
         }
     }
 

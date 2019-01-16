@@ -6,7 +6,7 @@ import android.support.v7.recyclerview.extensions.AsyncDifferConfig;
 import android.support.v7.recyclerview.extensions.AsyncListDiffer;
 import android.support.v7.util.DiffUtil;
 
-import com.zfy.adapter.able.Diffable;
+import com.zfy.adapter.data.Diffable;
 
 import java.util.List;
 

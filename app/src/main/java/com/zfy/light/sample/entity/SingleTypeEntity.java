@@ -1,8 +1,9 @@
 package com.zfy.light.sample.entity;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 
-import com.zfy.adapter.able.Diffable;
+import com.zfy.adapter.data.Diffable;
 
 /**
  * CreateAt : 2018/11/9
@@ -10,7 +11,7 @@ import com.zfy.adapter.able.Diffable;
  *
  * @author chendong
  */
-public class SingleTypeEntity implements Diffable<SingleTypeEntity> {
+public class SingleTypeEntity implements Diffable<SingleTypeEntity>, Parcelable {
 
     public String desc;
     public String title;

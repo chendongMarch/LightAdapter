@@ -5,11 +5,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.assistant.decoration.PinItemDecoration;
+import com.zfy.adapter.extend.decoration.PinItemDecoration;
 import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.delegate.refs.SectionRef;
-import com.zfy.adapter.listener.BindCallback;
+import com.zfy.adapter.callback.BindCallback;
 import com.zfy.adapter.model.ModelType;
 import com.zfy.adapter.model.Extra;
 

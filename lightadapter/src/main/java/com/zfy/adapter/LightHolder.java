@@ -21,7 +21,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.zfy.adapter.listener.EventCallback;
+import com.zfy.adapter.callback.EventCallback;
 import com.zfy.adapter.model.Ids;
 import com.zfy.adapter.model.ModelType;
 

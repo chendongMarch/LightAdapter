@@ -8,7 +8,7 @@ import android.view.View;
 
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.delegate.refs.DragSwipeRef;
-import com.zfy.adapter.listener.BindCallback;
+import com.zfy.adapter.callback.BindCallback;
 import com.zfy.adapter.model.DragSwipeOptions;
 import com.zfy.adapter.model.DragSwipeState;
 import com.zfy.adapter.model.ModelType;

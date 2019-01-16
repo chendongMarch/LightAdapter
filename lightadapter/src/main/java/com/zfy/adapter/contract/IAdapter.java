@@ -1,6 +1,7 @@
 package com.zfy.adapter.contract;
 
 import com.zfy.adapter.LightHolder;
+import com.zfy.adapter.callback.BindCallback;
 import com.zfy.adapter.model.Extra;
 
 /**
@@ -19,5 +20,14 @@ public interface IAdapter<D> {
      * @param extra    位置
      */
     void onBindView(LightHolder holder, D data, Extra extra);
+
+
+    /**
+     * 设置绑定函数
+     *
+     * @param bindCallback 绑定函数
+     */
+    void setBindCallback(BindCallback<D> bindCallback);
+
 
 }

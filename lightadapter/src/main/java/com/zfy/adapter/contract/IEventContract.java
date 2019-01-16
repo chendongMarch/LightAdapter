@@ -1,6 +1,6 @@
 package com.zfy.adapter.contract;
 
-import com.zfy.adapter.listener.EventCallback;
+import com.zfy.adapter.callback.EventCallback;
 
 /**
  * CreateAt : 2018/12/13

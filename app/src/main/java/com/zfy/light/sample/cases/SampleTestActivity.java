@@ -1,49 +1,20 @@
 package com.zfy.light.sample.cases;
 
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.OvershootInterpolator;
-import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
 import com.march.common.exts.ListX;
 import com.march.common.exts.ToastX;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.LightItemAdapter;
-import com.zfy.adapter.able.Diffable;
-import com.zfy.adapter.animations.BindAnimator;
-import com.zfy.adapter.animations.ScaleAnimator;
+import com.zfy.adapter.LightItemBinder;
 import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.SpanSize;
-import com.zfy.adapter.delegate.refs.AnimatorRef;
-import com.zfy.adapter.delegate.refs.DragSwipeRef;
-import com.zfy.adapter.delegate.refs.EmptyViewRef;
-import com.zfy.adapter.delegate.refs.FakeRef;
-import com.zfy.adapter.delegate.refs.FooterRef;
-import com.zfy.adapter.delegate.refs.HeaderRef;
-import com.zfy.adapter.delegate.refs.LoadMoreRef;
-import com.zfy.adapter.delegate.refs.LoadingViewRef;
-import com.zfy.adapter.delegate.refs.NotifyRef;
-import com.zfy.adapter.delegate.refs.SectionRef;
-import com.zfy.adapter.delegate.refs.SelectorRef;
-import com.zfy.adapter.delegate.refs.TopMoreRef;
-import com.zfy.adapter.model.DragSwipeOptions;
-import com.zfy.adapter.model.DragSwipeState;
-import com.zfy.adapter.model.EmptyState;
 import com.zfy.adapter.model.Extra;
-import com.zfy.adapter.model.Ids;
 import com.zfy.adapter.model.LightView;
-import com.zfy.adapter.model.LoadingState;
+import com.zfy.adapter.ModelTypeRegistry;
 import com.zfy.adapter.model.ModelType;
-import com.zfy.adapter.type.ModelTypeRegistry;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.GlideCallback;
@@ -52,12 +23,9 @@ import com.zfy.light.sample.Utils;
 import com.zfy.light.sample.Values;
 import com.zfy.light.sample.entity.Data;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import butterknife.BindView;
-import jp.wasabeef.recyclerview.animators.ScaleInBottomAnimator;
 
 /**
  * CreateAt : 2018/11/13
@@ -100,6 +68,31 @@ public class SampleTestActivity extends MvpActivity {
 //                set.add(MSG_NAME_CHANGED);
 //            }
 //            return set;
+//        }
+//    }
+
+//    // 视频类型
+//    class VideoItemAdapter extends LightItemBinder<Data> {
+//
+//        @Override
+//        public ModelType newModelType() {
+//            return ModelType.singleType(Data.TYPE_VIDEO, R.layout.item_video);
+//        }
+//        @Override
+//        public void onBindView(LightHolder holder, Data data, Extra extra) {
+//            // bind video data
+//        }
+//    }
+
+//    // 音频类型
+//    class AudioItemAdapter extends LightItemBinder<Data> {
+//        @Override
+//        public ModelType newModelType() {
+//            return ModelType.singleType(Data.TYPE_AUDIO, R.layout.item_audio);
+//        }
+//        @Override
+//        public void onBindView(LightHolder holder, Data data, Extra extra) {
+//            // bind audio data
 //        }
 //    }
 

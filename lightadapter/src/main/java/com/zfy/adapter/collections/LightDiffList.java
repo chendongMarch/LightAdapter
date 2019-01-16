@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.util.DiffUtil;
 
-import com.zfy.adapter.able.Diffable;
+import com.zfy.adapter.data.Diffable;
 
 import java.util.ArrayList;
 import java.util.Collections;

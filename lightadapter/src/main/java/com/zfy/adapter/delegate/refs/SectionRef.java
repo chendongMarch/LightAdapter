@@ -2,7 +2,7 @@ package com.zfy.adapter.delegate.refs;
 
 import android.support.annotation.LayoutRes;
 
-import com.zfy.adapter.listener.BindCallback;
+import com.zfy.adapter.callback.BindCallback;
 import com.zfy.adapter.model.ModelType;
 
 /**

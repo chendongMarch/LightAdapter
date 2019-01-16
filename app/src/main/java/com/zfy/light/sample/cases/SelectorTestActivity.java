@@ -6,7 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import com.march.common.exts.ListX;
 import com.march.common.exts.ToastX;
 import com.zfy.adapter.LightAdapter;
-import com.zfy.adapter.assistant.SlidingSelectLayout;
+import com.zfy.adapter.extend.SlidingSelectLayout;
 import com.zfy.adapter.collections.LightDiffList;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.model.LightView;

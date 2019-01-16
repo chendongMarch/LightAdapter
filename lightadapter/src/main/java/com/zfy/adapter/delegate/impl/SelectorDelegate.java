@@ -1,12 +1,12 @@
 package com.zfy.adapter.delegate.impl;
 
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.assistant.SlidingSelectLayout;
+import com.zfy.adapter.extend.SlidingSelectLayout;
 import com.zfy.adapter.common.ItemType;
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.refs.SelectorRef;
-import com.zfy.adapter.listener.BindCallback;
+import com.zfy.adapter.callback.BindCallback;
 import com.zfy.adapter.model.Extra;
 import com.zfy.adapter.model.ModelType;
 

@@ -1,4 +1,3 @@
-
 ![](https://images.pexels.com/photos/841120/pexels-photo-841120.jpeg)
 
 # LightAdapter
@@ -172,11 +171,12 @@ LightAdapter<Data> adapter = new LightAdapter<>(list, registry);
 
 ### 拆分可复用的类型
 
-在实际开发中，一些类型会多次出现在不同的列表中，可以借助 `LightItemAdapter` 将每种类型的数据适配分离出来，使每种类型可被快速的复用到其他的列表中;
+在实际开发中，一些类型会多次出现在不同的列表中，可以借助 `LightItemBinder` 将每种类型的数据适配分离出来，使每种类型可被快速的复用到其他的列表中;
 
 ```java
 // 视频类型
-class VideoItemAdapter extends LightItemAdapter<Data> {
+class VideoItemAdapter extends LightItemBinder<Data> {
+
     @Override
     public ModelType newModelType() {
         return ModelType.singleType(Data.TYPE_VIDEO, R.layout.item_video);
@@ -187,7 +187,7 @@ class VideoItemAdapter extends LightItemAdapter<Data> {
     }
 }
 // 音频类型
-class AudioItemAdapter extends LightItemAdapter<Data> {
+class AudioItemAdapter extends LightItemBinder<Data> {
     @Override
     public ModelType newModelType() {
         return ModelType.singleType(Data.TYPE_AUDIO, R.layout.item_audio);
@@ -719,11 +719,19 @@ fake.hideFake();
 为了更方便的使用 `DiffUtil` 来更新数据，我们对 `List` 进行了扩展，可以像使用普通集合类那样使用 `LightList`;
 
 ```java
-LightList<Data>  list = new LightDiffList<>();
-LightList<Data>  list = new LightAsyncDiffList<>();
+LightList<Data>  list = new LightDiffList<>(); // 使用 DiffUtil 计算数据差异
+LightList<Data>  list = new LightAsyncDiffList<>(); // 异步计算数据
 ```
 
-使用 `LightList` 要求数据结构实现 `Diffable` 接口，同时也需要实现 `Parcelable` 接口，他会为 `DiffUtil` 提供数据比对的依据，你可以选择性的实现这些比对规则。
+使用 `LightList` 要求数据结构实现 `Diffable` 接口，如果有更改数据内容的操作还需要实现 `Parcelable` 接口，他会为 `DiffUtil` 提供数据比对的依据，你可以选择性的实现这些比对规则，最简单的情况下，可直接实现 `Diffable` 但是不需要做任何实现，这样你就可以享受 `LightList` 自动的数据更新：
+
+```java
+public class DiffableStudent implements Diffable<DiffableStudent> {
+
+}
+```
+
+更复杂的场景，可以自定义数据比对的回调函数；
 
 ```java
 class Student implements Diffable<Student> {
@@ -733,16 +741,19 @@ class Student implements Diffable<Student> {
     int    id;
     String name;
 
+    // 比对数据是不是同一个数据
     @Override
     public boolean areItemsTheSame(Student newItem) {
         return this.equals(newItem) && id == newItem.id;
     }
 
+    // 比对数据内容是否变化
     @Override
     public boolean areContentsTheSame(Student newItem) {
         return name.equals(newItem.name);
     }
 
+    // 增量更新数据
     @Override
     public Set<String> getChangePayload(Student newItem) {
         Set<String> set = new HashSet<>();
@@ -756,21 +767,21 @@ class Student implements Diffable<Student> {
 
 针对上面的回调方法，做一个简单的介绍：
 
-- areItemsTheSame
+- `areItemsTheSame`
 
-> 当返回 true 的时候表示是相同的元素，调用 areContentsTheSame，推荐使用 id 比对
-> 当返回 false 的时候表示是一个完全的新元素，此时会调用 insert 和 remove 方法来达到数据更新的目的
+> 当返回 true 的时候表示是相同的元素，调用 `areContentsTheSame`，推荐使用 `id` 比对
+> 当返回 false 的时候表示是一个完全的新元素，此时会调用 `insert` 和 `remove` 方法来达到数据更新的目的
 
-- areContentsTheSame
+- `areContentsTheSame`
 
-> 用来比较两项内容是否相同，只有在 areItemsTheSame 返回 true 时才会调用
-> 返回 true 表示内容完全相同不需要更新
-> 返回 false 表示虽然是同个元素但是内容改变了，此时会调用 changed 方法来更新数据
+> 用来比较两项内容是否相同，只有在 `areItemsTheSame` 返回 `true` 时才会调用
+> 返回 `true` 表示内容完全相同不需要更新
+> 返回 `false` 表示虽然是同个元素但是内容改变了，此时会调用 `changed` 方法来更新数据
 
-- getChangePayload
+- `getChangePayload`
 
-> 只有在 areItemsTheSame 返回 true 时才会调用，areContentsTheSame 返回 false 时调用
-> 返回更新事件列表，会触发 payload 更新
+> 只有在 `areItemsTheSame` 返回 `true` 时才会调用，`areContentsTheSame` 返回 `false` 时调用
+> 返回更新事件列表，会触发 `payload` 更新
 
 ### payloads
 
@@ -810,6 +821,7 @@ list.updateAddAll(newList);
 list.updateAddAll(0, newList);
 
 // 设置元素
+// 注意，使用 updateSet 需要实现 Parcelable 接口
 list.updateSet(0, data -> {
     data.title = "new title";
 });
@@ -829,12 +841,14 @@ list.updateRemove(10, true, data -> {
 });
 
 // 遍历列表，找到符合规则的元素，执行 set 操作
+// 注意，使用 updateSet 需要实现 Parcelable 接口
 list.updateForEach(data -> {
     return data.id > 10;
 }, data -> {
     data.title = "new title";
 });
 // 遍历列表，执行 set 操作
+// 注意，使用 updateSet 需要实现 Parcelable 接口
 list.updateForEach(data -> {
     data.title = "new title";
 });

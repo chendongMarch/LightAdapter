@@ -10,17 +10,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.zfy.adapter.able.Sectionable;
-import com.zfy.adapter.able.Typeable;
+import com.zfy.adapter.data.Sectionable;
+import com.zfy.adapter.data.Typeable;
 import com.zfy.adapter.collections.LightList;
 import com.zfy.adapter.common.AdapterException;
 import com.zfy.adapter.common.ItemType;
-import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.contract.IAdapter;
 import com.zfy.adapter.contract.IEventContract;
-import com.zfy.adapter.contract.ItemAdapter;
+import com.zfy.adapter.contract.ItemBinder;
 import com.zfy.adapter.delegate.DelegateRegistry;
 import com.zfy.adapter.delegate.IDelegate;
 import com.zfy.adapter.delegate.impl.AnimatorDelegate;
@@ -36,12 +35,11 @@ import com.zfy.adapter.delegate.refs.NotifyRef;
 import com.zfy.adapter.delegate.refs.SectionRef;
 import com.zfy.adapter.delegate.refs.SelectorRef;
 import com.zfy.adapter.delegate.refs.TopMoreRef;
-import com.zfy.adapter.listener.BindCallback;
-import com.zfy.adapter.listener.EventCallback;
-import com.zfy.adapter.listener.ModelTypeConfigCallback;
+import com.zfy.adapter.callback.BindCallback;
+import com.zfy.adapter.callback.EventCallback;
+import com.zfy.adapter.callback.ModelTypeConfigCallback;
 import com.zfy.adapter.model.Extra;
 import com.zfy.adapter.model.ModelType;
-import com.zfy.adapter.type.ModelTypeRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,7 +86,7 @@ public class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     /**
      * ItemAdapter 部分，可以将一个 Adapter 拆分为多个可复用的 ItemAdapter
      */
-    private SparseArray<ItemAdapter<D>> mItemAdapterArray;
+    private SparseArray<ItemBinder<D>> mItemBinderArray;
 
 
     /**
@@ -119,8 +117,8 @@ public class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
      * @param modelTypeRegistry ModelTypeRegistry
      */
     public LightAdapter(List<D> datas, ModelTypeRegistry modelTypeRegistry) {
-        for (ItemAdapter adapter : modelTypeRegistry.getItemAdapters()) {
-            addItemAdapter(adapter);
+        for (ItemBinder part : modelTypeRegistry.getItemBinders()) {
+            addItemBinder(part);
         }
         init(datas, modelType -> {
             SparseArray<ModelType> array = modelTypeRegistry.getTypeSparseArray();
@@ -139,15 +137,15 @@ public class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         }
         mDatas = datas;
         mModelTypeCache = new SparseArray<>();
-        if (mItemAdapterArray == null) {
-            mItemAdapterArray = new SparseArray<>();
+        if (mItemBinderArray == null) {
+            mItemBinderArray = new SparseArray<>();
         }
         // 代理注册表
         mDelegateRegistry = new DelegateRegistry();
         mDelegateRegistry.onAttachAdapter(this);
         // 事件处理
         mLightEvent = new LightEvent<>(this, (eventType, holder, extra, data) -> {
-            ItemAdapter<D> itemAdapter = mItemAdapterArray.get(getItemViewType(extra.layoutIndex));
+            ItemBinder<D> itemAdapter = mItemBinderArray.get(getItemViewType(extra.layoutIndex));
             if (itemAdapter != null) {
                 itemAdapter.onEventDispatch(eventType, holder, extra, data);
                 return;
@@ -198,10 +196,10 @@ public class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         }
         // ItemAdapter 类型参数构建
         addModelTypeConfigCallback(modelType -> {
-            if (mItemAdapterArray == null) {
+            if (mItemBinderArray == null) {
                 return;
             }
-            ItemAdapter itemAdapter = mItemAdapterArray.get(modelType.type);
+            ItemBinder itemAdapter = mItemBinderArray.get(modelType.type);
             if (itemAdapter != null) {
                 modelType.update(itemAdapter.getModelType());
             }
@@ -240,9 +238,9 @@ public class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
             Extra extra = obtainExtraByLayoutIndex(layoutIndex);
             extra.byPayload = false;
             D data = getItem(extra.modelIndex);
-            ItemAdapter<D> itemAdapter = mItemAdapterArray.get(getItemViewType(layoutIndex));
+            ItemBinder<D> itemAdapter = mItemBinderArray.get(getItemViewType(layoutIndex));
             if (itemAdapter != null) {
-                itemAdapter.onBindView(holder, data, extra);
+                itemAdapter.onBindViewUseItemBinder(holder, data, extra);
             } else {
                 onBindView(holder, data, extra);
             }
@@ -330,6 +328,7 @@ public class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         }
     }
 
+    @Override
     public void setBindCallback(BindCallback<D> bindCallback) {
         mBindCallback = bindCallback;
     }
@@ -580,17 +579,14 @@ public class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
         return getDelegate(IDelegate.FAKE);
     }
 
-    private void addItemAdapter(ItemAdapter adapter) {
-        if (mItemAdapterArray == null) {
-            mItemAdapterArray = new SparseArray<>();
+    private void addItemBinder(ItemBinder binder) {
+        if (mItemBinderArray == null) {
+            mItemBinderArray = new SparseArray<>();
         }
-        int type = adapter.getItemType();
-        if (LightUtils.isBuildInType(type)) {
-            throw new AdapterException(AdapterException.USE_BUILD_IN_TYPE);
-        }
-        if (mItemAdapterArray.indexOfKey(type) > 0) {
+        int type = binder.getItemType();
+        if (mItemBinderArray.indexOfKey(type) > 0) {
             throw new AdapterException("ItemAdapter Type 重复");
         }
-        mItemAdapterArray.put(type, adapter);
+        mItemBinderArray.put(type, binder);
     }
 }
