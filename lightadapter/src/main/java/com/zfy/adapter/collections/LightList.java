@@ -40,8 +40,8 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
             while (iterator.hasNext()) {
                 adapter = iterator.next().get();
                 if (adapter != null) {
-                    adapter.notifyItem().insert(adapter.toLayoutIndex(position), count);
-                    // adapter.notifyItemRangeInserted(adapter.toLayoutIndex(position), count);
+//                    adapter.notifyItem().insert(adapter.toLayoutIndex(position), count);
+                     adapter.notifyItemRangeInserted(adapter.toLayoutIndex(position), count);
                 } else {
                     iterator.remove();
                 }
@@ -55,8 +55,8 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
             while (iterator.hasNext()) {
                 adapter = iterator.next().get();
                 if (adapter != null) {
-                    adapter.notifyItem().remove(adapter.toLayoutIndex(position), count);
-                    // adapter.notifyItemRangeRemoved(adapter.toLayoutIndex(position), count);
+//                    adapter.notifyItem().remove(adapter.toLayoutIndex(position), count);
+                     adapter.notifyItemRangeRemoved(adapter.toLayoutIndex(position), count);
                 } else {
                     iterator.remove();
                 }
@@ -85,8 +85,8 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
             while (iterator.hasNext()) {
                 adapter = iterator.next().get();
                 if (adapter != null) {
-                    adapter.notifyItem().change(adapter.toLayoutIndex(position), count, payload);
-                    // adapter.notifyItemRangeChanged(adapter.toLayoutIndex(position), count, payload);
+//                    adapter.notifyItem().change(adapter.toLayoutIndex(position), count, payload);
+                     adapter.notifyItemRangeChanged(adapter.toLayoutIndex(position), count, payload);
                 } else {
                     iterator.remove();
                 }
@@ -261,8 +261,8 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
     /**
      * 在原有数据基础上面追加数据
      *
+     * @param index 下标
      * @param newItems 新的数据源
-     * @param index 开始索引
      * @see List#addAll(int, Collection)
      * @return 添加是否成功
      */
@@ -279,9 +279,9 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
     /**
      * 在原有数据基础上面追加数据
      *
+     * @param index 下标
      * @param newItem 新的单个数据源
      * @see List#add(int, Object)
-     * @param index 开始索引
      */
     @MainThread
     public void updateAdd(@IntRange(from = 0) int index, @NonNull T newItem) {
@@ -384,10 +384,10 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
     /**
      * 更新某个位置的数据
      *
-     * @param index              开始索引
+     * @param index               下标
      * @param howToUpdateConsumer 如何更新数据
      * @see List#set(int, Object)
-     * @return 更改的数据
+     * @return 设置的元素
      */
     @MainThread
     public T updateSet(@IntRange(from = 0) int index, @NonNull LightConsumer<T> howToUpdateConsumer) {

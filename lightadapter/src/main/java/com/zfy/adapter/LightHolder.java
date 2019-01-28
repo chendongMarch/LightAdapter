@@ -10,6 +10,7 @@ import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.SparseArray;
@@ -382,6 +383,14 @@ public class LightHolder extends RecyclerView.ViewHolder {
         iv.setImageBitmap(bitmap);
         return this;
     }
+
+    public LightHolder setElevation(@IdRes int resId, int sizeInPx) {
+        View view = getView(resId);
+        ViewCompat.setElevation(view, sizeInPx);
+        return this;
+    }
+
+
 
 
     //////////////////////////////  -- View.Event Click --  //////////////////////////////

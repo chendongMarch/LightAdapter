@@ -52,7 +52,7 @@ public class LightUtils {
      *
      * @param context  ctx
      * @param layoutId 资源 id
-     * @param group 父布局
+     * @param group view
      * @return View
      */
     public static View inflateView(Context context, ViewGroup group, int layoutId) {

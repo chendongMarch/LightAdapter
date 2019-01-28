@@ -31,7 +31,7 @@ public interface IDelegate {
     /**
      * 获取本代理的 key
      *
-     * @return 当前代理的唯一标示
+     * @return 唯一标记
      */
     int getKey();
 

@@ -68,7 +68,15 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
     @Override
     public boolean onBindViewHolder(LightHolder holder, int layoutIndex) {
         int itemViewType = mAdapter.getItemViewType(layoutIndex);
-        if (itemViewType == ItemType.TYPE_HEADER || itemViewType == ItemType.TYPE_FOOTER) {
+        if (itemViewType == ItemType.TYPE_HEADER) {
+//            for (Binder headerBinder : mHeaderBinders) {
+//                headerBinder.callback.bind(headerBinder.holder);
+//            }
+            return true;
+        } else if (itemViewType == ItemType.TYPE_FOOTER) {
+//            for (Binder footerBinder : mFooterBinders) {
+//                footerBinder.callback.bind(footerBinder.holder);
+//            }
             return true;
         }
         return super.onBindViewHolder(holder, layoutIndex);
@@ -194,14 +202,18 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
             View itemView = lightView.view;
             mFooterView.addView(itemView, lightView.index);
             mFooterEnable = true;
-            if (isNewFooter && mFooterView.getChildCount() == 1) {
-                mAdapter.notifyItemInserted(mAdapter.getDelegateRegistry().getAboveItemCount(LightValues.FLOW_LEVEL_FOOTER));
-            }
             LightHolder holder = new LightHolder(mAdapter, ItemType.TYPE_FOOTER, itemView);
-            if(binder!=null){
+            if (binder != null) {
                 binder.bind(holder);
             }
             mFooterBinders.add(new Binder(holder, binder));
+            if (isNewFooter && mFooterView.getChildCount() == 1) {
+                if (mAdapter.getDatas().size() == 0) {
+                    mAdapter.notifyItem().change();
+                } else {
+                    mAdapter.notifyItem().insert(mAdapter.getDelegateRegistry().getAboveItemCount(LightValues.FLOW_LEVEL_FOOTER));
+                }
+            }
         });
     }
 
@@ -231,7 +243,6 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
         }
         mFooterBinders.clear();
         setFooterEnable(false);
-        mFooterView = null;
     }
 
     @Override
