@@ -6,7 +6,7 @@ package com.zfy.adapter.function;
  *
  * @author chendong
  */
-public interface LightPredicate<T> {
+public interface _Consumer<T> {
 
-    boolean test(T data);
+    void accept(T data);
 }

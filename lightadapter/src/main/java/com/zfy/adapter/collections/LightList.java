@@ -3,14 +3,14 @@ package com.zfy.adapter.collections;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.IntRange;
-import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.v7.util.ListUpdateCallback;
 
 import com.zfy.adapter.LightAdapter;
+import com.zfy.adapter.data.Copyable;
 import com.zfy.adapter.data.Diffable;
-import com.zfy.adapter.function.LightConsumer;
-import com.zfy.adapter.function.LightPredicate;
+import com.zfy.adapter.function._Consumer;
+import com.zfy.adapter.function._Predicate;
 
 import java.lang.ref.WeakReference;
 import java.util.AbstractList;
@@ -196,12 +196,13 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
         return getList().iterator();
     }
 
+
     /**
      * 更新为新的数据
      *
      * @param newItems 新的数据源
      */
-    @MainThread
+
     public abstract void update(@NonNull List<T> newItems);
 
 
@@ -215,9 +216,8 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
     }
 
     /**
-     * 更爱你清空列表
+     * 清空列表
      */
-    @MainThread
     public void updateClear() {
         List<T> snapshot = snapshot();
         snapshot.clear();
@@ -231,7 +231,6 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
      * @see List#addAll(Collection)
      * @return 添加是否成功
      */
-    @MainThread
     public boolean updateAddAll(@NonNull List<T> newItems) {
         List<T> snapshot = snapshot();
         boolean result = snapshot.addAll(newItems);
@@ -248,7 +247,6 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
      * @see List#add(Object)
      * @return 添加是否成功
      */
-    @MainThread
     public boolean updateAdd(@NonNull T newItem) {
         List<T> snapshot = snapshot();
         boolean result = snapshot.add(newItem);
@@ -258,6 +256,7 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
         return result;
     }
 
+
     /**
      * 在原有数据基础上面追加数据
      *
@@ -266,7 +265,6 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
      * @see List#addAll(int, Collection)
      * @return 添加是否成功
      */
-    @MainThread
     public boolean updateAddAll(@IntRange(from = 0) int index, @NonNull List<T> newItems) {
         List<T> snapshot = snapshot();
         boolean result = snapshot.addAll(index, newItems);
@@ -283,7 +281,6 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
      * @param newItem 新的单个数据源
      * @see List#add(int, Object)
      */
-    @MainThread
     public void updateAdd(@IntRange(from = 0) int index, @NonNull T newItem) {
         List<T> snapshot = snapshot();
         snapshot.add(index, newItem);
@@ -298,7 +295,6 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
      * @see List#remove(int)
      * @return 删除的那个元素
      */
-    @MainThread
     public T updateRemove(@IntRange(from = 0) int index) {
         List<T> snapshot = snapshot();
         T remove = snapshot.remove(index);
@@ -316,8 +312,7 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
      * @param shouldRemove 是否应该删除的条件
      * @return 删除了多少个元素
      */
-    @MainThread
-    public int updateRemove(int removeCount, boolean fromEnd, LightPredicate<T> shouldRemove) {
+    public int updateRemove(int removeCount, boolean fromEnd, _Predicate<T> shouldRemove) {
         List<T> snapshot = snapshot();
         int count = 0;
         if (fromEnd) {
@@ -347,6 +342,7 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
                 }
             }
         }
+        update(snapshot);
         return count;
     }
 
@@ -355,10 +351,9 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
      *
      * @param shouldRemove 是否应该删除
      * @return 删除元素的个数
-     * @see LightList#updateRemove(int, boolean, LightPredicate)
+     * @see LightList#updateRemove(int, boolean, _Predicate)
      */
-    @MainThread
-    public int updateRemove(LightPredicate<T> shouldRemove) {
+    public int updateRemove(_Predicate<T> shouldRemove) {
         return updateRemove(-1, false, shouldRemove);
 
     }
@@ -370,7 +365,6 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
      * @see List#remove(Object)
      * @return 是否删除了元素
      */
-    @MainThread
     public boolean updateRemove(@NonNull T item) {
         List<T> snapshot = snapshot();
         boolean remove = snapshot.remove(item);
@@ -389,10 +383,11 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
      * @see List#set(int, Object)
      * @return 设置的元素
      */
-    @MainThread
-    public T updateSet(@IntRange(from = 0) int index, @NonNull LightConsumer<T> howToUpdateConsumer) {
+    public T updateSet(@IntRange(from = 0) int index, @NonNull _Consumer<T> howToUpdateConsumer) {
         List<T> snapshot = snapshot();
-        return setItem(snapshot, index, howToUpdateConsumer);
+        T t = setItem(snapshot, index, howToUpdateConsumer);
+        update(snapshot);
+        return t;
     }
 
     /**
@@ -401,21 +396,20 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
      * @param shouldUpdate        返回是否需要更新这一项
      * @param howToUpdateConsumer 如何更新该数据
      */
-    @MainThread
-    public void updateForEach(@NonNull LightPredicate<T> shouldUpdate, @NonNull LightConsumer<T> howToUpdateConsumer) {
+    public void updateForEach(@NonNull _Predicate<T> shouldUpdate, @NonNull _Consumer<T> howToUpdateConsumer) {
         List<T> ts = foreach(shouldUpdate, howToUpdateConsumer);
         update(ts);
     }
 
-    @MainThread
-    public void updateForEach(@NonNull LightConsumer<T> howToUpdateConsumer) {
+
+    public void updateForEach(@NonNull _Consumer<T> howToUpdateConsumer) {
         List<T> ts = foreach(item -> true, howToUpdateConsumer);
         update(ts);
     }
 
 
     // 循环数据执行操作
-    private List<T> foreach(LightPredicate<T> needUpdate, LightConsumer<T> consumer) {
+    private List<T> foreach(_Predicate<T> needUpdate, _Consumer<T> consumer) {
         List<T> snapshot = snapshot();
         T t;
         for (int i = 0; i < snapshot.size(); i++) {
@@ -428,31 +422,41 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
     }
 
     // 复制数据后实现 set(index, item) 功能
-    private T setItem(List<T> list, int pos, LightConsumer<T> consumer) {
+    private T setItem(List<T> list, int pos, _Consumer<T> consumer) {
         T item = list.get(pos);
         T copy = copy(item);
         consumer.accept(copy);
         return list.set(pos, copy);
     }
 
-    // 使用 Parcelable 复制一份新的数据
+    // 复制一份新数据
     @SuppressWarnings("unchecked")
     private T copy(T input) {
-        if (!(input instanceof Parcelable)) {
-            throw new IllegalStateException("model should impl Parcelable to use set operate;");
-        }
-        Parcelable parcelable = (Parcelable) input;
-        Parcel parcel = null;
-        try {
-            parcel = Parcel.obtain();
-            parcel.writeParcelable(parcelable, 0);
-            parcel.setDataPosition(0);
-            Parcelable copy = parcel.readParcelable(input.getClass().getClassLoader());
-            return (T) copy;
-        } finally {
-            if (parcel != null) {
-                parcel.recycle();
+        T newOne = null;
+        if (input instanceof Copyable) {
+            try {
+                newOne = (T) ((Copyable) input).copyNewOne();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (input instanceof Parcelable) {
+            Parcelable parcelable = (Parcelable) input;
+            Parcel parcel = null;
+            try {
+                parcel = Parcel.obtain();
+                parcel.writeParcelable(parcelable, 0);
+                parcel.setDataPosition(0);
+                Parcelable copy = parcel.readParcelable(input.getClass().getClassLoader());
+                newOne = (T) copy;
+            } finally {
+                if (parcel != null) {
+                    parcel.recycle();
+                }
             }
         }
+        if (newOne == null) {
+            throw new IllegalStateException("model should impl Parcelable or Copyable to create new one;");
+        }
+        return newOne;
     }
 }

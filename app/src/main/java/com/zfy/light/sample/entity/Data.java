@@ -55,6 +55,13 @@ public class Data implements Typeable, Sectionable, Diffable<Data>, Parcelable {
     static int ID = 100;
 
 
+    public static Data sample(String title) {
+        Data data = new Data();
+        data.title = title;
+        data.id = ID++;
+        return data;
+    }
+
     public Data() {
     }
 

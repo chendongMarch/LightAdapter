@@ -1,6 +1,6 @@
 package com.zfy.adapter.annotation;
 
-import com.zfy.adapter.function.LightFunction;
+import com.zfy.adapter.function._Function;
 import com.zfy.adapter.model.ModelType;
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ public class AnnotationParser {
     }
 
     // 解析多类型
-    public List<ModelType> parserItemTypes(Object target, LightFunction<Integer, Integer> layoutMapper) {
+    public List<ModelType> parserItemTypes(Object target, _Function<Integer, Integer> layoutMapper) {
         XItemTypes option = target.getClass().getAnnotation(XItemTypes.class);
         if (option == null) {
             return null;

@@ -235,6 +235,7 @@ public class MainActivity extends MvpActivity {
         homeEntity = new Data(Data.TYPE_LIST);
         homeEntity.title = "LightDiffList";
         homeEntity.desc = "借助 DiffUtil 计算更新，简化数据更新逻辑";
+        homeEntity.targetClazz = LightListTestActivity.class;
         list.add(homeEntity);
         homeEntity = new Data(Data.TYPE_LIST);
         homeEntity.title = "AsyncLightDiffList";

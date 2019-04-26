@@ -13,7 +13,7 @@ import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.common.LightUtils;
 import com.zfy.adapter.delegate.impl.SelectorDelegate;
 import com.zfy.adapter.delegate.refs.SelectorRef;
-import com.zfy.adapter.function.LightConsumer;
+import com.zfy.adapter.function._Consumer;
 
 /**
  * CreateAt : 2016/9/12
@@ -48,7 +48,7 @@ public class SlidingSelectLayout extends FrameLayout {
     private boolean      mIsSliding; // 是否正在滑动
     private int          mPrePublishPos; // 上次发布的位置，避免频繁发布
 
-    private LightConsumer<Object> onSlidingSelectListener;// 滑动选中监听
+    private _Consumer<Object> onSlidingSelectListener;// 滑动选中监听
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
@@ -184,7 +184,7 @@ public class SlidingSelectLayout extends FrameLayout {
         return rv;
     }
 
-    public void setOnSlidingSelectListener(LightConsumer<Object> onSlidingSelectListener) {
+    public void setOnSlidingSelectListener(_Consumer<Object> onSlidingSelectListener) {
         this.onSlidingSelectListener = onSlidingSelectListener;
     }
 

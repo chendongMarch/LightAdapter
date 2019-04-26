@@ -1,15 +1,15 @@
 [
     {
         "merged": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/res/merged/debug/layout/notification_action.xml",
-        "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/70ee7951ac0069961c589eceedfdbeee/res/layout/notification_action.xml"
+        "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/bc28a07d31ecdb3b9b41729fc6bc7de9/res/layout/notification_action.xml"
     },
     {
         "merged": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/res/merged/debug/layout/notification_template_icon_group.xml",
-        "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/70ee7951ac0069961c589eceedfdbeee/res/layout/notification_template_icon_group.xml"
+        "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/bc28a07d31ecdb3b9b41729fc6bc7de9/res/layout/notification_template_icon_group.xml"
     },
     {
         "merged": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/res/merged/debug/layout/notification_template_part_time.xml",
-        "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/70ee7951ac0069961c589eceedfdbeee/res/layout/notification_template_part_time.xml"
+        "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/bc28a07d31ecdb3b9b41729fc6bc7de9/res/layout/notification_template_part_time.xml"
     },
     {
         "merged": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/res/merged/debug/layout/hf_container.xml",
@@ -17,10 +17,10 @@
     },
     {
         "merged": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/res/merged/debug/layout/notification_action_tombstone.xml",
-        "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/70ee7951ac0069961c589eceedfdbeee/res/layout/notification_action_tombstone.xml"
+        "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/bc28a07d31ecdb3b9b41729fc6bc7de9/res/layout/notification_action_tombstone.xml"
     },
     {
         "merged": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/res/merged/debug/layout/notification_template_part_chronometer.xml",
-        "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/70ee7951ac0069961c589eceedfdbeee/res/layout/notification_template_part_chronometer.xml"
+        "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/bc28a07d31ecdb3b9b41729fc6bc7de9/res/layout/notification_template_part_chronometer.xml"
     }
 ]

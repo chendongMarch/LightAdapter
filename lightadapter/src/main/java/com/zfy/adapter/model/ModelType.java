@@ -37,14 +37,12 @@ public class ModelType {
     }
 
     public static ModelType multiType(int type, @LayoutRes int layoutId, int spanSize) {
-        return new ModelType(ItemType.TYPE_CONTENT, layoutId, spanSize);
+        return new ModelType(type, layoutId, spanSize);
     }
 
     public static ModelType multiType(int type, @LayoutRes int layoutId) {
-        return new ModelType(ItemType.TYPE_CONTENT, layoutId, SpanSize.NONE);
+        return new ModelType(type, layoutId, SpanSize.NONE);
     }
-
-
 
     public ModelType(int type) {
         this.type = type;

@@ -6,6 +6,6 @@ package com.zfy.adapter.function;
  *
  * @author chendong
  */
-public interface LightFunction<V, R> {
+public interface _Function<V, R> {
     R map(V value);
 }
