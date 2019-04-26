@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.zfy</groupId>
   <artifactId>lightadapter</artifactId>
-  <version>0.0.3</version>
+  <version>0.1.0</version>
   <packaging>aar</packaging>
   <dependencies>
     <dependency>

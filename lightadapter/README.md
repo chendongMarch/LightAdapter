@@ -8,6 +8,7 @@
 
 > [GitHub - LightAdapter](https://github.com/chendongMarch/LightAdapter)
 
+> com.zfy:lightadapter:0.1.0
 
 <!--more-->
 
