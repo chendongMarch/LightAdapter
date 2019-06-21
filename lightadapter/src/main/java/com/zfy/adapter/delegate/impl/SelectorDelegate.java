@@ -3,7 +3,7 @@ package com.zfy.adapter.delegate.impl;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.extend.SlidingSelectLayout;
 import com.zfy.adapter.common.ItemType;
-import com.zfy.adapter.common.LightUtils;
+import com.zfy.adapter.common.LightUtil;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.refs.SelectorRef;
 import com.zfy.adapter.callback.BindCallback;
@@ -42,7 +42,7 @@ public class SelectorDelegate<D> extends BaseDelegate implements SelectorRef<D> 
         if (data != null) {
             ModelType modelType = mAdapter.getModelType(data);
             if (modelType != null) {
-                if (modelType.type == ItemType.TYPE_CONTENT || !LightUtils.isBuildInType(modelType.type)) {
+                if (modelType.type == ItemType.TYPE_CONTENT || !LightUtil.isBuildInType(modelType.type)) {
                     D d = (D) data;
                     extra.selected = isSelect(d);
                     mBindCallback.bind(holder, d, extra);

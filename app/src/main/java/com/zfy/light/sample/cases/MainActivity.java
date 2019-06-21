@@ -289,6 +289,14 @@ public class MainActivity extends MvpActivity {
         homeEntity.subTitle = "adapter.loadingView()";
         homeEntity.desc = "控制 Loading 条目状态，可与 LoadMoreDelegate 联动；";
         homeEntity.targetClazz = LoadTestActivity.class;
+
+        list.add(homeEntity);
+        homeEntity = new Data(Data.TYPE_DELEGATE);
+        homeEntity.title = "LoadingViewDelegate";
+        homeEntity.subTitle = "adapter.loadingView()";
+        homeEntity.desc = "横向，控制 Loading 条目状态，可与 LoadMoreDelegate 联动；";
+        homeEntity.targetClazz = LoadTestActivity2.class;
+
         list.add(homeEntity);
         homeEntity = new Data(Data.TYPE_DELEGATE);
         homeEntity.title = "EmptyViewDelegate";

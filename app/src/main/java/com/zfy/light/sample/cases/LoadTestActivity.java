@@ -1,10 +1,12 @@
 package com.zfy.light.sample.cases;
 
+import android.arch.lifecycle.MutableLiveData;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.animation.OvershootInterpolator;
 
 import com.march.common.exts.ListX;
+import com.march.common.exts.ToastX;
 import com.march.common.pool.ExecutorsPool;
 import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.ModelTypeRegistry;
@@ -62,9 +64,18 @@ public class LoadTestActivity extends MvpActivity {
             return type;
         }
     }
+
+    static MutableLiveData<List<LoadData>> sListLiveData = new MutableLiveData<>();
+
     @Override
     public void init() {
+        sListLiveData.observe(this, d -> {
+            ToastX.show("数据变化");
+        });
         mData = new LightDiffList<>();
+        mData.setUpdateObserver(list -> {
+            sListLiveData.setValue(list);
+        });
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         ModelTypeRegistry registry = ModelTypeRegistry.create();
         registry.add(new ModelType(Data.TYPE_CAN_DRAG, R.layout.item_drag, SpanSize.SPAN_SIZE_HALF));
@@ -76,12 +87,21 @@ public class LoadTestActivity extends MvpActivity {
         });
         // 底部加载更多
         mAdapter.loadMore().setLoadMoreListener(3, adapter -> {
+
             ExecutorsPool.ui(() -> {
                 List<LoadData> items = ListX.range(20, index -> {
                     return new LoadData(index % 7 == 0 ? Data.TYPE_CAN_SWIPE : Data.TYPE_CAN_DRAG);
                 });
+                if (mData.size() > 100) {
+                    mAdapter.loadMore().setLoadMoreEnable(false);
+                    mAdapter.loadingView().setLoadingEnable(false);
+                } else {
+                    mAdapter.loadingView().setLoadingEnable(true);
+                }
+
                 mAdapter.loadMore().finishLoadMore();
                 mData.updateAddAll(items);
+
             }, 1500);
         });
         // 顶部加载更多
@@ -107,11 +127,13 @@ public class LoadTestActivity extends MvpActivity {
                             .setText(R.id.content_tv, "加载中请稍候～");
                     break;
                 case LoadingState.FINISH:
-                    holder.setGone(R.id.pb)
-                            .setText(R.id.content_tv, "加载完成");
+//                    mAdapter.loadingView().setLoadingEnable(false);
+//                    holder.setGone(R.id.pb)
+//                            .setText(R.id.content_tv, "加载完成");
                     break;
             }
         });
+
         // empty
         mAdapter.emptyView().setEmptyView(LightView.from(R.layout.empty_view), (holder, data, extra) -> {
                 holder.setClick(R.id.refresh_tv, v -> {
@@ -143,6 +165,6 @@ public class LoadTestActivity extends MvpActivity {
             }
         });
         mRecyclerView.setAdapter(mAdapter);
-        mData.update(ListX.range(20, index -> new LoadData(index % 7 == 0 ? Data.TYPE_CAN_SWIPE : Data.TYPE_CAN_DRAG)));
+        mAdapter.loadMore().activeLoadMore();
     }
 }

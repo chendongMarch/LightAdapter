@@ -40,4 +40,8 @@ public interface LoadMoreRef {
      * @param callback 回调
      */
     void setLoadMoreListener(AdapterCallback callback);
+
+    void setLoadMoreStrategy(int strategy);
+
+    void activeLoadMore();
 }

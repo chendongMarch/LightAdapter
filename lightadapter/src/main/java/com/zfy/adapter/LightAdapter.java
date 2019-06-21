@@ -133,7 +133,7 @@ public class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
     // 通用初始化方法
     private void init(List<D> datas, ModelTypeConfigCallback callback) {
         if (datas instanceof LightList) {
-            ((LightList) datas).register(this);
+            ((LightList) datas).getCallback().register(this);
         }
         mDatas = datas;
         mModelTypeCache = new SparseArray<>();

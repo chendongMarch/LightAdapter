@@ -5,7 +5,6 @@
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/content_rv"
-        android:paddingBottom="300dp"
         android:clipToPadding="false"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

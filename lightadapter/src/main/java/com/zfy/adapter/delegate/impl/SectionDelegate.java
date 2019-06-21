@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.extend.decoration.PinItemDecoration;
 import com.zfy.adapter.common.ItemType;
-import com.zfy.adapter.common.LightUtils;
+import com.zfy.adapter.common.LightUtil;
 import com.zfy.adapter.delegate.refs.SectionRef;
 import com.zfy.adapter.callback.BindCallback;
 import com.zfy.adapter.model.ModelType;
@@ -43,7 +43,7 @@ public class SectionDelegate<D> extends BaseDelegate implements SectionRef<D> {
     public LightHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == ItemType.TYPE_SECTION) {
             ModelType type = mAdapter.getModelType(viewType);
-            View view = LightUtils.inflateView(parent.getContext(), parent, type.layoutId);
+            View view = LightUtil.inflateView(parent.getContext(), parent, type.layoutId);
             return new LightHolder(mAdapter, viewType, view);
         }
         return super.onCreateViewHolder(parent, viewType);

@@ -4,7 +4,7 @@ import android.view.ViewGroup;
 
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.common.ItemType;
-import com.zfy.adapter.common.LightUtils;
+import com.zfy.adapter.common.LightUtil;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.IDelegate;
 import com.zfy.adapter.delegate.refs.EmptyViewRef;
@@ -92,7 +92,7 @@ public class EmptyViewDelegate extends BaseViewDelegate implements EmptyViewRef 
         postOnRecyclerViewAttach(() -> {
             lightView.inflate(mAdapter.getContext());
             if (mEmptyView == null) {
-                mEmptyView = LightUtils.createMatchParentFrameContainer(mAdapter.getContext());
+                mEmptyView = LightUtil.createMatchParentFrameContainer(mAdapter.getContext());
             }
             mEmptyView.addView(lightView.view);
             mEmptyHolder = new LightHolder(mAdapter, ItemType.TYPE_EMPTY, mEmptyView);

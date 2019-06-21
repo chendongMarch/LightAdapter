@@ -7,8 +7,7 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.ViewGroup;
 
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.common.LightUtils;
-import com.zfy.adapter.common.LightValues;
+import com.zfy.adapter.common.LightUtil;
 import com.zfy.adapter.common.SpanSize;
 import com.zfy.adapter.model.ModelType;
 
@@ -51,7 +50,7 @@ public class SpanDelegate extends BaseDelegate {
                     int type = mAdapter.getItemViewType(position);
                     ModelType modelType = mAdapter.getModelType(type);
                     int spanCount = gridLayoutManager.getSpanCount();
-                    modelType.spanSize = LightUtils.getSpanSize(modelType.spanSize, spanCount);
+                    modelType.spanSize = LightUtil.getSpanSize(modelType.spanSize, spanCount);
                     return modelType.spanSize;
                 }
             });

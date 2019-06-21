@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.zfy.adapter.LightAdapter;
-import com.zfy.adapter.common.LightUtils;
+import com.zfy.adapter.common.LightUtil;
 import com.zfy.adapter.delegate.impl.SelectorDelegate;
 import com.zfy.adapter.delegate.refs.SelectorRef;
 import com.zfy.adapter.function._Consumer;
@@ -143,7 +143,7 @@ public class SlidingSelectLayout extends FrameLayout {
         if (mSpanCount != INVALID_PARAM) {
             return;
         }
-        mSpanCount = LightUtils.getRecyclerViewSpanCount(mAdapter.getView());
+        mSpanCount = LightUtil.getRecyclerViewSpanCount(mAdapter.getView());
         if (mSpanCount < 0) {
             return;
         }

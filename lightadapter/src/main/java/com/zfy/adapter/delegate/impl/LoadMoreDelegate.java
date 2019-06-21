@@ -3,12 +3,12 @@ package com.zfy.adapter.delegate.impl;
 import android.support.v7.widget.RecyclerView;
 
 import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.common.LightUtils;
+import com.zfy.adapter.callback.AdapterCallback;
+import com.zfy.adapter.common.LightUtil;
 import com.zfy.adapter.delegate.IDelegate;
 import com.zfy.adapter.delegate.refs.LoadMoreRef;
-import com.zfy.adapter.callback.AdapterCallback;
-import com.zfy.adapter.model.LoadingState;
 import com.zfy.adapter.model.Extra;
+import com.zfy.adapter.model.LoadingState;
 
 /**
  * CreateAt : 2018/10/30
@@ -22,12 +22,15 @@ public class LoadMoreDelegate extends BaseDelegate implements LoadMoreRef {
     public static final int STRATEGY_BIND   = 1; // 通过检测 onBindViewHolder 获取加载更多
 
     private int mStrategy = STRATEGY_SCROLL;
+
     private boolean         mLoadingMore; // 是否在加载更多
     private int             mStartTryLoadMoreItemCount; // 预加载的个数
-    private boolean         mReachBottom; // 是否到达底部
+    private boolean         mReachEnd; // 是否到达底部
     private boolean         mLoadMoreEnable; // 是否可以加载
     private boolean         mLoadMoreEnableFlagInternal = true; // 是否可以加载
     private AdapterCallback mCallback; // 加载更多回调
+
+    private int mOrientation = RecyclerView.VERTICAL;
 
     public LoadMoreDelegate() {
         mStartTryLoadMoreItemCount = 3;
@@ -40,6 +43,7 @@ public class LoadMoreDelegate extends BaseDelegate implements LoadMoreRef {
     public int getKey() {
         return IDelegate.LOAD_MORE;
     }
+
 
     @Override
     public boolean onBindViewHolder(LightHolder holder, int layoutIndex) {
@@ -61,6 +65,7 @@ public class LoadMoreDelegate extends BaseDelegate implements LoadMoreRef {
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
+        mOrientation = LightUtil.getRecyclerViewOrientation(recyclerView);
         mView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -72,7 +77,7 @@ public class LoadMoreDelegate extends BaseDelegate implements LoadMoreRef {
                     return;
                 }
                 // 停止，到达底部，没有在加载
-                if (isAttached() && newState == RecyclerView.SCROLL_STATE_IDLE && mReachBottom && !mLoadingMore) {
+                if (isAttached() && newState == RecyclerView.SCROLL_STATE_IDLE && mReachEnd && !mLoadingMore) {
                     mLoadingMore = true;
                     mCallback.call(mAdapter);
                     mAdapter.loadingView().setLoadingState(LoadingState.LOADING);
@@ -88,9 +93,12 @@ public class LoadMoreDelegate extends BaseDelegate implements LoadMoreRef {
                 if (!mLoadMoreEnable || !mLoadMoreEnableFlagInternal) {
                     return;
                 }
-                if (isAttached() && dy > 0) {
-                    int lastVisiblePosition = LightUtils.getLastVisiblePosition(mView);
-                    mReachBottom = lastVisiblePosition + 1 + mStartTryLoadMoreItemCount >= mAdapter.getItemCount();
+
+                if (isAttached()
+                        && (mOrientation == RecyclerView.VERTICAL && dy > 0)
+                        || (mOrientation == RecyclerView.HORIZONTAL && dx > 0)) {
+                    int lastVisiblePosition = LightUtil.getLastVisiblePosition(mView);
+                    mReachEnd = lastVisiblePosition + 1 + mStartTryLoadMoreItemCount >= mAdapter.getItemCount();
                 }
             }
         });
@@ -121,5 +129,19 @@ public class LoadMoreDelegate extends BaseDelegate implements LoadMoreRef {
 
     public void setLoadMoreEnableFlagInternal(boolean loadMoreEnableFlagInternal) {
         mLoadMoreEnableFlagInternal = loadMoreEnableFlagInternal;
+    }
+
+
+    @Override
+    public void setLoadMoreStrategy(int strategy) {
+
+    }
+
+    @Override
+    public void activeLoadMore() {
+        if (mCallback != null) {
+            mLoadingMore = true;
+            mCallback.call(mAdapter);
+        }
     }
 }

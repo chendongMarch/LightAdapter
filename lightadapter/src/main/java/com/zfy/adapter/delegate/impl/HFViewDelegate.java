@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 import com.zfy.adapter.LightHolder;
 import com.zfy.adapter.callback.ViewHolderCallback;
 import com.zfy.adapter.common.ItemType;
-import com.zfy.adapter.common.LightUtils;
+import com.zfy.adapter.common.LightUtil;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.IDelegate;
 import com.zfy.adapter.delegate.refs.FooterRef;
@@ -165,7 +165,7 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
             lightView.inflate(mAdapter.getContext());
             boolean isNewHeader = false;
             if (mHeaderView == null) {
-                mHeaderView = LightUtils.createWrapContentLinearContainerView(mAdapter.getContext(), mView);
+                mHeaderView = LightUtil.createWrapContentLinearContainerView(mAdapter.getContext(), mView);
                 isNewHeader = true;
             }
             final int childCount = mHeaderView.getChildCount();
@@ -192,7 +192,7 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
             lightView.inflate(mAdapter.getContext());
             boolean isNewFooter = false;
             if (mFooterView == null) {
-                mFooterView = LightUtils.createWrapContentLinearContainerView(mAdapter.getContext(), mView);
+                mFooterView = LightUtil.createWrapContentLinearContainerView(mAdapter.getContext(), mView);
                 isNewFooter = true;
             }
             final int childCount = mFooterView.getChildCount();

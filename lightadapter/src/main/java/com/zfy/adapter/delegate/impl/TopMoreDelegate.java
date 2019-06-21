@@ -2,7 +2,7 @@ package com.zfy.adapter.delegate.impl;
 
 import android.support.v7.widget.RecyclerView;
 
-import com.zfy.adapter.common.LightUtils;
+import com.zfy.adapter.common.LightUtil;
 import com.zfy.adapter.delegate.refs.TopMoreRef;
 import com.zfy.adapter.callback.AdapterCallback;
 
@@ -58,7 +58,7 @@ public class TopMoreDelegate extends BaseDelegate implements TopMoreRef {
                     return;
                 }
                 if (isAttached() && dy < 0) {
-                    int firstPos = LightUtils.getFirstVisiblePosition(mView);
+                    int firstPos = LightUtil.getFirstVisiblePosition(mView);
                     mReachTop = firstPos <= mStartTryTopMoreItemCount;
                 }
             }

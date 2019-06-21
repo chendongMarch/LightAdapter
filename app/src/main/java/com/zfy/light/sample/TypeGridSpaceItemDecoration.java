@@ -3,11 +3,10 @@ package com.zfy.light.sample;
 
 import android.graphics.Rect;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 
 import com.zfy.adapter.LightAdapter;
-import com.zfy.adapter.common.LightUtils;
+import com.zfy.adapter.common.LightUtil;
 import com.zfy.adapter.model.ModelType;
 
 /**
@@ -20,7 +19,7 @@ public class TypeGridSpaceItemDecoration extends RecyclerView.ItemDecoration {
 
 
     private int getSpanCount(RecyclerView recyclerView) {
-        return LightUtils.getRecyclerViewSpanCount(recyclerView);
+        return LightUtil.getRecyclerViewSpanCount(recyclerView);
     }
 
     @Override
@@ -46,7 +45,7 @@ public class TypeGridSpaceItemDecoration extends RecyclerView.ItemDecoration {
                 typePosition = position - firstSameTypePosition - 1;
             }
         }
-        int spanSize = modelType.spanSize = LightUtils.getSpanSize(modelType.spanSize, spanCount);
+        int spanSize = modelType.spanSize = LightUtil.getSpanSize(modelType.spanSize, spanCount);
         int columnCount = spanCount / spanSize;
 
         if (typePosition % columnCount == 0) {

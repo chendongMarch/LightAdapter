@@ -2,8 +2,9 @@ package com.zfy.adapter.model;
 
 import android.content.Context;
 import android.view.View;
+import android.view.ViewGroup;
 
-import com.zfy.adapter.common.LightUtils;
+import com.zfy.adapter.common.LightUtil;
 
 /**
  * CreateAt : 2018/11/6
@@ -16,6 +17,7 @@ public class LightView {
     public int layoutId;
     public View view;
     public int index = -1;
+    public ViewGroup.LayoutParams params;
 
     public static LightView from(int layoutId) {
         LightView lightView = new LightView();
@@ -50,7 +52,7 @@ public class LightView {
 
     public void inflate(Context context) {
         if (this.view == null && this.layoutId != 0) {
-            this.view = LightUtils.inflateView(context, this.layoutId);
+            this.view = LightUtil.inflateView(context, this.layoutId);
         }
     }
 }

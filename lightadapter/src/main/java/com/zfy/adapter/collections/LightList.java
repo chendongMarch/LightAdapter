@@ -4,15 +4,12 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
-import android.support.v7.util.ListUpdateCallback;
 
-import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.data.Copyable;
 import com.zfy.adapter.data.Diffable;
 import com.zfy.adapter.function._Consumer;
 import com.zfy.adapter.function._Predicate;
 
-import java.lang.ref.WeakReference;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,98 +25,23 @@ import java.util.ListIterator;
  */
 public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
 
-    /**
-     * 发送 DiffResult 到 LightAdapter 更新
-     */
-    class LightAdapterUpdateCallback implements ListUpdateCallback {
-
-        @Override
-        public void onInserted(int position, int count) {
-            LightAdapter adapter;
-            Iterator<WeakReference<LightAdapter>> iterator = mAdapters.iterator();
-            while (iterator.hasNext()) {
-                adapter = iterator.next().get();
-                if (adapter != null) {
-//                    adapter.notifyItem().insert(adapter.toLayoutIndex(position), count);
-                     adapter.notifyItemRangeInserted(adapter.toLayoutIndex(position), count);
-                } else {
-                    iterator.remove();
-                }
-            }
-        }
-
-        @Override
-        public void onRemoved(int position, int count) {
-            LightAdapter adapter;
-            Iterator<WeakReference<LightAdapter>> iterator = mAdapters.iterator();
-            while (iterator.hasNext()) {
-                adapter = iterator.next().get();
-                if (adapter != null) {
-//                    adapter.notifyItem().remove(adapter.toLayoutIndex(position), count);
-                     adapter.notifyItemRangeRemoved(adapter.toLayoutIndex(position), count);
-                } else {
-                    iterator.remove();
-                }
-            }
-        }
-
-        @Override
-        public void onMoved(int fromPosition, int toPosition) {
-            LightAdapter adapter;
-            Iterator<WeakReference<LightAdapter>> iterator = mAdapters.iterator();
-            while (iterator.hasNext()) {
-                adapter = iterator.next().get();
-                if (adapter != null) {
-                    adapter.notifyItem().move(adapter.toLayoutIndex(fromPosition), adapter.toLayoutIndex(toPosition));
-                    // adapter.notifyItemMoved(adapter.toLayoutIndex(fromPosition), adapter.toLayoutIndex(toPosition));
-                } else {
-                    iterator.remove();
-                }
-            }
-        }
-
-        @Override
-        public void onChanged(int position, int count, Object payload) {
-            LightAdapter adapter;
-            Iterator<WeakReference<LightAdapter>> iterator = mAdapters.iterator();
-            while (iterator.hasNext()) {
-                adapter = iterator.next().get();
-                if (adapter != null) {
-//                    adapter.notifyItem().change(adapter.toLayoutIndex(position), count, payload);
-                     adapter.notifyItemRangeChanged(adapter.toLayoutIndex(position), count, payload);
-                } else {
-                    iterator.remove();
-                }
-            }
-        }
+    public interface ListUpdateObserver<T> {
+        void onChange(List<T> list);
     }
 
-    private LightAdapterUpdateCallback        mCallback;
-    private List<WeakReference<LightAdapter>> mAdapters;
+    private ListUpdateObserver<T>      mUpdateObserver;
+    private LightAdapterUpdateCallback mCallback;
 
     LightList() {
-        mAdapters = new ArrayList<>();
         mCallback = new LightAdapterUpdateCallback();
-    }
-
-    public void register(LightAdapter adapter) {
-        unregister(adapter);
-        mAdapters.add(new WeakReference<>(adapter));
-    }
-
-    public void unregister(LightAdapter adapter) {
-        LightAdapter item;
-        Iterator<WeakReference<LightAdapter>> iterator = mAdapters.iterator();
-        while (iterator.hasNext()) {
-            item = iterator.next().get();
-            if (item.equals(adapter)) {
-                iterator.remove();
-            }
-        }
     }
 
     public LightAdapterUpdateCallback getCallback() {
         return mCallback;
+    }
+
+    public void setUpdateObserver(ListUpdateObserver<T> updateObserver) {
+        mUpdateObserver = updateObserver;
     }
 
     /**
@@ -185,6 +107,11 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
         return getList().hashCode();
     }
 
+    @Override
+    public boolean addAll(Collection<? extends T> c) {
+        return getList().addAll(c);
+    }
+
     @NonNull
     @Override
     public ListIterator<T> listIterator(final int index) {
@@ -197,12 +124,18 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
     }
 
 
+    private void dispatchUpdate(@NonNull List<T> newItems) {
+        update(newItems);
+        if (mUpdateObserver != null) {
+            mUpdateObserver.onChange(newItems);
+        }
+    }
+
     /**
      * 更新为新的数据
      *
      * @param newItems 新的数据源
      */
-
     public abstract void update(@NonNull List<T> newItems);
 
 
@@ -221,7 +154,7 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
     public void updateClear() {
         List<T> snapshot = snapshot();
         snapshot.clear();
-        update(snapshot);
+        dispatchUpdate(snapshot);
     }
 
     /**
@@ -235,7 +168,7 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
         List<T> snapshot = snapshot();
         boolean result = snapshot.addAll(newItems);
         if (result) {
-            update(snapshot);
+            dispatchUpdate(snapshot);
         }
         return result;
     }
@@ -251,7 +184,7 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
         List<T> snapshot = snapshot();
         boolean result = snapshot.add(newItem);
         if (result) {
-            update(snapshot);
+            dispatchUpdate(snapshot);
         }
         return result;
     }
@@ -269,7 +202,7 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
         List<T> snapshot = snapshot();
         boolean result = snapshot.addAll(index, newItems);
         if (result) {
-            update(snapshot);
+            dispatchUpdate(snapshot);
         }
         return result;
     }
@@ -284,7 +217,7 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
     public void updateAdd(@IntRange(from = 0) int index, @NonNull T newItem) {
         List<T> snapshot = snapshot();
         snapshot.add(index, newItem);
-        update(snapshot);
+        dispatchUpdate(snapshot);
     }
 
 
@@ -299,7 +232,7 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
         List<T> snapshot = snapshot();
         T remove = snapshot.remove(index);
         if (remove != null) {
-            update(snapshot);
+            dispatchUpdate(snapshot);
         }
         return remove;
     }
@@ -342,7 +275,7 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
                 }
             }
         }
-        update(snapshot);
+        dispatchUpdate(snapshot);
         return count;
     }
 
@@ -369,7 +302,7 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
         List<T> snapshot = snapshot();
         boolean remove = snapshot.remove(item);
         if (remove) {
-            update(snapshot);
+            dispatchUpdate(snapshot);
         }
         return remove;
     }
@@ -386,7 +319,7 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
     public T updateSet(@IntRange(from = 0) int index, @NonNull _Consumer<T> howToUpdateConsumer) {
         List<T> snapshot = snapshot();
         T t = setItem(snapshot, index, howToUpdateConsumer);
-        update(snapshot);
+        dispatchUpdate(snapshot);
         return t;
     }
 
@@ -398,13 +331,13 @@ public abstract class LightList<T extends Diffable<T>> extends AbstractList<T> {
      */
     public void updateForEach(@NonNull _Predicate<T> shouldUpdate, @NonNull _Consumer<T> howToUpdateConsumer) {
         List<T> ts = foreach(shouldUpdate, howToUpdateConsumer);
-        update(ts);
+        dispatchUpdate(ts);
     }
 
 
     public void updateForEach(@NonNull _Consumer<T> howToUpdateConsumer) {
         List<T> ts = foreach(item -> true, howToUpdateConsumer);
-        update(ts);
+        dispatchUpdate(ts);
     }
 
 

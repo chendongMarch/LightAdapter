@@ -4,11 +4,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
 import com.zfy.adapter.LightHolder;
+import com.zfy.adapter.callback.BindCallback;
 import com.zfy.adapter.common.ItemType;
-import com.zfy.adapter.common.LightUtils;
+import com.zfy.adapter.common.LightUtil;
 import com.zfy.adapter.common.LightValues;
 import com.zfy.adapter.delegate.refs.LoadingViewRef;
-import com.zfy.adapter.callback.BindCallback;
 import com.zfy.adapter.model.LightView;
 import com.zfy.adapter.model.LoadingState;
 
@@ -37,6 +37,7 @@ public class LoadingViewDelegate extends BaseDelegate implements LoadingViewRef 
         return LOADING;
     }
 
+
     @Override
     public LightHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == ItemType.TYPE_LOADING) {
@@ -49,6 +50,9 @@ public class LoadingViewDelegate extends BaseDelegate implements LoadingViewRef 
     @Override
     public boolean onBindViewHolder(LightHolder holder, int layoutIndex) {
         if (mAdapter.getItemViewType(layoutIndex) == ItemType.TYPE_LOADING) {
+            if (mBindCallback != null && mLightHolder != null) {
+                mBindCallback.bind(mLightHolder, mLoadingState, null);
+            }
             return true;
         }
         return super.onBindViewHolder(holder, layoutIndex);
@@ -96,15 +100,21 @@ public class LoadingViewDelegate extends BaseDelegate implements LoadingViewRef 
             lightView.inflate(mAdapter.getContext());
             boolean isNewLoading = false;
             if (mLoadingView == null) {
-                mLoadingView = LightUtils.createWrapContentLinearContainerView(mAdapter.getContext(), mView);
+                mLoadingView = LightUtil.createWrapContentLinearContainerView(mAdapter.getContext(), mView);
                 isNewLoading = true;
             }
-            mLoadingView.addView(lightView.view);
+            if (lightView.params != null) {
+                mLoadingView.addView(lightView.view, lightView.params);
+            } else {
+                mLoadingView.addView(lightView.view);
+            }
             mLoadingEnable = true;
             if (isNewLoading && mLoadingView.getChildCount() == 1) {
-                mAdapter.notifyItemInserted(mAdapter.getDelegateRegistry().getAboveItemCount(LightValues.FLOW_LEVEL_LOADING));
+                // mAdapter.notifyItemInserted(mAdapter.getDelegateRegistry().getAboveItemCount(LightValues.FLOW_LEVEL_LOADING));
             }
+
             setLoadingState(LoadingState.INIT);
+            setLoadingEnable(false);
         };
         if (isAttached() && mView.getLayoutManager() != null) {
             runnable.run();
@@ -140,8 +150,12 @@ public class LoadingViewDelegate extends BaseDelegate implements LoadingViewRef 
             return;
         }
         mLoadingState.state = state;
-        if (mBindCallback != null && mLightHolder != null) {
-            mBindCallback.bind(mLightHolder, mLoadingState, null);
+        if (mBindCallback != null) {
+            LightHolder holder = mLightHolder;
+            if (holder == null && mLoadingView != null) {
+                holder = new LightHolder(mAdapter, -1, mLoadingView);
+            }
+            mBindCallback.bind(holder, mLoadingState, null);
         }
     }
 

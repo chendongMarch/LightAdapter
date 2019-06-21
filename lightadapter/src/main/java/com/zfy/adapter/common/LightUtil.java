@@ -20,7 +20,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
  *
  * @author chendong
  */
-public class LightUtils {
+public class LightUtil {
 
     /**
      * @return how to find view holder
@@ -125,7 +125,7 @@ public class LightUtils {
      * @return 方向
      */
     public static int getRecyclerViewOrientation(RecyclerView view) {
-        int orientation = LinearLayout.VERTICAL;
+        int orientation = RecyclerView.VERTICAL;
         if (view == null) {
             return orientation;
         }
