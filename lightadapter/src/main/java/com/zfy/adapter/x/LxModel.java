@@ -20,7 +20,7 @@ public class LxModel implements Diffable<LxModel>, Typeable {
         this.data = data;
     }
 
-    public <T> T data() {
+    public <T> T unpack() {
         return (T) data;
     }
 

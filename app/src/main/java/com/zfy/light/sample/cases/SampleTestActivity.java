@@ -79,8 +79,8 @@ public class SampleTestActivity extends MvpActivity {
 //            return ModelType.singleType(Data.TYPE_VIDEO, R.layout.item_video);
 //        }
 //        @Override
-//        public void onBindView(LightHolder holder, Data data, Extra extra) {
-//            // bind video data
+//        public void onBindView(LightHolder holder, Data unpack, Extra extra) {
+//            // bind video unpack
 //        }
 //    }
 
@@ -91,8 +91,8 @@ public class SampleTestActivity extends MvpActivity {
 //            return ModelType.singleType(Data.TYPE_AUDIO, R.layout.item_audio);
 //        }
 //        @Override
-//        public void onBindView(LightHolder holder, Data data, Extra extra) {
-//            // bind audio data
+//        public void onBindView(LightHolder holder, Data unpack, Extra extra) {
+//            // bind audio unpack
 //        }
 //    }
 
@@ -113,19 +113,19 @@ public class SampleTestActivity extends MvpActivity {
 //        LightAdapter<Data> adapter = new LightAdapter<>(list, registry);
 //
 //        // 列表项单击事件
-//        adapter.setClickEvent((holder, data, extra) -> {
+//        adapter.setClickEvent((holder, unpack, extra) -> {
 //        });
 //        // 列表项长按事件
-//        adapter.setLongPressEvent((holder, data, extra) -> {
+//        adapter.setLongPressEvent((holder, unpack, extra) -> {
 //        });
 //        // 列表项双击事件
-//        adapter.setDbClickEvent((holder, data, extra) -> {
+//        adapter.setDbClickEvent((holder, unpack, extra) -> {
 //        });
 //        // 子 View 单击事件，需要配合 LightHolder 绑定
-//        adapter.setChildViewClickEvent((holder, data, extra) -> {
+//        adapter.setChildViewClickEvent((holder, unpack, extra) -> {
 //        });
 //        // 子 View 长按事件，需要配合 LightHolder 绑定
-//        adapter.setChildViewLongPressEvent((holder, data, extra) -> {
+//        adapter.setChildViewLongPressEvent((holder, unpack, extra) -> {
 //        });
 
 
@@ -326,11 +326,11 @@ public class SampleTestActivity extends MvpActivity {
 //        // 获取 selector 代理实现
 //        SelectorRef<String> selector = mMyAdapter.selector();
 //        // 设置单选模式，数据绑定
-//        selector.setSingleSelector((holder, data, extra) -> {
+//        selector.setSingleSelector((holder, unpack, extra) -> {
 //            holder.setText(R.id.tv, extra.selected ? "选中" : "不选中");
 //        });
 //        // 设置多选模式，数据绑定
-//        selector.setMultiSelector((holder, data, extra) -> {
+//        selector.setMultiSelector((holder, unpack, extra) -> {
 //            holder.setText(R.id.tv, extra.selected ? "选中" : "不选中");
 //        });
 //        // 获取单选的结果
@@ -338,15 +338,15 @@ public class SampleTestActivity extends MvpActivity {
 //        // 获取多选的结果
 //        List<String> results = selector.getResults();
 //        // 该数据是否被选中
-//        boolean isSelect = selector.isSelect(data);
+//        boolean isSelect = selector.isSelect(unpack);
 //        // 取消选中该元素
-//        selector.releaseItem(data);
+//        selector.releaseItem(unpack);
 //        // 选中该元素
-//        selector.selectItem(data);
+//        selector.selectItem(unpack);
 //        // 切换状态，选中改为不选中，不选中改为选中
-//        selector.toggleItem(data);
+//        selector.toggleItem(unpack);
 //        // 设置选择监听，返回 false 将阻止选择操作
-//        selector.setOnSelectListener((data, toSelect) -> {
+//        selector.setOnSelectListener((unpack, toSelect) -> {
 //            // 返回 false 将阻止这次选择操作，用于最多选择 10 个这种场景
 //            return true;
 //        });
@@ -369,20 +369,20 @@ public class SampleTestActivity extends MvpActivity {
 //        animator.setItemAnimator(new ScaleInBottomAnimator());
 //
 //        // 设置数据绑定回调
-//        mMyAdapter.setBindCallback((holder, data, extra) -> {
+//        mMyAdapter.setBindCallback((holder, unpack, extra) -> {
 //            // 判读是否使用 payloads 局部更新数据
 //            if (extra.byPayload) {
 //                switch (extra.payloadMsg) {
 //                    // 获取到仅更新 name 的消息
 //                    case NAME_CHANGED:
 //                        // 仅重新绑定 name 即可
-//                        holder.setText(R.id.tv, data.name);
+//                        holder.setText(R.id.tv, unpack.name);
 //                        break;
 //                }
 //                return;
 //            }
 //            // 绑定整个条目的数据
-//            holder.setText(R.id.tv, data);
+//            holder.setText(R.id.tv, unpack);
 //        });
 //
 //        NotifyRef notifyRef = mMyAdapter.notifyItem();
@@ -411,8 +411,8 @@ public class SampleTestActivity extends MvpActivity {
 //        loadingView.setLoadingEnable(true);
 //        // 设置 loadingView 布局和数据绑定
 //        LightView view = LightView.from(R.layout.loading_view);
-//        loadingView.setLoadingView(view, (holder, data, extra) -> {
-//            switch (data.state) {
+//        loadingView.setLoadingView(view, (holder, unpack, extra) -> {
+//            switch (unpack.state) {
 //                case LoadingState.INIT: // 初始化
 //                    break;
 //                case LoadingState.FINISH: // 结束加载
@@ -434,8 +434,8 @@ public class SampleTestActivity extends MvpActivity {
 //        // 获取 empty view 当前状态
 //        boolean emptyEnable = emptyViewRef.isEmptyEnable();
 //        LightView view = LightView.from(R.layout.empty_view);
-//        emptyViewRef.setEmptyView(view, (holder, data, extra) -> {
-//            switch (data.state) {
+//        emptyViewRef.setEmptyView(view, (holder, unpack, extra) -> {
+//            switch (unpack.state) {
 //                case EmptyState.NONE: // 隐藏空白页
 //                    break;
 //                case EmptyState.ERROR: // 错误
@@ -457,8 +457,8 @@ public class SampleTestActivity extends MvpActivity {
 //        // 是否支持悬挂
 //        section.setPinEnable(true);
 //        // 设置隔断的布局和数据绑定
-//        section.setOptions(R.layout.item_section, true, (holder, data, extra) -> {
-//            holder.setText(R.id.title_tv, data);
+//        section.setOptions(R.layout.item_section, true, (holder, unpack, extra) -> {
+//            holder.setText(R.id.title_tv, unpack);
 //        });
 //
 //        DragSwipeRef dragSwipeRef = mMyAdapter.dragSwipe();
@@ -468,8 +468,8 @@ public class SampleTestActivity extends MvpActivity {
 //        // 滑动超过 0.7 触发 swipe 事件
 //        options.swipeThreshold = 0.7f;
 //        dragSwipeRef.setOptions(options);
-//        dragSwipeRef.setDragSwipeCallback((holder, data, extra) -> {
-//            switch (data.state) {
+//        dragSwipeRef.setDragSwipeCallback((holder, unpack, extra) -> {
+//            switch (unpack.state) {
 //                case DragSwipeState.ACTIVE_DRAG:
 //                    // 开始拖动，更改显示
 //                    break;
@@ -485,7 +485,7 @@ public class SampleTestActivity extends MvpActivity {
 //            }
 //        });
 //
-//        mMyAdapter.setBindCallback((holder, data, extra) -> {
+//        mMyAdapter.setBindCallback((holder, unpack, extra) -> {
 //            holder
 //                    // 设置触发触发拖拽
 //                    .dragOnTouch(R.id.title_tv, R.id.desc_tv)
@@ -500,7 +500,7 @@ public class SampleTestActivity extends MvpActivity {
 //
 //        FakeRef<String> fake = mMyAdapter.fake();
 //        // 显示假数据，指定假数据个数，布局和数据绑定
-//        fake.showFake(10, R.layout.item_fake, (holder, data, extra) -> {
+//        fake.showFake(10, R.layout.item_fake, (holder, unpack, extra) -> {
 //
 //        });
 //        // 隐藏假数据显示
@@ -516,8 +516,8 @@ public class SampleTestActivity extends MvpActivity {
 //        list.updateAddAll(newList);
 //        list.updateAddAll(0, newList);
 //        // 设置元素
-//        list.updateSet(0, data -> {
-//            data.title = "new title";
+//        list.updateSet(0, unpack -> {
+//            unpack.title = "new title";
 //        });
 //        // 清空列表
 //        list.updateClear();
@@ -525,21 +525,21 @@ public class SampleTestActivity extends MvpActivity {
 //        list.updateRemove(item);
 //        list.updateRemove(0);
 //        // 删除符合规则的元素
-//        list.updateRemove(data -> {
-//            return data.id > 0;
+//        list.updateRemove(unpack -> {
+//            return unpack.id > 0;
 //        });
-//        list.updateRemove(10, true, data -> {
-//            return data.id > 10;
+//        list.updateRemove(10, true, unpack -> {
+//            return unpack.id > 10;
 //        });
 //        // 遍历列表，找到符合规则的元素，执行 set 操作
-//        list.updateForEach(data -> {
-//            return data.id > 10;
-//        }, data -> {
-//            data.title = "new title";
+//        list.updateForEach(unpack -> {
+//            return unpack.id > 10;
+//        }, unpack -> {
+//            unpack.title = "new title";
 //        });
 //        // 遍历列表，执行 set 操作
-//        list.updateForEach(data -> {
-//            data.title = "new title";
+//        list.updateForEach(unpack -> {
+//            unpack.title = "new title";
 //        });
 //        // 获取列表快照
 //        List<Data> snapshot = list.snapshot();

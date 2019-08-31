@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="bind_parent" type="id"/>
+    <item name="item_context" type="id"/>
+    <item name="item_data" type="id"/>
+    <item name="item_pos" type="id"/>
     <item name="item_view" type="id"/>
     <string name="app_name">LightAdapter</string>
 </resources>

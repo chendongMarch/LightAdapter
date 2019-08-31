@@ -120,7 +120,7 @@ public class LoadTestActivity2 extends MvpActivity {
             }
         });
 //        // empty
-//        mAdapter.emptyView().setEmptyView(LightView.from(R.layout.empty_view), (holder, data, extra) -> {
+//        mAdapter.emptyView().setEmptyView(LightView.from(R.layout.empty_view), (holder, unpack, extra) -> {
 //            holder.setClick(R.id.refresh_tv, v -> {
 //                mAdapter.header().setHeaderEnable(true);
 //                mData.update(ListX.range(20, index -> new LoadData(index % 7 == 0 ? Data.TYPE_CAN_SWIPE : Data.TYPE_CAN_DRAG)));

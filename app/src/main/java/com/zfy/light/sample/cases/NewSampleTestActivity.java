@@ -5,7 +5,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.march.common.exts.ListX;
+import com.march.common.exts.ToastX;
 import com.zfy.adapter.x.LxAdapter;
+import com.zfy.adapter.x.LxEvent;
 import com.zfy.adapter.x.LxItemBind;
 import com.zfy.adapter.x.LxModel;
 import com.zfy.adapter.x.LxTransformations;
@@ -53,6 +55,14 @@ public class NewSampleTestActivity extends MvpActivity {
         @Override
         public void onBindView(LxVh holder, int position, String data, @NonNull List<Object> payloads) {
             holder.setText(R.id.title_tv, data);
+        }
+
+        @Override
+        public void onBindEvent(LxVh holder, int viewType) {
+            LxEvent.setEvent(holder, true, true, true, (context, eventType) -> {
+                String data = context.getData();
+                ToastX.show(data + " type = " + eventType);
+            });
         }
     }
 }

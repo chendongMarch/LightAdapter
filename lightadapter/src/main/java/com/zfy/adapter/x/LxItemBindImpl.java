@@ -20,4 +20,9 @@ public class LxItemBindImpl<D> extends LxItemBind<D> {
     public void onBindView(LxVh holder, int position, D data, @NonNull List<Object> payloads) {
 
     }
+
+    @Override
+    public void onBindEvent(LxVh holder, int viewType) {
+
+    }
 }
