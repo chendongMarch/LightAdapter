@@ -61,34 +61,67 @@ public class LxLoadMoreComponent extends LxComponent {
         if (loadMoreOn == Lx.LOAD_MORE_ON_BIND) {
             return;
         }
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                if (!loadMoreEnable) {
-                    return;
-                }
-                // 停止，到达底部，没有在加载
-                if (newState == RecyclerView.SCROLL_STATE_IDLE && reachEdge && !loadingMore) {
-                    loadingMore = true;
-                    if (listener != null) {
-                        listener.load(LxLoadMoreComponent.this);
+        if (loadMoreEdge == Lx.LOAD_MORE_END_EDGE) {
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                    if (!loadMoreEnable) {
+                        return;
+                    }
+                    // 停止，到达底部，没有在加载
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE && reachEdge && !loadingMore) {
+                        loadingMore = true;
+                        if (listener != null) {
+                            listener.load(LxLoadMoreComponent.this);
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (!loadMoreEnable) {
-                    return;
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    reachEdge = false;
+                    if (!loadMoreEnable) {
+                        return;
+                    }
+                    if ((viewOrientation == RecyclerView.VERTICAL && dy > 0) || (viewOrientation == RecyclerView.HORIZONTAL && dx > 0)) {
+                        int lastVisiblePosition = LxUtil.getLastVisiblePosition(recyclerView);
+                        reachEdge = lastVisiblePosition + 1 + startLoadMoreCount >= adapter.getItemCount();
+                    }
                 }
-                if ((viewOrientation == RecyclerView.VERTICAL && dy > 0) || (viewOrientation == RecyclerView.HORIZONTAL && dx > 0)) {
-                    int lastVisiblePosition = LxUtil.getLastVisiblePosition(recyclerView);
-                    reachEdge = lastVisiblePosition + 1 + startLoadMoreCount >= adapter.getItemCount();
+            });
+        } else if (loadMoreEdge == Lx.LOAD_MORE_START_EDGE) {
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                    if (!loadMoreEnable) {
+                        return;
+                    }
+                    // 停止，到达顶部,没有在加载更多，
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE && reachEdge && !loadingMore) {
+                        loadingMore = true;
+                        if (listener != null) {
+                            listener.load(LxLoadMoreComponent.this);
+                        }
+                    }
                 }
-            }
-        });
+
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    reachEdge = false;
+                    if (!loadMoreEnable) {
+                        return;
+                    }
+                    if ((viewOrientation == RecyclerView.VERTICAL && dy < 0) || (viewOrientation == RecyclerView.HORIZONTAL && dx < 0)) {
+                        int firstPos = LxUtil.getFirstVisiblePosition(recyclerView);
+                        reachEdge = firstPos <= startLoadMoreCount;
+                    }
+                }
+            });
+        }
     }
 
     public void setLoadMoreEnable(boolean enable) {

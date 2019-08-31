@@ -2,6 +2,7 @@ package com.zfy.adapter.x;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -11,7 +12,6 @@ import com.zfy.adapter.x.component.LxComponent;
 import com.zfy.adapter.x.function.LxSpan;
 import com.zfy.adapter.x.list.LxList;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -55,8 +55,14 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
             return this;
         }
 
-        public Builder component(LxComponent... components) {
-            this.components.addAll(Arrays.asList(components));
+        public Builder component(LxComponent component) {
+            this.components.add(component);
+            return this;
+        }
+
+        public Builder component(String name, LxComponent component) {
+            component.setName(name);
+            this.components.add(component);
             return this;
         }
 
@@ -172,5 +178,17 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
             throw new IllegalStateException("ItemBind Is Null");
         }
         return bind.getTypeOpts();
+    }
+
+    public @Nullable
+    LxComponent getComponent(String name) {
+        LxComponent component = null;
+        for (LxComponent lxComponent : components) {
+            if (name.equals(lxComponent.getName())) {
+                component = lxComponent;
+                break;
+            }
+        }
+        return null;
     }
 }

@@ -51,9 +51,18 @@ public class NewSampleTestActivity extends MvpActivity {
                         Lx.LOAD_MORE_END_EDGE, // edge
                         LxLoadMoreComponent.DEFAULT_START_LOAD_COUNT, // 预加载个数
                         (component) -> { // 加载回调
-                            ToastX.show("加在更多");
+                            ToastX.show("底部加载更多");
                             ExecutorsPool.ui(component::finishLoadMore, 2000);
-                        }))
+                        })
+                )
+                .component(new LxLoadMoreComponent(
+                        Lx.LOAD_MORE_START_EDGE, // edge
+                        LxLoadMoreComponent.DEFAULT_START_LOAD_COUNT, // 预加载个数
+                        (component) -> { // 加载回调
+                            ToastX.show("顶部加载更多");
+                            ExecutorsPool.ui(component::finishLoadMore, 2000);
+                        })
+                )
                 .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
 
         List<Student> students = ListX.range(10, index -> new Student(index + " " + System.currentTimeMillis()));
