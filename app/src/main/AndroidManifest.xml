@@ -31,6 +31,7 @@
         <activity android:name=".cases.EmptyTestActivity" />
         <activity android:name=".cases.TopMoreTestActivity" />
         <activity android:name=".cases.LightListTestActivity" />
+        <activity android:name=".cases.NewSampleTestActivity" />
         <activity android:name=".EntryActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
@@ -38,5 +39,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".cases.NewSampleTestActivity" />
     </application>
 </manifest>

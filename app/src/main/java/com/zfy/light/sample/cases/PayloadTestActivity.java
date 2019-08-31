@@ -42,7 +42,7 @@ public class PayloadTestActivity extends MvpActivity {
     @Override
     public void init() {
         mEntities = new LightDiffList<>();
-        // type callback
+        // viewType callback
         ModelTypeRegistry registry = ModelTypeRegistry.create();
         registry.add(Data.TYPE_PAYLOAD1, R.layout.item_event, SpanSize.SPAN_SIZE_ALL);
         registry.add(Data.TYPE_PAYLOAD2, R.layout.item_swipe, SpanSize.SPAN_SIZE_ALL);

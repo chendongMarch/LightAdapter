@@ -9,7 +9,7 @@ import com.zfy.adapter.common.SpanSize;
 
 /**
  * CreateAt : 2018/10/26
- * Describe : 针对每种 type 的配置对象
+ * Describe : 针对每种 viewType 的配置对象
  *
  * @author chendong
  */

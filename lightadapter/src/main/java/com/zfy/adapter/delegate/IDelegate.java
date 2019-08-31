@@ -97,10 +97,10 @@ public interface IDelegate {
     int getAboveItemCount(int level);
 
     /**
-     * 获取指定位置的 type
+     * 获取指定位置的 viewType
      *
      * @param position pos
-     * @return type
+     * @return viewType
      */
     int getItemViewType(int position);
 }

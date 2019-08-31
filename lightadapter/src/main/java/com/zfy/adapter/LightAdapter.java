@@ -222,10 +222,10 @@ public class LightAdapter<D> extends RecyclerView.Adapter<LightHolder>
                     mLightEvent.initEvent(holder, type);
                 }
                 if (holder == null) {
-                    throw new AdapterException("holder is null layout = " + type.layoutId + " , type = " + type.type);
+                    throw new AdapterException("holder is null layout = " + type.layoutId + " , viewType = " + type.type);
                 }
             } else {
-                throw new AdapterException("can not find type viewType = " + viewType);
+                throw new AdapterException("can not find viewType viewType = " + viewType);
             }
         }
 

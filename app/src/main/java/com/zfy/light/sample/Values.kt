@@ -48,7 +48,7 @@ object Values {
     fun getModelTypeMsg() = """
     ModelType 是一个非常核心的配置类，它用来决定每种数据类型的详细配置：
 
-    int type; // 数据类型
+    int viewType; // 数据类型
     int layoutId; // 布局资源
     int spanSize = LightValues.NONE; // 跨越行数
     boolean enableClick = true; // 是否允许点击事件

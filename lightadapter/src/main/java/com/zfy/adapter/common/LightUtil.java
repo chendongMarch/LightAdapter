@@ -36,7 +36,7 @@ public class LightUtil {
     }
 
     /**
-     * @param type type
+     * @param type viewType
      * @return 是不是内建类型
      */
     public static boolean isBuildInType(int type) {

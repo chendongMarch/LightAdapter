@@ -6,6 +6,7 @@ import android.view.View;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.cases.MainActivity;
+import com.zfy.light.sample.cases.NewSampleTestActivity;
 
 import butterknife.OnClick;
 
@@ -26,7 +27,7 @@ public class EntryActivity extends MvpActivity {
     public void clickView(View view) {
         switch (view.getId()) {
             case R.id.entry:
-                launchActivity(new Intent(getContext(), MainActivity.class), 0);
+                launchActivity(new Intent(getContext(), NewSampleTestActivity.class), 0);
                 break;
             default:
                 break;

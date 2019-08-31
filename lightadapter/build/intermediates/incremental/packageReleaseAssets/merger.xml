@@ -1,2 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="/Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/assets"/><source path="/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/generated/assets/shaders/release"/></dataSet><dataSet config="release"><source path="/Users/march/AndroidPro/LightAdapterSample/lightadapter/src/release/assets"/></dataSet></merger>

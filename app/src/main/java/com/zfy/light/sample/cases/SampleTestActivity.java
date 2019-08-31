@@ -129,7 +129,7 @@ public class SampleTestActivity extends MvpActivity {
 //        });
 
 
-        // type callback
+        // viewType callback
         ModelTypeRegistry registry = ModelTypeRegistry.create();
         registry.add(Data.TYPE_DELEGATE, R.layout.item_deleate, SpanSize.SPAN_SIZE_HALF);
         registry.add(Data.TYPE_PROJECT, R.layout.item_cover, SpanSize.SPAN_SIZE_HALF);
