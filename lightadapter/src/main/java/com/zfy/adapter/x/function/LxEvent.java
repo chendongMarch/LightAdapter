@@ -1,4 +1,4 @@
-package com.zfy.adapter.x;
+package com.zfy.adapter.x.function;
 
 import android.support.v4.view.GestureDetectorCompat;
 import android.view.GestureDetector;
@@ -6,23 +6,27 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.zfy.adapter.R;
+import com.zfy.adapter.x.listener.OnItemEventListener;
+import com.zfy.adapter.x.Lx;
+import com.zfy.adapter.x.LxContext;
+import com.zfy.adapter.x.LxVh;
 
 /**
  * CreateAt : 2019-08-31
- * Describe :
+ * Describe : 支持单击、双击、长按事件
  *
  * @author chendong
  */
 public class LxEvent {
 
-    public static void setClickEvent(LxVh holder, EventListener listener) {
+    public static void setClickEvent(LxVh holder, OnItemEventListener listener) {
         holder.itemView.setOnClickListener(v -> {
             LxContext ctx = (LxContext) v.getTag(R.id.item_context);
             listener.onEvent(ctx, Lx.EVENT_CLICK);
         });
     }
 
-    public static void setLongPressEvent(LxVh holder, EventListener listener) {
+    public static void setLongPressEvent(LxVh holder, OnItemEventListener listener) {
         holder.itemView.setOnLongClickListener(v -> {
             LxContext ctx = (LxContext) v.getTag(R.id.item_context);
             listener.onEvent(ctx, Lx.EVENT_LONG_PRESS);
@@ -30,7 +34,7 @@ public class LxEvent {
         });
     }
 
-    public static void setDoubleClickEvent(LxVh holder, boolean setClick, boolean setLongPress, EventListener listener) {
+    public static void setDoubleClickEvent(LxVh holder, boolean setClick, boolean setLongPress, OnItemEventListener listener) {
         View view = holder.itemView;
         GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
             @Override
@@ -79,7 +83,7 @@ public class LxEvent {
     }
 
 
-    public static void setEvent(LxVh holder, boolean setClick, boolean setLongPress, boolean setDoubleClick, EventListener listener) {
+    public static void setEvent(LxVh holder, boolean setClick, boolean setLongPress, boolean setDoubleClick, OnItemEventListener listener) {
         if (setDoubleClick) {
             setDoubleClickEvent(holder, setClick, setLongPress, listener);
         } else {

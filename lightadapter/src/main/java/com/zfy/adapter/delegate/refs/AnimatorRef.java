@@ -25,7 +25,7 @@ public interface AnimatorRef {
     void setBindAnimator(BindAnimator animator);
 
     /**
-     * bind 动画只执行一次
+     * binder 动画只执行一次
      *
      * @param animOnlyOnce 是否只绑定动画一次
      *                     true 表示只有第一次绑定的时候会生效，false 表示每次从页面划出都会重新绑定动画

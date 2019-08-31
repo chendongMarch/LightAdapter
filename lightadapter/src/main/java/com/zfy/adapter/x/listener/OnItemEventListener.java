@@ -1,4 +1,6 @@
-package com.zfy.adapter.x;
+package com.zfy.adapter.x.listener;
+
+import com.zfy.adapter.x.LxContext;
 
 /**
  * CreateAt : 2019-08-31
@@ -6,6 +8,6 @@ package com.zfy.adapter.x;
  *
  * @author chendong
  */
-public interface EventListener {
+public interface OnItemEventListener {
     void onEvent(LxContext context, int eventType);
 }

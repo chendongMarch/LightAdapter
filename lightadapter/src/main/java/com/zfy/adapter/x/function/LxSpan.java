@@ -1,14 +1,19 @@
-package com.zfy.adapter.x;
+package com.zfy.adapter.x.function;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.ViewGroup;
 
+import com.zfy.adapter.x.Lx;
+import com.zfy.adapter.x.LxAdapter;
+import com.zfy.adapter.x.LxVh;
+import com.zfy.adapter.x.TypeOpts;
+
 
 /**
  * CreateAt : 2019-09-01
- * Describe :
+ * Describe : 实现跨越多行的 span
  *
  * @author chendong
  */
@@ -75,12 +80,12 @@ public class LxSpan {
             spanSize = spanCount / 2;
         } else if (spanSize == Lx.SPAN_SIZE_THIRD && spanCount % 3 == 0) {
             spanSize = spanCount / 3;
-        } else if (spanSize == Lx.SPAN_SIZE_QUATER && spanCount % 4 == 0) {
+        } else if (spanSize == Lx.SPAN_SIZE_QUARTER && spanCount % 4 == 0) {
             spanSize = spanCount / 4;
         }
         if (spanSize == Lx.SPAN_SIZE_HALF && spanCount % 2 != 0
                 || spanSize == Lx.SPAN_SIZE_THIRD && spanCount % 3 != 0
-                || spanSize == Lx.SPAN_SIZE_QUATER && spanCount % 4 != 0) {
+                || spanSize == Lx.SPAN_SIZE_QUARTER && spanCount % 4 != 0) {
             throw new IllegalArgumentException("spanSize error, spanSize = " + spanCount + ", spanCount = " + spanCount);
         }
         return spanSize;

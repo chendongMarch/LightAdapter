@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 
 import com.zfy.adapter.R;
 import com.zfy.adapter.data.Typeable;
+import com.zfy.adapter.x.function.LxEvent;
 
 import java.util.List;
 

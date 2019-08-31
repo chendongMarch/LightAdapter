@@ -70,12 +70,12 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
         int itemViewType = mAdapter.getItemViewType(layoutIndex);
         if (itemViewType == ItemType.TYPE_HEADER) {
 //            for (Binder headerBinder : mHeaderBinders) {
-//                headerBinder.callback.bind(headerBinder.holder);
+//                headerBinder.callback.binder(headerBinder.holder);
 //            }
             return true;
         } else if (itemViewType == ItemType.TYPE_FOOTER) {
 //            for (Binder footerBinder : mFooterBinders) {
-//                footerBinder.callback.bind(footerBinder.holder);
+//                footerBinder.callback.binder(footerBinder.holder);
 //            }
             return true;
         }

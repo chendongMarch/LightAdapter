@@ -6,14 +6,16 @@ import android.support.v7.widget.RecyclerView;
 
 import com.march.common.exts.ListX;
 import com.march.common.exts.ToastX;
+import com.march.common.pool.ExecutorsPool;
 import com.zfy.adapter.x.Lx;
 import com.zfy.adapter.x.LxAdapter;
 import com.zfy.adapter.x.LxContext;
 import com.zfy.adapter.x.LxItemBind;
 import com.zfy.adapter.x.LxModel;
-import com.zfy.adapter.x.LxTransformations;
 import com.zfy.adapter.x.LxVh;
 import com.zfy.adapter.x.TypeOpts;
+import com.zfy.adapter.x.component.LxLoadMoreComponent;
+import com.zfy.adapter.x.function.LxTransformations;
 import com.zfy.adapter.x.list.LxDiffList;
 import com.zfy.adapter.x.list.LxList;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
@@ -44,15 +46,22 @@ public class NewSampleTestActivity extends MvpActivity {
     @Override
     public void init() {
         LxAdapter.of(mLxModels)
-                .bind(new StudentItemBind(), new TeacherItemBind())
+                .binder(new StudentItemBind(), new TeacherItemBind())
+                .component(new LxLoadMoreComponent(
+                        Lx.LOAD_MORE_END_EDGE, // edge
+                        LxLoadMoreComponent.DEFAULT_START_LOAD_COUNT, // 预加载个数
+                        (component) -> { // 加载回调
+                            ToastX.show("加在更多");
+                            ExecutorsPool.ui(component::finishLoadMore, 2000);
+                        }))
                 .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
 
         List<Student> students = ListX.range(10, index -> new Student(index + " " + System.currentTimeMillis()));
         List<Teacher> teachers = ListX.range(10, index -> new Teacher(index + " " + System.currentTimeMillis()));
         List<LxModel> lxModels = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            lxModels.add(LxTransformations.map(TYPE_STUDENT, students.get(i)));
-            lxModels.add(LxTransformations.map(TYPE_TEACHER, teachers.get(i)));
+            lxModels.add(LxTransformations.pack(TYPE_STUDENT, students.get(i)));
+            lxModels.add(LxTransformations.pack(TYPE_TEACHER, teachers.get(i)));
         }
         mLxModels.update(lxModels);
     }

@@ -7,9 +7,14 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import com.zfy.adapter.x.component.LxComponent;
+import com.zfy.adapter.x.function.LxSpan;
 import com.zfy.adapter.x.list.LxList;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * CreateAt : 2019-08-30
@@ -27,23 +32,31 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
     //
     private RecyclerView view;
 
-    private SparseArray<LxItemBind> lxItemBindArray;
+    private SparseArray<LxItemBind> binders;
+    private Set<LxComponent>        components;
 
     public static class Builder {
 
         private LxList<LxModel>            data;
-        private SparseArray<LxItemBind>    lxItemBindArray;
+        private SparseArray<LxItemBind>    binders;
         private RecyclerView.LayoutManager layoutManager;
         private RecyclerView               view;
+        private Set<LxComponent>           components;
 
         private Builder() {
-            lxItemBindArray = new SparseArray<>();
+            binders = new SparseArray<>();
+            components = new HashSet<>();
         }
 
-        public Builder bind(LxItemBind... binds) {
-            for (LxItemBind bind : binds) {
-                lxItemBindArray.append(bind.getItemType(), bind);
+        public Builder binder(LxItemBind... binders) {
+            for (LxItemBind bind : binders) {
+                this.binders.append(bind.getItemType(), bind);
             }
+            return this;
+        }
+
+        public Builder component(LxComponent... components) {
+            this.components.addAll(Arrays.asList(components));
             return this;
         }
 
@@ -67,9 +80,10 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
     private LxAdapter(Builder builder) {
         this.data = builder.data;
 
-        this.lxItemBindArray = builder.lxItemBindArray;
-        for (int i = 0; i < lxItemBindArray.size(); i++) {
-            LxItemBind lxItemBind = lxItemBindArray.valueAt(i);
+        this.binders = builder.binders;
+        this.components = builder.components;
+        for (int i = 0; i < binders.size(); i++) {
+            LxItemBind lxItemBind = binders.valueAt(i);
             lxItemBind.onAdapterAttached(this);
         }
 
@@ -94,26 +108,34 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
         this.inflater = LayoutInflater.from(context);
 
         LxSpan.onAttachedToRecyclerView(this);
+
+        for (LxComponent component : components) {
+            component.onAttachedToRecyclerView(this, recyclerView);
+        }
     }
 
     @NonNull
     @Override
     public LxVh onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LxItemBind lxItemBind = lxItemBindArray.get(viewType);
+        LxItemBind lxItemBind = binders.get(viewType);
         return lxItemBind.onCreateViewHolder(parent, viewType);
     }
 
     @Override
     public void onBindViewHolder(@NonNull LxVh holder, int position) {
-
+        // ignore
     }
 
     @Override
     public void onBindViewHolder(@NonNull LxVh holder, int position, @NonNull List<Object> payloads) {
         LxModel lxModel = data.get(position);
         int viewType = getItemViewType(position);
-        LxItemBind lxItemBind = lxItemBindArray.get(viewType);
+        LxItemBind lxItemBind = binders.get(viewType);
         lxItemBind.onBindViewHolder(holder, position, lxModel, payloads);
+
+        for (LxComponent component : components) {
+            component.onAttachedToRecyclerView(this, view);
+        }
     }
 
     @Override
@@ -145,7 +167,7 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
     }
 
     public TypeOpts getTypeOpts(int viewType) {
-        LxItemBind bind = lxItemBindArray.get(viewType);
+        LxItemBind bind = binders.get(viewType);
         if (bind == null) {
             throw new IllegalStateException("ItemBind Is Null");
         }

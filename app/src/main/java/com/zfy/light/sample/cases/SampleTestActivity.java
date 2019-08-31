@@ -80,7 +80,7 @@ public class SampleTestActivity extends MvpActivity {
 //        }
 //        @Override
 //        public void onBindView(LightHolder holder, Data unpack, Extra extra) {
-//            // bind video unpack
+//            // binder video unpack
 //        }
 //    }
 
@@ -92,7 +92,7 @@ public class SampleTestActivity extends MvpActivity {
 //        }
 //        @Override
 //        public void onBindView(LightHolder holder, Data unpack, Extra extra) {
-//            // bind audio unpack
+//            // binder audio unpack
 //        }
 //    }
 
