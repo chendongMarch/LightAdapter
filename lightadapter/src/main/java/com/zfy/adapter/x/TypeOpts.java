@@ -2,8 +2,6 @@ package com.zfy.adapter.x;
 
 import android.support.annotation.LayoutRes;
 
-import com.zfy.adapter.common.SpanSize;
-
 /**
  * CreateAt : 2019-08-30
  * Describe :
@@ -14,7 +12,7 @@ public class TypeOpts {
 
     public            int viewType = Lx.VIEW_TYPE_DEFAULT; // 数据类型
     @LayoutRes public int layoutId; // 布局资源
-    public            int spanSize = SpanSize.NONE; // 跨越行数
+    public            int spanSize = Lx.SPAN_NONE; // 跨越行数
 
     public boolean enableClick     = true; // 是否允许点击事件
     public boolean enableLongPress = false; // 是否允许长按事件

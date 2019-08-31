@@ -92,6 +92,8 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
         this.context = recyclerView.getContext();
         this.view = recyclerView;
         this.inflater = LayoutInflater.from(context);
+
+        LxSpan.onAttachedToRecyclerView(this);
     }
 
     @NonNull
@@ -124,6 +126,12 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
         return data.get(position).getItemType();
     }
 
+    @Override
+    public void onViewAttachedToWindow(@NonNull LxVh holder) {
+        super.onViewAttachedToWindow(holder);
+        LxSpan.onViewAttachedToWindow(this, holder);
+    }
+
     public LxList<LxModel> getData() {
         return data;
     }
@@ -134,5 +142,13 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
 
     public RecyclerView getView() {
         return view;
+    }
+
+    public TypeOpts getTypeOpts(int viewType) {
+        LxItemBind bind = lxItemBindArray.get(viewType);
+        if (bind == null) {
+            throw new IllegalStateException("ItemBind Is Null");
+        }
+        return bind.getTypeOpts();
     }
 }

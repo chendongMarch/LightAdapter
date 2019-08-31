@@ -50,7 +50,7 @@ object Values {
 
     int viewType; // 数据类型
     int layoutId; // 布局资源
-    int spanSize = LightValues.NONE; // 跨越行数
+    int spanSize = LightValues.SPAN_NONE; // 跨越行数
     boolean enableClick = true; // 是否允许点击事件
     boolean enableLongPress = true; // 是否允许长按事件
     boolean enableDbClick = false; // 是否允许双击事件

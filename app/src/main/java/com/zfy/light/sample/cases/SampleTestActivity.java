@@ -436,7 +436,7 @@ public class SampleTestActivity extends MvpActivity {
 //        LightView view = LightView.from(R.layout.empty_view);
 //        emptyViewRef.setEmptyView(view, (holder, unpack, extra) -> {
 //            switch (unpack.state) {
-//                case EmptyState.NONE: // 隐藏空白页
+//                case EmptyState.SPAN_NONE: // 隐藏空白页
 //                    break;
 //                case EmptyState.ERROR: // 错误
 //                    break;
@@ -449,7 +449,7 @@ public class SampleTestActivity extends MvpActivity {
 //            }
 //        });
 //        // 隐藏空白页
-//        emptyViewRef.setEmptyState(EmptyState.NONE);
+//        emptyViewRef.setEmptyState(EmptyState.SPAN_NONE);
 //        // 设置为自定义状态
 //        emptyViewRef.setEmptyState(CUSTOM_STATE);
 //

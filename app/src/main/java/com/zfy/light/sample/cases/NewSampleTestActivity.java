@@ -1,7 +1,7 @@
 package com.zfy.light.sample.cases;
 
 import android.support.annotation.NonNull;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.march.common.exts.ListX;
@@ -43,8 +43,9 @@ public class NewSampleTestActivity extends MvpActivity {
 
     @Override
     public void init() {
-        LxAdapter.of(mLxModels).bind(new StudentItemBind(), new TeacherItemBind())
-                .attachTo(mRecyclerView, new LinearLayoutManager(getContext()));
+        LxAdapter.of(mLxModels)
+                .bind(new StudentItemBind(), new TeacherItemBind())
+                .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
 
         List<Student> students = ListX.range(10, index -> new Student(index + " " + System.currentTimeMillis()));
         List<Teacher> teachers = ListX.range(10, index -> new Teacher(index + " " + System.currentTimeMillis()));
@@ -79,18 +80,18 @@ public class NewSampleTestActivity extends MvpActivity {
 
         StudentItemBind() {
             super(TypeOpts.make(opts -> {
-                opts.layoutId = R.layout.item_basic;
+                opts.layoutId = R.layout.item_squire1;
                 opts.enableClick = true;
                 opts.enableLongPress = true;
                 opts.enableDbClick = true;
                 opts.viewType = TYPE_STUDENT;
-
+                opts.spanSize = Lx.SPAN_SIZE_ALL;
             }));
         }
 
         @Override
         public void onBindView(LxVh holder, int position, Student data, @NonNull List<Object> payloads) {
-            holder.setText(R.id.title_tv, data.name).setText(R.id.desc_tv, position + " " + TYPE_STUDENT);
+            holder.setText(R.id.title_tv, "学：" + data.name).setText(R.id.desc_tv, position + " " + TYPE_STUDENT);
         }
 
         @Override
@@ -106,14 +107,15 @@ public class NewSampleTestActivity extends MvpActivity {
 
         TeacherItemBind() {
             super(TypeOpts.make(opts -> {
-                opts.layoutId = R.layout.item_swipe;
+                opts.layoutId = R.layout.item_squire2;
                 opts.viewType = TYPE_TEACHER;
+                opts.spanSize = 1;
             }));
         }
 
         @Override
         public void onBindView(LxVh holder, int position, Teacher data, @NonNull List<Object> payloads) {
-            holder.setText(R.id.title_tv, data.name).setText(R.id.desc_tv, position + " " + TYPE_TEACHER);
+            holder.setText(R.id.title_tv, "师：" + data.name).setText(R.id.desc_tv, position + " " + TYPE_TEACHER);
         }
 
         @Override

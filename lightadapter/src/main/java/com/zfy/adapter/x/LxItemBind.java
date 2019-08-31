@@ -71,6 +71,10 @@ public abstract class LxItemBind<D> implements Typeable {
         return adapter;
     }
 
+    public TypeOpts getTypeOpts() {
+        return typeOpts;
+    }
+
     @Override
     public int getItemType() {
         return typeOpts.viewType;

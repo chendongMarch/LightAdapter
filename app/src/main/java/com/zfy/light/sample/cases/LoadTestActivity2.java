@@ -124,7 +124,7 @@ public class LoadTestActivity2 extends MvpActivity {
 //            holder.setClick(R.id.refresh_tv, v -> {
 //                mAdapter.header().setHeaderEnable(true);
 //                mData.update(ListX.range(20, index -> new LoadData(index % 7 == 0 ? Data.TYPE_CAN_SWIPE : Data.TYPE_CAN_DRAG)));
-//                mAdapter.emptyView().setEmptyState(EmptyState.NONE);
+//                mAdapter.emptyView().setEmptyState(EmptyState.SPAN_NONE);
 //                mAdapter.loadingView().setLoadingEnable(true);
 //                mAdapter.loadMore().setLoadMoreEnable(true);
 //            });
