@@ -55,7 +55,7 @@ public interface IDelegate {
      * 绑定 ViewHolder
      *
      * @param holder   LightHolder
-     * @param layoutIndex pos
+     * @param layoutIndex position
      * @return 是否承担绑定 ViewHolder 的任务
      */
     boolean onBindViewHolder(LightHolder holder, int layoutIndex);
@@ -99,7 +99,7 @@ public interface IDelegate {
     /**
      * 获取指定位置的 viewType
      *
-     * @param position pos
+     * @param position position
      * @return viewType
      */
     int getItemViewType(int position);

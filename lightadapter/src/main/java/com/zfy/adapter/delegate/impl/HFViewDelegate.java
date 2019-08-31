@@ -104,7 +104,7 @@ public class HFViewDelegate extends BaseViewDelegate implements HeaderRef, Foote
         if (isHeaderEnable() && position == 0) {
             return ItemType.TYPE_HEADER;
         }
-        // pos 超出
+        // position 超出
         int aboveItemCount = mAdapter.getDelegateRegistry().getAboveItemCount(LightValues.FLOW_LEVEL_FOOTER);
         if (isFooterEnable() && position == aboveItemCount) {
             return ItemType.TYPE_FOOTER;

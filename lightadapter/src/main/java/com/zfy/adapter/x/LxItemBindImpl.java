@@ -10,7 +10,7 @@ import java.util.List;
  *
  * @author chendong
  */
-public class LxItemBindImpl<D> extends LxItemBind<D> {
+public abstract class LxItemBindImpl<D> extends LxItemBind<D> {
 
     public LxItemBindImpl(TypeOpts opts) {
         super(opts);
@@ -21,8 +21,5 @@ public class LxItemBindImpl<D> extends LxItemBind<D> {
 
     }
 
-    @Override
-    public void onBindEvent(LxVh holder, int viewType) {
 
-    }
 }

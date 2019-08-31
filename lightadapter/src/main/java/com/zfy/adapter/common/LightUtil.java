@@ -180,7 +180,7 @@ public class LightUtil {
      * 获取最后一条展示的位置
      *
      * @param view RecyclerView
-     * @return 最后一个位置 pos
+     * @return 最后一个位置 position
      */
     public static int getLastVisiblePosition(RecyclerView view) {
         int position;

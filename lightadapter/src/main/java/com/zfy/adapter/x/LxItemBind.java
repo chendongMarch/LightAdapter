@@ -17,9 +17,8 @@ import java.util.List;
  */
 public abstract class LxItemBind<D> implements Typeable {
 
-    private LxAdapter       adapter;
-    private TypeOpts        typeOpts;
-    private EventListener[] listeners;
+    protected LxAdapter adapter;
+    private   TypeOpts  typeOpts;
 
     public LxItemBind(TypeOpts opts) {
         this.typeOpts = opts;
@@ -36,25 +35,41 @@ public abstract class LxItemBind<D> implements Typeable {
             context = new LxContext();
         }
         LxVh lxVh = new LxVh(view);
-        context.setHolder(lxVh);
+        context.holder = lxVh;
+        lxVh.setLxContext(context);
         view.setTag(R.id.item_context, context);
         onBindEvent(lxVh, viewType);
         return lxVh;
     }
 
     public void onBindViewHolder(@NonNull LxVh holder, int position, LxModel data, @NonNull List<Object> payloads) {
-        LxContext context = (LxContext) holder.itemView.getTag(R.id.item_context);
-        context.setHolder(holder);
-        context.setPos(position);
-        context.setData(data.unpack());
-        holder.itemView.setTag(R.id.item_context, context);
+        D unpack = data.unpack();
 
-        onBindView(holder, position, data.unpack(), payloads);
+        LxContext context = (LxContext) holder.itemView.getTag(R.id.item_context);
+        context.holder = holder;
+        context.position = position;
+        context.data = unpack;
+        holder.setLxContext(context);
+
+        onBindView(holder, position, unpack, payloads);
     }
 
     public abstract void onBindView(LxVh holder, int position, D data, @NonNull List<Object> payloads);
 
-    public abstract void onBindEvent(LxVh holder, int viewType);
+    private void onBindEvent(LxVh holder, int viewType) {
+        LxEvent.setEvent(holder, typeOpts.enableClick, typeOpts.enableLongPress, typeOpts.enableDbClick, (context, eventType) -> {
+            // 上下文中数据不变，但是 pos 变了，重新更新一下
+            context.position = holder.getAdapterPosition();
+            holder.setLxContext(context);
+            onEvent(context, (D) context.data, eventType);
+        });
+    }
+
+    public abstract void onEvent(LxContext context, D data, int eventType);
+
+    public LxAdapter getAdapter() {
+        return adapter;
+    }
 
     @Override
     public int getItemType() {

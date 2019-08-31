@@ -8,32 +8,7 @@ package com.zfy.adapter.x;
  */
 public class LxContext {
 
-    private Object data;
-    private int    pos;
-    private LxVh   holder;
-
-
-    public <D> D getData() {
-        return (D) data;
-    }
-
-    public void setData(Object data) {
-        this.data = data;
-    }
-
-    public int getPos() {
-        return pos;
-    }
-
-    public void setPos(int pos) {
-        this.pos = pos;
-    }
-
-    public LxVh getHolder() {
-        return holder;
-    }
-
-    public void setHolder(LxVh holder) {
-        this.holder = holder;
-    }
+    public Object data;
+    public int    position;
+    public LxVh   holder;
 }

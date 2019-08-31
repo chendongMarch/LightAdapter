@@ -1,6 +1,5 @@
 package com.zfy.adapter.x;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -47,12 +46,8 @@ public class LxVh extends RecyclerView.ViewHolder {
         this.cacheViews = new SparseArray<>(5);
     }
 
-    public View getItemView() {
-        return itemView;
-    }
-
-    public Context getContext() {
-        return itemView.getContext();
+    public void setLxContext(Object tag) {
+        itemView.setTag(R.id.item_context, tag);
     }
 
     // 获取 view 列表 ArrayList
@@ -630,6 +625,6 @@ public class LxVh extends RecyclerView.ViewHolder {
     }
 
     private int getColor(int colorRes) {
-        return ContextCompat.getColor(getContext(), colorRes);
+        return ContextCompat.getColor(itemView.getContext(), colorRes);
     }
 }

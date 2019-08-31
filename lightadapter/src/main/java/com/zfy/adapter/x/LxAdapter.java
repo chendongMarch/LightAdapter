@@ -66,6 +66,7 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
 
     private LxAdapter(Builder builder) {
         this.data = builder.data;
+
         this.lxItemBindArray = builder.lxItemBindArray;
         for (int i = 0; i < lxItemBindArray.size(); i++) {
             LxItemBind lxItemBind = lxItemBindArray.valueAt(i);
@@ -81,6 +82,8 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
             }
             this.view.setAdapter(this);
         }
+
+        this.data.setAdapter(this);
     }
 
     @Override
@@ -119,5 +122,17 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
     @Override
     public int getItemViewType(int position) {
         return data.get(position).getItemType();
+    }
+
+    public LxList<LxModel> getData() {
+        return data;
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public RecyclerView getView() {
+        return view;
     }
 }

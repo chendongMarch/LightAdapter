@@ -1,6 +1,7 @@
 package com.zfy.adapter.x;
 
 import com.zfy.adapter.common.ItemType;
+import com.zfy.adapter.data.Copyable;
 import com.zfy.adapter.data.Diffable;
 import com.zfy.adapter.data.Typeable;
 
@@ -12,12 +13,17 @@ import java.util.Set;
  *
  * @author chendong
  */
-public class LxModel implements Diffable<LxModel>, Typeable {
+public class LxModel implements Diffable<LxModel>, Typeable, Copyable<LxModel> {
 
     private Object data;
+    private int    type = Lx.VIEW_TYPE_DEFAULT;
 
     public LxModel(Object data) {
         this.data = data;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 
     public <T> T unpack() {
@@ -64,6 +70,11 @@ public class LxModel implements Diffable<LxModel>, Typeable {
         if (data instanceof Typeable) {
             return ((Typeable) data).getItemType();
         }
-        return  ItemType.TYPE_DEFAULT;
+        return type;
+    }
+
+    @Override
+    public LxModel copyNewOne() {
+        return new LxModel(data);
     }
 }
