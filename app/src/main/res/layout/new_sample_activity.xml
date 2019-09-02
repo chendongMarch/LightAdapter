@@ -3,9 +3,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-    <android.support.v7.widget.RecyclerView
+    <com.zfy.adapter.x.decoration.LxSlidingSelectLayout
         android:layout_width="match_parent"
-        android:id="@+id/content_rv"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:id="@+id/content_rv"
+            android:layout_height="match_parent"/>
+
+    </com.zfy.adapter.x.decoration.LxSlidingSelectLayout>
+
+
 </android.support.constraint.ConstraintLayout>

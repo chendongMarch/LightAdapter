@@ -50,21 +50,21 @@ public abstract class LxItemBind<D> implements Typeable {
         context.holder = holder;
         context.position = position;
         context.data = unpack;
+        context.model = data;
         holder.setLxContext(context);
 
-        onBindView(holder, position, unpack, payloads);
+        onBindView(holder, unpack, data, position, payloads);
     }
 
-    public abstract void onBindView(LxVh holder, int position, D data, @NonNull List<Object> payloads);
+    public abstract void onBindView(LxVh holder, D data, LxModel model, int position, @NonNull List<Object> payloads);
 
     private void onBindEvent(LxVh holder, int viewType) {
         LxEvent.setEvent(holder, typeOpts.enableClick, typeOpts.enableLongPress, typeOpts.enableDbClick, (context, eventType) -> {
-            // 上下文中数据不变，但是 pos 变了，重新更新一下
-            onEvent(context, context == null ? null : (D) context.data, eventType);
+            onEvent(context, context == null ? null : (D) context.data, context.model, eventType);
         });
     }
 
-    public abstract void onEvent(LxContext context, D data, int eventType);
+    public abstract void onEvent(LxContext context, D data, LxModel model, int eventType);
 
     public LxAdapter getAdapter() {
         return adapter;

@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 
 import com.zfy.adapter.x.LxAdapter;
-import com.zfy.adapter.x.function.FixedItemDecoration;
+import com.zfy.adapter.x.decoration.FixedItemDecoration;
 
 /**
  * CreateAt : 2019-09-02

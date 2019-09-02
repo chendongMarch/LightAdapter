@@ -9,6 +9,7 @@ package com.zfy.adapter.x;
 public class LxContext {
 
     public Object data;
+    public LxModel model;
     public int    position;
     public LxVh   holder;
     public int viewType;

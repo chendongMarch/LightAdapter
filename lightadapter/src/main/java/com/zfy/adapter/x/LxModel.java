@@ -2,6 +2,7 @@ package com.zfy.adapter.x;
 
 import com.zfy.adapter.data.Copyable;
 import com.zfy.adapter.data.Diffable;
+import com.zfy.adapter.data.Selectable;
 import com.zfy.adapter.data.Typeable;
 
 import java.util.Set;
@@ -12,13 +13,12 @@ import java.util.Set;
  *
  * @author chendong
  */
-public class LxModel implements Diffable<LxModel>, Typeable, Copyable<LxModel> {
+public class LxModel implements Diffable<LxModel>, Typeable, Copyable<LxModel>, Selectable {
 
-    private Object data;
-
-    private int type = Lx.VIEW_TYPE_DEFAULT;
-
-    public int moduleId; // 模块ID
+    private Object  data;
+    private int     type = Lx.VIEW_TYPE_DEFAULT;
+    private int     moduleId; // 模块ID
+    private boolean selected;
 
     public LxModel(Object data) {
         this.data = data;
@@ -30,6 +30,14 @@ public class LxModel implements Diffable<LxModel>, Typeable, Copyable<LxModel> {
 
     public <T> T unpack() {
         return (T) data;
+    }
+
+    public int getModuleId() {
+        return moduleId;
+    }
+
+    public void setModuleId(int moduleId) {
+        this.moduleId = moduleId;
     }
 
     private boolean canCompare(LxModel newItem, LxModel current) {
@@ -81,5 +89,15 @@ public class LxModel implements Diffable<LxModel>, Typeable, Copyable<LxModel> {
         lxModel.moduleId = moduleId;
         lxModel.type = type;
         return lxModel;
+    }
+
+    @Override
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
+    @Override
+    public boolean isSelected() {
+        return selected;
     }
 }

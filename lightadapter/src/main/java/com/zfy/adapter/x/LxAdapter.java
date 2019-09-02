@@ -3,6 +3,7 @@ package com.zfy.adapter.x;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -118,6 +119,11 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
+
+        RecyclerView.ItemAnimator itemAnimator = recyclerView.getItemAnimator();
+        if (itemAnimator instanceof DefaultItemAnimator) {
+            ((DefaultItemAnimator) itemAnimator).setSupportsChangeAnimations(false);
+        }
         this.context = recyclerView.getContext();
         this.view = recyclerView;
         this.inflater = LayoutInflater.from(context);

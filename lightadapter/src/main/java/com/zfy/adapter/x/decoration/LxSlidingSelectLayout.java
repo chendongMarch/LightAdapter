@@ -1,4 +1,4 @@
-package com.zfy.adapter.extend;
+package com.zfy.adapter.x.decoration;
 
 import android.content.Context;
 import android.support.v4.view.MotionEventCompat;
@@ -9,11 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import com.zfy.adapter.LightAdapter;
 import com.zfy.adapter.common.LightUtil;
-import com.zfy.adapter.delegate.impl.SelectorDelegate;
-import com.zfy.adapter.delegate.refs.SelectorRef;
 import com.zfy.adapter.function._Consumer;
+import com.zfy.adapter.x.LxAdapter;
 
 /**
  * CreateAt : 2016/9/12
@@ -21,30 +19,30 @@ import com.zfy.adapter.function._Consumer;
  *
  * @author chendong
  */
-public class SlidingSelectLayout extends FrameLayout {
+public class LxSlidingSelectLayout extends FrameLayout {
 
     private static final float TOUCH_SLOP_RATE = 0.15f;// 初始化值
     private static final int   INVALID_PARAM   = -1;
 
-    public SlidingSelectLayout(Context context) {
+    public LxSlidingSelectLayout(Context context) {
         this(context, null);
     }
 
-    public SlidingSelectLayout(Context context, AttributeSet attrs) {
+    public LxSlidingSelectLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         mSpanCount = INVALID_PARAM;
         mPrePublishPos = INVALID_PARAM;
     }
 
-    private LightAdapter mAdapter;
+    private LxAdapter mAdapter;
 
-    private float        mXTouchSlop; // 横轴滑动阈值，超过阈值表示触发横轴滑动
-    private float        mYTouchSlop; // 纵轴滑动阈值，超过阈值表示触发纵轴滑动
-    private int          mSpanCount; // 横向的item数量
-    private float        mInitialDownX; // down 事件初始值
-    private float        mInitialDownY; // down 事件初始值
-    private boolean      mIsSliding; // 是否正在滑动
-    private int          mPrePublishPos; // 上次发布的位置，避免频繁发布
+    private float   mXTouchSlop; // 横轴滑动阈值，超过阈值表示触发横轴滑动
+    private float   mYTouchSlop; // 纵轴滑动阈值，超过阈值表示触发纵轴滑动
+    private int     mSpanCount; // 横向的item数量
+    private float   mInitialDownX; // down 事件初始值
+    private float   mInitialDownY; // down 事件初始值
+    private boolean mIsSliding; // 是否正在滑动
+    private int     mPrePublishPos; // 上次发布的位置，避免频繁发布
 
     private _Consumer<Object> onSlidingSelectListener;// 滑动选中监听
 
@@ -60,8 +58,9 @@ public class SlidingSelectLayout extends FrameLayout {
         }
         ensureAdapter();
         ensureSpanCount();
-        if (!isReadyToIntercept())
+        if (!isReadyToIntercept()) {
             return super.onInterceptTouchEvent(ev);
+        }
 
         int action = ev.getActionMasked();
         switch (action) {
@@ -119,7 +118,7 @@ public class SlidingSelectLayout extends FrameLayout {
             return;
         }
         int position = recyclerView.getChildAdapterPosition(childViewUnder);
-        Object data = mAdapter.getItem(mAdapter.toModelIndex(position));
+        Object data = mAdapter.getData().get(position);
         // 当前触摸的点与上一次触摸的点相同 || 没有pos || 没有数据
         if (mPrePublishPos == position || position == INVALID_PARAM || data == null) {
             return;
@@ -157,12 +156,8 @@ public class SlidingSelectLayout extends FrameLayout {
         RecyclerView recyclerView = searchRecyclerView(this);
         if (recyclerView != null) {
             RecyclerView.Adapter adapter = recyclerView.getAdapter();
-            if (adapter != null && adapter instanceof LightAdapter) {
-                mAdapter = (LightAdapter) adapter;
-                SelectorRef selector = mAdapter.selector();
-                if (selector instanceof SelectorDelegate) {
-                    ((SelectorDelegate) selector).setSlidingSelectLayout(this);
-                }
+            if (adapter instanceof LxAdapter) {
+                mAdapter = (LxAdapter) adapter;
             }
         }
     }

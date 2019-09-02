@@ -1,4 +1,4 @@
-package com.zfy.adapter.x.function;
+package com.zfy.adapter.x.decoration;
 
 import android.graphics.Canvas;
 import android.support.v7.widget.RecyclerView;
@@ -21,7 +21,6 @@ import java.util.List;
  * 然后绘制在 Canvas 上面
  *
  * @author chendong
- * @see com.zfy.adapter.delegate.impl.SectionDelegate
  */
 public class FixedItemDecoration extends RecyclerView.ItemDecoration {
 

@@ -340,11 +340,11 @@ public class SampleTestActivity extends MvpActivity {
 //        // 该数据是否被选中
 //        boolean isSelect = selector.isSelect(unpack);
 //        // 取消选中该元素
-//        selector.releaseItem(unpack);
+//        selector.unSelect(unpack);
 //        // 选中该元素
-//        selector.selectItem(unpack);
+//        selector.doSelect(unpack);
 //        // 切换状态，选中改为不选中，不选中改为选中
-//        selector.toggleItem(unpack);
+//        selector.toggleSelectItem(unpack);
 //        // 设置选择监听，返回 false 将阻止选择操作
 //        selector.setOnSelectListener((unpack, toSelect) -> {
 //            // 返回 false 将阻止这次选择操作，用于最多选择 10 个这种场景
