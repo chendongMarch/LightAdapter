@@ -7,6 +7,7 @@ import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 
 import com.zfy.adapter.R;
 import com.zfy.adapter.model.Ids;
+import com.zfy.adapter.x.component.LxDragSwipeComponent;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -40,6 +42,7 @@ public class LxVh extends RecyclerView.ViewHolder {
     public static int UNSET = -100;
 
     private SparseArray<View> cacheViews;
+    private int               itemViewType;
 
     public LxVh(View itemView) {
         super(itemView);
@@ -48,6 +51,26 @@ public class LxVh extends RecyclerView.ViewHolder {
 
     public void setLxContext(Object tag) {
         itemView.setTag(R.id.item_context, tag);
+    }
+
+    public @Nullable
+    LxContext getLxContext() {
+        Object viewTag = itemView.getTag(R.id.item_context);
+        if (viewTag != null) {
+            LxContext context = (LxContext) viewTag;
+            context.position = getAdapterPosition();
+            context.viewType = getItemViewType();
+            return context;
+        }
+        return null;
+    }
+
+    public void setItemViewType(int itemViewType) {
+        this.itemViewType = itemViewType;
+    }
+
+    public int getViewType() {
+        return this.itemViewType;
     }
 
     // 获取 view 列表 ArrayList
@@ -556,61 +579,77 @@ public class LxVh extends RecyclerView.ViewHolder {
 
     //////////////////////////////  -- drag & swipe --  //////////////////////////////
 
-//    public LxVh dragOnTouch(int... ids) {
-//        if (ids.length == 0) {
-//            adapter.dragSwipe().dragOnTouch(itemView, this);
-//            return this;
-//        }
-//        for (int id : ids) {
-//            View view = getView(id);
-//            if (view != null) {
-//                adapter.dragSwipe().dragOnTouch(view, this);
-//            }
-//        }
-//        return this;
-//    }
-//
-//    public LxVh dragOnLongPress(int... ids) {
-//        if (ids.length == 0) {
-//            adapter.dragSwipe().dragOnLongPress(itemView, this);
-//            return this;
-//        }
-//        for (int id : ids) {
-//            View view = getView(id);
-//            if (view != null) {
-//                adapter.dragSwipe().dragOnLongPress(view, this);
-//            }
-//        }
-//        return this;
-//    }
-//
-//    public LxVh swipeOnTouch(int... ids) {
-//        if (ids.length == 0) {
-//            adapter.dragSwipe().swipeOnTouch(itemView, this);
-//            return this;
-//        }
-//        for (int id : ids) {
-//            View view = getView(id);
-//            if (view != null) {
-//                adapter.dragSwipe().swipeOnTouch(view, this);
-//            }
-//        }
-//        return this;
-//    }
-//
-//    public LxVh swipeOnLongPress(int... ids) {
-//        if (ids.length == 0) {
-//            adapter.dragSwipe().swipeOnLongPress(itemView, this);
-//            return this;
-//        }
-//        for (int id : ids) {
-//            View view = getView(id);
-//            if (view != null) {
-//                adapter.dragSwipe().swipeOnLongPress(view, this);
-//            }
-//        }
-//        return this;
-//    }
+    public LxVh dragOnTouch(LxAdapter adapter, int... ids) {
+        LxDragSwipeComponent component = adapter.getComponent(LxDragSwipeComponent.class);
+        if (component == null) {
+            return this;
+        }
+        if (ids.length == 0) {
+            component.dragOnTouch(itemView, this);
+            return this;
+        }
+        for (int id : ids) {
+            View view = getView(id);
+            if (view != null) {
+                component.dragOnTouch(view, this);
+            }
+        }
+        return this;
+    }
+
+    public LxVh dragOnLongPress(LxAdapter adapter, int... ids) {
+        LxDragSwipeComponent component = adapter.getComponent(LxDragSwipeComponent.class);
+        if (component == null) {
+            return this;
+        }
+        if (ids.length == 0) {
+            component.dragOnLongPress(itemView, this);
+            return this;
+        }
+        for (int id : ids) {
+            View view = getView(id);
+            if (view != null) {
+                component.dragOnLongPress(view, this);
+            }
+        }
+        return this;
+    }
+
+    public LxVh swipeOnTouch(LxAdapter adapter, int... ids) {
+        LxDragSwipeComponent component = adapter.getComponent(LxDragSwipeComponent.class);
+        if (component == null) {
+            return this;
+        }
+        if (ids.length == 0) {
+            component.swipeOnTouch(itemView, this);
+            return this;
+        }
+        for (int id : ids) {
+            View view = getView(id);
+            if (view != null) {
+                component.swipeOnTouch(view, this);
+            }
+        }
+        return this;
+    }
+
+    public LxVh swipeOnLongPress(LxAdapter adapter, int... ids) {
+        LxDragSwipeComponent component = adapter.getComponent(LxDragSwipeComponent.class);
+        if (component == null) {
+            return this;
+        }
+        if (ids.length == 0) {
+            component.swipeOnLongPress(itemView, this);
+            return this;
+        }
+        for (int id : ids) {
+            View view = getView(id);
+            if (view != null) {
+                component.swipeOnLongPress(view, this);
+            }
+        }
+        return this;
+    }
 
 
     //////////////////////////////  -- 公共方法 --  //////////////////////////////

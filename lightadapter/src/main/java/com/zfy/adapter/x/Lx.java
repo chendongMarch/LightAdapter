@@ -28,6 +28,14 @@ public class Lx {
     public static final int VIEW_TYPE_DEFAULT = 0;
     public static       int VIEW_TYPE_BASE    = 1;
 
+
+    public static final int DRAG_SWIPE_STATE_NONE          = 0;
+    public static final int DRAG_SWIPE_STATE_ACTIVE_DRAG   = 1;
+    public static final int DRAG_SWIPE_STATE_ACTIVE_SWIPE  = 2;
+    public static final int DRAG_SWIPE_STATE_RELEASE_DRAG  = 3;
+    public static final int DRAG_SWIPE_STATE_RELEASE_SWIPE = 4;
+
+
     public static int incrementViewType() {
         return VIEW_TYPE_BASE++;
     }

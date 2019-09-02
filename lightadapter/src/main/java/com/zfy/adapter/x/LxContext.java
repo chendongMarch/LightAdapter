@@ -11,4 +11,5 @@ public class LxContext {
     public Object data;
     public int    position;
     public LxVh   holder;
+    public int viewType;
 }

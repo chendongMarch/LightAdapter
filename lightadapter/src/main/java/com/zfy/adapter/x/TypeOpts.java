@@ -18,9 +18,9 @@ public class TypeOpts {
     public boolean enableLongPress = false; // 是否允许长按事件
     public boolean enableDbClick   = false; // 是否允许双击事件
 
-    public            boolean enableDrag      = false; // 是否允许拖动
-    public            boolean enableSwipe     = false; // 是否允许滑动
-    public            boolean enablePin       = false; // 钉住，支持悬停效果
+    public            boolean enableDrag  = false; // 是否允许拖动
+    public            boolean enableSwipe = false; // 是否允许滑动
+    public            boolean enableFixed = false; // 钉住，支持悬停效果
 
     public interface TypeOptsSetter {
         void set(TypeOpts opts);

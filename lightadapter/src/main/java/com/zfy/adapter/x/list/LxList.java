@@ -54,6 +54,9 @@ public abstract class LxList<T extends Diffable<T>> extends AbstractList<T> {
     public abstract List<T> list();
 
 
+
+    /******************************************读方法*********************************************/
+
     @Override
     public T get(int i) {
         return list().get(i);
@@ -79,6 +82,51 @@ public abstract class LxList<T extends Diffable<T>> extends AbstractList<T> {
     public List<T> subList(@IntRange(from = 0) int fromIndex, @IntRange(from = 0) int toIndex) {
         return list().subList(fromIndex, toIndex);
     }
+
+
+    /******************************************写方法*********************************************/
+
+    @Override
+    public boolean add(T t) {
+        return list().add(t);
+    }
+
+    @Override
+    public T set(@IntRange(from = 0) int index, @NonNull T element) {
+        return list().set(index, element);
+    }
+
+    @Override
+    public boolean remove(@NonNull Object o) {
+        return list().remove(o);
+    }
+
+    @Override
+    public T remove(@IntRange(from = 0) int index) {
+        return list().remove(index);
+    }
+
+    @Override
+    public int hashCode() {
+        return list().hashCode();
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends T> c) {
+        return list().addAll(c);
+    }
+
+    @NonNull
+    @Override
+    public ListIterator<T> listIterator(final int index) {
+        return list().listIterator(index);
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return list().iterator();
+    }
+
 
     // 发布数据更新
     private void dispatchUpdate(@NonNull List<T> newItems) {

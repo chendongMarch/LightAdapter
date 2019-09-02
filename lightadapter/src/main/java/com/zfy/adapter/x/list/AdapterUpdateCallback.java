@@ -1,5 +1,7 @@
 package com.zfy.adapter.x.list;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.util.ListUpdateCallback;
 import android.support.v7.widget.RecyclerView;
 
@@ -10,6 +12,8 @@ import android.support.v7.widget.RecyclerView;
  * @author chendong
  */
 public class AdapterUpdateCallback implements ListUpdateCallback {
+
+    private static Handler handler = new Handler(Looper.getMainLooper());
 
     private RecyclerView.Adapter adapter;
 
@@ -22,7 +26,11 @@ public class AdapterUpdateCallback implements ListUpdateCallback {
         if (adapter == null) {
             return;
         }
-        adapter.notifyItemRangeInserted(position, count);
+        if (Looper.getMainLooper() == Looper.myLooper()) {
+            adapter.notifyItemRangeInserted(position, count);
+        } else {
+            handler.post(() -> adapter.notifyItemRangeInserted(position, count));
+        }
     }
 
     @Override
@@ -30,7 +38,11 @@ public class AdapterUpdateCallback implements ListUpdateCallback {
         if (adapter == null) {
             return;
         }
-        adapter.notifyItemRangeRemoved(position, count);
+        if (Looper.getMainLooper() == Looper.myLooper()) {
+            adapter.notifyItemRangeRemoved(position, count);
+        } else {
+            handler.post(() -> adapter.notifyItemRangeRemoved(position, count));
+        }
     }
 
     @Override
@@ -38,7 +50,11 @@ public class AdapterUpdateCallback implements ListUpdateCallback {
         if (adapter == null) {
             return;
         }
-        adapter.notifyItemMoved(fromPosition, toPosition);
+        if (Looper.getMainLooper() == Looper.myLooper()) {
+            adapter.notifyItemMoved(fromPosition, toPosition);
+        } else {
+            handler.post(() -> adapter.notifyItemMoved(fromPosition, toPosition));
+        }
     }
 
     @Override
@@ -46,6 +62,10 @@ public class AdapterUpdateCallback implements ListUpdateCallback {
         if (adapter == null) {
             return;
         }
-        adapter.notifyItemRangeChanged(position, count, payload);
+        if (Looper.getMainLooper() == Looper.myLooper()) {
+            adapter.notifyItemRangeChanged(position, count, payload);
+        } else {
+            handler.post(() -> adapter.notifyItemRangeChanged(position, count, payload));
+        }
     }
 }

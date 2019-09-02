@@ -60,9 +60,7 @@ public abstract class LxItemBind<D> implements Typeable {
     private void onBindEvent(LxVh holder, int viewType) {
         LxEvent.setEvent(holder, typeOpts.enableClick, typeOpts.enableLongPress, typeOpts.enableDbClick, (context, eventType) -> {
             // 上下文中数据不变，但是 pos 变了，重新更新一下
-            context.position = holder.getAdapterPosition();
-            holder.setLxContext(context);
-            onEvent(context, (D) context.data, eventType);
+            onEvent(context, context == null ? null : (D) context.data, eventType);
         });
     }
 

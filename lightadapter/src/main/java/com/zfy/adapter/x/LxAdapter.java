@@ -133,7 +133,9 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
     @Override
     public LxVh onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LxItemBind lxItemBind = binders.get(viewType);
-        return lxItemBind.onCreateViewHolder(parent, viewType);
+        LxVh holder = lxItemBind.onCreateViewHolder(parent, viewType);
+        holder.setItemViewType(viewType);
+        return holder;
     }
 
     @Override
@@ -147,11 +149,11 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
         int viewType = getItemViewType(position);
         LxItemBind lxItemBind = binders.get(viewType);
         lxItemBind.onBindViewHolder(holder, position, lxModel, payloads);
-
         for (LxComponent component : components) {
-            component.onAttachedToRecyclerView(this, view);
+            component.onBindViewHolder(this, holder, position, payloads);
         }
     }
+
 
     @Override
     public int getItemCount() {
@@ -204,7 +206,7 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
     }
 
     public @Nullable
-    <C extends LxComponent> LxComponent getComponent(@NonNull Class<C> clazz) {
+    <C extends LxComponent> C getComponent(@NonNull Class<C> clazz) {
         LxComponent component = null;
         for (LxComponent lxComponent : components) {
             if (clazz.equals(lxComponent.getClass())) {
@@ -212,7 +214,7 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
                 break;
             }
         }
-        return component;
+        return (C) component;
     }
 
     static class LxBlockedList extends LxList<LxModel> {

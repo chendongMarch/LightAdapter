@@ -19,9 +19,9 @@ object Values {
     3. 如果不希望自动触发，而是需要手动触发拖拽和侧滑，则只需要在 DragSwipeOptions 中关闭自动触发的开关
     options.
     // 关闭自动侧滑，手动调用
-    options.itemViewAutoSwipeEnable = false;
+    options.touchItemView4Swipe = false;
     // 关闭长按拖拽
-    options.itemViewLongPressDragEnable = false;
+    options.longPressItemView4Drag = false;
     在绑定数据时调用
     - holder.dragOnTouch()
     - holder.dragOnLongPress()
@@ -40,7 +40,7 @@ object Values {
 
     2. 任意类型的布局，包括隔断，都支持悬停在列表顶部，并且布局滑动时具有挤压效果，你可以在首页看到悬停在顶部的模块标题。
 
-    3. 开启自定义类型的悬停效果，你需要在 ModelTypeConfigCallback 中对 ModelType 配置，设置 modelType.enablePin = true；
+    3. 开启自定义类型的悬停效果，你需要在 ModelTypeConfigCallback 中对 ModelType 配置，设置 modelType.enableFixed = true；
     然后使用 adapter.section().setPinEnable() 开启支持悬停，则该类型就会悬停在顶部。
     """.trimIndent()
 
@@ -56,7 +56,7 @@ object Values {
     boolean enableDbClick = false; // 是否允许双击事件
     boolean enableDrag = false; // 是否允许拖动
     boolean enableSwipe = false; // 是否允许滑动
-    boolean enablePin; // 钉住，支持悬停效果
+    boolean enableFixed; // 钉住，支持悬停效果
 
     每种类型都可以根据需要进行自定义的配置。
     """.trimIndent()
