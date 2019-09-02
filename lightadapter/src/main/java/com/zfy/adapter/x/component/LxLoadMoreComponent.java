@@ -32,7 +32,7 @@ public class LxLoadMoreComponent extends LxComponent {
 
     private OnLoadMoreListener listener;
 
-    public LxLoadMoreComponent(int loadMoreEdge, int startLoadMoreCount, OnLoadMoreListener loadMoreListener) {
+    LxLoadMoreComponent(int loadMoreEdge, int startLoadMoreCount, OnLoadMoreListener loadMoreListener) {
         this.startLoadMoreCount = startLoadMoreCount;
         this.listener = loadMoreListener;
         this.loadMoreEnable = true;

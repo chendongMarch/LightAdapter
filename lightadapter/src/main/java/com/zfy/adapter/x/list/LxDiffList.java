@@ -62,7 +62,7 @@ public class LxDiffList<T extends Diffable<T>> extends LxList<T> {
     public void update(@NonNull List<T> newItems) {
         DiffUtil.DiffResult diffResult = doCalculateDiff(list, newItems);
         list = newItems;
-        diffResult.dispatchUpdatesTo(mCallback);
+        diffResult.dispatchUpdatesTo(updateCallback);
     }
 
     // 计算 DiffResult

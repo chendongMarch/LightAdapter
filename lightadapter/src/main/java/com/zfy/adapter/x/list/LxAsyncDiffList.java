@@ -39,7 +39,7 @@ public class LxAsyncDiffList<T extends Diffable<T>> extends LxList<T> {
             }
         };
         AsyncDifferConfig<T> config = new AsyncDifferConfig.Builder<>(itemCallback).build();
-        differ = new AsyncListDiffer<>(mCallback, config);
+        differ = new AsyncListDiffer<>(updateCallback, config);
     }
 
     @MainThread

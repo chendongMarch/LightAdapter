@@ -4,6 +4,9 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
+
+import com.zfy.adapter.BuildConfig;
 
 /**
  * CreateAt : 2019-09-01
@@ -94,4 +97,9 @@ public class LxUtil {
     }
 
 
+    public static void log(String msg) {
+        if (BuildConfig.DEBUG) {
+            Log.e("LxAdapter", msg);
+        }
+    }
 }

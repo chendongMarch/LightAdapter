@@ -30,19 +30,20 @@ public abstract class LxList<T extends Diffable<T>> extends AbstractList<T> {
         void onChange(List<T> list);
     }
 
-    private   ListUpdateObserver<T> mUpdateObserver;
-    protected AdapterUpdateCallback mCallback;
+    private   List<ListUpdateObserver<T>> updateObservers;
+    protected AdapterUpdateCallback       updateCallback;
 
     public LxList() {
-        mCallback = new AdapterUpdateCallback();
+        updateCallback = new AdapterUpdateCallback();
+        updateObservers = new ArrayList<>();
     }
 
     public void setAdapter(RecyclerView.Adapter adapter) {
-        mCallback.setAdapter(adapter);
+        updateCallback.setAdapter(adapter);
     }
 
-    public void setUpdateObserver(ListUpdateObserver<T> updateObserver) {
-        mUpdateObserver = updateObserver;
+    public void addUpdateObserver(ListUpdateObserver<T> updateObserver) {
+        this.updateObservers.add(updateObserver);
     }
 
     /**
@@ -82,8 +83,8 @@ public abstract class LxList<T extends Diffable<T>> extends AbstractList<T> {
     // 发布数据更新
     private void dispatchUpdate(@NonNull List<T> newItems) {
         update(newItems);
-        if (mUpdateObserver != null) {
-            mUpdateObserver.onChange(newItems);
+        for (ListUpdateObserver<T> updateObserver : updateObservers) {
+            updateObserver.onChange(newItems);
         }
     }
 
@@ -279,19 +280,20 @@ public abstract class LxList<T extends Diffable<T>> extends AbstractList<T> {
         return t;
     }
 
+
     /**
      * 循环更新列表中满足条件的所有数据时
      *
      * @param shouldUpdate        返回是否需要更新这一项
      * @param howToUpdateConsumer 如何更新该数据
      */
-    public void updateForEach(@NonNull _Predicate<T> shouldUpdate, @NonNull _Consumer<T> howToUpdateConsumer) {
+    public void updateSet(@NonNull _Predicate<T> shouldUpdate, @NonNull _Consumer<T> howToUpdateConsumer) {
         List<T> ts = foreach(shouldUpdate, howToUpdateConsumer);
         dispatchUpdate(ts);
     }
 
 
-    public void updateForEach(@NonNull _Consumer<T> howToUpdateConsumer) {
+    public void updateSet(@NonNull _Consumer<T> howToUpdateConsumer) {
         List<T> ts = foreach(item -> true, howToUpdateConsumer);
         dispatchUpdate(ts);
     }
