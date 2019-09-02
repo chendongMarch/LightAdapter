@@ -5,32 +5,13 @@
 
     <application
         android:allowBackup="true"
-        android:name=".MyApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
+        android:name=".MyApplication"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".cases.MainActivity">
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
-        </activity>
-        <activity android:name=".cases.DragSwipeTestActivity" />
-        <activity android:name=".cases.FakeTestActivity" />
-        <activity android:name=".cases.PayloadTestActivity" />
-        <activity android:name=".cases.LoadTestActivity" />
-        <activity
-            android:name=".cases.LoadTestActivity2"
-            android:screenOrientation="landscape" />
-        <activity android:name=".cases.SelectorTestActivity" />
-        <activity android:name=".cases.HFTestActivity" />
-        <activity android:name=".cases.AnimatorTestActivity" />
-        <activity android:name=".cases.SampleTestActivity" />
-        <activity android:name=".cases.EmptyTestActivity" />
-        <activity android:name=".cases.TopMoreTestActivity" />
-        <activity android:name=".cases.LightListTestActivity" />
+
         <activity android:name=".cases.NewSampleTestActivity" />
         <activity android:name=".EntryActivity" >
             <intent-filter>

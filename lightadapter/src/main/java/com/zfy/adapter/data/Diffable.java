@@ -2,17 +2,13 @@ package com.zfy.adapter.data;
 
 import android.support.v7.widget.RecyclerView;
 
-import com.zfy.adapter.LightHolder;
-import com.zfy.adapter.model.Extra;
 
 import java.util.Set;
 
 /**
  * CreateAt : 2018/11/1
  * Describe :
- * 该接口表明在 DiffUtil 中如何对数据进行对比，使用 {@link com.zfy.adapter.collections.LightList} 更新数据时需要实现该接口
- * @see com.zfy.adapter.collections.LightDiffList
- * @see com.zfy.adapter.collections.LightAsyncDiffList
+ * 该接口表明在 DiffUtil 中如何对数据进行对比，使用更新数据时需要实现该接口
  * @author chendong
  */
 public interface Diffable<T> {
@@ -61,8 +57,6 @@ public interface Diffable<T> {
      *
      * 返回事件列表不为空，则会调用到 Adapter OnBindViewHolderUsePayload
      * 返回事件为空，会调用 Adapter OnBindViewHolder
-     *
-     * @see com.zfy.adapter.LightAdapter#onBindView(LightHolder, Object, Extra)
      *
      * @param newItem 新的元素
      * @return 需要更新的事件信息，我们把比对的结果包装成一个 String 类型的信息，在 LightAdapter 绑定时再根据这个自定义信息选择性的更新绑定
