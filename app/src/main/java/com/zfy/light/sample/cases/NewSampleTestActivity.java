@@ -152,9 +152,7 @@ public class NewSampleTestActivity extends MvpActivity {
                         contentTypeData.updateAddAll(loadData(10));
 
                         LxList<LxModel> customTypeData = mAdapter.getCustomTypeData(Lx.VIEW_TYPE_LOADING);
-                        if (customTypeData != null) {
-                            customTypeData.updateClear();
-                        }
+                        customTypeData.updateClear();
 
                         component.finishLoadMore();
                     }, 2000);
@@ -285,7 +283,7 @@ public class NewSampleTestActivity extends MvpActivity {
         public CustomTypeData() {
         }
 
-        public CustomTypeData(String desc) {
+        CustomTypeData(String desc) {
             this.desc = desc;
         }
 
@@ -297,7 +295,7 @@ public class NewSampleTestActivity extends MvpActivity {
 
     static class LoadingItemBind extends LxItemBind<CustomTypeData> {
 
-        public LoadingItemBind() {
+        LoadingItemBind() {
             super(TypeOpts.make(opts -> {
                 opts.viewType = Lx.VIEW_TYPE_LOADING;
                 opts.layoutId = R.layout.loading_view;
@@ -385,12 +383,10 @@ public class NewSampleTestActivity extends MvpActivity {
             ToastX.show("点击老师 position = " + context.position + " data = " + data.name + " eventType = " + eventType);
             // 点击更新 header
             LxList<LxModel> list = adapter.getCustomTypeData(Lx.VIEW_TYPE_HEADER);
-            if (list != null) {
-                list.updateSet(0, m -> {
-                    CustomTypeData header = m.unpack();
-                    header.desc = String.valueOf(System.currentTimeMillis());
-                });
-            }
+            list.updateSet(0, m -> {
+                CustomTypeData header = m.unpack();
+                header.desc = String.valueOf(System.currentTimeMillis());
+            });
             LxSelectComponent component = adapter.getComponent(LxSelectComponent.class);
             if (component != null) {
                 component.select(model);
@@ -423,9 +419,7 @@ public class NewSampleTestActivity extends MvpActivity {
             if (eventType == Lx.EVENT_LONG_PRESS) {
                 // 长按删除 header
                 LxList<LxModel> list = adapter.getCustomTypeData(Lx.VIEW_TYPE_HEADER);
-                if (list != null) {
-                    list.updateRemove(0);
-                }
+                list.updateRemove(0);
             }
             if (eventType == Lx.EVENT_CLICK) {
                 // 点击删除内容第一个
@@ -435,17 +429,15 @@ public class NewSampleTestActivity extends MvpActivity {
             if (eventType == Lx.EVENT_DOUBLE_CLICK) {
                 // 双击更新第一个数据
                 LxList<LxModel> list = adapter.getContentTypeData();
-                if (list != null) {
-                    list.updateSet(0, m -> {
-                        if (m.getItemType() == TYPE_STUDENT) {
-                            Student stu = m.unpack();
-                            stu.name = "new stu " + System.currentTimeMillis();
-                        } else if (m.getItemType() == TYPE_TEACHER) {
-                            Teacher teacher = m.unpack();
-                            teacher.name = "new teacher " + System.currentTimeMillis();
-                        }
-                    });
-                }
+                list.updateSet(0, m -> {
+                    if (m.getItemType() == TYPE_STUDENT) {
+                        Student stu = m.unpack();
+                        stu.name = "new stu " + System.currentTimeMillis();
+                    } else if (m.getItemType() == TYPE_TEACHER) {
+                        Teacher teacher = m.unpack();
+                        teacher.name = "new teacher " + System.currentTimeMillis();
+                    }
+                });
             }
         }
     }
@@ -474,23 +466,17 @@ public class NewSampleTestActivity extends MvpActivity {
             if (eventType == Lx.EVENT_LONG_PRESS) {
                 // 长按删除 footer
                 LxList<LxModel> list = adapter.getCustomTypeData(Lx.VIEW_TYPE_FOOTER);
-                if (list != null) {
-                    list.updateRemove(0);
-                }
+                list.updateRemove(0);
             }
             if (eventType == Lx.EVENT_CLICK) {
                 // 点击删除内容第一个
                 LxList<LxModel> list = adapter.getContentTypeData();
-                if (list != null) {
-                    list.updateClear();
-                }
+                list.updateClear();
             }
             if (eventType == Lx.EVENT_DOUBLE_CLICK) {
                 // 双击再加一个 footer
                 LxList<LxModel> list = adapter.getCustomTypeData(Lx.VIEW_TYPE_FOOTER);
-                if (list != null) {
-                    list.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("", String.valueOf(System.currentTimeMillis()))));
-                }
+                list.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("", String.valueOf(System.currentTimeMillis()))));
             }
         }
     }
@@ -510,9 +496,7 @@ public class NewSampleTestActivity extends MvpActivity {
 
         @Override
         public void onBindView(LxVh holder, CustomTypeData data, LxModel model, int position, @NonNull List<String> payloads) {
-            holder.setClick(R.id.refresh_tv, v -> {
-                setData();
-            });
+            holder.setClick(R.id.refresh_tv, v -> setData());
         }
 
         @Override
