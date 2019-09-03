@@ -1,0 +1,36 @@
+{
+    "logs": [
+        {
+            "outputFile": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/res/merged/release/values-v21/values-v21.xml",
+            "map": [
+                {
+                    "source": "/Users/march/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/f76fa56dd467f8ee05075360d1f4cc55/res/values-v21/values-v21.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9,10,13",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,159,223,290,354,470,596,722,850,1022",
+                        "endLines": "2,3,4,5,6,7,8,9,12,17",
+                        "endColumns": "103,63,66,63,115,125,125,127,12,12",
+                        "endOffsets": "154,218,285,349,465,591,717,845,1017,1355"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/incremental/mergeReleaseResources/merged.dir/values-v21/values-v21.xml",
+            "map": [
+                {
+                    "source": "/Users/march/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/f76fa56dd467f8ee05075360d1f4cc55/res/values-v21/values-v21.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9,10,13",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,159,223,290,354,470,596,722,850,1022",
+                        "endLines": "2,3,4,5,6,7,8,9,12,17",
+                        "endColumns": "103,63,66,63,115,125,125,127,12,12",
+                        "endOffsets": "154,218,285,349,465,591,717,845,1017,1355"
+                    }
+                }
+            ]
+        }
+    ]
+}

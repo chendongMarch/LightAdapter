@@ -2,6 +2,9 @@ package com.zfy.adapter;
 
 import android.support.annotation.IntDef;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * CreateAt : 2019-08-31
  * Describe :
@@ -11,14 +14,15 @@ import android.support.annotation.IntDef;
 public class Lx {
 
     @IntDef({SNAP_MODE_LINEAR, SNAP_MODE_PAGER})
+    @Retention(RetentionPolicy.SOURCE)
     public @interface SnapMode {
-
     }
 
     public static final int SNAP_MODE_LINEAR = 0;
     public static final int SNAP_MODE_PAGER  = 1;
 
     @IntDef({LOAD_MORE_START_EDGE, LOAD_MORE_END_EDGE})
+    @Retention(RetentionPolicy.SOURCE)
     public @interface LoadMoreEdge {
 
     }
@@ -27,6 +31,7 @@ public class Lx {
     public static final int LOAD_MORE_END_EDGE   = 1; // 加载更多，底部
 
     @IntDef({LOAD_MORE_ON_BIND, LOAD_MORE_ON_SCROLL})
+    @Retention(RetentionPolicy.SOURCE)
     public @interface LoadMoreOn {
 
     }
@@ -40,6 +45,7 @@ public class Lx {
     public static final int SPAN_SIZE_QUARTER = -0x34; // span size 占据 1/4
 
     @IntDef({EVENT_CLICK, EVENT_LONG_PRESS, EVENT_DOUBLE_CLICK})
+    @Retention(RetentionPolicy.SOURCE)
     public @interface EventType {
 
     }
@@ -58,6 +64,7 @@ public class Lx {
     public static final int VIEW_TYPE_FAKE    = Lx.incrementViewType(); // 内置假数据
 
     @IntDef({DRAG_SWIPE_STATE_NONE, DRAG_STATE_ACTIVE, SWIPE_STATE_ACTIVE, DRAG_STATE_RELEASE, SWIPE_STATE_RELEASE})
+    @Retention(RetentionPolicy.SOURCE)
     public @interface DragSwipeState {
 
     }
@@ -70,6 +77,7 @@ public class Lx {
 
 
     @IntDef({SELECT_SINGLE, SELECT_MULTI})
+    @Retention(RetentionPolicy.SOURCE)
     public @interface SelectMode {
 
     }

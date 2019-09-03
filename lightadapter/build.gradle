@@ -2,7 +2,7 @@ apply from: '../scripts/library.gradle'
 
 
 dependencies {
-    api libs.recyclerView_v7
+    compileOnly libs.recyclerView_v7
 }
 
 apply plugin: 'bintray-release'

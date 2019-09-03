@@ -12,7 +12,7 @@
 
 > [GitHub - LxAdapter](https://github.com/chendongMarch/LxAdapter)
 
-> com.zfy:lightadapter:0.1.0
+> com.zfy:lxadapter:2.0.0
 
 <!--more-->
 
