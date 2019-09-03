@@ -7,6 +7,7 @@ import android.view.View;
 import com.zfy.adapter.LxAdapter;
 import com.zfy.adapter.LxVh;
 import com.zfy.adapter.data.TypeOpts;
+import com.zfy.adapter.function.LxUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,12 +35,11 @@ public class FixedItemDecoration extends RecyclerView.ItemDecoration {
         }
         LxAdapter adapter = (LxAdapter) parent.getAdapter();
         View firstView = parent.getChildAt(0);
-        int firstPosition = parent.getChildAdapterPosition(firstView);
+        int firstPosition = LxUtil.getFirstVisiblePosition(parent);
         int lastPinPosition = getLastPinPosition(firstPosition, adapter);
         if (lastPinPosition < 0) {
             return;
         }
-
         // 根据查找到的那个创建 view，用来绘制
         RecyclerView.ViewHolder holder = parent.findViewHolderForAdapterPosition(lastPinPosition);
         if (holder == null) {

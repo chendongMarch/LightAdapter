@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.zfy.adapter.decoration.LxSlidingSelectLayout
         android:layout_width="match_parent"
@@ -12,7 +13,32 @@
             android:id="@+id/content_rv"
             android:layout_height="match_parent"/>
 
+
     </com.zfy.adapter.decoration.LxSlidingSelectLayout>
+
+    <LinearLayout
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/add_header_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ADD HEADER" />
+
+        <Button
+            android:id="@+id/add_footer_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ADD FOOTER" />
+
+        <Button
+            android:id="@+id/empty_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="EMPTY" />
+    </LinearLayout>
 
 
 </android.support.constraint.ConstraintLayout>

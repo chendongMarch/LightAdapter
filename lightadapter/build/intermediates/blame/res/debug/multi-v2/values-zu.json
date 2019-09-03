@@ -4,7 +4,7 @@
             "outputFile": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/incremental/mergeDebugResources/merged.dir/values-zu/values-zu.xml",
             "map": [
                 {
-                    "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/bc28a07d31ecdb3b9b41729fc6bc7de9/res/values-zu/values-zu.xml",
+                    "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/support-compat-26.1.0.aar/e306f8693b4d4bfbf1509a5b0776c1ac/res/values-zu/values-zu.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
@@ -19,7 +19,7 @@
             "outputFile": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/res/merged/debug/values-zu/values-zu.xml",
             "map": [
                 {
-                    "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/bc28a07d31ecdb3b9b41729fc6bc7de9/res/values-zu/values-zu.xml",
+                    "source": "/Users/march/AndroidRes/gradle/.gradle/caches/transforms-1/files-1.1/support-compat-26.1.0.aar/e306f8693b4d4bfbf1509a5b0776c1ac/res/values-zu/values-zu.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

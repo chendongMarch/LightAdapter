@@ -5,18 +5,23 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import com.bumptech.glide.Glide;
 import com.march.common.exts.ListX;
 import com.march.common.exts.ToastX;
+import com.march.common.pool.ExecutorsPool;
 import com.zfy.adapter.Lx;
 import com.zfy.adapter.LxAdapter;
 import com.zfy.adapter.LxItemBind;
 import com.zfy.adapter.LxVh;
 import com.zfy.adapter.animation.BindScaleAnimator;
 import com.zfy.adapter.component.LxDragSwipeComponent;
+import com.zfy.adapter.component.LxEndEdgeLoadMoreComponent;
+import com.zfy.adapter.component.LxFixedComponent;
 import com.zfy.adapter.component.LxSelectComponent;
 import com.zfy.adapter.component.LxSnapComponent;
+import com.zfy.adapter.component.LxStartEdgeLoadMoreComponent;
 import com.zfy.adapter.data.Copyable;
 import com.zfy.adapter.data.Diffable;
 import com.zfy.adapter.data.LxContext;
@@ -37,6 +42,7 @@ import java.util.List;
 import java.util.Set;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 
 /**
  * CreateAt : 2019-08-31
@@ -108,46 +114,69 @@ public class NewSampleTestActivity extends MvpActivity {
         });
 
         LxDragSwipeComponent.DragSwipeOptions dragSwipeOptions = new LxDragSwipeComponent.DragSwipeOptions();
-        dragSwipeOptions.longPressItemView4Drag = false;
-        dragSwipeOptions.touchItemView4Swipe = false;
+        dragSwipeOptions.longPressItemView4Drag = true;
+        dragSwipeOptions.touchItemView4Swipe = true;
 
         LxAdapter.of(mLxModels)
                 .contentType(TYPE_STUDENT, TYPE_TEACHER)
                 .binder(new StudentItemBind(), new TeacherItemBind(), new HeaderItemBind(), new FooterItemBind(), new EmptyItemBind())
-//                .binder(new EmptyItemBind())
 //                .component(new LxSnapComponent(Lx.SNAP_MODE_PAGER))
-//                .component(new LxFixedComponent())
+                .component(new LxFixedComponent())
 //                .component(new LxBindAnimatorComponent())
 //                .component(new LxItemAnimatorComponent(new ScaleInLeftAnimator()))
-//                .component(new LxSelectComponent(LxSelectComponent.MULTI))
-//                .component(new LxStartEdgeLoadMoreComponent((component) -> {
-//                    ToastX.show("顶部加载更多");
-//                    ExecutorsPool.ui(component::finishLoadMore, 2000);
-//                }))
-//                .component(new LxEndEdgeLoadMoreComponent((component) -> { // 加载回调
-//                    ToastX.show("底部加载更多");
-//                    ExecutorsPool.ui(component::finishLoadMore, 2000);
-//                }))
-//                .component(new LxDragSwipeComponent(dragSwipeOptions, (state, holder, context) -> {
-//                    switch (state) {
-//                        case Lx.DRAG_SWIPE_STATE_NONE:
-//                            break;
-//                        case Lx.DRAG_STATE_ACTIVE:
-//                            holder.itemView.animate().scaleX(1.13f).scaleY(1.13f).setDuration(300).start();
-//                            break;
-//                        case Lx.DRAG_SWIPE_STATE_RELEASE_DRAG:
-//                            holder.itemView.animate().scaleX(1f).scaleY(1f).setDuration(300).start();
-//                            break;
-//                        case Lx.DRAG_SWIPE_STATE_ACTIVE_SWIPE:
-//                            holder.itemView.setBackgroundColor(Color.GRAY);
-//                            break;
-//                        case Lx.DRAG_SWIPE_STATE_RELEASE_SWIPE:
-//                            holder.itemView.setBackgroundColor(Color.WHITE);
-//                            break;
-//                    }
-//                }))
+//                .component(new LxSelectComponent(Lx.SELECT_MULTI))
+                .component(new LxStartEdgeLoadMoreComponent((component) -> {
+                    ToastX.show("顶部加载更多");
+                    ExecutorsPool.ui(component::finishLoadMore, 2000);
+                }))
+                .component(new LxEndEdgeLoadMoreComponent((component) -> { // 加载回调
+                    ToastX.show("底部加载更多");
+                    ExecutorsPool.ui(component::finishLoadMore, 2000);
+                }))
+                .component(new LxDragSwipeComponent(dragSwipeOptions, (state, holder, context) -> {
+                    switch (state) {
+                        case Lx.DRAG_SWIPE_STATE_NONE:
+                            break;
+                        case Lx.DRAG_STATE_ACTIVE:
+                            holder.itemView.animate().scaleX(1.13f).scaleY(1.13f).setDuration(300).start();
+                            break;
+                        case Lx.DRAG_STATE_RELEASE:
+                            holder.itemView.animate().scaleX(1f).scaleY(1f).setDuration(300).start();
+                            break;
+                        case Lx.SWIPE_STATE_ACTIVE:
+                            holder.itemView.setBackgroundColor(Color.GRAY);
+                            break;
+                        case Lx.SWIPE_STATE_RELEASE:
+                            holder.itemView.setBackgroundColor(Color.WHITE);
+                            break;
+                    }
+                }))
                 .attachTo(mRecyclerView, new GridLayoutManager(getContext(),3));
 
+        setData();
+    }
+
+    @OnClick({R.id.add_header_btn, R.id.add_footer_btn, R.id.empty_btn})
+    public void clickView(View view) {
+        switch (view.getId()) {
+            case R.id.add_header_btn:
+                LxModel header = LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new CustomTypeData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
+                mLxModels.updateAdd(1, header);
+                break;
+            case R.id.add_footer_btn:
+                LxModel footer = LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
+                mLxModels.updateAdd(mLxModels.size() - 1, footer);
+                break;
+            case R.id.empty_btn:
+                showEmpty();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void showEmpty() {
+        mLxModels.updateClear();
         mLxModels.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_EMPTY, new CustomTypeData("", String.valueOf(System.currentTimeMillis()))));
     }
 
@@ -235,42 +264,6 @@ public class NewSampleTestActivity extends MvpActivity {
     }
 
 
-//    class StudentItemBind extends LxItemBind<Student> {
-//        StudentItemBind() {
-//            // 指定类型和布局文件
-//            super(TypeOpts.make(opts -> {
-//                opts.viewType = TYPE_STUDENT;
-//                opts.layoutId = R.layout.item_squire1;
-//                // 当使用 holder 手动设置时，以下属性会被自动更改，可以不用设置
-//                // opts.enableDrag = true;
-//                // opts.enableSwipe = true;
-//            }));
-//        }
-//
-//        // 在这里完成数据的绑定
-//        @Override
-//        public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List<String> payloads) {
-//            holder
-//                    // 长按标题控件触发拖拽
-//                    .dragOnLongPress(adapter, R.id.title_tv)
-//                    // 触摸标题控件触发拖拽
-//                    .dragOnTouch(adapter, R.id.title_tv)
-//                    // 长按标题控件触发侧滑
-//                    .swipeOnLongPress(adapter, R.id.title_tv)
-//                    // 触摸标题控件触发侧滑
-//                    .swipeOnTouch(adapter, R.id.title_tv);
-//        }
-//
-//        // 在这里完成事件的分发
-//        @Override
-//        public void onEvent(LxContext context, Student data, LxModel model, int eventType) {
-//
-//        }
-//    }
-
-
-
-
 
     static class StudentItemBind extends LxItemBind<Student> {
 
@@ -282,7 +275,8 @@ public class NewSampleTestActivity extends MvpActivity {
                 opts.enableDbClick = false;
                 opts.viewType = TYPE_STUDENT;
                 opts.spanSize = Lx.SPAN_SIZE_ALL;
-                // opts.enableSwipe = true;
+                opts.enableSwipe = true;
+                opts.enableFixed = true;
             }));
         }
 
@@ -290,7 +284,7 @@ public class NewSampleTestActivity extends MvpActivity {
         public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List<String> payloads) {
             if (payloads.isEmpty()) {
                 holder.setText(R.id.title_tv, "学：" + data.name)
-                        .setText(R.id.desc_tv, "支持Swipe，pos = " + position + " ,type =" + TYPE_STUDENT)
+                        .setText(R.id.desc_tv, "支持Swipe，pos = " + position + " ,type =" + TYPE_STUDENT + ", 点击触发payloads更新, 悬停在页面顶部")
                         .swipeOnLongPress(adapter, R.id.title_tv);
             } else {
                 for (String payload : payloads) {
@@ -306,8 +300,8 @@ public class NewSampleTestActivity extends MvpActivity {
         public void onEvent(LxContext context, Student data, LxModel model, int eventType) {
             ToastX.show("点击学生 position = " + context.position + " data = " + data.name + " eventType = " + eventType);
 
-            LxList<LxModel> list = adapter.getContentTypeData();
-            list.updateSet(0, d -> {
+            LxList<LxModel> list = adapter.getData();
+            list.updateSet(context.position, d -> {
                 Student unpack = d.unpack();
                 unpack.name = String.valueOf(System.currentTimeMillis());
             });
@@ -321,8 +315,7 @@ public class NewSampleTestActivity extends MvpActivity {
                 opts.layoutId = R.layout.item_squire2;
                 opts.viewType = TYPE_TEACHER;
                 opts.spanSize = 1;
-//                opts.enableFixed = true;
-                // opts.enableDrag = true;
+                opts.enableDrag = true;
                 opts.bindAnimator = new BindScaleAnimator();
             }));
         }
