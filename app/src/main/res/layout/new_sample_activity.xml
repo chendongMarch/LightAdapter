@@ -16,6 +16,13 @@
 
     </com.zfy.adapter.decoration.LxSlidingSelectLayout>
 
+    <FrameLayout
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_width="match_parent"
+        android:minHeight="120dp"
+        android:id="@+id/fix_container"
+        android:layout_height="wrap_content" />
+
     <LinearLayout
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="match_parent"

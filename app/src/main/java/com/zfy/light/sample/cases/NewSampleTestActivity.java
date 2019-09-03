@@ -6,6 +6,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
 import com.march.common.exts.ListX;
@@ -56,7 +57,8 @@ public class NewSampleTestActivity extends MvpActivity {
     public static final int TYPE_STUDENT = Lx.incrementViewType();
     public static final int TYPE_TEACHER = Lx.incrementViewType();
 
-    @BindView(R.id.content_rv) RecyclerView mRecyclerView;
+    @BindView(R.id.content_rv)    RecyclerView mRecyclerView;
+    @BindView(R.id.fix_container) ViewGroup    mFixContainerFl;
 
     private LxList<LxModel> mLxModels = new LxDiffList<>();
 
@@ -104,7 +106,6 @@ public class NewSampleTestActivity extends MvpActivity {
 //        models.update(snapshot);
 
     }
-
 
 
     @Override

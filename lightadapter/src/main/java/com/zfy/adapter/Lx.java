@@ -85,6 +85,15 @@ public class Lx {
     public static final int SELECT_SINGLE = 1;
     public static final int SELECT_MULTI  = 2;
 
+    @IntDef({FIXED_USE_DRAW, FIXED_USE_VIEW})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface FixedMode {
+
+    }
+
+    public static final int FIXED_USE_DRAW = 0;
+    public static final int FIXED_USE_VIEW = 1;
+
     public static int incrementViewType() {
         return VIEW_TYPE_BASE++;
     }
