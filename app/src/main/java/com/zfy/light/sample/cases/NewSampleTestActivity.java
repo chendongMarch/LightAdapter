@@ -306,7 +306,7 @@ public class NewSampleTestActivity extends MvpActivity {
         public void onEvent(LxContext context, Student data, LxModel model, int eventType) {
             ToastX.show("点击学生 position = " + context.position + " data = " + data.name + " eventType = " + eventType);
 
-            LxList<LxModel> list = getAdapter().getContentTypeData();
+            LxList<LxModel> list = adapter.getContentTypeData();
             list.updateSet(0, d -> {
                 Student unpack = d.unpack();
                 unpack.name = String.valueOf(System.currentTimeMillis());
