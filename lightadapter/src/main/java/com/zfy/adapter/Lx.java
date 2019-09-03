@@ -68,6 +68,15 @@ public class Lx {
     public static final int DRAG_STATE_RELEASE    = 3;
     public static final int SWIPE_STATE_RELEASE   = 4;
 
+
+    @IntDef({SELECT_SINGLE, SELECT_MULTI})
+    public @interface SelectMode {
+
+    }
+
+    public static final int SELECT_SINGLE = 1;
+    public static final int SELECT_MULTI  = 2;
+
     public static int incrementViewType() {
         return VIEW_TYPE_BASE++;
     }

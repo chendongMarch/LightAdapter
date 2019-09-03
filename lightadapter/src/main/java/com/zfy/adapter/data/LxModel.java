@@ -1,10 +1,8 @@
 package com.zfy.adapter.data;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import com.zfy.adapter.Lx;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -13,8 +11,13 @@ import java.util.Set;
  *
  * @author chendong
  */
-public class LxModel implements Diffable<LxModel>, Typeable, Copyable<LxModel>, Selectable {
+public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable {
 
+    private static final Set<String> EMPTY_SET = new HashSet<>();
+    private static       int         ID        = 0;
+
+
+    private int     incrementId;
     private Object  data;
     private int     type = Lx.VIEW_TYPE_DEFAULT;
     private int     moduleId; // 模块ID
@@ -22,6 +25,7 @@ public class LxModel implements Diffable<LxModel>, Typeable, Copyable<LxModel>, 
 
     public LxModel(Object data) {
         this.data = data;
+        this.incrementId = ID++;
     }
 
     public void setType(int type) {
@@ -53,6 +57,11 @@ public class LxModel implements Diffable<LxModel>, Typeable, Copyable<LxModel>, 
 
     @Override
     public boolean areItemsTheSame(LxModel newItem) {
+        Object objId1 = getObjId();
+        Object objId2 = newItem.getObjId();
+        if (objId1 != null && objId2 != null) {
+            return objId1.equals(objId2);
+        }
         if (canCompare(newItem, this)) {
             return ((Diffable) data).areItemsTheSame(newItem.data);
         }
@@ -64,7 +73,7 @@ public class LxModel implements Diffable<LxModel>, Typeable, Copyable<LxModel>, 
         if (canCompare(newItem, this)) {
             return ((Diffable) data).areContentsTheSame(newItem.data);
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -72,7 +81,7 @@ public class LxModel implements Diffable<LxModel>, Typeable, Copyable<LxModel>, 
         if (canCompare(newItem, this)) {
             return ((Diffable) data).getChangePayload(newItem.data);
         }
-        return null;
+        return EMPTY_SET;
     }
 
     @Override
@@ -83,43 +92,14 @@ public class LxModel implements Diffable<LxModel>, Typeable, Copyable<LxModel>, 
         return type;
     }
 
-    @Override
-    public LxModel copyNewOne() {
-        LxModel lxModel = new LxModel(copy(data));
-        lxModel.moduleId = moduleId;
-        lxModel.type = type;
-        return lxModel;
-    }
+//    @Override
+//    public LxModel copyNewOne() {
+//        LxModel lxModel = new LxModel(LxUtil.copy(data));
+//        lxModel.moduleId = moduleId;
+//        lxModel.type = type;
+//        return lxModel;
+//    }
 
-
-    private Object copy(Object input) {
-        Object newOne = null;
-        if (input instanceof Copyable) {
-            try {
-                newOne = ((Copyable) input).copyNewOne();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else if (input instanceof Parcelable) {
-            Parcelable parcelable = (Parcelable) input;
-            Parcel parcel = null;
-            try {
-                parcel = Parcel.obtain();
-                parcel.writeParcelable(parcelable, 0);
-                parcel.setDataPosition(0);
-                Parcelable copy = parcel.readParcelable(input.getClass().getClassLoader());
-                newOne = copy;
-            } finally {
-                if (parcel != null) {
-                    parcel.recycle();
-                }
-            }
-        }
-        if (newOne == null) {
-            newOne = input;
-        }
-        return newOne;
-    }
 
     @Override
     public void setSelected(boolean selected) {
@@ -129,5 +109,13 @@ public class LxModel implements Diffable<LxModel>, Typeable, Copyable<LxModel>, 
     @Override
     public boolean isSelected() {
         return selected;
+    }
+
+    @Override
+    public Object getObjId() {
+        if (data instanceof Idable) {
+            return ((Idable) data).getObjId();
+        }
+        return incrementId;
     }
 }

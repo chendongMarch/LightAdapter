@@ -1,5 +1,7 @@
 package com.zfy.adapter.function;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -8,6 +10,7 @@ import android.util.Log;
 
 import com.zfy.adapter.BuildConfig;
 import com.zfy.adapter.Lx;
+import com.zfy.adapter.data.Copyable;
 
 /**
  * CreateAt : 2019-09-01
@@ -123,4 +126,41 @@ public class LxUtil {
             Log.e("LxAdapter", msg);
         }
     }
+
+
+    // 复制一份新数据
+    public static Object copy(Object input) {
+        Object newOne = null;
+        if (input instanceof Copyable) {
+            try {
+                newOne = ((Copyable) input).copyNewOne();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (input instanceof Parcelable) {
+            Parcelable parcelable = (Parcelable) input;
+            Parcel parcel = null;
+            try {
+                parcel = Parcel.obtain();
+                parcel.writeParcelable(parcelable, 0);
+                parcel.setDataPosition(0);
+                newOne = parcel.readParcelable(input.getClass().getClassLoader());
+            } finally {
+                if (parcel != null) {
+                    parcel.recycle();
+                }
+            }
+        }
+        if (newOne == null) {
+            newOne = input;
+        }
+        return newOne;
+    }
+
+    // 复制一份新数据
+    public static <T> T copyAddress(T input) {
+        return input;
+    }
+
+
 }

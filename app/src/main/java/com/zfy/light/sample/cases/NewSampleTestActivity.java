@@ -17,8 +17,8 @@ import com.zfy.adapter.animation.BindScaleAnimator;
 import com.zfy.adapter.component.LxDragSwipeComponent;
 import com.zfy.adapter.component.LxSelectComponent;
 import com.zfy.adapter.component.LxSnapComponent;
-import com.zfy.adapter.data.Copyable;
 import com.zfy.adapter.data.Diffable;
+import com.zfy.adapter.data.Idable;
 import com.zfy.adapter.data.LxContext;
 import com.zfy.adapter.data.LxModel;
 import com.zfy.adapter.data.TypeOpts;
@@ -54,9 +54,51 @@ public class NewSampleTestActivity extends MvpActivity {
 
     private LxList<LxModel> mLxModels = new LxDiffList<>();
 
+
+    private void test() {
+
+        LxList<LxModel> models = new LxDiffList<>();
+        LxAdapter.of(models)
+                // 指定老师、学生类型，是我们的业务类型，其他的是扩展类型
+                .contentType(TYPE_STUDENT, TYPE_TEACHER)
+                // 这里指定了 5 种类型的数据绑定
+                .binder(new StudentItemBind(), new TeacherItemBind(),
+                        new HeaderItemBind(), new FooterItemBind(), new EmptyItemBind())
+                .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+
+        LxDragSwipeComponent.DragSwipeOptions options = new LxDragSwipeComponent.DragSwipeOptions();
+        // 关闭触摸自动触发侧滑
+        options.touchItemView4Swipe = false;
+        // 关闭长按自动触发拖拽
+        options.longPressItemView4Drag = false;
+
+        LxAdapter.of(models)
+                .binder(new StudentItemBind())
+                // 实现 ViewPager 效果
+                .component(new LxSnapComponent(Lx.SNAP_MODE_PAGER))
+                // 实现 ViewPager 效果，但是可以一次划多个 item
+                .component(new LxSnapComponent(Lx.SNAP_MODE_LINEAR))
+                .attachTo(mRecyclerView, new LinearLayoutManager(getContext()));
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
     @Override
     public void init() {
-        LxGlobal.setImgUrlLoader((view, url, extra) -> Glide.with(view).load(url).into(view));
+        LxGlobal.setImgUrlLoader((view, url, extra) -> {
+            Glide.with(view).load(url).into(view);
+        });
 
         LxDragSwipeComponent.DragSwipeOptions dragSwipeOptions = new LxDragSwipeComponent.DragSwipeOptions();
         dragSwipeOptions.longPressItemView4Drag = false;
@@ -99,43 +141,41 @@ public class NewSampleTestActivity extends MvpActivity {
 //                }))
                 .attachTo(mRecyclerView, new GridLayoutManager(getContext(),3));
 
-        mLxModels.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_EMPTY, new BlockTestData("", String.valueOf(System.currentTimeMillis()))));
+        mLxModels.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_EMPTY, new CustomTypeData("", String.valueOf(System.currentTimeMillis()))));
     }
 
 
     private void setData() {
         int count = 50;
+
         List<Student> students = ListX.range(count, index -> new Student(index + " " + System.currentTimeMillis()));
+
         List<Teacher> teachers = ListX.range(count, index -> new Teacher(index + " " + System.currentTimeMillis()));
         LinkedList<LxModel> lxModels = new LinkedList<>();
         for (int i = 0; i < count; i++) {
             lxModels.add(LxTransformations.pack(TYPE_STUDENT, students.get(i)));
             lxModels.add(LxTransformations.pack(TYPE_TEACHER, teachers.get(i)));
         }
-        LxModel header = LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new BlockTestData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
+        LxModel header = LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new CustomTypeData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
         lxModels.addFirst(header);
 
-        LxModel footer = LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new BlockTestData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
+        LxModel footer = LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
         lxModels.addLast(footer);
 
         mLxModels.update(lxModels);
     }
 
 
+    // 使用一个自增 ID
     public static int ID = 10;
 
-    static class Student implements Diffable<Student>, Copyable<Student> {
+    static class Student implements Diffable<Student>, Idable {
 
         int    id = ID++;
         String name;
 
         Student(String name) {
             this.name = name;
-        }
-
-        @Override
-        public boolean areItemsTheSame(Student newItem) {
-            return id == newItem.id;
         }
 
         @Override
@@ -153,10 +193,8 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public Student copyNewOne() {
-            Student student = new Student(name);
-            student.id = id;
-            return student;
+        public Object getObjId() {
+            return id;
         }
     }
 
@@ -169,15 +207,60 @@ public class NewSampleTestActivity extends MvpActivity {
         }
     }
 
-    static class BlockTestData {
+    static class CustomTypeData {
         String url;
         String desc;
 
-        BlockTestData(String url, String desc) {
+        public CustomTypeData() {
+        }
+
+        public CustomTypeData(String desc) {
+            this.desc = desc;
+        }
+
+        CustomTypeData(String url, String desc) {
             this.url = url;
             this.desc = desc;
         }
     }
+
+
+//    class StudentItemBind extends LxItemBind<Student> {
+//        StudentItemBind() {
+//            // 指定类型和布局文件
+//            super(TypeOpts.make(opts -> {
+//                opts.viewType = TYPE_STUDENT;
+//                opts.layoutId = R.layout.item_squire1;
+//                // 当使用 holder 手动设置时，以下属性会被自动更改，可以不用设置
+//                // opts.enableDrag = true;
+//                // opts.enableSwipe = true;
+//            }));
+//        }
+//
+//        // 在这里完成数据的绑定
+//        @Override
+//        public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List<String> payloads) {
+//            holder
+//                    // 长按标题控件触发拖拽
+//                    .dragOnLongPress(adapter, R.id.title_tv)
+//                    // 触摸标题控件触发拖拽
+//                    .dragOnTouch(adapter, R.id.title_tv)
+//                    // 长按标题控件触发侧滑
+//                    .swipeOnLongPress(adapter, R.id.title_tv)
+//                    // 触摸标题控件触发侧滑
+//                    .swipeOnTouch(adapter, R.id.title_tv);
+//        }
+//
+//        // 在这里完成事件的分发
+//        @Override
+//        public void onEvent(LxContext context, Student data, LxModel model, int eventType) {
+//
+//        }
+//    }
+
+
+
+
 
 
     static class StudentItemBind extends LxItemBind<Student> {
@@ -196,7 +279,6 @@ public class NewSampleTestActivity extends MvpActivity {
 
         @Override
         public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List<String> payloads) {
-
             if (payloads.isEmpty()) {
                 holder.setText(R.id.title_tv, "学：" + data.name)
                         .setText(R.id.desc_tv, "支持Swipe，pos = " + position + " ,type =" + TYPE_STUDENT)
@@ -251,7 +333,7 @@ public class NewSampleTestActivity extends MvpActivity {
             LxList<LxModel> list = adapter.getCustomTypeData(Lx.VIEW_TYPE_HEADER);
             if (list != null) {
                 list.updateSet(0, m -> {
-                    BlockTestData header = m.unpack();
+                    CustomTypeData header = m.unpack();
                     header.desc = String.valueOf(System.currentTimeMillis());
                 });
             }
@@ -262,7 +344,7 @@ public class NewSampleTestActivity extends MvpActivity {
         }
     }
 
-    static class HeaderItemBind extends LxItemBind<BlockTestData> {
+    static class HeaderItemBind extends LxItemBind<CustomTypeData> {
 
         HeaderItemBind() {
             super(TypeOpts.make(opts -> {
@@ -276,13 +358,13 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LxVh holder, BlockTestData data, LxModel model, int position, @NonNull List<String> payloads) {
+        public void onBindView(LxVh holder, CustomTypeData data, LxModel model, int position, @NonNull List<String> payloads) {
             holder.setText(R.id.desc_tv, data.desc)
                     .setImage(R.id.cover_iv, data.url, null);
         }
 
         @Override
-        public void onEvent(LxContext context, BlockTestData data, LxModel model, int eventType) {
+        public void onEvent(LxContext context, CustomTypeData data, LxModel model, int eventType) {
 
             if (eventType == Lx.EVENT_LONG_PRESS) {
                 // 长按删除 header
@@ -315,7 +397,7 @@ public class NewSampleTestActivity extends MvpActivity {
     }
 
 
-    static class FooterItemBind extends LxItemBind<BlockTestData> {
+    static class FooterItemBind extends LxItemBind<CustomTypeData> {
 
         FooterItemBind() {
             super(TypeOpts.make(opts -> {
@@ -329,12 +411,12 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LxVh holder, BlockTestData data, LxModel model, int position, @NonNull List<String> payloads) {
+        public void onBindView(LxVh holder, CustomTypeData data, LxModel model, int position, @NonNull List<String> payloads) {
             holder.setText(R.id.desc_tv, data.desc);
         }
 
         @Override
-        public void onEvent(LxContext context, BlockTestData data, LxModel model, int eventType) {
+        public void onEvent(LxContext context, CustomTypeData data, LxModel model, int eventType) {
             if (eventType == Lx.EVENT_LONG_PRESS) {
                 // 长按删除 footer
                 LxList<LxModel> list = adapter.getCustomTypeData(Lx.VIEW_TYPE_FOOTER);
@@ -353,13 +435,13 @@ public class NewSampleTestActivity extends MvpActivity {
                 // 双击再加一个 footer
                 LxList<LxModel> list = adapter.getCustomTypeData(Lx.VIEW_TYPE_FOOTER);
                 if (list != null) {
-                    list.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new BlockTestData("", String.valueOf(System.currentTimeMillis()))));
+                    list.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("", String.valueOf(System.currentTimeMillis()))));
                 }
             }
         }
     }
 
-    class EmptyItemBind extends LxItemBind<BlockTestData> {
+    class EmptyItemBind extends LxItemBind<CustomTypeData> {
 
         EmptyItemBind() {
             super(TypeOpts.make(opts -> {
@@ -373,14 +455,14 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LxVh holder, BlockTestData data, LxModel model, int position, @NonNull List<String> payloads) {
+        public void onBindView(LxVh holder, CustomTypeData data, LxModel model, int position, @NonNull List<String> payloads) {
             holder.setClick(R.id.refresh_tv, v -> {
                 setData();
             });
         }
 
         @Override
-        public void onEvent(LxContext context, BlockTestData data, LxModel model, int eventType) {
+        public void onEvent(LxContext context, CustomTypeData data, LxModel model, int eventType) {
 
         }
     }

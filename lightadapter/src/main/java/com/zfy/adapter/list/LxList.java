@@ -1,13 +1,11 @@
 package com.zfy.adapter.list;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 
-import com.zfy.adapter.data.Copyable;
 import com.zfy.adapter.data.Diffable;
+import com.zfy.adapter.function.LxUtil;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -141,6 +139,26 @@ public abstract class LxList<T extends Diffable<T>> extends AbstractList<T> {
      */
     public abstract void update(@NonNull List<T> newItems);
 
+
+    public List<T> filter(_Predicate<T> test) {
+        List<T> l = new ArrayList<>();
+        for (T t : this) {
+            if (test.test(t)) {
+                l.add(t);
+            }
+        }
+        return l;
+    }
+
+    public <R> List<R> filterTo(_Predicate<T> test, _Function<T, R> function) {
+        List<R> l = new ArrayList<>();
+        for (T t : this) {
+            if (test.test(t)) {
+                l.add(function.map(t));
+            }
+        }
+        return l;
+    }
 
     /**
      * 获取数据快照
@@ -361,39 +379,9 @@ public abstract class LxList<T extends Diffable<T>> extends AbstractList<T> {
     // 复制数据后实现 set(index, item) 功能
     private T setItem(List<T> list, int pos, _Consumer<T> consumer) {
         T item = list.get(pos);
-        T copy = copy(item);
+        T copy = LxUtil.copyAddress(item);
         consumer.accept(copy);
         return list.set(pos, copy);
     }
 
-    // 复制一份新数据
-    @SuppressWarnings("unchecked")
-    private T copy(T input) {
-        T newOne = null;
-        if (input instanceof Copyable) {
-            try {
-                newOne = (T) ((Copyable) input).copyNewOne();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else if (input instanceof Parcelable) {
-            Parcelable parcelable = (Parcelable) input;
-            Parcel parcel = null;
-            try {
-                parcel = Parcel.obtain();
-                parcel.writeParcelable(parcelable, 0);
-                parcel.setDataPosition(0);
-                Parcelable copy = parcel.readParcelable(input.getClass().getClassLoader());
-                newOne = (T) copy;
-            } finally {
-                if (parcel != null) {
-                    parcel.recycle();
-                }
-            }
-        }
-        if (newOne == null) {
-            throw new IllegalStateException("model should impl Parcelable or Copyable to create new one;");
-        }
-        return newOne;
-    }
 }

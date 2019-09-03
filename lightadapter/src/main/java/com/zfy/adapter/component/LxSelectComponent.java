@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewParent;
 
+import com.zfy.adapter.Lx;
 import com.zfy.adapter.LxAdapter;
 import com.zfy.adapter.data.LxModel;
 import com.zfy.adapter.decoration.LxSlidingSelectLayout;
@@ -18,22 +19,20 @@ import java.util.List;
  */
 public class LxSelectComponent extends LxComponent {
 
-    public static final int SINGLE = 1;
-    public static final int MULTI  = 2;
 
     public interface SelectInterceptor {
         boolean intercept(LxModel data, boolean toSelect);
     }
 
-    private int               selectMode;
-    private SelectInterceptor interceptor;
-    private LxAdapter         adapter;
+    @Lx.SelectMode private int               selectMode;
+    private                SelectInterceptor interceptor;
+    private                LxAdapter         adapter;
 
-    public LxSelectComponent(int mode) {
+    public LxSelectComponent(@Lx.SelectMode int mode) {
         this(mode, null);
     }
 
-    public LxSelectComponent(int mode, SelectInterceptor interceptor) {
+    public LxSelectComponent(@Lx.SelectMode int mode, SelectInterceptor interceptor) {
         this.selectMode = mode;
         this.interceptor = interceptor;
     }
@@ -67,7 +66,7 @@ public class LxSelectComponent extends LxComponent {
     }
 
     private void doSelect(LxModel data) {
-        if (selectMode == SINGLE) {
+        if (selectMode == Lx.SELECT_SINGLE) {
             unSelectOther(data);
         }
         if (data.isSelected()) {
@@ -102,7 +101,7 @@ public class LxSelectComponent extends LxComponent {
     }
 
     public void select(LxModel data) {
-        if (selectMode == SINGLE) {
+        if (selectMode == Lx.SELECT_SINGLE) {
             doSelect(data);
         } else {
             toggleSelectItem(data);

@@ -1,8 +1,10 @@
-![](https://images.pexels.com/photos/841120/pexels-photo-841120.jpeg)
+![](http://s3.hixd.com/196711.jpeg)
 
-# LightAdapter
+# LxAdapter
 
-`LightAdapter` 的设计初衷是以 **轻量** 和 **面向业务** 为主要目的，一方面希望可以快速、简单的的完成数据的适配工作，另一方面针对业务中经常出现的场景能提供统一、简单的解决方案。
+`LxAdapter` **轻量** 、 **面向业务** 为主要目的，一方面希望可以快速、简单的的完成数据的适配工作，另一方面针对业务中经常出现的场景能提供统一、简单的解决方案。
+
+> LxAdapter 是我做通用适配器的第三次重构版本，尝试了很多种方案，这次摒弃了很多复杂的东西，回归简单，希望会越来越好；
 
 > [本文博客地址](http://zfyx.coding.me/article/1632666977/)
 
@@ -16,266 +18,166 @@
 
 <img style="margin-right:20px;"  src="https://img.shields.io/github/stars/chendongMarch/LightAdapter.svg"/>
 
-<img  style="margin-right:20px;"  src="https://img.shields.io/github/forks/chendongMarch/LightAdapter.svg"/>
-
 </div>
 
 ## Feature
 
-- 使用唯一的 `LightAdapter` 完成单类型、多类型数据适配。
-- 良好的扩展性，可自定义实现 `Delegate` 扩展新的功能。
-- 对数据类型更细粒度配置，可针对类型设置点击事件、拖拽、侧滑、悬挂等。
-- 自动检测线程，保证所有数据更新发布在主线程。
-- 使用 `DiffUtil` 实现更高效（`payloads`）、更简单（`LightList`）的数据更新。
-- 点击事件支持单击事件、双击事件、长按事件。
-- 扩展 `ViewHolder`，借助 `LightHolder` 可以更简单的实现数据绑定。
-- 支持添加 `Header`/`Footer`，叠加、数据绑定、灵活更新。
-- 支持在列表底部定制 `LoadingView` 效果。
-- 支持空白页面显示，并可自定义显示、事件。
-- 支持 列表顶部、列表底部，预加载更多数据。
-- 支持拖拽排序、侧滑删除，一行代码绑定相关事件。
-- 支持常见业务场景 - 快速实现选择器单选/多选效果。
-- 支持隔断显示，隔断支持悬挂效果，理论上所有类型的布局均支持悬挂。
-- 支持动画，`ItemAnimator` / `BindAnimator` 两种方式实现。
-- 支持假数据展示，先展示假数据列表，数据获取后显示为真实数据。
+- 使用`LxAdapter` 完成单类型、多类型数据适配；
+- 使用 `LxVH` 作为 `ViewHolder` 进行数据绑定；
+- 使用 `LxList` 作为数据源，基于 `DiffUtil` 并自动完成数据比对和更新；
+- 使用 `LxItemBind` 完成每种类型的数据绑定和事件处理；
+- 使用 `LxComponent` 完成分离、易于扩展的扩展功能，如果加载更多等；
+- 支持针对每种数据类型，进行细粒度的配置侧滑、拖拽、顶部悬停、跨越多列、动画等效果；
+- 支持单击事件、双击事件、长按事件；
+- 支持自动检测数据更新的线程，避免出现在子线程更新数据的情况；
+- 支持使用 `payloads` 实现有效更新；
+- 支持自定义类型，可扩展实现 `Header/Fooer/Loading/Empty/Fake` 等场景效果；
+- 支持列表顶部、列表底部，预加载更多数据；
+- 支持快速实现选择器效果，单选、多选、滑动选中。
+- 支持 `ItemAnimator` / `BindAnimator` 两种方式实现添加布局动画。
+- 支持借助 `SnapHelper` 快速实现 `ViewPager` 效果；
 
 ## 设计分析
 
-由于功能比较多，当所有的逻辑都在 `Adapter` 里面实现时，会导致 `Adapter` 变得很臃肿，代码阅读和扩展功能变得越来越困难。
+1. 数据源统一使用 `LxList<LxModel>`，内部借助 `DiffUtil` 实现数据的自动更新，当需要更改数据时，只需要使用它的内部方法即可；
+2. 每种类型时完全分离的，使用 `LxItemBind` 来描述如何对该类型进行数据的绑定，事件的响应，以此来保证每种类型数据绑定的可复用性，已经类型之间的独立性；
+3. 拖拽、侧滑、`Snap` 使用、动画、选择器、加载更多，这些功能都分离出来，每个功能由单独的 `component` 负责，这样职责更加分离，需要时注入指定的 `component` 即可，也保证了良好的扩展性；
 
-为了解决这个问题，类库的设计借鉴了 **委托模式** 的设计方法，`Adapter` 只负责数据的加载，而其他功能都通过注册不同的 **功能代理** 实现，各个代理分工合作，都只关注自己负责的那部分功能：
+## 全局配置
 
-- `HFViewDelegate`： 负责 `Header`/`Footer` 的装载、更新、显示、隐藏等功能；
-- `LoadingViewDelegate`：负责完成加载更多底部提示的装载、更新、显示、隐藏等功能；
-- `EmptyViewDelegate`：负责完成空白页面的装载、更新、显示、隐藏等功能；
-- `DragSwipeDelegate`: 负责完成拖拽，侧滑等功能。
-- `LoadMoreDelegate`： 负责到达底部加载更多数据的功能；
-- `TopMoreDelegate`：负责到达顶部触发加载功能；
-- `NotifyDelegate`：负责数据更新的扩展功能；
-- `SelectorDelegate`：负责实现数据选择器功能；
-- `SpanDelegate`：负责完成不同类型数据跨越不同列数的功能；
-- `FakeDelegate`: 负责完成填充假数据显示功能。
-- `SectionDelegate`: 负责完成隔断显示和隔断功能。
-- `AnimatorDelegate`: 负责完成列表项动画显示功能。
+对 `LxAdapter` 进行全局配置；
 
-所有的功能代理都统一被 `DelegateRegistry` 管理，他们之间是完全解耦的，`DelegateRegistry` 内部维护一个注册表，所有的代理都在此处注册，由 `DelegateRegistry` 统一调度，同时，我们也可以根据自己的业务需求向 `DelegateRegistry` 注册代理实现；
+```java
+LxGlobal.setImgUrlLoader((view, url, extra) -> {
+    Glide.with(view).load(url).into(view);
+});
+```
 
 ## 内置的数据类型
 
-### ModelType
+### TypeOpts
 
-通常我们的数据类型使用一个 `int` 值来表示，但是当业务变得相对复杂时，一个单纯的 `int` 类型已经不足够表达这个类型所包含的信息，因此针对类型这个概念定义了 `ModelType` 类;
+他用来标记一种类型及其附加的相关属性，具体可以看下面的注释说明；
 
 ```java
-public class ModelType {
-    public int type; // 数据类型
-    public int layoutId; // 布局资源
-    public int     spanSize        = SpanSize.NONE; // 跨越列数
+public class TypeOpts {
+
+    public            int viewType = Lx.VIEW_TYPE_DEFAULT; // 数据类型
+    @LayoutRes public int layoutId; // 布局资源
+    public            int spanSize = Lx.SPAN_NONE; // 跨越行数
+
     public boolean enableClick     = true; // 是否允许点击事件
-    public boolean enableLongPress = true; // 是否允许长按事件
+    public boolean enableLongPress = false; // 是否允许长按事件
     public boolean enableDbClick   = false; // 是否允许双击事件
-    public boolean enableDrag      = false; // 是否允许拖动，不需要手动设置
-    public boolean enableSwipe     = false; // 是否允许滑动，不需要手动设置
-    public boolean enablePin       = false; // 钉住，支持悬停效果
-    public BindAnimator animator; // 加载动画效果
+
+    public            boolean enableDrag  = false; // 是否允许拖动
+    public            boolean enableSwipe = false; // 是否允许滑动
+    public            boolean enableFixed = false; // 钉住，支持悬停效果
+
+    public BindAnimator bindAnimator;
 }
 ```
 
-### Extra
+## 基础：LxAdapter
 
-主要用来承载一些状态数据，使用 `Extra` 来统一管理这些状态可以获得更好的扩展性；
+一般适配器的使用会有单类型和多类型的区分，不过单类型也是多类型的一种，`LxAdapter` 是面向类型的，因此不需要过多的关注单类型和多类型，或者说这里只有多类型；
 
 ```java
-public class Extra {
+LxList<LxModel> models = new LxDiffList<>();
+LxAdapter.of(models)
+        // 这里指定了两个类型的数据绑定
+        .binder(new StudentItemBind(), new TeacherItemBind())
+        .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
 
-    // 数据集索引 和 布局索引 的差异是因为内置了很多自定义的类型，比如 Header 等，因此他们并不一致
-    // 原则就是操作数据，则使用 modelIndex, 操作布局则使用 layoutIndex
-
-    /**
-     * 数据集索引，使用他从集合中获取数据
-     * adapter.getDatas().get(modelIndex)
-     */
-    public int modelIndex;
-    /**
-     * 布局索引，使用它来更新界面显示
-     * adapter.notifyItem.change(layoutIndex)
-     */
-    public int layoutIndex;
-    /**
-     * 用来标记当前数据是否处于绑定状态，配合选择器使用
-     */
-    public boolean selected;
-    /**
-     * 子控件 id
-     * 配合 {@link LightAdapter#setChildViewClickEvent(EventCallback)} 使用
-     */
-    public int     viewId;
-    /**
-     * 使用 payload 绑定时的 msg
-     */
-    public String  payloadMsg;
-    /**
-     * 当前是不是 payload 更新
-     */
-    public boolean byPayload;
-}
+// 以下是为 Adapter 更新数据，应该在下面讲解，放在这里是为了让整个流程看起来更加完整
+// 假设我们获取到了数据
+List<Student> students = ListX.range(count, index -> new Student(index + " " + System.currentTimeMillis()));
+// 数据打包成 LxModel 类型
+List<LxModel> tempList = LxTransformations.pack(TYPE_STUDENT, students);
+// 发布更新
+models.update(tempList);
 ```
 
-## 快速构建适配器
+## 基础：LxItemBind
 
-### 单类型数据适配
-
-单类型数据适配，针对较简单的场景;
+既然是面向类型的，那么每种类型的数据绑定会单独处理，这些由 `LxItemBind` 负责；
 
 ```java
-LightAdapter<Data> adapter = new LightAdapter<>(list,R.layout.item_content);
-```
+// 自增的数据类型，不需要自己去定义 1、2、3
+public static final int TYPE_STUDENT = Lx.incrementViewType();
 
-为了支持更细化的配置，可以使用 `ModelType` 构造 `Adapter`;
-
-```java
-ModelType modelType = ModelType.singleType(R.layout.item_content)
-        .animator(new ScaleAnimator()) // 设置 BindAnimator
-        .enableDbClick(true); // 开启双击事件检测
-LightAdapter<Data> adapter = new LightAdapter<>(list, modelType);
-```
-
-### 多类型数据适配
-
-`STEP1`: 首先数据结构要实现 `Typeable` 接口暴露自己的类型；
-
-```java
-class Data implements Typeable {
-    int type;
+class StudentItemBind extends LxItemBind<Student> {
+    StudentItemBind() {
+        // 指定类型和布局文件
+        super(TypeOpts.make(TYPE_STUDENT, R.layout.item_squire1));
+    }
+    // 在这里完成数据的绑定
     @Override
-    public int getItemType() {
-        return type;
+    public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List<String> payloads) {
+        holder.setText(R.id.title_tv, "学：" + data.name);
+    }
+    // 在这里完成事件的分发
+    @Override
+    public void onEvent(LxContext context, Student data, LxModel model, int eventType) {
+
     }
 }
 ```
 
-`STEP2`: 借助 `ModelTypeRegistry` 来管理多种类型的注册和配置；
+## 基础：LxList
+
+`LxList` 内部基于 `DiffUtil` 实现，辅助完成数据的自动比对和更新，彻底告别 `notify` 以下是其内置的各种方法 `updateXXX()`，基本能满足开发需求，另外也可以使用 `snapshot` 获取快照，然后自定义扩展操作；
 
 ```java
-// ModelType 注册表
-ModelTypeRegistry registry = new ModelTypeRegistry();
-// 第一种类型，注册一个复杂的类型
-ModelType modelType = ModelType.multiType(Data.TYPE_BASIC, R.layout.item_basic)
-        .animator(new ScaleAnimator()) // 设置 BindAnimator
-        .enableDbClick(true); // 开启双击事件检测
-registry.add(modelType);
-// 第二种类型
-registry.add(Data.TYPE_CONTENT, R.layout.item_content);
-// 使用 ModelTypeRegistry 构造 Adapter
-LightAdapter<Data> adapter = new LightAdapter<>(list, registry);
+LxList<LxModel> list = new LxDiffList<>();
+// 内部使用异步实现，避免阻塞主线程
+// LxList<LxModel> list = new LxAsyncDiffList<>();
+List<LxModel> newList = new ArrayList<>();
+LxModel item = new LxModel(new Student("name"));
+// 添加元素
+list.updateAdd(item);
+list.updateAdd(0, item);
+// 添加列表
+list.updateAddAll(newList);
+list.updateAddAll(0, newList);
+// 更改第 1 个元素
+list.updateSet(0, data -> {
+    Student stu = data.unpack();
+    stu.name = "new name";
+});
+// 遍历列表，找到符合规则的元素，执行 set 操作
+list.updateSet(data -> {
+    Student stu = data.unpack();
+    return stu.id > 10;
+}, data -> {
+    Student stu = data.unpack();
+    stu.name = "new name";
+});
+// 遍历列表，执行 set 操作
+list.updateSet(data -> {
+    Student stu = data.unpack();
+    stu.name = "new name";
+});
+// 清空列表
+list.updateClear();
+// 删除元素
+list.updateRemove(item);
+list.updateRemove(0);
+// 删除符合规则的元素
+list.updateRemove(data -> {
+    Student stu = data.unpack();
+    return stu.id > 0;
+});
+list.updateRemove(10, true, data -> {
+    Student stu = data.unpack();
+    return stu.id > 10;
+});
+// 获取列表快照, 删除第一个元素, 发布更新
+List<LxModel> snapshot = list.snapshot();
+snapshot.remove(0);
+list.update(newList);
 ```
-
-### 拆分可复用的类型
-
-在实际开发中，一些类型会多次出现在不同的列表中，可以借助 `LightItemBinder` 将每种类型的数据适配分离出来，使每种类型可被快速的复用到其他的列表中;
-
-```java
-// 视频类型
-class VideoItemAdapter extends LightItemBinder<Data> {
-
-    @Override
-    public ModelType newModelType() {
-        return ModelType.singleType(Data.TYPE_VIDEO, R.layout.item_video);
-    }
-    @Override
-    public void onBindView(LightHolder holder, Data data, Extra extra) {
-        // bind video data
-    }
-}
-// 音频类型
-class AudioItemAdapter extends LightItemBinder<Data> {
-    @Override
-    public ModelType newModelType() {
-        return ModelType.singleType(Data.TYPE_AUDIO, R.layout.item_audio);
-    }
-    @Override
-    public void onBindView(LightHolder holder, Data data, Extra extra) {
-        // bind audio data
-    }
-}
-```
-
-上面定义的视频类型和音频类型可以被灵活的插入到其他列表当中。
-
-```java
-// ModelType 注册表
-ModelTypeRegistry registry = new ModelTypeRegistry();
-// 添加一种普通类型
-registry.add(Data.TYPE_CONTENT, R.layout.item_content);
-// 添加可被复用视频类型
-registry.add(new VideoItemAdapter());
-// 添加可被复用音频类型
-registry.add(new AudioItemAdapter());
-// 使用 ModelTypeRegistry 构建 Adapter
-LightAdapter<Data> adapter = new LightAdapter<>(list, registry);
-```
-
-
-### 数据绑定
-
-类库中 `LightAdapter` 没有使用抽象类，数据的绑定通过一个回调函数完成，创建 `Adapter` 后设置数据绑定回调函数即可完成数据绑定操作。
-
-类库支持使用 `payloads` 局部刷新数据，这更加高效，通过 `extra.byPayload` 判断是否是局部刷新，使用 `extra.payloadMsg` 确定本次局部刷新数据的类型，这部分还需要结合后面数据更新的部分介绍，暂时只说一下用法，详细可以查看后文数据更新部分。
-
-```java
-// 设置数据绑定回调
-mMyAdapter.setBindCallback((holder, data, extra) -> {
-    // 判读是否使用 payloads 局部更新数据
-    if (extra.byPayload) {
-        switch (extra.payloadMsg) {
-            // 获取到仅更新 name 的消息
-            case NAME_CHANGED:
-                // 仅重新绑定 name 即可
-                holder.setText(R.id.name_tv, data.name);
-                break;
-        }
-        return;
-    }
-    // 绑定整个条目的数据
-    holder.setText(R.id.all_data, data);
-});
-```
-
-## 点击事件和手势
-
-默认每个列表项支持单击事件和长按事件，但是因为支持双击事件的会导致事件监测的时间变长，所以默认不去支持双击事件，如果想要开启双击事件，需要在构造 `ModelType` 时针对类型开启；
-
-```java
- // 列表项单击事件
-adapter.setClickEvent((holder, data, extra) -> {
-});
-// 列表项长按事件
-adapter.setLongPressEvent((holder, data, extra) -> {
-});
-// 列表项双击事件
-modelType.enableDbClick = true;
-adapter.setDbClickEvent((holder, data, extra) -> {
-});
-// 子 View 单击事件，需要配合 LightHolder 绑定
-// 没有 listener 将会把事件发送到这边处理
-holder.setClick(R.id.tv);
-adapter.setChildViewClickEvent((holder, data, extra) -> {
-	switch(extra.viewId) {
-
-	}
-});
-// 子 View 长按事件，需要配合 LightHolder 绑定
-// 没有 listener 将会把事件发送到这边处理
-holder.setLongClick(R.id.tv);
-adapter.setChildViewLongPressEvent((holder, data, extra) -> {
-	switch(extra.viewId) {
-
-	}
-});
-```
-
-
-## 被扩展的 LightHolder
+## 基础：LxVH
 
 为了支持同时对多个控件进行一样的绑定操作，可以使用 `Ids` 来包含多个 `id`
 
@@ -321,6 +223,7 @@ holder
         .setImage(R.id.test_tv, R.drawable.wx_logo)
         .setImage(R.id.test_tv, new ColorDrawable(Color.RED))
         .setImage(R.id.test_tv, BitmapFactory.decodeFile("test"))
+        .setImage(R.id.test_tv, "http://www.te.com/1.jpg")
         // 给 itemView 设置 LayoutParams
         .setLayoutParams(100, 100)
         // 给指定控件设置 LayoutParams
@@ -345,428 +248,475 @@ holder
         // 设置长按触发侧滑事件
         .swipeOnLongPress(R.id.tv)
         // 设置触摸触发侧滑事件
-        .swipeOnTouch(R.id.tv)
-        // 使用回调风格，LightHolder.IMAGE 用来声明范型类型
-        .setCallback(R.id.tv, LightHolder.IMAGE, imgView -> {
-            Glide.with(imgView.getContext()).load("url").into(imgView);
-        })
-        // 将 glide 加载封装成单独的 callback，直接使用
-        .setCallback(R.id.tv, new GlideCallback("url"));
+        .swipeOnTouch(R.id.tv);
 ```
 
-## 功能：添加 Header 和 Footer
 
-主要用于在列表顶部和底部添加布局，并且可随时更新布局显示等业务场景，使用 `adapter.header()` 方法获取 `header` 代理对象进行操作；
+## 基础：点击事件
 
-```java
-// 获取 Header 功能代理对象
-HeaderRef header = mMyAdapter.header();
-
-// 使用布局文件创建 LightView
-LightView lightView = LightView.from(R.layout.adapter_item_header);
-// OR 同样也支持使用 View 对象创建 LightView
-LightView lightView = LightView.from(new ImageView(context));
-
-// 添加一个 Header，并在回调中绑定数据显示
-header.addHeaderView(lightView, holder -> {
-    holder.setText(R.id.header_tv, headerDesc);
-});
-// 更新 Header 的数据绑定
-header.notifyHeaderUpdate();
-// 显示 / 隐藏 Header
-header.setHeaderEnable(true);
-// 清除添加的所有 Header
-header.removeAllHeaderViews();
-// 删除指定的某个 Header
-header.removeHeaderView(lightView);
-// 获取 Header 布局的父容器
-ViewGroup headerView = header.getHeaderView();
-// header 当前的状态
-boolean headerEnable = header.isHeaderEnable();
-```
-
-使用 `adapter.footer()` 方法获取 `footer` 代理对象进行操作；
-
-```java
-// 获取 Header 功能代理对象
-FooterRef footer = mMyAdapter.footer();
-
-// 使用布局文件创建 LightView
-LightView lightView = LightView.from(R.layout.adapter_item_footer);
-// OR 同样也支持使用 View 对象创建 LightView
-LightView lightView = LightView.from(new ImageView(context));
-
-// 添加一个 Header，并在回调中绑定数据显示
-footer.addFooterView(lightView, holder -> {
-    holder.setText(R.id.footer_tv, footerDesc);
-});
-// 更新 Header 数据绑定
-footer.notifyFooterUpdate();
-// 显示 / 隐藏 Footer
-footer.setFooterEnable(true);
-// 清除添加的所有 Footer
-footer.removeAllFooterViews();
-// 删除指定的某个 Footer
-footer.removeFooterView(lightView);
-// 获取 Footer 布局的父容器
-ViewGroup footerView = footer.getFooterView();
-// header 当前的状态
-boolean footerEnable = footer.isFooterEnable();
-```
-
-## 功能：加载更多数据(LoadMore)
-
-主要用于到达列表顶部和列表底部触发加载更多数据的业务场景，使用 `adapter.loadMore()` 获取 `loadMore` 代理对象；
-
-```java
-// 获取 loadMore 代理对象
-LoadMoreRef loadMore = mMyAdapter.loadMore();
-// 设置加载更多监听，提前预加载 10 个，默认 3 个
-loadMore.setLoadMoreListener(10, adapter -> {
-    // 加载数据
-    loadDatas();
-    // 结束加载更多，开启下次检测
-    loadMore.finishLoadMore();
-});
-// 设置是否加载加载更多
-loadMore.setLoadMoreEnable(false);
-```
-
-使用 `adapter.topMore()` 获取 `topMore` 代理对象；
-
-```java
-// 获取 topMore 代理对象
-TopMoreRef topMore = mMyAdapter.topMore();
-topMore.setTopMoreListener(10, adapter -> {
-    // 加载数据
-    loadDatas();
-    // 结束加载，开启下次检测
-    topMore.finishTopMore();
-});
-// 设置是否支持顶部加载更多
-topMore.setTopMoreEnable(false);
-```
-
-## 功能：选择器(Selector)
-
-主要用于在列表中实现选择器的需求，单选、多选、状态变化等业务场景，使用 `adapter.selector()` 获取选择器代理实现：
+点击事件需要在 `TypeOpts` 手动开启，单击事件默认是开启的；
+重写 `onEvent` 方法，根据 `eventType` 的不同，对不同事件进行处理；
 
 
 ```java
-// 获取 selector 代理实现
-SelectorRef<String> selector = mMyAdapter.selector();
-// 设置单选模式，数据绑定
-selector.setSingleSelector((holder, data, extra) -> {
-    holder.setText(R.id.tv, extra.selected ? "选中" : "不选中");
-});
-// 设置多选模式，数据绑定
-selector.setMultiSelector((holder, data, extra) -> {
-    holder.setText(R.id.tv, extra.selected ? "选中" : "不选中");
-});
-// 获取单选的结果
-String result = selector.getResult("default value");
-// 获取多选的结果
-List<String> results = selector.getResults();
-// 该数据是否被选中
-boolean isSelect = selector.isSelect(data);
-// 取消选中该元素
-selector.releaseItem(data);
-// 选中该元素
-selector.selectItem(data);
-// 切换状态，选中改为不选中，不选中改为选中
-selector.toggleItem(data);
-// 设置选择监听，返回 false 将阻止选择操作
-selector.setOnSelectListener((data, toSelect) -> {
-    // 返回 false 将阻止这次选择操作，用于最多选择 10 个这种场景
-    return true;
-});
+class StudentItemBind extends LxItemBind<Student> {
+    StudentItemBind() {
+        // 指定类型和布局文件
+        super(TypeOpts.make(opts -> {
+            opts.viewType = TYPE_STUDENT;
+            opts.layoutId = R.layout.item_squire1;
+            opts.enableClick = true; // 开启单击，默认开启
+            opts.enableLongPress = true; // 开启长按，默认不开启
+            opts.enableDbClick = true; // 开启双击，默认不开启
+        }));
+    }
+    // 在这里完成数据的绑定
+    @Override
+    public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List<String> payloads) {
+        holder.setText(R.id.title_tv, "学：" + data.name)
+                // 给控件加点击事件
+                .setClick(R.id.title_tv, v -> {
+                });
+    }
+    // 在这里完成事件的分发
+    @Override
+    public void onEvent(LxContext context, Student data, LxModel model, int eventType) {
+        switch (eventType) {
+            case Lx.EVENT_CLICK:
+                // 单击
+                break;
+            case Lx.EVENT_LONG_PRESS:
+                // 长按
+                break;
+            case Lx.EVENT_DOUBLE_CLICK:
+                // 双击
+                break;
+        }
+    }
+}
 ```
 
-支持滑动选中，具体效果可参考 `QQ` 相册照片选择效果，如果需要使用滑动选中，只需要在 `xml` 中使用 `SlidingSelectLayout` 即可，不需要做其他操作。
+
+
+
+## 基础：扩展自定义类型
+
+开发过程中，我们通常会有一些特殊类型的数据，比如:
+
+- `Header`
+- `Footer`
+- `空载页`
+- `骨架屏`
+- `Loading`
+
+作为一个框架来说，无法完全覆盖这些业务场景，而且比较常见的使用 `inflate view` 添加的方式并不友好，容易出错，也丧失了一些特性；
+
+所以我们把数据分为两种，一种称为内容类型数据，一种称为扩展类型数据，它们大概以如下方式排列：
+
+- Header1
+- Header2
+- 学生（内容类型1）
+- 老师（内容类型2）
+- 学生（内容类型1）
+- 老师（内容类型2）
+- Footer1
+- Footer2
+- Loading
+
+主要问题在于添加到数据列表中的其他类型数据污染了我们的内容列表，我们无法分离出真正的业务数据列表，这样就使得数据的更新、处理变得很困难，为了解决这个问题我们需要明确，哪些是内容，那些是其他；
+
+```java
+LxList<LxModel> models = new LxDiffList<>();
+LxAdapter.of(models)
+        // 指定老师、学生类型，是我们的业务类型，其他的是扩展类型
+        .contentType(TYPE_STUDENT, TYPE_TEACHER)
+        // 这里指定了 5 种类型的数据绑定
+        .binder(new StudentItemBind(), new TeacherItemBind(),
+                new HeaderItemBind(),new FooterItemBind(),new EmptyItemBind())
+        .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+```
+
+添加数据
+
+```java
+List<LxModel> snapshot = models.snapshot();
+// 添加两个 header
+snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new CustomTypeData("header1")));
+snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new CustomTypeData("header2")));
+// 交替添加 10 个学生和老师
+List<Student> students = ListX.range(10, index -> new Student());
+List<Teacher> teachers = ListX.range(10, index -> new Teacher());
+for (int i = 0; i < 10; i++) {
+    snapshot.add(LxTransformations.pack(TYPE_STUDENT, students.get(i)));
+    snapshot.add(LxTransformations.pack(TYPE_TEACHER, teachers.get(i)));
+}
+// 添加两个 footer
+snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("footer1")));
+snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("footer2")));
+```
+
+更新数据
+
+```java
+class StudentItemBind extends LxItemBind<Student> {
+
+    // ... 省略部分代码
+
+    @Override
+    public void onEvent(LxContext context, Student data, LxModel model, int eventType) {
+        switch (eventType) {
+            case Lx.EVENT_CLICK:
+                // 获取内容类型，这里面只包括了学生和老师的数据
+                // 这样我们就可以愉快的操作业务类型数据了，不用管什么 Header/Footer
+                LxList<LxModel> contentTypeData = adapter.getContentTypeData();
+                // 删除第一个吧
+                contentTypeData.updateRemove(0);
+                break;
+            case Lx.EVENT_LONG_PRESS:
+                // 获取 header，会把顶部的两个 header 单独获取出来
+                LxList<LxModel> headerData = adapter.getCustomTypeData(Lx.VIEW_TYPE_HEADER);
+                // 更新 header
+                headerData.updateSet(0, d -> {
+                    CustomTypeData firstData = d.unpack();
+                    firstData.desc = "新设置的";
+                });
+                break;
+            case Lx.EVENT_DOUBLE_CLICK:
+                // 获取 footer，会把底部的两个 footer 单独获取出来
+                LxList<LxModel> footerData = adapter.getCustomTypeData(Lx.VIEW_TYPE_FOOTER);
+                // 清空 footer
+                footerData.updateClear();
+                break;
+        }
+    }
+}
+```
+
+我们发现，添加和更改每种特殊的类型，是非常方便的，没有针对性的去做 `Header` `Footer` 这些固定的功能，其实它们只是数据的一种类型，可以按照自己的需要做任意的扩展，这样会灵活很多；
+
+## 功能：跨越多列（Span）
+
+当使用 `GridLayoutManager` 布局时，可能某种类型需要跨越多列，需要针对每种类型进行指定；
+
+```java
+class StudentItemBind extends LxItemBind<Student> {
+    StudentItemBind() {
+        // 指定类型和布局文件
+        super(TypeOpts.make(opts -> {
+            opts.viewType = TYPE_STUDENT;
+            opts.layoutId = R.layout.item_squire1;
+            // 跨越所有列
+            opts.spanSize = Lx.SPAN_SIZE_ALL;
+            // 跨越半
+            opts.spanSize = Lx.SPAN_SIZE_HALF;
+            // 跨越 3 列
+            opts.spanSize = 3;
+        }));
+    }
+    // ...
+}
+```
+
+## 功能：加载更多（LoadMore）
+
+加载更多功能由 `LxStartEdgeLoadMoreComponent` 和 `LxEndEdgeLoadMoreComponent` 承担，可以选择性的使用它们；
+
+```java
+LxAdapter.of(models)
+        .binder(new StudentItemBind())
+        // 顶部加载更多，提前 10 个预加载
+        .component(new LxStartEdgeLoadMoreComponent(10, comp -> {
+            // 在这里做网络请求，完成后调用 finish 接口
+            comp.finishLoadMore();
+        }))
+        // 底部加载更多，提前 6 个预加载
+        .component(new LxEndEdgeLoadMoreComponent(6, comp -> {
+            // 在这里做网络请求，完成后调用 finish 接口
+            comp.finishLoadMore();
+        }))
+        .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+```
+
+## 功能：选择器（Selector）
+
+主要用于在列表中实现选择器的需求，单选、多选、状态变化等业务场景;
+
+这部分功能交给 `LxSelectComponent`
+
+
+```java
+LxAdapter.of(models)
+        .binder(new StudentItemBind())
+        // 多选
+        .component(new LxSelectComponent(Lx.SELECT_MULTI))
+        .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+// 获取选择后的结果
+List<Student> result = models.filterTo(LxModel::isSelected, LxModel::unpack);
+```
+
+滑动选中：使用 `LxSlidingSelectLayout` 包裹 `RecyclerView` 会自动和 `LxSelectComponent` 联动实现滑动选中功能；
 
 ```xml
-<com.zfy.adapter.assistant.SlidingSelectLayout
-    android:id="@+id/ssl"
+<com.zfy.adapter.decoration.LxSlidingSelectLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/content_rv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-</com.zfy.adapter.assistant.SlidingSelectLayout>
+        android:id="@+id/content_rv"
+        android:layout_height="match_parent"/>
+</com.zfy.adapter.decoration.LxSlidingSelectLayout>
 ```
 
-## 功能：数据绑定动画效果(Animator)
-
-主要用于需要在数据更新时显示动画效果的业务场景，使用 `adapter.animator()` 获取动画功能代理实现；
-
-说明一下，动画被分为了两种类型
-
-- `BindAnimator` 实际是在绑定数据时对 `View` 执行动画操作
-- `ItemAnimator` 是 `RecyclerView` 官方的动画实现
-
- 这部分参考 [wasabeef-recyclerview-animators](https://github.com/wasabeef/recyclerview-animators) 实现，它可以提供更多动画类型的实现。
+自定义手动选中：主要用于当点击某个按钮自定义触发选中时使用：
 
 ```java
-// 获取动画代理实现
-AnimatorRef animator = mMyAdapter.animator();
-// 关闭动画效果
-animator.setAnimatorEnable(false);
+class StudentItemBind extends LxItemBind<Student> {
+    // ...
 
-// 使用 BindAnimator
-BindAnimator scaleAnimator = new ScaleAnimator(0.5f)
-        .interceptor(new OvershootInterpolator())
-        .duration(500);
-// 针对某个类型设置动画效果
-modelType.animator = scaleAnimator;
-// 设置动画效果，所有 Item 都会执行该动画
-animator.setBindAnimator(scaleAnimator);
-
-// 使用 ItemAnimator,
-animator.setItemAnimator(new ScaleInBottomAnimator());
+	@Override
+	public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List<String> payloads)
+	    // 点击标题触发选择器选中
+	    holder.setClick(R.id.title_tv, v -> {
+	        LxSelectComponent component = adapter.getComponent(LxSelectComponent.class);
+	        if (component != null) {
+	            component.select(model);
+	        }
+	    });
+	}
+    // ...
+}
 ```
 
-## 功能：安全的数据更新(Notify)
+## 功能：列表动画（Animator）
 
-主要用于简化数据更新操作，自动线程检测，避免数据更新错误等场景，使用 `adapter.notifyItem()` 获取数据更新代理实现。
+动画分为了两种:
 
-在开发中经常会出现不小心在子线程发布数据更新造成无法更新列表数据的问题，针对这种情况，提供了数据更新的功能代理，内部会判断当前所在线程，如果在子线程会将更新操作发布到主线程进行；
+1. 一种是 `BindAnimator`，在 `onBindViewHolder` 里面执行；
+2. 一种是 `ItemAnimator`, 是 `RecyclerView` 官方的支持方案；
 
+这部分功能由 `LxBindAnimatorComponent` 和 `LxItemAnimatorComponent` 完成；
+
+### BindAnimator
+
+内置了以下几种，还可以再自定义扩展：
+
+- BindAlphaAnimator
+- BindScaleAnimator
+- BindSlideAnimator
 
 ```java
-NotifyRef notifyRef = mMyAdapter.notifyItem();
-// 同 adapter.notifyDataSetChanged();
-notifyRef.change(2);
-
-// 同 adapter.notifyItemRangeChanged(2, 20);
-notifyRef.change(2, 20);
-
-// 同 adapter.notifyItemRangeChanged(2, 20, null);
-notifyRef.change(2, 20, null);
-
-// 同 adapter.notifyItemInserted(2);
-notifyRef.insert(2);
-
-// 同 adapter.notifyItemRangeInserted(2, 20);
-notifyRef.insert(2, 20);
-
-// 同 adapter.notifyItemRemoved(2);
-notifyRef.remove(2);
-
-// 同 adapter.notifyItemRangeRemoved(2, 20);
-notifyRef.remove(2, 20);
-
-// 同 adapter.notifyItemMoved(10, 20);
-notifyRef.move(10, 20);
+LxAdapter.of(models)
+        .binder(new StudentItemBind())
+        // 缩放动画
+        .component(new LxBindAnimatorComponent(new BindScaleAnimator()))
+        .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
 ```
 
-
-## 功能：加载中效果(LoadingView)
-
-主要用于在列表底部增加一个 `LoadingView` 并且可根据状态变换场景的业务场景，使用 `adapter.loadingView()` 获取他的代理实现
+也可以分类型指定动画，每种类型给予不同的动画效果
 
 ```java
-LoadingViewRef loadingView = mMyAdapter.loadingView();
-// 获取 loadingView 状态
-loadingView.isLoadingEnable();
-// 设置 loadingView 状态
-loadingView.setLoadingEnable(true);
-// 设置 loadingView 布局和数据绑定
-LightView view = LightView.from(R.layout.loading_view);
-loadingView.setLoadingView(view, (holder, data, extra) -> {
-    switch (data.state) {
-        case LoadingState.INIT: // 初始化
-            break;
-        case LoadingState.FINISH: // 结束加载
-            break;
-        case LoadingState.LOADING: // 加载中
-            break;
-        case LoadingState.NO_DATA: // 无数据
-            break;
-        case CUSTOM_STATE: // 自定义的状态
-            break;
+class StudentItemBind extends LxItemBind<Student> {
+    StudentItemBind() {
+        super(TypeOpts.make(opts -> {
+            opts.viewType = TYPE_STUDENT;
+            opts.layoutId = R.layout.item_squire1;
+            // 这种类型单独的动画效果
+            opts.bindAnimator = new BindAlphaAnimator();
+        }));
     }
-});
-// 手动设置状态
-loadingView.setLoadingState(LoadingState.NO_DATA);
-loadingView.setLoadingState(CUSTOM_STATE);
+    // ...
+}
 ```
 
-## 功能：添加空白页(EmptyView)
+### ItemAnimator
 
-主要列表中出现错误、失败、无数据等状态时空白页的显示，使用 `adapte.emptyView()`  获取空白页代理实现；
+这部分参考 [wasabeef-recyclerview-animators](https://github.com/wasabeef/recyclerview-animators) 实现，它可以提供更多动画类型的实现。
 
 ```java
-// 获取 empty view 功能代理实现
-EmptyViewRef emptyViewRef = mMyAdapter.emptyView();
-// 获取 empty view 当前状态
-boolean emptyEnable = emptyViewRef.isEmptyEnable();
-LightView view = LightView.from(R.layout.empty_view);
-emptyViewRef.setEmptyView(view, (holder, data, extra) ->{
-    switch (data.state) {
-        case EmptyState.NONE: // 隐藏空白页
-            break;
-        case EmptyState.ERROR: // 错误
-            break;
-        case EmptyState.SUCCESS: // 成功
-            break;
-        case EmptyState.NO_DATA: // 无数据
-            break;
-        case CUSTOM_STATE: // 自定义的状态
-            break;
-    }
-});
-// 隐藏空白页
-emptyViewRef.setEmptyState(EmptyState.NONE);
-// 设置为自定义状态
-emptyViewRef.setEmptyState(CUSTOM_STATE);
+LxAdapter.of(models)
+        .binder(new StudentItemBind())
+        // 缩放动画
+        .component(new LxItemAnimatorComponent(new ScaleInAnimator()))
+        .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
 ```
 
-## 功能：隔断显示和悬挂(Section)
+## 功能：悬挂效果（Fixed）
 
-主要用于在列表中添加隔断，并且让隔断支持悬挂在列表顶部的业务场景，使用 `adapter.section()` 获取隔断代理实现；
+针对每种类型悬挂效果，可以支持所有类型所有布局文件的顶部悬挂效果，需要使用 `LxFixedComponent` 实现：
 
 ```java
-SectionRef<String> section = mMyAdapter.section();
-// 是否支持悬挂
-section.setPinEnable(true);
-// 设置隔断的布局和数据绑定
-section.setOptions(R.layout.item_section, true, (holder, data, extra) -> {
-    holder.setText(R.id.title_tv, data);
-});
+LxAdapter.of(models)
+        .binder(new StudentItemBind())
+        // 悬挂效果
+        .component(new LxFixedComponent())
+        .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
 ```
-数据结构需要实现 `Sectionable` 接口，返回 `true` 时表明这是一个隔断数据，他的数据绑定将会被类库内部接管，不过这个数据需要自己来构造；
+
+同时在 `TypeOpts` 中说明哪些类型需要支持悬挂
 
 ```java
-class Student implements Typeable, Sectionable {
-    int type;
-    @Override
-    public int getItemType() {
-        return type;
+class StudentItemBind extends LxItemBind<Student> {
+    StudentItemBind() {
+        super(TypeOpts.make(opts -> {
+            opts.viewType = TYPE_STUDENT;
+            opts.layoutId = R.layout.item_squire1;
+            // 这种类型单独的动画效果
+            opts.enableFixed = true;
+        }));
     }
-    @Override
-    public boolean isSection() {
-        return type > 0;
-    }
+    // ...
 }
 ```
 
 ## 功能：拖拽和侧滑(drag/swipe)
 
-主要用于实现拖拽排序和侧滑删除功能，使用 `adapter.dragSwipe()` 获取代理实现；
+针对每种类型支持拖拽和侧滑功能，由 `LxDragSwipeComponent` 完成该功能；
+
+- 关注配置项，配置项决定了该类型的响应行为；
+- 支持长按、触摸触发相应的响应；
+- 支持全局自动触发和手动触发两种方式；
+
+首先定义拖拽、侧滑得一些配置参数：
 
 ```java
-DragSwipeRef dragSwipeRef = mMyAdapter.dragSwipe();
-
-// 配置拖动和侧滑的一些自定义配置项
-DragSwipeOptions options = new DragSwipeOptions();
-// 设置仅支持左右拖动
-options.dragFlags = ItemTouchHelper.START | ItemTouchHelper.END;
-// 滑动超过 0.7 触发 swipe 事件
-options.swipeThreshold = 0.7f;
-dragSwipeRef.setOptions(options);
-
-// 设置监听事件，可以在想应的时机更改 UI 的显示
-dragSwipeRef.setDragSwipeCallback((holder, data, extra) -> {
-    switch (data.state) {
-        case DragSwipeState.ACTIVE_DRAG:
-            // 开始拖动，更改显示
-            break;
-        case DragSwipeState.RELEASE_DRAG:
-            // 结束拖动，更改显示
-            break;
-        case DragSwipeState.ACTIVE_SWIPE:
-            // 开始侧滑，更改显示
-            break;
-        case DragSwipeState.RELEASE_SWIPE:
-            // 结束侧滑，更改显示
-            break;
-    }
-});
-```
-当然仅仅进行配置是没办法正常使用拖拽和侧滑功能的，还需要一个触发时机，这个可以在 `Adapter` 的数据绑定时指定，如下：
-
-```java
-mMyAdapter.setBindCallback((holder, data, extra) -> {
-    holder
-            // 设置触发触发拖拽
-            .dragOnTouch(R.id.title_tv, R.id.desc_tv)
-            // 设置长按触发拖拽
-            .dragOnLongPress(R.id.title_tv, R.id.desc_tv)
-            // 设置触摸触发侧滑
-            .swipeOnTouch(R.id.title_tv, R.id.desc_tv)
-            // 设置长按触发侧滑
-            .swipeOnLongPress(R.id.title_tv, R.id.desc_tv);
-});
-```
-
-
-## 功能：填充假数据(fake)
-
-主要用于显示假数据列表，真实数据回来后再更新显示，目前功能比较简单，使用 `adapter.fake()` 获取代理实现：
-
-```java
-FakeRef<String> fake = mMyAdapter.fake();
-// 显示假数据，指定假数据个数，布局和数据绑定
-fake.showFake(10, R.layout.item_fake, (holder, data, extra) -> {
-
-});
-// 隐藏假数据显示
-fake.hideFake();
-```
-
-## LightList
-
-为了更方便的使用 `DiffUtil` 来更新数据，我们对 `List` 进行了扩展，可以像使用普通集合类那样使用 `LightList`;
-
-```java
-LightList<Data>  list = new LightDiffList<>(); // 使用 DiffUtil 计算数据差异
-LightList<Data>  list = new LightAsyncDiffList<>(); // 异步计算数据
-```
-
-使用 `LightList` 要求数据结构实现 `Diffable` 接口，如果有更改数据内容的操作还需要实现 `Parcelable` 接口，他会为 `DiffUtil` 提供数据比对的依据，你可以选择性的实现这些比对规则，最简单的情况下，可直接实现 `Diffable` 但是不需要做任何实现，这样你就可以享受 `LightList` 自动的数据更新：
-
-```java
-public class DiffableStudent implements Diffable<DiffableStudent> {
-
+public static class DragSwipeOptions {
+    public int     dragFlags; // 拖动方向，在哪个方向上允许拖动，默认4个方向都可以
+    public int     swipeFlags; // 滑动方向，在哪个方向上允许侧滑，默认水平
+    public boolean longPressItemView4Drag = true; // 长按自动触发拖拽
+    public boolean touchItemView4Swipe    = true; // 触摸自动触发滑动
+    public float   moveThreshold          = .5f; // 超过 0.5 触发 onMoved
+    public float   swipeThreshold         = .5f; // 超过 0.5 触发 onSwipe
 }
 ```
 
-更复杂的场景，可以自定义数据比对的回调函数；
+然后使用 `LxDragSwipeComponent` 完成拖拽、侧滑功能：
 
 ```java
-class Student implements Diffable<Student> {
+LxDragSwipeComponent.DragSwipeOptions options = new LxDragSwipeComponent.DragSwipeOptions();
+// 在上下方向上拖拽
+options.dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
+// 关闭触摸自动触发侧滑
+options.touchItemView4Swipe = false;
+LxAdapter.of(models)
+        .binder(new StudentItemBind())
+        // 悬挂效果
+        .component(new LxDragSwipeComponent(options, (state, holder, context) -> {
+            switch (state) {
+                case Lx.DRAG_SWIPE_STATE_NONE:
+                    break;
+                case Lx.DRAG_STATE_ACTIVE:
+                    // 触发拖拽
+                    break;
+                case Lx.DRAG_STATE_RELEASE:
+                    // 释放拖拽
+                    break;
+                case Lx.SWIPE_STATE_ACTIVE:
+                    // 触发侧滑
+                    break;
+                case Lx.SWIPE_STATE_RELEASE:
+                    // 释放侧滑
+                    break;
+            }
+        }))
+        .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+```
 
-    public static final String MSG_NAME_CHANGED = "MSG_NAME_CHANGED";
+最后在 `TypeOpts` 里面配置该类型是否支持侧滑和拖拽，这样可以灵活的控制每种类型数据的行为：
 
-    int    id;
+```java
+class StudentItemBind extends LxItemBind<Student> {
+    StudentItemBind() {
+        super(TypeOpts.make(opts -> {
+            opts.viewType = TYPE_STUDENT;
+            opts.layoutId = R.layout.item_squire1;
+            opts.enableDrag = true; // 支持拖拽
+            opts.enableSwipe = true; // 支持侧滑
+        }));
+    }
+    // ...
+}
+```
+
+手动触发：使用以上方法会为整个 `item` 设置拖拽和侧滑响应，你可以指定某个控件触发这些操作，为了避免冲突我们现在配置项中关闭自动触发逻辑：
+
+```java
+LxDragSwipeComponent.DragSwipeOptions options = new LxDragSwipeComponent.DragSwipeOptions();
+// 关闭触摸自动触发侧滑
+options.touchItemView4Swipe = false;
+// 关闭长按自动触发拖拽
+options.longPressItemView4Drag = false;
+```
+
+然后在 `onBindView` 时，手动关联触发操作：
+
+```java
+class StudentItemBind extends LxItemBind<Student> {
+    StudentItemBind() {
+        super(TypeOpts.make(opts -> {
+            opts.viewType = TYPE_STUDENT;
+            opts.layoutId = R.layout.item_squire1;
+            // 当使用 holder 手动设置时，以下属性会被自动更改，可以不用设置
+            // opts.enableDrag = true;
+            // opts.enableSwipe = true;
+        }));
+    }
+
+    @Override
+    public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List
+        holder
+                // 长按标题控件触发拖拽
+                .dragOnLongPress(adapter, R.id.title_tv)
+                // 触摸标题控件触发拖拽
+                .dragOnTouch(adapter, R.id.title_tv)
+                // 长按标题控件触发侧滑
+                .swipeOnLongPress(adapter, R.id.title_tv)
+                // 触摸标题控件触发侧滑
+                .swipeOnTouch(adapter, R.id.title_tv);
+    }
+    // ...
+}
+```
+
+## 功能：实现 ViewPager (Snap)
+
+内部使用 `SnapHelper` 实现，很简单，只是要把他封装成 `LxComponent` 的形式，统一起来，由 `LxSnapComponent` 实现；
+
+```java
+LxAdapter.of(models)
+        .binder(new StudentItemBind())
+        // 实现 ViewPager 效果
+        .component(new LxSnapComponent(Lx.SNAP_MODE_PAGER))
+        // 实现 ViewPager 效果，但是可以一次划多个 item
+        .component(new LxSnapComponent(Lx.SNAP_MODE_LINEAR))
+        .attachTo(mRecyclerView, new LinearLayoutManager(getContext()));
+```
+
+## 进阶：使用 Idable 优化 change
+
+使用 `DiffUtil` 比对数据时，类库不知道它们是不是同一个对象，会使用一个自增的 `ID` 作为唯一标示，以此来触发 `notifyDataSetChange`, 这意味着每次创建对象这个 `ID` 都将改变，也就是说学生A 和 学生A，并不是同一个学生，因为这关系到使用者具体的业务逻辑，不过你可以通过实现 `Idable` 接口来返回你自己的业务 `ID`；
+
+```java
+// 使用一个自增 ID
+public static int ID = 10;
+static class Student implements Idable  {
+    int    id = ID++;
     String name;
-
-    // 比对数据是不是同一个数据
-    @Override
-    public boolean areItemsTheSame(Student newItem) {
-        return this.equals(newItem) && id == newItem.id;
+    Student(String name) {
+        this.name = name;
     }
-
-    // 比对数据内容是否变化
     @Override
-    public boolean areContentsTheSame(Student newItem) {
-        return name.equals(newItem.name);
-    }
-
-    // 增量更新数据
-    @Override
-    public Set<String> getChangePayload(Student newItem) {
-        Set<String> set = new HashSet<>();
-        if (!name.equals(newItem.name)) {
-            set.add(MSG_NAME_CHANGED);
-        }
-        return set;
+    public Object getObjId() {
+        return id;
     }
 }
 ```
 
-针对上面的回调方法，做一个简单的介绍：
+## 进阶：使用 payloads
+
+某些场景我们只更改了一部分数据，但是会触发 `notifyDataSetChanged` 重新执行整个条目的绑定，这样会造成性能的损耗，有时图片要重新加载，很不友好，因此我们需要 `payploads` 更新的方式；
+
+`payloads` 可以被称为有效载荷，它记录了哪些数据是需要被更新的， 我们只更新需要的那部分就可以了，既然称为有效载荷那么他肯定是需要比对和计算的，为了实现它需要自定义这个比对规则，我们看下以下比对方法的简单介绍：
+
 
 - `areItemsTheSame`
 
@@ -784,81 +734,60 @@ class Student implements Diffable<Student> {
 > 只有在 `areItemsTheSame` 返回 `true` 时才会调用，`areContentsTheSame` 返回 `false` 时调用
 > 返回更新事件列表，会触发 `payload` 更新
 
-### payloads
-
-针对 `payloads` 单独说一下，在进行数据绑定时，可以判断当前是不是使用 `payloads` 更新，借助 `payloads` 局部刷新数据具有更高的效率。
+为了实现它，需要对数据对象进行一些更改，实现 `Diffable` 接口，声明比对规则
 
 ```java
-// 设置数据绑定回调
-mMyAdapter.setBindCallback((holder, data, extra) -> {
-    // 判读是否使用 payloads 局部更新数据
-    if (extra.byPayload) {
-        switch (extra.payloadMsg) {
-            // 获取到仅更新 name 的消息
-            case Student.MSG_NAME_CHANGED:
-                // 仅重新绑定 name 即可
-                holder.setText(R.id.name_tv, data.name);
-                break;
-        }
-        return;
+// 使用一个自增 ID
+public static int ID = 10;
+class Student implements Diffable<Student>,Idable {
+    int    id = ID++;
+    String name;
+
+    Student(String name) {
+        this.name = name;
     }
-    // 绑定整个条目的数据
-    holder.setText(R.id.all_data, data);
-});
+
+    @Override
+    public boolean areContentsTheSame(Student newItem) {
+        return name.equals(newItem.name);
+    }
+
+    @Override
+    public Set<String> getChangePayload(Student newItem) {
+        Set<String> strings = new HashSet<>();
+        if (!name.equals(newItem.name)) {
+            strings.add("name_change");
+        }
+        return strings;
+    }
+
+    @Override
+    public Object getObjId() {
+        return id;
+    }
+}
 ```
 
-### 扩展方法
+这样我们就通过比对拿到了 `payloads`, 那我们如何使用这些有效载荷呢？
 
 ```java
-LightList<Data> list = new LightDiffList<>();
-Data item = null;
-List<Data> newList = null;
-
-// 添加元素
-list.updateAdd(item);
-list.updateAdd(0, item);
-// 添加列表
-list.updateAddAll(newList);
-list.updateAddAll(0, newList);
-
-// 设置元素
-// 注意，使用 updateSet 需要实现 Parcelable 接口
-list.updateSet(0, data -> {
-    data.title = "new title";
-});
-
-// 清空列表
-list.updateClear();
-
-// 删除元素
-list.updateRemove(item);
-list.updateRemove(0);
-// 删除符合规则的元素
-list.updateRemove(data -> {
-    return data.id > 0;
-});
-list.updateRemove(10, true, data -> {
-    return data.id > 10;
-});
-
-// 遍历列表，找到符合规则的元素，执行 set 操作
-// 注意，使用 updateSet 需要实现 Parcelable 接口
-list.updateForEach(data -> {
-    return data.id > 10;
-}, data -> {
-    data.title = "new title";
-});
-// 遍历列表，执行 set 操作
-// 注意，使用 updateSet 需要实现 Parcelable 接口
-list.updateForEach(data -> {
-    data.title = "new title";
-});
-
-// 获取列表快照
-List<Data> snapshot = list.snapshot();
-// 删除第一个元素
-snapshot.remove(0);
-// 发布更新
-list.update(newList);
+class StudentItemBind extends LxItemBind<Student> {
+    //...
+    @Override
+    public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List<String> payloads) {
+        if (payloads.isEmpty()) {
+            // 没有 payloads 正常绑定数据
+            holder.setText(R.id.title_tv, "学：" + data.name);
+        } else {
+            // 有 payloads 通过 payloads 绑定数据
+            for (String payload : payloads) {
+                if (payload.equals("name_change")) {
+                    holder.setText(R.id.title_tv, "payloads：" + data.name);
+                }
+            }
+        }
+    }
+    // ...
+}
 ```
 
