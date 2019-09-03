@@ -10,7 +10,7 @@
 
 > [本文博客地址](http://zfyx.coding.me/article/1632666977/)
 
-> [GitHub - LightAdapter](https://github.com/chendongMarch/LightAdapter)
+> [GitHub - LxAdapter](https://github.com/chendongMarch/LxAdapter)
 
 > com.zfy:lightadapter:0.1.0
 

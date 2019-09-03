@@ -9,10 +9,10 @@ apply plugin: 'bintray-release'
 publish {
     userOrg = 'zfy'
     groupId = 'com.zfy'
-    artifactId = 'lightadapter'
-    publishVersion = '1.0.1'
-    desc = 'lightadapter'
-    website = 'https://github.com/chendongMarch/LightAdapter'
+    artifactId = 'lxadapter'
+    publishVersion = '2.0.0'
+    desc = 'lxadapter'
+    website = 'https://github.com/chendongMarch/LxAdapter'
 }
 
 

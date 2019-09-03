@@ -80,22 +80,22 @@ public class NewSampleTestActivity extends MvpActivity {
                 .component(new LxSnapComponent(Lx.SNAP_MODE_LINEAR))
                 .attachTo(mRecyclerView, new LinearLayoutManager(getContext()));
 
-        List<LxModel> snapshot = models.snapshot();
-        // 添加两个 header
-        snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new CustomTypeData("header1")));
-        snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new CustomTypeData("header2")));
-        // 交替添加 10 个学生和老师
-        List<Student> students = ListX.range(10, index -> new Student());
-        List<Teacher> teachers = ListX.range(10, index -> new Teacher());
-        for (int i = 0; i < 10; i++) {
-            snapshot.add(LxTransformations.pack(TYPE_STUDENT, students.get(i)));
-            snapshot.add(LxTransformations.pack(TYPE_TEACHER, teachers.get(i)));
-        }
-        // 添加两个 footer
-        snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("footer1")));
-        snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("footer2")));
-        // 发布数据更新
-        models.update(snapshot);
+//        List<LxModel> snapshot = models.snapshot();
+//        // 添加两个 header
+//        snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new CustomTypeData("header1")));
+//        snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new CustomTypeData("header2")));
+//        // 交替添加 10 个学生和老师
+//        List<Student> students = ListX.range(10, index -> new Student());
+//        List<Teacher> teachers = ListX.range(10, index -> new Teacher());
+//        for (int i = 0; i < 10; i++) {
+//            snapshot.add(LxTransformations.pack(TYPE_STUDENT, students.get(i)));
+//            snapshot.add(LxTransformations.pack(TYPE_TEACHER, teachers.get(i)));
+//        }
+//        // 添加两个 footer
+//        snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("footer1")));
+//        snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("footer2")));
+//        // 发布数据更新
+//        models.update(snapshot);
 
     }
 
