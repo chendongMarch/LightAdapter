@@ -13,6 +13,7 @@ import com.zfy.adapter.component.LxComponent;
 import com.zfy.adapter.data.LxModel;
 import com.zfy.adapter.data.TypeOpts;
 import com.zfy.adapter.function.LxSpan;
+import com.zfy.adapter.function.LxTypeSplit;
 import com.zfy.adapter.function.LxUtil;
 import com.zfy.adapter.list.LxList;
 
@@ -30,8 +31,7 @@ import java.util.Set;
 public class LxAdapter extends RecyclerView.Adapter<LxVh> {
 
 
-    private LxList<LxModel> data;
-    private LxBlockedList   blockedList;
+    @NonNull private LxList<LxModel> data;
     // 布局加载
     /*default*/ LayoutInflater inflater;
     private Context      context;
@@ -40,6 +40,8 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
     private SparseArray<LxItemBind> binders;
     private Set<LxComponent>        components;
     private Set<Integer>            contentTypes;
+
+    private LxTypeSplit typeSplit;
 
     public static class Builder {
 
@@ -86,7 +88,7 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
         }
     }
 
-    public static Builder of(LxList<LxModel> data) {
+    public static Builder of(@NonNull LxList<LxModel> data) {
         Builder builder = new Builder();
         builder.data = data;
         return builder;
@@ -112,9 +114,8 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
             }
             this.view.setAdapter(this);
         }
-
         this.data.setAdapter(this);
-        this.blockedList = new LxBlockedList(this);
+        this.typeSplit = new LxTypeSplit(this, contentTypes);
     }
 
     @Override
@@ -178,22 +179,19 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
         LxSpan.onViewAttachedToWindow(this, holder);
     }
 
-    public LxList<LxModel> getData() {
+    public @NonNull
+    LxList<LxModel> getData() {
         return data;
     }
 
-    public LxList<LxModel> getContentTypeData() {
-        if (this.contentTypes == null || this.contentTypes.isEmpty()) {
-            return getData();
-        }
-        return blockedList.getContentList();
+    public @NonNull
+    LxList<LxModel> getContentTypeData() {
+        return typeSplit.getContentTypeData();
     }
 
-    public LxList<LxModel> getCustomTypeData(int viewType) {
-        if (this.contentTypes == null || this.contentTypes.isEmpty()) {
-            return null;
-        }
-        return blockedList.getTypedList(viewType);
+    public @NonNull
+    LxList<LxModel> getCustomTypeData(int viewType) {
+        return typeSplit.getCustomTypeData(viewType);
     }
 
     public Context getContext() {
@@ -222,98 +220,5 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
             }
         }
         return (C) component;
-    }
-
-    private static class LxBlockedList extends LxList<LxModel> {
-
-        private LxList<LxModel>                 list;
-        private Set<Integer>                    contentTypes;
-
-        private SparseArray<HandleUpdateLxList> array;
-        private List<Integer>                   blockIds;
-
-
-        private LxBlockedList(LxAdapter adapter) {
-            super();
-            this.array = new SparseArray<>();
-            this.blockIds = new ArrayList<>();
-
-            this.list = adapter.data;
-            this.contentTypes = adapter.contentTypes;
-            this.trySplitList();
-        }
-
-        private boolean isContentType(int viewType) {
-            if (this.contentTypes == null || this.contentTypes.isEmpty()) {
-                // 没有多类型，没有自定义类型的时候均为 内容类型
-                // throw new IllegalStateException("期望获取类型是否是内容类型，但是没有设置 contentType");
-                LxUtil.log("期望获取类型是否是内容类型，但是没有设置 contentType");
-                return true;
-            }
-            return this.contentTypes.contains(viewType);
-        }
-
-        private List<LxModel> mergeList() {
-            List<LxModel> list = new ArrayList<>();
-            for (Integer id : blockIds) {
-                List<LxModel> es = array.get(id);
-                list.addAll(es);
-            }
-            return list;
-        }
-
-        private void trySplitList() {
-            array.clear();
-            blockIds.clear();
-            for (LxModel lxModel : list) {
-                boolean isContentType = isContentType(lxModel.getItemType());
-                int blockId = isContentType ? Lx.DEFAULT_BLOCK_ID : lxModel.getItemType();
-                HandleUpdateLxList handleUpdateLxList = array.get(blockId);
-                if (handleUpdateLxList == null) {
-                    handleUpdateLxList = new HandleUpdateLxList();
-                    array.append(blockId, handleUpdateLxList);
-                    blockIds.add(blockId);
-                }
-                handleUpdateLxList.models.add(lxModel);
-            }
-        }
-
-        @Override
-        public List<LxModel> list() {
-            return mergeList();
-        }
-
-        @Override
-        public void update(@NonNull List<LxModel> newItems) {
-            list.update(mergeList());
-        }
-
-        @Nullable
-        LxList<LxModel> getTypedList(int blockId) {
-            trySplitList();
-            return array.get(blockId);
-        }
-
-        LxList<LxModel> getContentList() {
-            trySplitList();
-            return getTypedList(Lx.DEFAULT_BLOCK_ID);
-        }
-
-        class HandleUpdateLxList extends LxList<LxModel> {
-
-            private List<LxModel> models = new ArrayList<>();
-
-            @Override
-            public List<LxModel> list() {
-                return models;
-            }
-
-            @Override
-            public void update(@NonNull List<LxModel> newItems) {
-                models.clear();
-                models.addAll(newItems);
-                LxBlockedList.this.update(mergeList());
-            }
-        }
     }
 }

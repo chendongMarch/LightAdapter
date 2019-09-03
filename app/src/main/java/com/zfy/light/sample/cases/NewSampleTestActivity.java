@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -61,6 +62,7 @@ public class NewSampleTestActivity extends MvpActivity {
     @BindView(R.id.fix_container) ViewGroup    mFixContainerFl;
 
     private LxList<LxModel> mLxModels = new LxDiffList<>();
+    private LxAdapter       mAdapter;
 
 
     private void test() {
@@ -118,21 +120,44 @@ public class NewSampleTestActivity extends MvpActivity {
         dragSwipeOptions.longPressItemView4Drag = true;
         dragSwipeOptions.touchItemView4Swipe = true;
 
-        LxAdapter.of(mLxModels)
+        mFixContainerFl.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    ToastX.show("触摸了");
+                }
+                return true;
+            }
+        });
+        mAdapter = LxAdapter.of(mLxModels)
                 .contentType(TYPE_STUDENT, TYPE_TEACHER)
-                .binder(new StudentItemBind(), new TeacherItemBind(), new HeaderItemBind(), new FooterItemBind(), new EmptyItemBind())
-//                .component(new LxSnapComponent(Lx.SNAP_MODE_PAGER))
+                .binder(new StudentItemBind(), new TeacherItemBind(),
+                        new HeaderItemBind(), new FooterItemBind(),
+                        new EmptyItemBind(), new LoadingItemBind())
+                //                .component(new LxSnapComponent(Lx.SNAP_MODE_PAGER))
                 .component(new LxFixedComponent())
-//                .component(new LxBindAnimatorComponent())
-//                .component(new LxItemAnimatorComponent(new ScaleInLeftAnimator()))
-//                .component(new LxSelectComponent(Lx.SELECT_MULTI))
+                //                .component(new LxBindAnimatorComponent())
+                //                .component(new LxItemAnimatorComponent(new ScaleInLeftAnimator()))
+                //                .component(new LxSelectComponent(Lx.SELECT_MULTI))
                 .component(new LxStartEdgeLoadMoreComponent((component) -> {
                     ToastX.show("顶部加载更多");
                     ExecutorsPool.ui(component::finishLoadMore, 2000);
+
                 }))
-                .component(new LxEndEdgeLoadMoreComponent((component) -> { // 加载回调
+                .component(new LxEndEdgeLoadMoreComponent(10, (component) -> { // 加载回调
                     ToastX.show("底部加载更多");
-                    ExecutorsPool.ui(component::finishLoadMore, 2000);
+                    mLxModels.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_LOADING, new CustomTypeData("加载中～")));
+                    ExecutorsPool.ui(() -> {
+                        LxList<LxModel> contentTypeData = mAdapter.getContentTypeData();
+                        contentTypeData.updateAddAll(loadData(10));
+
+                        LxList<LxModel> customTypeData = mAdapter.getCustomTypeData(Lx.VIEW_TYPE_LOADING);
+                        if (customTypeData != null) {
+                            customTypeData.updateClear();
+                        }
+
+                        component.finishLoadMore();
+                    }, 2000);
                 }))
                 .component(new LxDragSwipeComponent(dragSwipeOptions, (state, holder, context) -> {
                     switch (state) {
@@ -152,7 +177,7 @@ public class NewSampleTestActivity extends MvpActivity {
                             break;
                     }
                 }))
-                .attachTo(mRecyclerView, new GridLayoutManager(getContext(),3));
+                .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
 
         setData();
     }
@@ -183,16 +208,10 @@ public class NewSampleTestActivity extends MvpActivity {
 
 
     private void setData() {
-        int count = 50;
+        int count = 10;
 
-        List<Student> students = ListX.range(count, index -> new Student(index + " " + System.currentTimeMillis()));
+        LinkedList<LxModel> lxModels = loadData(count);
 
-        List<Teacher> teachers = ListX.range(count, index -> new Teacher(index + " " + System.currentTimeMillis()));
-        LinkedList<LxModel> lxModels = new LinkedList<>();
-        for (int i = 0; i < count; i++) {
-            lxModels.add(LxTransformations.pack(TYPE_STUDENT, students.get(i)));
-            lxModels.add(LxTransformations.pack(TYPE_TEACHER, teachers.get(i)));
-        }
         LxModel header = LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new CustomTypeData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
         lxModels.addFirst(header);
 
@@ -200,6 +219,18 @@ public class NewSampleTestActivity extends MvpActivity {
         lxModels.addLast(footer);
 
         mLxModels.update(lxModels);
+    }
+
+    @NonNull
+    private LinkedList<LxModel> loadData(int count) {
+        List<Student> students = ListX.range(count, index -> new Student(index + " " + System.currentTimeMillis()));
+        List<Teacher> teachers = ListX.range(count, index -> new Teacher(index + " " + System.currentTimeMillis()));
+        LinkedList<LxModel> lxModels = new LinkedList<>();
+        for (int i = 0; i < count; i++) {
+            lxModels.add(LxTransformations.pack(TYPE_STUDENT, students.get(i)));
+            lxModels.add(LxTransformations.pack(TYPE_TEACHER, teachers.get(i)));
+        }
+        return lxModels;
     }
 
 
@@ -264,6 +295,26 @@ public class NewSampleTestActivity extends MvpActivity {
         }
     }
 
+    static class LoadingItemBind extends LxItemBind<CustomTypeData> {
+
+        public LoadingItemBind() {
+            super(TypeOpts.make(opts -> {
+                opts.viewType = Lx.VIEW_TYPE_LOADING;
+                opts.layoutId = R.layout.loading_view;
+                opts.spanSize = Lx.SPAN_SIZE_ALL;
+            }));
+        }
+
+        @Override
+        public void onBindView(LxVh holder, CustomTypeData data, LxModel model, int position, @NonNull List<String> payloads) {
+            holder.setText(R.id.content_tv, data.desc);
+        }
+
+        @Override
+        public void onEvent(LxContext context, CustomTypeData data, LxModel model, int eventType) {
+
+        }
+    }
 
 
     static class StudentItemBind extends LxItemBind<Student> {

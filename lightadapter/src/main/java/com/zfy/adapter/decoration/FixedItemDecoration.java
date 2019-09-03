@@ -114,6 +114,9 @@ public class FixedItemDecoration extends RecyclerView.ItemDecoration {
         if (secondFixedItemView == null) {
             for (int index = 0; index < parent.getChildCount(); index++) {
                 int position = parent.getChildAdapterPosition(parent.getChildAt(index));
+                if (position < 0) {
+                    continue;
+                }
                 TypeOpts type = adapter.getTypeOpts(adapter.getItemViewType(position));
                 if (type.enableFixed) {
                     View sectionView = parent.getChildAt(index);

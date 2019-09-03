@@ -24,6 +24,7 @@
         android:layout_height="wrap_content" />
 
     <LinearLayout
+        android:layout_marginBottom="100dp"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
