@@ -328,6 +328,9 @@ class StudentItemBind extends LxItemBind<Student> {
 主要问题在于添加到数据列表中的其他类型数据污染了我们的内容列表，我们无法分离出真正的业务数据列表，这样就使得数据的更新、处理变得很困难，为了解决这个问题我们需要明确，哪些是内容，那些是其他；
 
 ```java
+public static final int TYPE_STUDENT = Lx.incrementViewType();
+public static final int TYPE_TEACHER = Lx.incrementViewType();
+
 LxList<LxModel> models = new LxDiffList<>();
 LxAdapter.of(models)
         // 指定老师、学生类型，是我们的业务类型，其他的是扩展类型
@@ -355,7 +358,8 @@ for (int i = 0; i < 10; i++) {
 // 添加两个 footer
 snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("footer1")));
 snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("footer2")));
-```
+// 发布数据更新
+models.update(snapshot);```
 
 更新数据
 
@@ -394,7 +398,7 @@ class StudentItemBind extends LxItemBind<Student> {
 }
 ```
 
-我们发现，添加和更改每种特殊的类型，是非常方便的，没有针对性的去做 `Header` `Footer` 这些固定的功能，其实它们只是数据的一种类型，可以按照自己的需要做任意的扩展，这样会灵活很多；
+我们发现，添加和更改每种特殊的类型，是非常方便的，没有针对性的去做 `Header` `Footer` 这些固定的功能，其实它们只是数据的一种类型，可以按照自己的需要做任意的扩展，这样会灵活很多，其他的比如骨架屏、空载页、加载中效果都可以基于这个实现；
 
 ## 功能：跨越多列（Span）
 
@@ -407,11 +411,11 @@ class StudentItemBind extends LxItemBind<Student> {
         super(TypeOpts.make(opts -> {
             opts.viewType = TYPE_STUDENT;
             opts.layoutId = R.layout.item_squire1;
-            // 跨越所有列
+            // 使用内置参数，跨越所有列
             opts.spanSize = Lx.SPAN_SIZE_ALL;
-            // 跨越半
+            // 使用内置参数，跨越总数的一半
             opts.spanSize = Lx.SPAN_SIZE_HALF;
-            // 跨越 3 列
+            // 使用固定数字，跨越 3 列
             opts.spanSize = 3;
         }));
     }
@@ -474,17 +478,16 @@ List<Student> result = models.filterTo(LxModel::isSelected, LxModel::unpack);
 ```java
 class StudentItemBind extends LxItemBind<Student> {
     // ...
-
-	@Override
-	public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List<String> payloads)
-	    // 点击标题触发选择器选中
-	    holder.setClick(R.id.title_tv, v -> {
-	        LxSelectComponent component = adapter.getComponent(LxSelectComponent.class);
-	        if (component != null) {
-	            component.select(model);
-	        }
-	    });
-	}
+    @Override
+    public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List<String> payloads)
+        // 点击标题, 触发选择器选中
+        holder.setClick(R.id.title_tv, v -> {
+            LxSelectComponent component = adapter.getComponent(LxSelectComponent.class);
+            if (component != null) {
+                component.select(model);
+            }
+        });
+    }
     // ...
 }
 ```
@@ -601,7 +604,7 @@ options.dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
 options.touchItemView4Swipe = false;
 LxAdapter.of(models)
         .binder(new StudentItemBind())
-        // 悬挂效果
+        // 当侧滑和拖拽发生时触发的时机，可以响应的做高亮效果
         .component(new LxDragSwipeComponent(options, (state, holder, context) -> {
             switch (state) {
                 case Lx.DRAG_SWIPE_STATE_NONE:
