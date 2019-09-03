@@ -1,6 +1,7 @@
 package com.zfy.adapter.data;
 
 import com.zfy.adapter.Lx;
+import com.zfy.adapter.function.LxUtil;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,7 +12,7 @@ import java.util.Set;
  *
  * @author chendong
  */
-public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable {
+public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable, Copyable<LxModel> {
 
     private static final Set<String> EMPTY_SET = new HashSet<>();
     private static       int         ID        = 0;
@@ -57,19 +58,22 @@ public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable 
 
     @Override
     public boolean areItemsTheSame(LxModel newItem) {
+        // 使用 ID 比较，避免调用 insert/remove
         Object objId1 = getObjId();
         Object objId2 = newItem.getObjId();
         if (objId1 != null && objId2 != null) {
             return objId1.equals(objId2);
-        }
-        if (canCompare(newItem, this)) {
-            return ((Diffable) data).areItemsTheSame(newItem.data);
         }
         return this.equals(newItem);
     }
 
     @Override
     public boolean areContentsTheSame(LxModel newItem) {
+        // 相同地址，则一定完全相同
+        if (this.equals(newItem)) {
+            return true;
+        }
+        // 如果考虑使用 payloads，则根据条件返回 false
         if (canCompare(newItem, this)) {
             return ((Diffable) data).areContentsTheSame(newItem.data);
         }
@@ -78,6 +82,7 @@ public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable 
 
     @Override
     public Set<String> getChangePayload(LxModel newItem) {
+        // 此时一定会触发 change，根据条件返回 payloads
         if (canCompare(newItem, this)) {
             return ((Diffable) data).getChangePayload(newItem.data);
         }
@@ -92,13 +97,15 @@ public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable 
         return type;
     }
 
-//    @Override
-//    public LxModel copyNewOne() {
-//        LxModel lxModel = new LxModel(LxUtil.copy(data));
-//        lxModel.moduleId = moduleId;
-//        lxModel.type = type;
-//        return lxModel;
-//    }
+    @Override
+    public LxModel copyNewOne() {
+        LxModel lxModel = new LxModel(LxUtil.copy(data));
+        lxModel.moduleId = moduleId;
+        lxModel.type = type;
+        lxModel.selected = selected;
+        lxModel.incrementId = incrementId;
+        return lxModel;
+    }
 
 
     @Override

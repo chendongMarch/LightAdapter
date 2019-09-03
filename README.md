@@ -695,17 +695,20 @@ LxAdapter.of(models)
 
 ## 进阶：使用 Idable 优化 change
 
-使用 `DiffUtil` 比对数据时，类库不知道它们是不是同一个对象，会使用一个自增的 `ID` 作为唯一标示，以此来触发 `notifyDataSetChange`, 这意味着每次创建对象这个 `ID` 都将改变，也就是说学生A 和 学生A，并不是同一个学生，因为这关系到使用者具体的业务逻辑，不过你可以通过实现 `Idable` 接口来返回你自己的业务 `ID`；
+使用 `DiffUtil` 比对数据时，类库不知道它们是不是同一个对象，会使用一个自增的 `ID` 作为唯一标示，以此来触发 `notifyDataSetChange`，所以当你更改列表中的一个数据时，只会执行一次绑定，这是内部做的优化；
+
+这也意味着每次创建对象这个 `ID` 都将改变，也就是说学生A 和 学生A，并不是同一个学生，因为这关系到使用者具体的业务逻辑，不过你可以通过实现 `Idable` 接口来返回你自己的业务 `ID`，当然这不是必须的。
 
 ```java
-// 使用一个自增 ID
-public static int ID = 10;
 static class Student implements Idable  {
-    int    id = ID++;
+
+    int    id;
     String name;
+
     Student(String name) {
         this.name = name;
     }
+
     @Override
     public Object getObjId() {
         return id;
@@ -736,17 +739,26 @@ static class Student implements Idable  {
 > 只有在 `areItemsTheSame` 返回 `true` 时才会调用，`areContentsTheSame` 返回 `false` 时调用
 > 返回更新事件列表，会触发 `payload` 更新
 
-为了实现它，需要对数据对象进行一些更改，实现 `Diffable` 接口，声明比对规则
+为了实现它，需要对数据对象进行一些更改:
+
+- 实现 `Diffable` 接口，声明比对规则
+- 实现 `Copyable` 接口，实现对象的拷贝，如果对象有嵌套，可能需要嵌套拷贝；
+- 实现 `Parcelable` 接口，作用同 `Copyable`，写起来简单，但是性能会差一些，二选一即可；
 
 ```java
-// 使用一个自增 ID
-public static int ID = 10;
-class Student implements Diffable<Student>,Idable {
-    int    id = ID++;
+class Student implements Diffable<Student>, Copyable<Student> {
+    int    id;
     String name;
 
     Student(String name) {
         this.name = name;
+    }
+
+    @Override
+    public Student copyNewOne() {
+        Student student = new Student(name);
+        student.id = id;
+        return student;
     }
 
     @Override
@@ -756,17 +768,13 @@ class Student implements Diffable<Student>,Idable {
 
     @Override
     public Set<String> getChangePayload(Student newItem) {
-        Set<String> strings = new HashSet<>();
+        Set<String> payloads = new HashSet<>();
         if (!name.equals(newItem.name)) {
-            strings.add("name_change");
+            payloads("name_change");
         }
-        return strings;
+        return payloads;
     }
 
-    @Override
-    public Object getObjId() {
-        return id;
-    }
 }
 ```
 

@@ -379,7 +379,7 @@ public abstract class LxList<T extends Diffable<T>> extends AbstractList<T> {
     // 复制数据后实现 set(index, item) 功能
     private T setItem(List<T> list, int pos, _Consumer<T> consumer) {
         T item = list.get(pos);
-        T copy = LxUtil.copyAddress(item);
+        T copy = (T) LxUtil.copy(item);
         consumer.accept(copy);
         return list.set(pos, copy);
     }

@@ -1,6 +1,7 @@
 package com.zfy.light.sample.cases;
 
 import android.graphics.Color;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,8 +18,8 @@ import com.zfy.adapter.animation.BindScaleAnimator;
 import com.zfy.adapter.component.LxDragSwipeComponent;
 import com.zfy.adapter.component.LxSelectComponent;
 import com.zfy.adapter.component.LxSnapComponent;
+import com.zfy.adapter.data.Copyable;
 import com.zfy.adapter.data.Diffable;
-import com.zfy.adapter.data.Idable;
 import com.zfy.adapter.data.LxContext;
 import com.zfy.adapter.data.LxModel;
 import com.zfy.adapter.data.TypeOpts;
@@ -169,13 +170,20 @@ public class NewSampleTestActivity extends MvpActivity {
     // 使用一个自增 ID
     public static int ID = 10;
 
-    static class Student implements Diffable<Student>, Idable {
+    static class Student implements Diffable<Student>, Copyable<Student> {
 
         int    id = ID++;
         String name;
 
         Student(String name) {
             this.name = name;
+        }
+
+        @Override
+        public Student copyNewOne() {
+            Student student = new Student(name);
+            student.id = id;
+            return student;
         }
 
         @Override
@@ -192,10 +200,6 @@ public class NewSampleTestActivity extends MvpActivity {
             return strings;
         }
 
-        @Override
-        public Object getObjId() {
-            return id;
-        }
     }
 
     static class Teacher {
@@ -262,7 +266,6 @@ public class NewSampleTestActivity extends MvpActivity {
 
 
 
-
     static class StudentItemBind extends LxItemBind<Student> {
 
         StudentItemBind() {
@@ -270,7 +273,7 @@ public class NewSampleTestActivity extends MvpActivity {
                 opts.layoutId = R.layout.item_squire1;
                 opts.enableClick = true;
                 opts.enableLongPress = true;
-                opts.enableDbClick = true;
+                opts.enableDbClick = false;
                 opts.viewType = TYPE_STUDENT;
                 opts.spanSize = Lx.SPAN_SIZE_ALL;
                 // opts.enableSwipe = true;
@@ -286,7 +289,7 @@ public class NewSampleTestActivity extends MvpActivity {
             } else {
                 for (String payload : payloads) {
                     if (payload.equals("name_change")) {
-                        holder.setText(R.id.title_tv, "pay：" + data.name);
+                        holder.setText(R.id.title_tv, "payloads：" + data.name);
                     }
                 }
             }
