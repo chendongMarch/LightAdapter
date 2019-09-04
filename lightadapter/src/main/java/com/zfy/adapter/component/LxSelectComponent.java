@@ -19,7 +19,6 @@ import java.util.List;
  */
 public class LxSelectComponent extends LxComponent {
 
-
     public interface SelectInterceptor {
         boolean intercept(LxModel data, boolean toSelect);
     }
@@ -108,4 +107,7 @@ public class LxSelectComponent extends LxComponent {
         }
     }
 
+    public <D> List<D> getResult() {
+        return adapter.getData().filterTo(LxModel::isSelected, LxModel::unpack);
+    }
 }

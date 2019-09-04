@@ -62,6 +62,7 @@ public class Lx {
     public static final int VIEW_TYPE_EMPTY   = Lx.incrementViewType(); // 内置空载
     public static final int VIEW_TYPE_LOADING = Lx.incrementViewType(); // 内置 loading
     public static final int VIEW_TYPE_FAKE    = Lx.incrementViewType(); // 内置假数据
+    public static final int VIEW_TYPE_SECTION = Lx.incrementViewType(); // 隔断
 
     @IntDef({DRAG_SWIPE_STATE_NONE, DRAG_STATE_ACTIVE, SWIPE_STATE_ACTIVE, DRAG_STATE_RELEASE, SWIPE_STATE_RELEASE})
     @Retention(RetentionPolicy.SOURCE)

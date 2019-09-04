@@ -2,6 +2,7 @@ package com.zfy.adapter.function;
 
 import com.zfy.adapter.Lx;
 import com.zfy.adapter.data.LxModel;
+import com.zfy.adapter.list._BiFunction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,5 +50,27 @@ public class LxTransformations {
         return list;
     }
 
+
+    public static <DATA, SECTION> List<LxModel> packSection(List<LxModel> originList, List<DATA> list, _BiFunction<DATA, DATA, SECTION> function) {
+        List<LxModel> lxModels = new ArrayList<>();
+        DATA lastData = null;
+        if (originList != null && !originList.isEmpty()) {
+            LxModel lastLxModel = originList.get(originList.size() - 1);
+            if (lastLxModel.getItemType() != Lx.VIEW_TYPE_SECTION) {
+                lastData = lastLxModel.unpack();
+            }
+        }
+        DATA current;
+        for (DATA data : list) {
+            current = data;
+            SECTION section = function.apply(lastData, current);
+            if (section != null) {
+                lxModels.add(pack(Lx.VIEW_TYPE_SECTION, section));
+            }
+            lxModels.add(pack(Lx.VIEW_TYPE_DEFAULT, data));
+            lastData = current;
+        }
+        return lxModels;
+    }
 
 }

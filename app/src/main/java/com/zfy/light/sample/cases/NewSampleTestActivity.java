@@ -152,11 +152,11 @@ public class NewSampleTestActivity extends MvpActivity {
 //            }
 //        });
 
-        LxAdapter.of(mLxModels)
-                .contentType(TYPE_STUDENT, TYPE_TEACHER)
+        LxAdapter adapter = LxAdapter.of(mLxModels)
+                .contentType(TYPE_STUDENT, TYPE_TEACHER, Lx.VIEW_TYPE_SECTION)
                 .bindItem(new StudentItemBind(), new TeacherItemBind(),
                         new HeaderItemBind(), new FooterItemBind(),
-                        new EmptyItemBind(), new LoadingItemBind())
+                        new EmptyItemBind(), new LoadingItemBind(), new SectionItemBind())
                 //                .component(new LxSnapComponent(Lx.SNAP_MODE_PAGER))
                 .component(new LxFixedComponent())
                 //                .component(new LxBindAnimatorComponent())
@@ -178,7 +178,7 @@ public class NewSampleTestActivity extends MvpActivity {
                         LxList customTypeData = mLxModels.getCustomTypeData(Lx.VIEW_TYPE_LOADING);
                         customTypeData.updateClear();
 
-                        mLxModels.publishEvent(Lx.EVENT_FINISH_START_EDGE_LOAD_MORE, null);
+                        mLxModels.publishEvent(Lx.EVENT_FINISH_END_EDGE_LOAD_MORE, null);
                     }, 2000);
                 }))
                 .component(new LxDragSwipeComponent(dragSwipeOptions, (state, holder, context) -> {
@@ -200,6 +200,11 @@ public class NewSampleTestActivity extends MvpActivity {
                     }
                 }))
                 .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+
+        LxSelectComponent component = adapter.getComponent(LxSelectComponent.class);
+        if (component != null) {
+            List<Student> result = component.getResult();
+        }
 
         setData();
     }
@@ -245,10 +250,12 @@ public class NewSampleTestActivity extends MvpActivity {
 
     @NonNull
     private LinkedList<LxModel> loadData(int count) {
+        List<CustomTypeData> sections = ListX.range(count, index -> new CustomTypeData(index + " " + System.currentTimeMillis()));
         List<Student> students = ListX.range(count, index -> new Student(index + " " + System.currentTimeMillis()));
         List<Teacher> teachers = ListX.range(count, index -> new Teacher(index + " " + System.currentTimeMillis()));
         LinkedList<LxModel> lxModels = new LinkedList<>();
         for (int i = 0; i < count; i++) {
+            lxModels.add(LxTransformations.pack(Lx.VIEW_TYPE_SECTION, sections.get(i)));
             lxModels.add(LxTransformations.pack(TYPE_STUDENT, students.get(i)));
             lxModels.add(LxTransformations.pack(TYPE_TEACHER, teachers.get(i)));
         }
@@ -317,6 +324,29 @@ public class NewSampleTestActivity extends MvpActivity {
         }
     }
 
+    static class SectionItemBind extends LxItemBind<CustomTypeData> {
+
+        public SectionItemBind() {
+            super(TypeOpts.make(opts -> {
+                opts.layoutId = R.layout.item_section;
+                opts.viewType = Lx.VIEW_TYPE_SECTION;
+                opts.enableFixed = true;
+                opts.spanSize = Lx.SPAN_SIZE_ALL;
+            }));
+        }
+
+        @Override
+        public void onBindView(LxVh holder, CustomTypeData data, LxModel model, int position, @NonNull List<String> payloads) {
+            holder.setText(R.id.section_tv, data.desc);
+        }
+
+        @Override
+        public void onEvent(LxContext context, CustomTypeData data, LxModel model, int eventType) {
+            ToastX.show("click section => " + data.desc);
+        }
+    }
+
+
     static class LoadingItemBind extends LxItemBind<CustomTypeData> {
 
         LoadingItemBind() {
@@ -350,7 +380,7 @@ public class NewSampleTestActivity extends MvpActivity {
                 opts.viewType = TYPE_STUDENT;
                 opts.spanSize = Lx.SPAN_SIZE_ALL;
                 opts.enableSwipe = true;
-                opts.enableFixed = true;
+//                opts.enableFixed = true;
             }));
         }
 

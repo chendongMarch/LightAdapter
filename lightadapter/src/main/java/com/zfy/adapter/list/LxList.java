@@ -346,6 +346,21 @@ public abstract class LxList extends AbstractList<LxModel> {
 
 
     /**
+     * 更新某个位置的数据
+     *
+     * @param model               对象
+     * @param howToUpdateConsumer 如何更新数据
+     * @return 设置的元素
+     * @see List#set(int, Object)
+     */
+    public LxModel updateSet(LxModel model, @NonNull _Consumer<LxModel> howToUpdateConsumer) {
+        List<LxModel> snapshot = snapshot();
+        LxModel t = setItem(snapshot, indexOf(model), howToUpdateConsumer);
+        dispatchUpdate(snapshot);
+        return t;
+    }
+
+    /**
      * 循环更新列表中满足条件的所有数据时
      *
      * @param shouldUpdate        返回是否需要更新这一项

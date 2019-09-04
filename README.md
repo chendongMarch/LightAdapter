@@ -10,11 +10,9 @@
 
 > LxAdapter 是我做通用适配器的第三次重构版本，尝试了很多种方案，这次摒弃了很多复杂的东西，回归简单，希望会越来越好；
 
-> [本文博客地址](http://zfyx.coding.me/article/1632666977/)
-
 > [GitHub - LxAdapter](https://github.com/chendongMarch/LxAdapter)
 
-> com.zfy:lxadapter:2.0.0
+> com.zfy:lxadapter:2.0.1
 
 <!--more-->
 
@@ -44,7 +42,7 @@
 ## 设计分析
 
 1. 数据源统一使用 `LxModelList`，内部借助 `DiffUtil` 实现数据的自动更新，当需要更改数据时，只需要使用它的内部方法即可；
-2. 每种类型时完全分离的，使用 `LxItemBind` 来描述如何对该类型进行数据的绑定，事件的响应，以此来保证每种类型数据绑定的可复用性，已经类型之间的独立性；
+2. 每种类型是完全分离的，使用 `LxItemBind` 来描述如何对该类型进行数据的绑定，事件的响应，以此来保证每种类型数据绑定的可复用性，已经类型之间的独立性；
 3. 拖拽、侧滑、`Snap` 使用、动画、选择器、加载更多，这些功能都分离出来，每个功能由单独的 `component` 负责，这样职责更加分离，需要时注入指定的 `component` 即可，也保证了良好的扩展性；
 
 
@@ -126,15 +124,18 @@ models.update(tempList);
 public static final int TYPE_STUDENT = Lx.incrementViewType();
 
 class StudentItemBind extends LxItemBind<Student> {
+
     StudentItemBind() {
         // 指定类型和布局文件
         super(TypeOpts.make(TYPE_STUDENT, R.layout.item_squire1));
     }
+
     // 在这里完成数据的绑定
     @Override
     public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List<String> payloads) {
         holder.setText(R.id.title_tv, "学：" + data.name);
     }
+
     // 在这里完成事件的分发
     @Override
     public void onEvent(LxContext context, Student data, LxModel model, int eventType) {
@@ -156,23 +157,36 @@ LxList -> LxModelList -> LxModelDiffList
 以下是 `LxList` 内置的各种方法 `updateXXX()`，基本能满足开发需求，另外也可以使用 `snapshot` 获取快照，然后自定义扩展操作；
 
 ```java
+// 内部使用 DiffUtil 实现
 LxList list = new LxModelDiffList();
-// 内部使用异步实现，避免阻塞主线程
+
+// 内部使用 DiffUtil + 异步 实现，避免阻塞主线程
 // LxList<LxModel> list = new LxAsyncDiffList<>();
+
 List<LxModel> newList = new ArrayList<>();
 LxModel item = new LxModel(new Student("name"));
+
 // 添加元素
 list.updateAdd(item);
 list.updateAdd(0, item);
+
 // 添加列表
 list.updateAddAll(newList);
 list.updateAddAll(0, newList);
-// 更改第 1 个元素
+
+// 使用索引更新某一项
 list.updateSet(0, data -> {
     Student stu = data.unpack();
     stu.name = "new name";
 });
-// 遍历列表，找到符合规则的元素，执行 set 操作
+
+// 指定更改某一项
+list.updateSet(model, data -> {
+    Student stu = data.unpack();
+    stu.name = "new name";
+});
+
+// 遍历列表，找到符合规则的元素，并做更改操作
 list.updateSet(data -> {
     Student stu = data.unpack();
     return stu.id > 10;
@@ -180,16 +194,20 @@ list.updateSet(data -> {
     Student stu = data.unpack();
     stu.name = "new name";
 });
-// 遍历列表，执行 set 操作
+
+// 遍历列表，无差别做更改操作
 list.updateSet(data -> {
     Student stu = data.unpack();
     stu.name = "new name";
 });
+
 // 清空列表
 list.updateClear();
+
 // 删除元素
 list.updateRemove(item);
 list.updateRemove(0);
+
 // 删除符合规则的元素
 list.updateRemove(data -> {
     Student stu = data.unpack();
@@ -199,6 +217,7 @@ list.updateRemove(10, true, data -> {
     Student stu = data.unpack();
     return stu.id > 10;
 });
+
 // 获取列表快照, 删除第一个元素, 发布更新
 List<LxModel> snapshot = list.snapshot();
 snapshot.remove(0);
@@ -209,8 +228,10 @@ list.update(newList);
 
 ```java
 LxModelList list = new LxModelDiffList();
+
 // 获取内容类型的数据
 list.getContentTypeData();
+
 // 获取指定类型的数据
 list.getCustomTypeData(Lx.VIEW_TYPE_HEADER);
 ```
@@ -298,6 +319,7 @@ holder
 
 ```java
 class StudentItemBind extends LxItemBind<Student> {
+
     StudentItemBind() {
         // 指定类型和布局文件
         super(TypeOpts.make(opts -> {
@@ -308,7 +330,7 @@ class StudentItemBind extends LxItemBind<Student> {
             opts.enableDbClick = true; // 开启双击，默认不开启
         }));
     }
-    // 在这里完成数据的绑定
+
     @Override
     public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List<String> payloads) {
         holder.setText(R.id.title_tv, "学：" + data.name)
@@ -316,7 +338,7 @@ class StudentItemBind extends LxItemBind<Student> {
                 .setClick(R.id.title_tv, v -> {
                 });
     }
-    // 在这里完成事件的分发
+
     @Override
     public void onEvent(LxContext context, Student data, LxModel model, int eventType) {
         switch (eventType) {
@@ -378,9 +400,11 @@ LxAdapter.of(models)
 
 ```java
 List<LxModel> snapshot = models.snapshot();
+
 // 添加两个 header
 snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new CustomTypeData("header1")));
 snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new CustomTypeData("header2")));
+
 // 交替添加 10 个学生和老师
 List<Student> students = ListX.range(10, index -> new Student());
 List<Teacher> teachers = ListX.range(10, index -> new Teacher());
@@ -388,9 +412,11 @@ for (int i = 0; i < 10; i++) {
     snapshot.add(LxTransformations.pack(TYPE_STUDENT, students.get(i)));
     snapshot.add(LxTransformations.pack(TYPE_TEACHER, teachers.get(i)));
 }
+
 // 添加两个 footer
 snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("footer1")));
 snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("footer2")));
+
 // 发布数据更新
 models.update(snapshot);
 ```
@@ -463,14 +489,16 @@ OnAdapterEventInterceptor interceptor = (event, adapter, extra) -> {
     return true;
 };
 
-// 全局注入，会对所有 Adapter 生效
+// 1. 全局注入，会对所有 Adapter 生效
 LxGlobal.addOnAdapterEventInterceptor(interceptor);
-// 对 Adapter 注入，仅对当前 Adapter 生效
+
+// 2. 对 Adapter 注入，仅对当前 Adapter 生效
 LxAdapter.of(models)
         .bindItem(new StudentItemBind())
         .onEvent(interceptor)
         .attachTo(mRecyclerView, new LinearLayoutManager(getContext()));
-// 直接在数据层注入，会对该数据作为数据源的 Adapter 生效
+
+// 3. 直接在数据层注入，会对该数据作为数据源的 Adapter 生效
 models.addInterceptor(interceptor);
 ```
 
@@ -499,6 +527,7 @@ models.publishEvent(Lx.EVENT_FINISH_START_EDGE_LOAD_MORE)
 
 ```java
 class StudentItemBind extends LxItemBind<Student> {
+
     StudentItemBind() {
         // 指定类型和布局文件
         super(TypeOpts.make(opts -> {
@@ -512,6 +541,7 @@ class StudentItemBind extends LxItemBind<Student> {
             opts.spanSize = 3;
         }));
     }
+
     // ...
 }
 ```
@@ -549,8 +579,15 @@ LxAdapter.of(models)
         // 多选
         .component(new LxSelectComponent(Lx.SELECT_MULTI))
         .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+
 // 获取选择后的结果
 List<Student> result = models.filterTo(LxModel::isSelected, LxModel::unpack);
+
+// 获取从 component 中获取
+LxSelectComponent component = adapter.getComponent(LxSelectComponent.class);
+if (component != null) {
+    List<Student> result = component.getResult();
+}
 ```
 
 滑动选中：使用 `LxSlidingSelectLayout` 包裹 `RecyclerView` 会自动和 `LxSelectComponent` 联动实现滑动选中功能；
@@ -559,10 +596,12 @@ List<Student> result = models.filterTo(LxModel::isSelected, LxModel::unpack);
 <com.zfy.adapter.decoration.LxSlidingSelectLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:id="@+id/content_rv"
         android:layout_height="match_parent"/>
+
 </com.zfy.adapter.decoration.LxSlidingSelectLayout>
 ```
 
@@ -570,7 +609,9 @@ List<Student> result = models.filterTo(LxModel::isSelected, LxModel::unpack);
 
 ```java
 class StudentItemBind extends LxItemBind<Student> {
+
     // ...
+
     @Override
     public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List<String> payloads)
         // 点击标题, 触发选择器选中
@@ -581,6 +622,7 @@ class StudentItemBind extends LxItemBind<Student> {
             }
         });
     }
+
     // ...
 }
 ```
@@ -614,6 +656,7 @@ LxAdapter.of(models)
 
 ```java
 class StudentItemBind extends LxItemBind<Student> {
+
     StudentItemBind() {
         super(TypeOpts.make(opts -> {
             opts.viewType = TYPE_STUDENT;
@@ -622,6 +665,7 @@ class StudentItemBind extends LxItemBind<Student> {
             opts.bindAnimator = new BindAlphaAnimator();
         }));
     }
+
     // ...
 }
 ```
@@ -659,6 +703,7 @@ LxAdapter.of(models)
 
 ```java
 class StudentItemBind extends LxItemBind<Student> {
+
     StudentItemBind() {
         super(TypeOpts.make(opts -> {
             opts.viewType = TYPE_STUDENT;
@@ -667,6 +712,7 @@ class StudentItemBind extends LxItemBind<Student> {
             opts.enableFixed = true;
         }));
     }
+
     // ...
 }
 ```
@@ -700,7 +746,8 @@ LxDragSwipeComponent.DragSwipeOptions options = new LxDragSwipeComponent.DragSwi
 options.dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
 // 关闭触摸自动触发侧滑
 options.touchItemView4Swipe = false;
-LxAdapter.of(models)
+L
+xAdapter.of(models)
         .bindItem(new StudentItemBind())
         // 当侧滑和拖拽发生时触发的时机，可以响应的做高亮效果
         .component(new LxDragSwipeComponent(options, (state, holder, context) -> {
@@ -754,6 +801,7 @@ options.longPressItemView4Drag = false;
 
 ```java
 class StudentItemBind extends LxItemBind<Student> {
+
     StudentItemBind() {
         super(TypeOpts.make(opts -> {
             opts.viewType = TYPE_STUDENT;
@@ -776,7 +824,6 @@ class StudentItemBind extends LxItemBind<Student> {
                 // 触摸标题控件触发侧滑
                 .swipeOnTouch(adapter, R.id.title_tv);
     }
-    // ...
 }
 ```
 
@@ -883,7 +930,7 @@ class Student implements Diffable<Student>, Copyable<Student> {
 
 ```java
 class StudentItemBind extends LxItemBind<Student> {
-    //...
+
     @Override
     public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List<String> payloads) {
         if (payloads.isEmpty()) {
@@ -898,7 +945,6 @@ class StudentItemBind extends LxItemBind<Student> {
             }
         }
     }
-    // ...
 }
 ```
 
