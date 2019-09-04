@@ -2,7 +2,8 @@
 
 # LxAdapter
 
-![](http://s3.hixd.com/196711.jpeg)
+<img style="margin-right:20px;"  src="http://s3.hixd.com/196711.jpeg"/>
+
 
 `LxAdapter` **轻量** 、 **面向业务** 为主要目的，一方面希望可以快速、简单的的完成数据的适配工作，另一方面针对业务中经常出现的场景能提供统一、简单的解决方案。
 
@@ -18,7 +19,7 @@
 
 <div style="width:100%;display:flex;height:30px;">
 
-<img style="margin-right:20px;"  src="https://img.shields.io/github/stars/chendongMarch/LightAdapter.svg"/>
+<img style="margin-right:20px;"  src="https://img.shields.io/github/stars/chendongMarch/LxAdapter.svg"/>
 
 </div>
 
@@ -479,9 +480,9 @@ models.publishEvent("HIDE_LOADING");
 
 ```java
 // 结束底部加载更多
-models.publishEvent(Lx.EVENT_FINISH_START_EDGE_LOAD_MORE)
+models.publishEvent(Lx.EVENT_FINISH_END_EDGE_LOAD_MORE)
 // 结束顶部加载更多
-models.publishEvent(EVENT_FINISH_START_EDGE_LOAD_MORE)
+models.publishEvent(Lx.EVENT_FINISH_START_EDGE_LOAD_MORE)
 ```
 
 ## 功能：跨越多列（Span）
