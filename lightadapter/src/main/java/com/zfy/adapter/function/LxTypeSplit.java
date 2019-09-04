@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ *
  * CreateAt : 2019-09-03
  * Describe :
  *
@@ -21,7 +22,7 @@ import java.util.Set;
  */
 public class LxTypeSplit {
 
-    private static final LxList<LxModel> EMPTY = new LxList<LxModel>() {
+    private static final LxList EMPTY = new LxList() {
 
         private List<LxModel> list = new ArrayList<>();
 
@@ -40,25 +41,27 @@ public class LxTypeSplit {
     private Set<Integer>  contentTypes;
     private LxBlockedList blockedList;
 
-    public LxTypeSplit(LxAdapter adapter, Set<Integer> contentTypes) {
+    public void setAdapter(LxAdapter adapter, Set<Integer> contentTypes) {
         this.adapter = adapter;
         this.contentTypes = contentTypes;
         this.blockedList = new LxBlockedList();
     }
 
-    public @NonNull LxList<LxModel> getContentTypeData() {
+    public @NonNull
+    LxList getContentTypeData() {
         if (this.contentTypes == null || this.contentTypes.isEmpty()) {
             return adapter.getData();
         }
-        LxList<LxModel> contentList = blockedList.getContentList();
+        LxList contentList = blockedList.getContentList();
         return contentList == null ? EMPTY : contentList;
     }
 
-    public @NonNull LxList<LxModel> getCustomTypeData(int viewType) {
+    public @NonNull
+    LxList getCustomTypeData(int viewType) {
         if (this.contentTypes == null || this.contentTypes.isEmpty()) {
             return EMPTY;
         }
-        LxList<LxModel> typedList = blockedList.getTypedList(viewType);
+        LxList typedList = blockedList.getTypedList(viewType);
         return typedList == null ? EMPTY : typedList;
     }
 
@@ -72,7 +75,7 @@ public class LxTypeSplit {
         return contentTypes.contains(viewType);
     }
 
-    private class LxBlockedList extends LxList<LxModel> {
+    private class LxBlockedList extends LxList {
 
         private SparseArray<HandleUpdateLxList> array;
         private List<Integer>                   blockIds;
@@ -96,7 +99,7 @@ public class LxTypeSplit {
         private void trySplitList() {
             array.clear();
             blockIds.clear();
-            LxList<LxModel> list = adapter.getData();
+            List<LxModel> list = adapter.getData();
             for (LxModel lxModel : list) {
                 boolean isContentType = isContentType(lxModel.getItemType());
                 int blockId = isContentType ? Lx.DEFAULT_BLOCK_ID : lxModel.getItemType();
@@ -117,23 +120,23 @@ public class LxTypeSplit {
 
         @Override
         public void update(@NonNull List<LxModel> newItems) {
-            LxList<LxModel> list = adapter.getData();
+            LxList list = adapter.getData();
             list.update(mergeList());
         }
 
         @Nullable
-        LxList<LxModel> getTypedList(int blockId) {
+        LxList getTypedList(int blockId) {
             trySplitList();
             return array.get(blockId);
         }
 
-        LxList<LxModel> getContentList() {
+        LxList getContentList() {
             trySplitList();
             return getTypedList(Lx.DEFAULT_BLOCK_ID);
         }
 
 
-        class HandleUpdateLxList extends LxList<LxModel> {
+        class HandleUpdateLxList extends LxList {
 
             private List<LxModel> models = new ArrayList<>();
 

@@ -24,7 +24,6 @@ import android.widget.TextView;
 import com.zfy.adapter.data.Ids;
 import com.zfy.adapter.component.LxDragSwipeComponent;
 import com.zfy.adapter.data.LxContext;
-import com.zfy.adapter.function.LxGlobal;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -387,7 +386,7 @@ public class LxVh extends RecyclerView.ViewHolder {
         if (iv == null) {
             return this;
         }
-        LxGlobal.ImgUrlLoader loader = LxGlobal.getImgUrlLoader();
+        LxGlobal.ImgUrlLoader loader = LxGlobal.imgUrlLoader;
         if (loader != null) {
             loader.load(iv, url, extra);
         }

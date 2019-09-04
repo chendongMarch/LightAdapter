@@ -99,4 +99,7 @@ public class Lx {
     }
 
     public static final int DEFAULT_BLOCK_ID = 0;
+
+    public static final String EVENT_FINISH_END_EDGE_LOAD_MORE   = "EVENT_FINISH_END_EDGE_LOAD_MORE";
+    public static final String EVENT_FINISH_START_EDGE_LOAD_MORE = "EVENT_FINISH_START_EDGE_LOAD_MORE";
 }

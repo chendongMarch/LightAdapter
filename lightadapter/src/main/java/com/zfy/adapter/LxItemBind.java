@@ -77,6 +77,9 @@ public abstract class LxItemBind<D> implements Typeable {
         return typeOpts;
     }
 
+    public LxModelList getData() {
+        return adapter.getData();
+    }
 
     private List<String> parsePayloads(List<Object> payloads) {
         List<String> list = new ArrayList<>();

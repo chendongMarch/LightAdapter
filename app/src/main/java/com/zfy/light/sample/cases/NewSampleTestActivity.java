@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -15,24 +14,25 @@ import com.march.common.exts.ToastX;
 import com.march.common.pool.ExecutorsPool;
 import com.zfy.adapter.Lx;
 import com.zfy.adapter.LxAdapter;
+import com.zfy.adapter.LxGlobal;
 import com.zfy.adapter.LxItemBind;
+import com.zfy.adapter.LxModelList;
 import com.zfy.adapter.LxVh;
 import com.zfy.adapter.animation.BindScaleAnimator;
 import com.zfy.adapter.component.LxDragSwipeComponent;
 import com.zfy.adapter.component.LxEndEdgeLoadMoreComponent;
 import com.zfy.adapter.component.LxFixedComponent;
 import com.zfy.adapter.component.LxSelectComponent;
-import com.zfy.adapter.component.LxSnapComponent;
 import com.zfy.adapter.component.LxStartEdgeLoadMoreComponent;
 import com.zfy.adapter.data.Copyable;
 import com.zfy.adapter.data.Diffable;
 import com.zfy.adapter.data.LxContext;
 import com.zfy.adapter.data.LxModel;
 import com.zfy.adapter.data.TypeOpts;
-import com.zfy.adapter.function.LxGlobal;
 import com.zfy.adapter.function.LxTransformations;
-import com.zfy.adapter.list.LxDiffList;
 import com.zfy.adapter.list.LxList;
+import com.zfy.adapter.list.LxModelDiffList;
+import com.zfy.adapter.listener.OnAdapterEventInterceptor;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.R;
@@ -61,18 +61,16 @@ public class NewSampleTestActivity extends MvpActivity {
     @BindView(R.id.content_rv)    RecyclerView mRecyclerView;
     @BindView(R.id.fix_container) ViewGroup    mFixContainerFl;
 
-    private LxList<LxModel> mLxModels = new LxDiffList<>();
-    private LxAdapter       mAdapter;
-
+    private LxModelList mLxModels = new LxModelDiffList();
 
     private void test() {
-
-        LxList<LxModel> models = new LxDiffList<>();
+        LxModelList models = new LxModelDiffList();
+        models.publishEvent("HIDE_LOADING");
         LxAdapter.of(models)
                 // 指定老师、学生类型，是我们的业务类型，其他的是扩展类型
                 .contentType(TYPE_STUDENT, TYPE_TEACHER)
                 // 这里指定了 5 种类型的数据绑定
-                .binder(new StudentItemBind(), new TeacherItemBind(),
+                .bindItem(new StudentItemBind(), new TeacherItemBind(),
                         new HeaderItemBind(), new FooterItemBind(), new EmptyItemBind())
                 .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
 
@@ -82,15 +80,29 @@ public class NewSampleTestActivity extends MvpActivity {
         // 关闭长按自动触发拖拽
         options.longPressItemView4Drag = false;
 
+        // 定义事件拦截器
+        OnAdapterEventInterceptor interceptor = (event, adapter, extra) -> {
+            LxModelList lxModels = adapter.getData();
+            // 隐藏 loading 条目
+            if ("HIDE_LOADING".equals(event)) {
+                LxList customTypeData = lxModels.getCustomTypeData(Lx.VIEW_TYPE_LOADING);
+                customTypeData.updateClear();
+            }
+            // 返回 true 表示停止事件的传递
+            return true;
+        };
+        // 全局注入，会对所有 Adapter 生效
+        LxGlobal.addOnAdapterEventInterceptor(interceptor);
+        // 对 Adapter 注入，仅对当前 Adapter 生效
         LxAdapter.of(models)
-                .binder(new StudentItemBind())
-                // 实现 ViewPager 效果
-                .component(new LxSnapComponent(Lx.SNAP_MODE_PAGER))
-                // 实现 ViewPager 效果，但是可以一次划多个 item
-                .component(new LxSnapComponent(Lx.SNAP_MODE_LINEAR))
+                .bindItem(new StudentItemBind())
+                .onEvent(interceptor)
                 .attachTo(mRecyclerView, new LinearLayoutManager(getContext()));
+        // 直接在数据层注入，会对该数据作为数据源的 Adapter 生效
+        models.addInterceptor(interceptor);
 
-//        List<LxModel> snapshot = models.snapshot();
+
+//        List snapshot = models.snapshot();
 //        // 添加两个 header
 //        snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new CustomTypeData("header1")));
 //        snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new CustomTypeData("header2")));
@@ -107,6 +119,7 @@ public class NewSampleTestActivity extends MvpActivity {
 //        // 发布数据更新
 //        models.update(snapshot);
 
+
     }
 
 
@@ -116,22 +129,32 @@ public class NewSampleTestActivity extends MvpActivity {
             Glide.with(view).load(url).into(view);
         });
 
+        LxGlobal.addOnAdapterEventInterceptor((event, adapter, extra) -> {
+            // 定义全局公共事件，用来清空数据
+            if ("CLEAR_ALL_DATA".equals(event)) {
+                adapter.getData().updateClear();
+            }
+            // 返回 true, 事件将不会往下分发
+            return true;
+        });
+
         LxDragSwipeComponent.DragSwipeOptions dragSwipeOptions = new LxDragSwipeComponent.DragSwipeOptions();
         dragSwipeOptions.longPressItemView4Drag = true;
         dragSwipeOptions.touchItemView4Swipe = true;
 
-        mFixContainerFl.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    ToastX.show("触摸了");
-                }
-                return true;
-            }
-        });
-        mAdapter = LxAdapter.of(mLxModels)
+//        mFixContainerFl.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+//                    ToastX.show("触摸了");
+//                }
+//                return true;
+//            }
+//        });
+
+        LxAdapter.of(mLxModels)
                 .contentType(TYPE_STUDENT, TYPE_TEACHER)
-                .binder(new StudentItemBind(), new TeacherItemBind(),
+                .bindItem(new StudentItemBind(), new TeacherItemBind(),
                         new HeaderItemBind(), new FooterItemBind(),
                         new EmptyItemBind(), new LoadingItemBind())
                 //                .component(new LxSnapComponent(Lx.SNAP_MODE_PAGER))
@@ -141,20 +164,21 @@ public class NewSampleTestActivity extends MvpActivity {
                 //                .component(new LxSelectComponent(Lx.SELECT_MULTI))
                 .component(new LxStartEdgeLoadMoreComponent((component) -> {
                     ToastX.show("顶部加载更多");
-                    ExecutorsPool.ui(component::finishLoadMore, 2000);
-
+                    ExecutorsPool.ui(() -> {
+                        mLxModels.publishEvent(Lx.EVENT_FINISH_START_EDGE_LOAD_MORE, null);
+                    }, 2000);
                 }))
                 .component(new LxEndEdgeLoadMoreComponent(10, (component) -> { // 加载回调
                     ToastX.show("底部加载更多");
                     mLxModels.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_LOADING, new CustomTypeData("加载中～")));
                     ExecutorsPool.ui(() -> {
-                        LxList<LxModel> contentTypeData = mAdapter.getContentTypeData();
+                        LxList contentTypeData = mLxModels.getContentTypeData();
                         contentTypeData.updateAddAll(loadData(10));
 
-                        LxList<LxModel> customTypeData = mAdapter.getCustomTypeData(Lx.VIEW_TYPE_LOADING);
+                        LxList customTypeData = mLxModels.getCustomTypeData(Lx.VIEW_TYPE_LOADING);
                         customTypeData.updateClear();
 
-                        component.finishLoadMore();
+                        mLxModels.publishEvent(Lx.EVENT_FINISH_START_EDGE_LOAD_MORE, null);
                     }, 2000);
                 }))
                 .component(new LxDragSwipeComponent(dragSwipeOptions, (state, holder, context) -> {
@@ -350,7 +374,7 @@ public class NewSampleTestActivity extends MvpActivity {
         public void onEvent(LxContext context, Student data, LxModel model, int eventType) {
             ToastX.show("点击学生 position = " + context.position + " data = " + data.name + " eventType = " + eventType);
 
-            LxList<LxModel> list = adapter.getData();
+            LxList list = getData();
             list.updateSet(context.position, d -> {
                 Student unpack = d.unpack();
                 unpack.name = String.valueOf(System.currentTimeMillis());
@@ -382,7 +406,7 @@ public class NewSampleTestActivity extends MvpActivity {
         public void onEvent(LxContext context, Teacher data, LxModel model, int eventType) {
             ToastX.show("点击老师 position = " + context.position + " data = " + data.name + " eventType = " + eventType);
             // 点击更新 header
-            LxList<LxModel> list = adapter.getCustomTypeData(Lx.VIEW_TYPE_HEADER);
+            LxList list = getData().getCustomTypeData(Lx.VIEW_TYPE_HEADER);
             list.updateSet(0, m -> {
                 CustomTypeData header = m.unpack();
                 header.desc = String.valueOf(System.currentTimeMillis());
@@ -418,17 +442,17 @@ public class NewSampleTestActivity extends MvpActivity {
 
             if (eventType == Lx.EVENT_LONG_PRESS) {
                 // 长按删除 header
-                LxList<LxModel> list = adapter.getCustomTypeData(Lx.VIEW_TYPE_HEADER);
+                LxList list = getData().getCustomTypeData(Lx.VIEW_TYPE_HEADER);
                 list.updateRemove(0);
             }
             if (eventType == Lx.EVENT_CLICK) {
                 // 点击删除内容第一个
-                LxList<LxModel> list = adapter.getContentTypeData();
+                LxList list = getData().getContentTypeData();
                 list.updateClear();
             }
             if (eventType == Lx.EVENT_DOUBLE_CLICK) {
                 // 双击更新第一个数据
-                LxList<LxModel> list = adapter.getContentTypeData();
+                LxList list = getData().getContentTypeData();
                 list.updateSet(0, m -> {
                     if (m.getItemType() == TYPE_STUDENT) {
                         Student stu = m.unpack();
@@ -465,17 +489,17 @@ public class NewSampleTestActivity extends MvpActivity {
         public void onEvent(LxContext context, CustomTypeData data, LxModel model, int eventType) {
             if (eventType == Lx.EVENT_LONG_PRESS) {
                 // 长按删除 footer
-                LxList<LxModel> list = adapter.getCustomTypeData(Lx.VIEW_TYPE_FOOTER);
+                LxList list = getData().getCustomTypeData(Lx.VIEW_TYPE_FOOTER);
                 list.updateRemove(0);
             }
             if (eventType == Lx.EVENT_CLICK) {
                 // 点击删除内容第一个
-                LxList<LxModel> list = adapter.getContentTypeData();
+                LxList list = getData().getContentTypeData();
                 list.updateClear();
             }
             if (eventType == Lx.EVENT_DOUBLE_CLICK) {
                 // 双击再加一个 footer
-                LxList<LxModel> list = adapter.getCustomTypeData(Lx.VIEW_TYPE_FOOTER);
+                LxList list = getData().getCustomTypeData(Lx.VIEW_TYPE_FOOTER);
                 list.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("", String.valueOf(System.currentTimeMillis()))));
             }
         }

@@ -13,9 +13,7 @@ import com.zfy.adapter.component.LxComponent;
 import com.zfy.adapter.data.LxModel;
 import com.zfy.adapter.data.TypeOpts;
 import com.zfy.adapter.function.LxSpan;
-import com.zfy.adapter.function.LxTypeSplit;
-import com.zfy.adapter.function.LxUtil;
-import com.zfy.adapter.list.LxList;
+import com.zfy.adapter.listener.OnAdapterEventInterceptor;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,41 +28,38 @@ import java.util.Set;
  */
 public class LxAdapter extends RecyclerView.Adapter<LxVh> {
 
-
-    @NonNull private LxList<LxModel> data;
-    // 布局加载
+    @NonNull private LxModelList data;
     /*default*/ LayoutInflater inflater;
     private Context      context;
     private RecyclerView view;
 
     private SparseArray<LxItemBind> binders;
     private Set<LxComponent>        components;
-    private Set<Integer>            contentTypes;
-
-    private LxTypeSplit typeSplit;
+    /*default*/ Set<Integer> contentTypes;
 
     public static class Builder {
 
-        private LxList<LxModel>            data;
-        private SparseArray<LxItemBind>    binders;
-        private RecyclerView.LayoutManager layoutManager;
-        private RecyclerView               view;
-        private Set<LxComponent>           components;
-        private Set<Integer>               contentTypes;
+        private LxModelList                     data;
+        private SparseArray<LxItemBind>         binders;
+        private RecyclerView.LayoutManager      layoutManager;
+        private RecyclerView                    view;
+        private Set<LxComponent>                components;
+        private Set<Integer>                    contentTypes;
+        private List<OnAdapterEventInterceptor> interceptors;
 
         private Builder() {
             binders = new SparseArray<>();
             components = new HashSet<>();
             contentTypes = new HashSet<>();
+            interceptors = new ArrayList<>();
         }
 
-        public Builder binder(LxItemBind... binders) {
+        public Builder bindItem(LxItemBind... binders) {
             for (LxItemBind bind : binders) {
                 this.binders.append(bind.getItemType(), bind);
             }
             return this;
         }
-
 
         public Builder contentType(int... contentTypes) {
             for (int contentType : contentTypes) {
@@ -72,8 +67,14 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
             }
             return this;
         }
+
         public Builder component(LxComponent component) {
             this.components.add(component);
+            return this;
+        }
+
+        public Builder onEvent(OnAdapterEventInterceptor interceptor) {
+            this.interceptors.add(interceptor);
             return this;
         }
 
@@ -88,7 +89,7 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
         }
     }
 
-    public static Builder of(@NonNull LxList<LxModel> data) {
+    public static Builder of(@NonNull LxModelList data) {
         Builder builder = new Builder();
         builder.data = data;
         return builder;
@@ -115,7 +116,12 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
             this.view.setAdapter(this);
         }
         this.data.setAdapter(this);
-        this.typeSplit = new LxTypeSplit(this, contentTypes);
+        if (LxGlobal.interceptors != null) {
+            builder.interceptors.addAll(LxGlobal.interceptors);
+        }
+        for (OnAdapterEventInterceptor interceptor : builder.interceptors) {
+            this.data.addInterceptor(interceptor);
+        }
     }
 
     @Override
@@ -162,7 +168,6 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
         }
     }
 
-
     @Override
     public int getItemCount() {
         return data.size();
@@ -180,18 +185,8 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
     }
 
     public @NonNull
-    LxList<LxModel> getData() {
+    LxModelList getData() {
         return data;
-    }
-
-    public @NonNull
-    LxList<LxModel> getContentTypeData() {
-        return typeSplit.getContentTypeData();
-    }
-
-    public @NonNull
-    LxList<LxModel> getCustomTypeData(int viewType) {
-        return typeSplit.getCustomTypeData(viewType);
     }
 
     public Context getContext() {
