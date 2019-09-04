@@ -2,7 +2,7 @@
 
 # LxAdapter
 
-<img style="margin-right:20px;"  src="http://s3.hixd.com/196711.jpeg"/>
+<img style="margin-right:20px;"  src="https://cdn1.showjoy.com/shop/images/20190904/9HTXBS92UUT4GOTN2PM21567587709442.jpeg"/>
 
 
 `LxAdapter` **轻量** 、 **面向业务** 为主要目的，一方面希望可以快速、简单的的完成数据的适配工作，另一方面针对业务中经常出现的场景能提供统一、简单的解决方案。
