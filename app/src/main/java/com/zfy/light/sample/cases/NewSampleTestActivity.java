@@ -170,7 +170,7 @@ public class NewSampleTestActivity extends MvpActivity {
                 }))
                 .component(new LxEndEdgeLoadMoreComponent(10, (component) -> { // 加载回调
                     ToastX.show("底部加载更多");
-                    mLxModels.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_LOADING, new CustomTypeData("加载中～")));
+                    mLxModels.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_LOADING, new NoNameData("加载中～")));
                     ExecutorsPool.ui(() -> {
                         LxList contentTypeData = mLxModels.getContentTypeData();
                         contentTypeData.updateAddAll(loadData(10));
@@ -213,11 +213,11 @@ public class NewSampleTestActivity extends MvpActivity {
     public void clickView(View view) {
         switch (view.getId()) {
             case R.id.add_header_btn:
-                LxModel header = LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new CustomTypeData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
+                LxModel header = LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new NoNameData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
                 mLxModels.updateAdd(1, header);
                 break;
             case R.id.add_footer_btn:
-                LxModel footer = LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
+                LxModel footer = LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new NoNameData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
                 mLxModels.updateAdd(mLxModels.size() - 1, footer);
                 break;
             case R.id.empty_btn:
@@ -230,7 +230,7 @@ public class NewSampleTestActivity extends MvpActivity {
 
     private void showEmpty() {
         mLxModels.updateClear();
-        mLxModels.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_EMPTY, new CustomTypeData("", String.valueOf(System.currentTimeMillis()))));
+        mLxModels.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_EMPTY, new NoNameData("", String.valueOf(System.currentTimeMillis()))));
     }
 
 
@@ -239,10 +239,10 @@ public class NewSampleTestActivity extends MvpActivity {
 
         LinkedList<LxModel> lxModels = loadData(count);
 
-        LxModel header = LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new CustomTypeData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
+        LxModel header = LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new NoNameData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
         lxModels.addFirst(header);
 
-        LxModel footer = LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
+        LxModel footer = LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new NoNameData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
         lxModels.addLast(footer);
 
         mLxModels.update(lxModels);
@@ -250,7 +250,7 @@ public class NewSampleTestActivity extends MvpActivity {
 
     @NonNull
     private LinkedList<LxModel> loadData(int count) {
-        List<CustomTypeData> sections = ListX.range(count, index -> new CustomTypeData(index + " " + System.currentTimeMillis()));
+        List<NoNameData> sections = ListX.range(count, index -> new NoNameData(index + " " + System.currentTimeMillis()));
         List<Student> students = ListX.range(count, index -> new Student(index + " " + System.currentTimeMillis()));
         List<Teacher> teachers = ListX.range(count, index -> new Teacher(index + " " + System.currentTimeMillis()));
         LinkedList<LxModel> lxModels = new LinkedList<>();
@@ -307,24 +307,24 @@ public class NewSampleTestActivity extends MvpActivity {
         }
     }
 
-    static class CustomTypeData {
+    static class NoNameData {
         String url;
         String desc;
 
-        public CustomTypeData() {
+        public NoNameData() {
         }
 
-        CustomTypeData(String desc) {
+        NoNameData(String desc) {
             this.desc = desc;
         }
 
-        CustomTypeData(String url, String desc) {
+        NoNameData(String url, String desc) {
             this.url = url;
             this.desc = desc;
         }
     }
 
-    static class SectionItemBind extends LxItemBind<CustomTypeData> {
+    static class SectionItemBind extends LxItemBind<NoNameData> {
 
         public SectionItemBind() {
             super(TypeOpts.make(opts -> {
@@ -336,18 +336,18 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LxVh holder, CustomTypeData data, LxModel model, int position, @NonNull List<String> payloads) {
+        public void onBindView(LxContext context, LxVh holder, NoNameData data) {
             holder.setText(R.id.section_tv, data.desc);
         }
 
         @Override
-        public void onEvent(LxContext context, CustomTypeData data, LxModel model, int eventType) {
+        public void onEvent(LxContext context, NoNameData data, int eventType) {
             ToastX.show("click section => " + data.desc);
         }
     }
 
 
-    static class LoadingItemBind extends LxItemBind<CustomTypeData> {
+    static class LoadingItemBind extends LxItemBind<NoNameData> {
 
         LoadingItemBind() {
             super(TypeOpts.make(opts -> {
@@ -358,14 +358,10 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LxVh holder, CustomTypeData data, LxModel model, int position, @NonNull List<String> payloads) {
+        public void onBindView(LxContext context, LxVh holder, NoNameData data) {
             holder.setText(R.id.content_tv, data.desc);
         }
 
-        @Override
-        public void onEvent(LxContext context, CustomTypeData data, LxModel model, int eventType) {
-
-        }
     }
 
 
@@ -385,13 +381,13 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List<String> payloads) {
-            if (payloads.isEmpty()) {
+        public void onBindView(LxContext context, LxVh holder, Student data) {
+            if (context.payloads.isEmpty()) {
                 holder.setText(R.id.title_tv, "学：" + data.name)
-                        .setText(R.id.desc_tv, "支持Swipe，pos = " + position + " ,type =" + TYPE_STUDENT + ", 点击触发payloads更新, 悬停在页面顶部")
+                        .setText(R.id.desc_tv, "支持Swipe，pos = " + context.position + " ,type =" + TYPE_STUDENT + ", 点击触发payloads更新, 悬停在页面顶部")
                         .swipeOnLongPress(adapter, R.id.title_tv);
             } else {
-                for (String payload : payloads) {
+                for (String payload : context.payloads) {
                     if (payload.equals("name_change")) {
                         holder.setText(R.id.title_tv, "payloads：" + data.name);
                     }
@@ -401,7 +397,7 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onEvent(LxContext context, Student data, LxModel model, int eventType) {
+        public void onEvent(LxContext context, Student data, int eventType) {
             ToastX.show("点击学生 position = " + context.position + " data = " + data.name + " eventType = " + eventType);
 
             switch (eventType) {
@@ -417,7 +413,7 @@ public class NewSampleTestActivity extends MvpActivity {
                     LxList headerData = getData().getCustomTypeData(Lx.VIEW_TYPE_HEADER);
                     // 更新 header
                     headerData.updateSet(0, d -> {
-                        CustomTypeData firstData = d.unpack();
+                        NoNameData firstData = d.unpack();
                         firstData.desc = "新设置的";
                     });
 
@@ -451,30 +447,30 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LxVh holder, Teacher data, LxModel model, int position, @NonNull List<String> payloads) {
+        public void onBindView(LxContext context, LxVh holder, Teacher data) {
             holder.setText(R.id.title_tv, "师：" + data.name)
-                    .setText(R.id.desc_tv, "支持Drag，pos = " + position + " ,type =" + TYPE_TEACHER)
+                    .setText(R.id.desc_tv, "支持Drag，pos = " + context.position + " ,type =" + TYPE_TEACHER)
                     .dragOnLongPress(adapter, R.id.title_tv)
-                    .setTextColor(R.id.title_tv, model.isSelected() ? Color.RED : Color.BLACK);
+                    .setTextColor(R.id.title_tv, context.model.isSelected() ? Color.RED : Color.BLACK);
         }
 
         @Override
-        public void onEvent(LxContext context, Teacher data, LxModel model, int eventType) {
+        public void onEvent(LxContext context, Teacher data, int eventType) {
             ToastX.show("点击老师 position = " + context.position + " data = " + data.name + " eventType = " + eventType);
             // 点击更新 header
             LxList list = getData().getCustomTypeData(Lx.VIEW_TYPE_HEADER);
             list.updateSet(0, m -> {
-                CustomTypeData header = m.unpack();
+                NoNameData header = m.unpack();
                 header.desc = String.valueOf(System.currentTimeMillis());
             });
             LxSelectComponent component = adapter.getComponent(LxSelectComponent.class);
             if (component != null) {
-                component.select(model);
+                component.select(context.model);
             }
         }
     }
 
-    static class HeaderItemBind extends LxItemBind<CustomTypeData> {
+    static class HeaderItemBind extends LxItemBind<NoNameData> {
 
         HeaderItemBind() {
             super(TypeOpts.make(opts -> {
@@ -488,13 +484,13 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LxVh holder, CustomTypeData data, LxModel model, int position, @NonNull List<String> payloads) {
+        public void onBindView(LxContext context, LxVh holder, NoNameData data) {
             holder.setText(R.id.desc_tv, data.desc)
                     .setImage(R.id.cover_iv, data.url, null);
         }
 
         @Override
-        public void onEvent(LxContext context, CustomTypeData data, LxModel model, int eventType) {
+        public void onEvent(LxContext context, NoNameData data, int eventType) {
 
             if (eventType == Lx.EVENT_LONG_PRESS) {
                 // 长按删除 header
@@ -523,7 +519,7 @@ public class NewSampleTestActivity extends MvpActivity {
     }
 
 
-    static class FooterItemBind extends LxItemBind<CustomTypeData> {
+    static class FooterItemBind extends LxItemBind<NoNameData> {
 
         FooterItemBind() {
             super(TypeOpts.make(opts -> {
@@ -537,12 +533,12 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LxVh holder, CustomTypeData data, LxModel model, int position, @NonNull List<String> payloads) {
+        public void onBindView(LxContext context, LxVh holder, NoNameData data) {
             holder.setText(R.id.desc_tv, data.desc);
         }
 
         @Override
-        public void onEvent(LxContext context, CustomTypeData data, LxModel model, int eventType) {
+        public void onEvent(LxContext context, NoNameData data, int eventType) {
             if (eventType == Lx.EVENT_LONG_PRESS) {
                 // 长按删除 footer
                 LxList list = getData().getCustomTypeData(Lx.VIEW_TYPE_FOOTER);
@@ -556,12 +552,12 @@ public class NewSampleTestActivity extends MvpActivity {
             if (eventType == Lx.EVENT_DOUBLE_CLICK) {
                 // 双击再加一个 footer
                 LxList list = getData().getCustomTypeData(Lx.VIEW_TYPE_FOOTER);
-                list.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("", String.valueOf(System.currentTimeMillis()))));
+                list.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new NoNameData("", String.valueOf(System.currentTimeMillis()))));
             }
         }
     }
 
-    class EmptyItemBind extends LxItemBind<CustomTypeData> {
+    class EmptyItemBind extends LxItemBind<NoNameData> {
 
         EmptyItemBind() {
             super(TypeOpts.make(opts -> {
@@ -575,13 +571,29 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LxVh holder, CustomTypeData data, LxModel model, int position, @NonNull List<String> payloads) {
+        public void onBindView(LxContext context, LxVh holder, NoNameData data) {
             holder.setClick(R.id.refresh_tv, v -> setData());
+        }
+    }
+
+    class LxItemBindImpl extends LxItemBind<NoNameData> {
+
+        public LxItemBindImpl(TypeOpts opts) {
+            super(opts);
+
+            LxItemBind<NoNameData> bind = new LxItemBind<NoNameData>(TypeOpts.make(R.layout.item_section)) {
+                @Override
+                public void onBindView(LxContext context, LxVh holder, NoNameData data) {
+
+                }
+            };
         }
 
         @Override
-        public void onEvent(LxContext context, CustomTypeData data, LxModel model, int eventType) {
+        public void onBindView(LxContext context, LxVh holder, NoNameData data) {
 
         }
     }
+
+
 }

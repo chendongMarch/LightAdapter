@@ -132,13 +132,13 @@ class StudentItemBind extends LxItemBind<Student> {
 
     // 在这里完成数据的绑定
     @Override
-    public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List<String> payloads) {
+    public void onBindView(LxContext context, LxVh holder, Student data) {
         holder.setText(R.id.title_tv, "学：" + data.name);
     }
 
     // 在这里完成事件的分发
     @Override
-    public void onEvent(LxContext context, Student data, LxModel model, int eventType) {
+    public void onEvent(LxContext context, Student data, int eventType) {
 
     }
 }
@@ -332,7 +332,7 @@ class StudentItemBind extends LxItemBind<Student> {
     }
 
     @Override
-    public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List<String> payloads) {
+    public void onBindView(LxContext context, LxVh holder, Student data) {
         holder.setText(R.id.title_tv, "学：" + data.name)
                 // 给控件加点击事件
                 .setClick(R.id.title_tv, v -> {
@@ -340,7 +340,7 @@ class StudentItemBind extends LxItemBind<Student> {
     }
 
     @Override
-    public void onEvent(LxContext context, Student data, LxModel model, int eventType) {
+    public void onEvent(LxContext context, Student data, int eventType) {
         switch (eventType) {
             case Lx.EVENT_CLICK:
                 // 单击
@@ -613,12 +613,12 @@ class StudentItemBind extends LxItemBind<Student> {
     // ...
 
     @Override
-    public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List<String> payloads)
+    public void onBindView(LxContext context, LxVh holder, Student data)
         // 点击标题, 触发选择器选中
         holder.setClick(R.id.title_tv, v -> {
             LxSelectComponent component = adapter.getComponent(LxSelectComponent.class);
             if (component != null) {
-                component.select(model);
+                component.select(context.model);
             }
         });
     }
@@ -813,7 +813,7 @@ class StudentItemBind extends LxItemBind<Student> {
     }
 
     @Override
-    public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List
+    public void onBindView(LxContext context, LxVh holder, Student data) {
         holder
                 // 长按标题控件触发拖拽
                 .dragOnLongPress(adapter, R.id.title_tv)
@@ -932,13 +932,13 @@ class Student implements Diffable<Student>, Copyable<Student> {
 class StudentItemBind extends LxItemBind<Student> {
 
     @Override
-    public void onBindView(LxVh holder, Student data, LxModel model, int position, @NonNull List<String> payloads) {
-        if (payloads.isEmpty()) {
+    public void onBindView(LxContext context, LxVh holder, Student data) {
+        if (context.payloads.isEmpty()) {
             // 没有 payloads 正常绑定数据
             holder.setText(R.id.title_tv, "学：" + data.name);
         } else {
             // 有 payloads 通过 payloads 绑定数据
-            for (String payload : payloads) {
+            for (String payload : context.payloads) {
                 if (payload.equals("name_change")) {
                     holder.setText(R.id.title_tv, "payloads：" + data.name);
                 }

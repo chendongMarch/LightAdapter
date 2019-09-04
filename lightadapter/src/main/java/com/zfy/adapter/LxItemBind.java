@@ -55,22 +55,24 @@ public abstract class LxItemBind<D> implements Typeable {
         context.position = position;
         context.data = unpack;
         context.model = data;
+        context.viewType = data.getItemType();
+        context.payloads = parsePayloads(payloads);
         holder.setLxContext(context);
 
-        onBindView(holder, unpack, data, position, parsePayloads(payloads));
+        onBindView(context, holder, unpack);
     }
 
     private void onBindEvent(LxVh holder, int viewType) {
         if (typeOpts.enableClick || typeOpts.enableLongPress || typeOpts.enableDbClick) {
             LxEvent.setEvent(holder, typeOpts.enableClick, typeOpts.enableLongPress, typeOpts.enableDbClick, (context, eventType) -> {
-                onEvent(context, context == null ? null : (D) context.data, context == null ? null : context.model, eventType);
+                onEvent(context, (D) context.data, eventType);
             });
         }
     }
 
-    public abstract void onBindView(LxVh holder, D data, LxModel model, int position, @NonNull List<String> payloads);
+    public abstract void onBindView(LxContext context, LxVh holder, D data);
 
-    public void onEvent(LxContext context, D data, LxModel model, @Lx.EventType int eventType) {
+    public void onEvent(LxContext context, D data, @Lx.EventType int eventType) {
     }
 
     public TypeOpts getTypeOpts() {
