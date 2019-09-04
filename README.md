@@ -419,12 +419,19 @@ class StudentItemBind extends LxItemBind<Student> {
                     CustomTypeData firstData = d.unpack();
                     firstData.desc = "新设置的";
                 });
-                break;
-            case Lx.EVENT_DOUBLE_CLICK:
+
                 // 获取 footer，会把底部的两个 footer 单独获取出来
                 LxList footerData = getData().getCustomTypeData(Lx.VIEW_TYPE_FOOTER);
                 // 清空 footer
                 footerData.updateClear();
+                break;
+            case Lx.EVENT_DOUBLE_CLICK:
+                // 更新当前这一个数据
+                LxList list = getData();
+                list.updateSet(context.position, d -> {
+                    Student unpack = d.unpack();
+                    unpack.name = String.valueOf(System.currentTimeMillis());
+                });
                 break;
         }
     }

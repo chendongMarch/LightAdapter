@@ -374,11 +374,37 @@ public class NewSampleTestActivity extends MvpActivity {
         public void onEvent(LxContext context, Student data, LxModel model, int eventType) {
             ToastX.show("点击学生 position = " + context.position + " data = " + data.name + " eventType = " + eventType);
 
-            LxList list = getData();
-            list.updateSet(context.position, d -> {
-                Student unpack = d.unpack();
-                unpack.name = String.valueOf(System.currentTimeMillis());
-            });
+            switch (eventType) {
+                case Lx.EVENT_CLICK:
+                    // 获取内容类型，这里面只包括了学生和老师的数据
+                    // 这样我们就可以愉快的操作业务类型数据了，不用管什么 Header/Footer
+                    LxList contentTypeData = getData().getContentTypeData();
+                    // 删除第一个吧
+                    contentTypeData.updateRemove(0);
+                    break;
+                case Lx.EVENT_LONG_PRESS:
+                    // 获取 header，会把顶部的两个 header 单独获取出来
+                    LxList headerData = getData().getCustomTypeData(Lx.VIEW_TYPE_HEADER);
+                    // 更新 header
+                    headerData.updateSet(0, d -> {
+                        CustomTypeData firstData = d.unpack();
+                        firstData.desc = "新设置的";
+                    });
+
+                    // 获取 footer，会把底部的两个 footer 单独获取出来
+                    LxList footerData = getData().getCustomTypeData(Lx.VIEW_TYPE_FOOTER);
+                    // 清空 footer
+                    footerData.updateClear();
+                    break;
+                case Lx.EVENT_DOUBLE_CLICK:
+                    // 更新当前这一个数据
+                    LxList list = getData();
+                    list.updateSet(context.position, d -> {
+                        Student unpack = d.unpack();
+                        unpack.name = String.valueOf(System.currentTimeMillis());
+                    });
+                    break;
+            }
         }
     }
 
