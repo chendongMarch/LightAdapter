@@ -201,10 +201,6 @@ public class NewSampleTestActivity extends MvpActivity {
                 }))
                 .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
 
-        LxSelectComponent component = adapter.getComponent(LxSelectComponent.class);
-        if (component != null) {
-            List<Student> result = component.getResult();
-        }
 
         setData();
     }
@@ -382,6 +378,24 @@ public class NewSampleTestActivity extends MvpActivity {
 
         @Override
         public void onBindView(LxContext context, LxVh holder, Student data) {
+
+            holder
+                    // 根据选中状态，更改显示
+                    .setText(R.id.title_tv, context.model.isSelected() ? "我被选中" : "我没有被选中")
+                    .setClick(R.id.title_tv, v -> {
+                        LxModel model = context.model;
+                        if (model.isSelected()) {
+                            // 如果已经选中了不允许取消（这只是个例子，意思是可以动态判断选中状态）
+                            return;
+                        }
+                        LxSelectComponent component = adapter.getComponent(LxSelectComponent.class);
+                        if (component != null) {
+                            // 多选时，会触发选中；
+                            // 单选时，选中当前，取消掉其他项
+                            component.select(model);
+                        }
+                    });
+
             if (context.payloads.isEmpty()) {
                 holder.setText(R.id.title_tv, "学：" + data.name)
                         .setText(R.id.desc_tv, "支持Swipe，pos = " + context.position + " ,type =" + TYPE_STUDENT + ", 点击触发payloads更新, 悬停在页面顶部")

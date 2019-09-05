@@ -1,6 +1,5 @@
 package com.zfy.adapter.data;
 
-import com.zfy.adapter.Lx;
 import com.zfy.adapter.LxVh;
 
 import java.util.List;
@@ -18,7 +17,6 @@ public class LxContext {
     public               int          position;
     public               LxVh         holder;
     public               int          viewType;
-    @Lx.EventType public int          eventType;
     public               List<String> payloads;
 
 }

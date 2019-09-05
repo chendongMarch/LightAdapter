@@ -71,6 +71,44 @@ public class TypeOpts {
 }
 ```
 
+### LxModel
+
+`LxAdapter` 的数据类型是 `LxModel`，业务类型需要被包装成 `LxModel` 才能被 `LxAdapter` 使用，获取其中真正的业务数据可以使用 `model.unpack()` 方法；
+
+数据的包装可以使用 `LxTransformations` 转换，更加方便；
+
+```java
+public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable, Copyable<LxModel> {
+    private int     incrementId;
+    private Object  data;
+    private int     type = Lx.VIEW_TYPE_DEFAULT;
+    private int     moduleId;
+    private boolean selected;
+
+    public <T> T unpack() {
+        return (T) data;
+    }
+}
+```
+
+### LxContext
+
+在数据绑定等操作中我们需要大量的数据信息，但是我们不能全部将他们声明在方法参数中，所以定义了 `LxContext`；
+
+在一些操作中会传输 `LxContext` 对象，除了常用的数据外，也可以从 `Context` 中获取其他必要的数据；
+
+```java
+public class LxContext {
+    public               Object       data; // 实际包装的数据
+    public               LxModel      model; // 列表的数据
+    public               int          position; // 当前的位置
+    public               LxVh         holder; // 绑定数据的 holder
+    public               int          viewType; // 数据类型
+    public               List<String> payloads; // 有效更新的 payloads
+}
+```
+
+
 ## 基础：LxGlobal
 
 设置图片加载全局控制：
@@ -238,10 +276,19 @@ list.getCustomTypeData(Lx.VIEW_TYPE_HEADER);
 
 ## 基础：LxVH
 
-为了支持同时对多个控件进行一样的绑定操作，可以使用 `Ids` 来包含多个 `id`
+为了支持同时对多个控件进行一样的绑定操作，可以使用 `Ids` 来包含多个 `id`:
 
 ```java
+// 为多个 TextView 设置相同的文字
 holder.setText(Ids.all(R.id.test_tv, R.id.tv_count), "new text");
+```
+
+使用 ID `R.id.item_view` 来标记 `holder` 的 `itemView`:
+
+```java
+holder.setClick(R.id.item_view, v -> {
+
+});
 ```
 
 为了更优雅的绑定数据显示，扩展了 `ViewHolder` 的功能，现在支持如下绑定方法
@@ -590,6 +637,34 @@ if (component != null) {
 }
 ```
 
+在 `BindView` 中描述当数据被选中时如何显示：
+
+```java
+class StudentItemBind extends LxItemBind<Student> {
+
+    @Override
+    public void onBindView(LxContext context, LxVh holder, Student data) {
+        holder
+                // 根据选中状态，更改显示
+                .setText(R.id.title_tv, context.model.isSelected() ? "我被选中" : "我没有被选中")
+                // 当点击 title 时触发选中状态
+                .setClick(R.id.title_tv, v -> {
+                    LxModel model = context.model;
+                    if (model.isSelected()) {
+                        // 如果已经选中了不允许取消（这只是个例子，意思是可以动态判断选中状态）
+                        return;
+                    }
+                    LxSelectComponent component = adapter.getComponent(LxSelectComponent.class);
+                    if (component != null) {
+                        // 多选时，会触发选中；
+                        // 单选时，选中当前，取消掉其他项
+                        component.select(model);
+                    }
+                });
+    }
+}
+```
+
 滑动选中：使用 `LxSlidingSelectLayout` 包裹 `RecyclerView` 会自动和 `LxSelectComponent` 联动实现滑动选中功能；
 
 ```xml
@@ -603,28 +678,6 @@ if (component != null) {
         android:layout_height="match_parent"/>
 
 </com.zfy.adapter.decoration.LxSlidingSelectLayout>
-```
-
-自定义手动选中：主要用于当点击某个按钮自定义触发选中时使用：
-
-```java
-class StudentItemBind extends LxItemBind<Student> {
-
-    // ...
-
-    @Override
-    public void onBindView(LxContext context, LxVh holder, Student data)
-        // 点击标题, 触发选择器选中
-        holder.setClick(R.id.title_tv, v -> {
-            LxSelectComponent component = adapter.getComponent(LxSelectComponent.class);
-            if (component != null) {
-                component.select(context.model);
-            }
-        });
-    }
-
-    // ...
-}
 ```
 
 ## 功能：列表动画（Animator）
