@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
 import com.march.common.exts.ListX;
+import com.march.common.exts.SizeX;
 import com.march.common.exts.ToastX;
 import com.march.common.pool.ExecutorsPool;
 import com.zfy.adapter.Lx;
@@ -57,6 +58,7 @@ public class NewSampleTestActivity extends MvpActivity {
 
     public static final int TYPE_STUDENT = Lx.incrementViewType();
     public static final int TYPE_TEACHER = Lx.incrementViewType();
+    public static final int TYPE_SELECT  = Lx.incrementViewType();
 
     @BindView(R.id.content_rv)    RecyclerView mRecyclerView;
     @BindView(R.id.fix_container) ViewGroup    mFixContainerFl;
@@ -153,15 +155,15 @@ public class NewSampleTestActivity extends MvpActivity {
 //        });
 
         LxAdapter adapter = LxAdapter.of(mLxModels)
-                .contentType(TYPE_STUDENT, TYPE_TEACHER, Lx.VIEW_TYPE_SECTION)
+                .contentType(TYPE_STUDENT, TYPE_TEACHER, Lx.VIEW_TYPE_SECTION, TYPE_SELECT)
                 .bindItem(new StudentItemBind(), new TeacherItemBind(),
                         new HeaderItemBind(), new FooterItemBind(),
-                        new EmptyItemBind(), new LoadingItemBind(), new SectionItemBind())
+                        new EmptyItemBind(), new LoadingItemBind(), new SectionItemBind(), new SelectItemBind())
                 //                .component(new LxSnapComponent(Lx.SNAP_MODE_PAGER))
                 .component(new LxFixedComponent())
                 //                .component(new LxBindAnimatorComponent())
                 //                .component(new LxItemAnimatorComponent(new ScaleInLeftAnimator()))
-                //                .component(new LxSelectComponent(Lx.SELECT_MULTI))
+                .component(new LxSelectComponent(Lx.SELECT_MULTI))
                 .component(new LxStartEdgeLoadMoreComponent((component) -> {
                     ToastX.show("顶部加载更多");
                     ExecutorsPool.ui(() -> {
@@ -202,7 +204,7 @@ public class NewSampleTestActivity extends MvpActivity {
                 .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
 
 
-        setData();
+        setData2();
     }
 
     @OnClick({R.id.add_header_btn, R.id.add_footer_btn, R.id.empty_btn})
@@ -242,6 +244,14 @@ public class NewSampleTestActivity extends MvpActivity {
         lxModels.addLast(footer);
 
         mLxModels.update(lxModels);
+    }
+
+
+    private void setData2() {
+        int count = 100;
+        List<NoNameData> students = ListX.range(count, index -> new NoNameData(index + " " + System.currentTimeMillis()));
+        List<LxModel> models = LxTransformations.pack(TYPE_SELECT, students);
+        mLxModels.update(models);
     }
 
     @NonNull
@@ -379,22 +389,6 @@ public class NewSampleTestActivity extends MvpActivity {
         @Override
         public void onBindView(LxContext context, LxVh holder, Student data) {
 
-            holder
-                    // 根据选中状态，更改显示
-                    .setText(R.id.title_tv, context.model.isSelected() ? "我被选中" : "我没有被选中")
-                    .setClick(R.id.title_tv, v -> {
-                        LxModel model = context.model;
-                        if (model.isSelected()) {
-                            // 如果已经选中了不允许取消（这只是个例子，意思是可以动态判断选中状态）
-                            return;
-                        }
-                        LxSelectComponent component = adapter.getComponent(LxSelectComponent.class);
-                        if (component != null) {
-                            // 多选时，会触发选中；
-                            // 单选时，选中当前，取消掉其他项
-                            component.select(model);
-                        }
-                    });
 
             if (context.payloads.isEmpty()) {
                 holder.setText(R.id.title_tv, "学：" + data.name)
@@ -590,24 +584,47 @@ public class NewSampleTestActivity extends MvpActivity {
         }
     }
 
-    class LxItemBindImpl extends LxItemBind<NoNameData> {
+    static class SelectItemBind extends LxItemBind<NoNameData> {
 
-        public LxItemBindImpl(TypeOpts opts) {
-            super(opts);
-
-            LxItemBind<NoNameData> bind = new LxItemBind<NoNameData>(TypeOpts.make(R.layout.item_section)) {
-                @Override
-                public void onBindView(LxContext context, LxVh holder, NoNameData data) {
-
-                }
-            };
+        SelectItemBind() {
+            super(TypeOpts.make(opts -> {
+                opts.layoutId = R.layout.item_squire1;
+                opts.enableClick = true;
+                opts.enableLongPress = true;
+                opts.enableDbClick = false;
+                opts.viewType = TYPE_SELECT;
+            }));
         }
 
         @Override
         public void onBindView(LxContext context, LxVh holder, NoNameData data) {
+            holder
+                    .setLayoutParams(SizeX.WIDTH / 3, SizeX.WIDTH / 3)
+                    // 选中时，更改文字和颜色
+                    .setText(R.id.title_tv, context.model.isSelected() ? "我被选中" : "我没有被选中")
+                    .setTextColor(R.id.title_tv, context.model.isSelected() ? Color.RED : Color.BLACK);
 
+            // 选中时，执行缩放动画，提醒用户
+            View view = holder.getView(R.id.container_cl);
+            if (context.model.isSelected()) {
+                if (view.getScaleX() == 1) {
+                    view.animate().scaleX(0.8f).scaleY(0.8f).setDuration(300).start();
+                }
+            } else {
+                if (view.getScaleX() != 1) {
+                    view.animate().scaleX(1f).scaleY(1f).setDuration(300).start();
+                }
+            }
+        }
+
+        @Override
+        public void onEvent(LxContext context, NoNameData data, int eventType) {
+            // 点击选中
+            LxSelectComponent component = adapter.getComponent(LxSelectComponent.class);
+            if (component != null) {
+                component.select(context.model);
+            }
         }
     }
-
 
 }

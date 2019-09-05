@@ -67,7 +67,7 @@ public class TypeOpts {
     public            boolean enableSwipe = false; // 是否允许滑动
     public            boolean enableFixed = false; // 钉住，支持悬停效果
 
-    public BindAnimator bindAnimator;
+    public BindAnimator bindAnimator; // 每种类型可以支持不同的动画效果
 }
 ```
 
@@ -75,7 +75,6 @@ public class TypeOpts {
 
 `LxAdapter` 的数据类型是 `LxModel`，业务类型需要被包装成 `LxModel` 才能被 `LxAdapter` 使用，获取其中真正的业务数据可以使用 `model.unpack()` 方法；
 
-数据的包装可以使用 `LxTransformations` 转换，更加方便；
 
 ```java
 public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable, Copyable<LxModel> {
@@ -89,6 +88,13 @@ public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable,
         return (T) data;
     }
 }
+```
+
+数据的包装可以使用 `LxTransformations` 转换，更加方便；
+
+```java
+// 将你的数据包装成 LxModel
+LxModel header = LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new NoNameData());
 ```
 
 ### LxContext
@@ -640,28 +646,38 @@ if (component != null) {
 在 `BindView` 中描述当数据被选中时如何显示：
 
 ```java
-class StudentItemBind extends LxItemBind<Student> {
+static class SelectItemBind extends LxItemBind<NoNameData> {
 
     @Override
-    public void onBindView(LxContext context, LxVh holder, Student data) {
+    public void onBindView(LxContext context, LxVh holder, NoNameData data) {
         holder
-                // 根据选中状态，更改显示
+                .setLayoutParams(SizeX.WIDTH / 3, SizeX.WIDTH / 3)
+                // 选中时，更改文字和颜色
                 .setText(R.id.title_tv, context.model.isSelected() ? "我被选中" : "我没有被选中")
-                // 当点击 title 时触发选中状态
-                .setClick(R.id.title_tv, v -> {
-                    LxModel model = context.model;
-                    if (model.isSelected()) {
-                        // 如果已经选中了不允许取消（这只是个例子，意思是可以动态判断选中状态）
-                        return;
-                    }
-                    LxSelectComponent component = adapter.getComponent(LxSelectComponent.class);
-                    if (component != null) {
-                        // 多选时，会触发选中；
-                        // 单选时，选中当前，取消掉其他项
-                        component.select(model);
-                    }
-                });
+                .setTextColor(R.id.title_tv, context.model.isSelected() ? Color.RED : Color.BLACK);
+
+        // 选中时，执行缩放动画，提醒用户
+        View view = holder.getView(R.id.container_cl);
+        if (context.model.isSelected()) {
+            if (view.getScaleX() == 1) {
+                view.animate().scaleX(0.8f).scaleY(0.8f).setDuration(300).start();
+            }
+        } else {
+            if (view.getScaleX() != 1) {
+                view.animate().scaleX(1f).scaleY(1f).setDuration(300).start();
+            }
+        }
     }
+
+    @Override
+    public void onEvent(LxContext context, NoNameData data, int eventType) {
+        // 点击选中
+        LxSelectComponent component = adapter.getComponent(LxSelectComponent.class);
+        if (component != null) {
+            component.select(context.model);
+        }
+    }
+
 }
 ```
 
