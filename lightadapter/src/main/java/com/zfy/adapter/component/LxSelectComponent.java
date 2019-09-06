@@ -71,7 +71,7 @@ public class LxSelectComponent extends LxComponent {
         if (data.isSelected()) {
             return;
         }
-        if (interceptor != null && !interceptor.intercept(data, true)) {
+        if (interceptor != null && interceptor.intercept(data, true)) {
             return;
         }
         data.setSelected(true);
@@ -83,7 +83,7 @@ public class LxSelectComponent extends LxComponent {
         if (!data.isSelected()) {
             return;
         }
-        if (interceptor != null && !interceptor.intercept(data, false)) {
+        if (interceptor != null && interceptor.intercept(data, false)) {
             return;
         }
         data.setSelected(false);

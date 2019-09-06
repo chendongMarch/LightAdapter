@@ -1,5 +1,7 @@
 package com.zfy.adapter.data;
 
+import android.os.Bundle;
+
 import com.zfy.adapter.Lx;
 import com.zfy.adapter.function.LxUtil;
 
@@ -17,12 +19,20 @@ public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable,
     private static final Set<String> EMPTY_SET = new HashSet<>();
     private static       int         ID        = 0;
 
-
     private int     incrementId;
     private Object  data;
     private int     type = Lx.VIEW_TYPE_DEFAULT;
     private int     moduleId; // 模块ID
     private boolean selected;
+
+    private Bundle extras;
+
+    public Bundle getExtras() {
+        if (extras == null) {
+            extras = new Bundle();
+        }
+        return extras;
+    }
 
     public LxModel(Object data) {
         this.data = data;

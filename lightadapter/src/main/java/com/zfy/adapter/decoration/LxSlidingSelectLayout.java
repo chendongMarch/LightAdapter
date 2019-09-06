@@ -1,7 +1,6 @@
 package com.zfy.adapter.decoration;
 
 import android.content.Context;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -9,9 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import com.zfy.adapter.LxAdapter;
 import com.zfy.adapter.function.LxUtil;
 import com.zfy.adapter.list._Consumer;
-import com.zfy.adapter.LxAdapter;
 
 /**
  * CreateAt : 2016/9/12
@@ -43,6 +42,8 @@ public class LxSlidingSelectLayout extends FrameLayout {
     private float   mInitialDownY; // down 事件初始值
     private boolean mIsSliding; // 是否正在滑动
     private int     mPrePublishPos; // 上次发布的位置，避免频繁发布
+
+    private int mStartPosittion = -1;
 
     private _Consumer<Object> onSlidingSelectListener;// 滑动选中监听
 
@@ -87,7 +88,8 @@ public class LxSlidingSelectLayout extends FrameLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        int action = MotionEventCompat.getActionMasked(ev);
+
+        int action = ev.getActionMasked();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 break;
@@ -95,6 +97,7 @@ public class LxSlidingSelectLayout extends FrameLayout {
                 // re build 手指抬起时重置
                 mIsSliding = false;
                 mPrePublishPos = INVALID_PARAM;
+                mStartPosittion = -1;
                 break;
             case MotionEvent.ACTION_MOVE:
                 // 滑动过程中，触发监听事件
@@ -118,9 +121,17 @@ public class LxSlidingSelectLayout extends FrameLayout {
             return;
         }
         int position = recyclerView.getChildAdapterPosition(childViewUnder);
+        if (mStartPosittion == -1) {
+            mStartPosittion = position;
+        }
+
+        int size = mAdapter.getData().size();
+        for (int i = mStartPosittion; i < size; i++) {
+
+        }
         Object data = mAdapter.getData().get(position);
         // 当前触摸的点与上一次触摸的点相同 || 没有pos || 没有数据
-        if (mPrePublishPos == position || position == INVALID_PARAM || data == null) {
+        if (mPrePublishPos == position || data == null) {
             return;
         }
         onSlidingSelectListener.accept(data);

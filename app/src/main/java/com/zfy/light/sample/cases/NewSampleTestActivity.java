@@ -163,7 +163,10 @@ public class NewSampleTestActivity extends MvpActivity {
                 .component(new LxFixedComponent())
                 //                .component(new LxBindAnimatorComponent())
                 //                .component(new LxItemAnimatorComponent(new ScaleInLeftAnimator()))
-                .component(new LxSelectComponent(Lx.SELECT_MULTI))
+                .component(new LxSelectComponent(Lx.SELECT_MULTI, (data, toSelect) -> {
+                    data.getExtras().putBoolean("change_now", true);
+                    return false;
+                }))
                 .component(new LxStartEdgeLoadMoreComponent((component) -> {
                     ToastX.show("顶部加载更多");
                     ExecutorsPool.ui(() -> {
@@ -598,21 +601,39 @@ public class NewSampleTestActivity extends MvpActivity {
 
         @Override
         public void onBindView(LxContext context, LxVh holder, NoNameData data) {
+            LxModel model = context.model;
+
             holder
                     .setLayoutParams(SizeX.WIDTH / 3, SizeX.WIDTH / 3)
                     // 选中时，更改文字和颜色
-                    .setText(R.id.title_tv, context.model.isSelected() ? "我被选中" : "我没有被选中")
-                    .setTextColor(R.id.title_tv, context.model.isSelected() ? Color.RED : Color.BLACK);
+                    .setText(R.id.title_tv, model.isSelected() ? "我被选中" : "我没有被选中")
+                    .setTextColor(R.id.title_tv, model.isSelected() ? Color.RED : Color.BLACK);
 
+            boolean changeNow = model.getExtras().getBoolean("change_now", false);
             // 选中时，执行缩放动画，提醒用户
             View view = holder.getView(R.id.container_cl);
-            if (context.model.isSelected()) {
-                if (view.getScaleX() == 1) {
-                    view.animate().scaleX(0.8f).scaleY(0.8f).setDuration(300).start();
+            if (changeNow) {
+                if (model.isSelected()) {
+                    if (view.getScaleX() == 1) {
+                        view.animate().scaleX(0.8f).scaleY(0.8f).setDuration(300).start();
+                    }
+                } else {
+                    if (view.getScaleX() != 1) {
+                        view.animate().scaleX(1f).scaleY(1f).setDuration(300).start();
+                    }
                 }
+                model.getExtras().putBoolean("change_now", false);
             } else {
-                if (view.getScaleX() != 1) {
-                    view.animate().scaleX(1f).scaleY(1f).setDuration(300).start();
+                if (model.isSelected()) {
+                    if (view.getScaleX() == 1) {
+                        view.setScaleX(0.8f);
+                        view.setScaleY(0.8f);
+                    }
+                } else {
+                    if (view.getScaleX() != 1) {
+                        view.setScaleX(1f);
+                        view.setScaleY(1f);
+                    }
                 }
             }
         }

@@ -1,6 +1,3 @@
-
-
-
 ![](https://cdn1.showjoy.com/shop/images/20190904/9HTXBS92UUT4GOTN2PM21567587709442.jpeg)
 
 # LxAdapter
@@ -21,6 +18,32 @@
 <img style="margin-right:20px;"  src="https://img.shields.io/github/stars/chendongMarch/LxAdapter.svg"/>
 
 </div>
+
+[TOC]
+
+- Feature
+- 设计分析
+- 内置的数据类型
+	- TypeOpts
+	- LxModel
+	- LxContext
+- 基础：LxGlobal
+- 基础：LxAdapter
+- 基础：LxItemBind
+- 基础：LxList
+- 基础：LxVH
+- 基础：点击事件
+- 基础：扩展自定义类型
+- 功能：事件发布
+- 功能：跨越多列（Span）
+- 功能：加载更多（LoadMore）
+- 功能：选择器（Selector)
+- 功能：列表动画（Animator）
+- 功能：悬挂效果（Fixed）
+- 功能：拖拽和侧滑(drag/swipe)
+- 功能：实现 ViewPager (Snap)
+- 进阶：使用 Idable 优化 change
+- 进阶：使用 payloads
 
 ## Feature
 
