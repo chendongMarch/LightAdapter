@@ -68,11 +68,12 @@ public class NewSampleTestActivity extends MvpActivity {
 
     private void test() {
 
-        LxItemBind.of(Student.class, TypeOpts.make(R.layout.item_section))
-                .onBindView((context, holder, data) -> {
+        LxItemBind.of(Student.class)
+                .opts(TypeOpts.make(R.layout.item_section))
+                .onViewBind((context, holder, data) -> {
 
                 })
-                .onBindEvent((context, data, eventType) -> {
+                .onEventBind((context, data, eventType) -> {
 
                 })
                 .build();
@@ -163,10 +164,27 @@ public class NewSampleTestActivity extends MvpActivity {
 //            }
 //        });
 
+
+        LxItemBind<NoNameData> loadingBind = LxItemBind.of(NoNameData.class)
+                .opts(TypeOpts.make(opts -> {
+                    opts.viewType = Lx.VIEW_TYPE_LOADING;
+                    opts.layoutId = R.layout.loading_view;
+                    opts.spanSize = Lx.SPAN_SIZE_ALL;
+                }))
+                .onViewBind((context, holder, data) -> {
+                    holder.setText(R.id.content_tv, data.desc);
+
+                    if (data.status == -1) {
+                        holder.setGone(R.id.pb);
+                    }
+                })
+                .build();
+
         LxAdapter.of(mLxModels)
                 .bindItem(new StudentItemBind(), new TeacherItemBind(),
+                        new SectionItemBind(), new SelectItemBind(),
                         new HeaderItemBind(), new FooterItemBind(),
-                        new EmptyItemBind(), new LoadingItemBind(), new SectionItemBind(), new SelectItemBind())
+                        new EmptyItemBind(), loadingBind)
                 //                .component(new LxSnapComponent(Lx.SNAP_MODE_PAGER))
                 .component(new LxFixedComponent())
                 //                .component(new LxBindAnimatorComponent())
@@ -185,12 +203,20 @@ public class NewSampleTestActivity extends MvpActivity {
                     ToastX.show("底部加载更多");
                     mLxModels.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_LOADING, new NoNameData("加载中～")));
                     ExecutorsPool.ui(() -> {
-                        LxList contentTypeData = mLxModels.getContentTypeData();
-                        contentTypeData.updateAddAll(loadData(10));
-
-                        LxList customTypeData = mLxModels.getExtTypeData(Lx.VIEW_TYPE_LOADING);
-                        customTypeData.updateClear();
-
+                        if (mLxModels.size() > 130) {
+                            LxList customTypeData = mLxModels.getExtTypeData(Lx.VIEW_TYPE_LOADING);
+                            customTypeData.updateSet(0, data -> {
+                                NoNameData nameData = data.unpack();
+                                nameData.desc = "加载完成～";
+                                nameData.status = -1;
+                                component.setLoadMoreEnable(false);
+                            });
+                        } else {
+                            LxList contentTypeData = mLxModels.getContentTypeData();
+                            contentTypeData.updateAddAll(loadData(10));
+                            LxList customTypeData = mLxModels.getExtTypeData(Lx.VIEW_TYPE_LOADING);
+                            customTypeData.updateClear();
+                        }
                         mLxModels.publishEvent(Lx.EVENT_FINISH_END_EDGE_LOAD_MORE, null);
                     }, 2000);
                 }))
@@ -325,6 +351,7 @@ public class NewSampleTestActivity extends MvpActivity {
     }
 
     static class NoNameData {
+        int    status;
         String url;
         String desc;
 

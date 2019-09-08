@@ -54,10 +54,10 @@ public class Lx {
     public static final int EVENT_LONG_PRESS   = 1; // 长按事件
     public static final int EVENT_DOUBLE_CLICK = 2; // 双击事件
 
-    public static final int VIEW_TYPE_MAX          = 4096;
-    public static       int VIEW_TYPE_BASE         = VIEW_TYPE_MAX / 2; // 基础 viewType
-    public static       int VIEW_TYPE_CONTENT_BASE = VIEW_TYPE_BASE + 1; // 内容类型基础 viewType
-    public static       int VIEW_TYPE_EXT_BASE     = VIEW_TYPE_BASE - 1; // 扩展类型基础 viewType
+    public static final int VIEW_TYPE_MAX                     = 4096;
+    public static       int VIEW_TYPE_BASE                    = VIEW_TYPE_MAX / 2; // 基础 viewType
+    public static       int VIEW_TYPE_CONTENT_BASE_4_GENERATE = VIEW_TYPE_BASE + 1; // 内容类型基础 viewType
+    public static       int VIEW_TYPE_EXT_BASE_4_GENERATE     = VIEW_TYPE_BASE - 1; // 扩展类型基础 viewType
 
     public static final int VIEW_TYPE_DEFAULT = Lx.contentTypeOf(); // 默认 viewType
     public static final int VIEW_TYPE_SECTION = Lx.contentTypeOf(); // 隔断 viewType
@@ -99,15 +99,15 @@ public class Lx {
     public static final int FIXED_USE_VIEW = 1;
 
     public static int contentTypeOf() {
-        return VIEW_TYPE_CONTENT_BASE++;
+        return VIEW_TYPE_CONTENT_BASE_4_GENERATE++;
     }
 
     public static int extTypeOf() {
-        return VIEW_TYPE_EXT_BASE--;
+        return VIEW_TYPE_EXT_BASE_4_GENERATE--;
     }
 
     public static boolean isContentType(int viewType) {
-        return viewType > VIEW_TYPE_CONTENT_BASE;
+        return viewType > VIEW_TYPE_BASE;
     }
     public static final int DEFAULT_BLOCK_ID = 0;
 

@@ -219,14 +219,15 @@ class StudentItemBind extends LxItemBind<Student> {
 也支持使用构建者模式快速创建新的类型绑定：
 
 ```java
-LxItemBind.of(Student.class, TypeOpts.make(R.layout.item_section))
-        .onBindView((context, holder, data) -> {
-        	// ...
+LxItemBind.of(Student.class)
+        .opts(TypeOpts.make(R.layout.item_section))
+        .onViewBind((context, holder, data) -> {
+            // ...
         })
-        .onBindEvent((context, data, eventType) -> {
-        	// ...
+        .onEventBind((context, data, eventType) -> {
+            // ...
         })
-        .build();`
+        .build();
 ```
 
 ## 基础：LxList

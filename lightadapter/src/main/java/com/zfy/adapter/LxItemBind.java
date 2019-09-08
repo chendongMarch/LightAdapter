@@ -89,10 +89,9 @@ public abstract class LxItemBind<D> implements Typeable {
     }
 
 
-    public static <DType> LxItemBindBuilder<DType> of(Class<DType> clazz, TypeOpts opts) {
-        return new LxItemBindBuilder<>(opts);
+    public static <DType> Builder<DType> of(Class<DType> clazz) {
+        return new Builder<>();
     }
-
 
     public interface OnViewBind<D> {
         void onBindView(LxContext context, LxVh holder, D data);
@@ -103,22 +102,26 @@ public abstract class LxItemBind<D> implements Typeable {
     }
 
 
-    public static class LxItemBindBuilder<DType> {
+    public static class Builder<DType> {
 
         private TypeOpts           opts;
         private OnViewBind<DType>  viewBind;
         private OnEventBind<DType> eventBind;
 
-        private LxItemBindBuilder(TypeOpts opts) {
-            this.opts = opts;
+        private Builder() {
         }
 
-        public LxItemBindBuilder<DType> onBindView(OnViewBind<DType> onViewBind) {
+        public Builder<DType> opts(TypeOpts opts) {
+            this.opts = opts;
+            return this;
+        }
+
+        public Builder<DType> onViewBind(OnViewBind<DType> onViewBind) {
             this.viewBind = onViewBind;
             return this;
         }
 
-        public LxItemBindBuilder<DType> onBindEvent(OnEventBind<DType> onEvent) {
+        public Builder<DType> onEventBind(OnEventBind<DType> onEvent) {
             this.eventBind = onEvent;
             return this;
         }
