@@ -54,7 +54,7 @@
 
 - 使用`LxAdapter` 完成单类型、多类型数据适配；
 - 使用 `LxVH` 作为 `ViewHolder` 进行数据绑定；
-- 使用 `LxModelList` 作为数据源，基于 `DiffUtil` 并自动完成数据比对和更新；
+- 使用 `LxList` 作为数据源，基于 `DiffUtil` 并自动完成数据比对和更新；
 - 使用 `LxItemBind` 完成每种类型的数据绑定和事件处理；
 - 使用 `LxComponent` 完成分离、易于扩展的扩展功能，如果加载更多等；
 - 支持针对每种数据类型，进行细粒度的配置侧滑、拖拽、顶部悬停、跨越多列、动画等效果；
@@ -69,7 +69,7 @@
 
 ## 设计分析
 
-1. 数据源统一使用 `LxModelList`，内部借助 `DiffUtil` 实现数据的自动更新，当需要更改数据时，只需要使用它的内部方法即可；
+1. 数据源统一使用 `LxList`，内部借助 `DiffUtil` 实现数据的自动更新，当需要更改数据时，只需要使用它的内部方法即可；
 2. 每种类型是完全分离的，使用 `LxItemBind` 来描述如何对该类型进行数据的绑定，事件的响应，以此来保证每种类型数据绑定的可复用性，已经类型之间的独立性；
 3. 拖拽、侧滑、`Snap` 使用、动画、选择器、加载更多，这些功能都分离出来，每个功能由单独的 `component` 负责，这样职责更加分离，需要时注入指定的 `component` 即可，也保证了良好的扩展性；
 
@@ -172,8 +172,8 @@ LxGlobal.addOnAdapterEventInterceptor((event, adapter, extra) -> {
 一般适配器的使用会有单类型和多类型的区分，不过单类型也是多类型的一种，`LxAdapter` 是面向类型的，因此不需要过多的关注单类型和多类型，或者说这里只有多类型；
 
 ```java
-LxModelList models = new LxModelDiffList();
-LxAdapter.of(models)
+LxList list = new LxList();
+LxAdapter.of(list)
         // 这里指定了两个类型的数据绑定
         .bindItem(new StudentItemBind(), new TeacherItemBind())
         .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
@@ -184,7 +184,7 @@ List<Student> students = ListX.range(count, index -> new Student(index + " " + S
 // 数据打包成 LxModel 类型
 List<LxModel> tempList = LxTransformations.pack(TYPE_STUDENT, students);
 // 发布更新
-models.update(tempList);
+list.update(tempList);
 ```
 
 ## 基础：LxItemBind
@@ -234,20 +234,20 @@ LxItemBind.of(Student.class)
 
 `LxList` 内部基于 `DiffUtil` 实现，辅助完成数据的自动比对和更新，彻底告别 `notify`；
 
-基于 `LxList` 封装了 `LxModelList` 专门给 `LxAdapter` 使用，`LxModelList` 是 `LxAdapter` 的数据源，本质上是 `List` 对象，继承关系如下：
+`LxList` 是 `LxAdapter` 的数据源，本质上是 `List` 对象，继承关系如下：
 
 ```bash
-LxList -> LxModelList -> LxModelDiffList
+AbstractList -> DiffableList -> LxList
 ```
 
 以下是 `LxList` 内置的各种方法 `updateXXX()`，基本能满足开发需求，另外也可以使用 `snapshot` 获取快照，然后自定义扩展操作；
 
 ```java
 // 内部使用 DiffUtil 实现
-LxList list = new LxModelDiffList();
+LxList list = new LxList();
 
 // 内部使用 DiffUtil + 异步 实现，避免阻塞主线程
-// LxList<LxModel> list = new LxAsyncDiffList<>();
+LxList list = new LxList(true);
 
 List<LxModel> newList = new ArrayList<>();
 LxModel item = new LxModel(new Student("name"));
@@ -310,10 +310,10 @@ snapshot.remove(0);
 list.update(newList);
 ```
 
-同时，`LxModelList` 专门给 `LxAdapter` 使用，扩展了获取类型数据的方法，这部分可以结合后面多类型的介绍来看：
+同时，`LxList` 专门给 `LxAdapter` 使用，扩展了获取类型数据的方法，这部分可以结合后面多类型的介绍来看：
 
 ```java
-LxModelList list = new LxModelDiffList();
+LxList list = new LxList();
 
 // 获取内容类型的数据
 list.getContentTypeData();
@@ -513,8 +513,8 @@ public static final int TYPE_TEACHER    = Lx.contentTypeOf();
 构建 `LxAdapter` 和平常一样使用，这里我们使用了 5 种类型：
 
 ```java
-LxModelList models = new LxModelDiffList();
-LxAdapter.of(models)
+LxList list = new LxList();
+LxAdapter.of(list)
         // 这里指定了 5 种类型的数据绑定
         .bindItem(new StudentItemBind(), new TeacherItemBind(),
                 new HeaderItemBind(),new FooterItemBind(),new EmptyItemBind())
@@ -524,7 +524,7 @@ LxAdapter.of(models)
 添加数据，它们被添加到一个数据源列表中：
 
 ```java
-List<LxModel> snapshot = models.snapshot();
+List<LxModel> snapshot = list.snapshot();
 
 // 添加两个 header
 snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new CustomTypeData("header1")));
@@ -543,22 +543,22 @@ snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("foo
 snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("footer2")));
 
 // 发布数据更新
-models.update(snapshot);
+list.update(snapshot);
 ```
 
 从源数据中获取类型数据，使用下面两个方法获取分离的类型的数据列表：
 
 ```java
 // 数据源
-LxModelList models = new LxModelDiffList();
-// 生成 Adaper
-LxAdapter.of(models)...
+LxList list = new LxList();
+// 生成 Adapter
+LxAdapter.of(list)...
 // 获取内容类型，在这里是中间的学生和老师
-LxList contentTypeData = models.getContentTypeData();
+LxList contentTypeData = list.getContentTypeData();
 // 获取自定义的 TOP_HEADER 类型
-LxList extTypeData = models.getExtTypeData(TYPE_TOP_HEADER);
+LxList extTypeData = list.getExtTypeData(TYPE_TOP_HEADER);
 // 获取内置自定义的 VIEW_TYPE_HEADER 类型
-LxList extTypeData = models.getExtTypeData(Lx.VIEW_TYPE_HEADER);
+LxList extTypeData = list.getExtTypeData(Lx.VIEW_TYPE_HEADER);
 ```
 
 更新数据，增删改内容类型数据，增删改扩展类型数据：
@@ -619,7 +619,7 @@ class StudentItemBind extends LxItemBind<Student> {
 ```java
 // 定义事件拦截器
 OnAdapterEventInterceptor interceptor = (event, adapter, extra) -> {
-    LxModelList lxModels = adapter.getData();
+    LxList lxModels = adapter.getData();
     // 隐藏 loading 条目
     if ("HIDE_LOADING".equals(event)) {
         LxList customTypeData = lxModels.getExtTypeData(Lx.VIEW_TYPE_LOADING);
@@ -633,32 +633,32 @@ OnAdapterEventInterceptor interceptor = (event, adapter, extra) -> {
 LxGlobal.addOnAdapterEventInterceptor(interceptor);
 
 // 2. 对 Adapter 注入，仅对当前 Adapter 生效
-LxAdapter.of(models)
+LxAdapter.of(list)
         .bindItem(new StudentItemBind())
         .onEvent(interceptor)
         .attachTo(mRecyclerView, new LinearLayoutManager(getContext()));
 
 // 3. 直接在数据层注入，会对该数据作为数据源的 Adapter 生效
-models.addInterceptor(interceptor);
+list.addInterceptor(interceptor);
 ```
 
 当我们数据更新完成时，需要发布事件：
 
 ```java
 // 数据源
-LxModelList models = new LxModelDiffList();
+LxList list = new LxList();
 
 // 发布隐藏 Loading 事件
-models.publishEvent("HIDE_LOADING");
+list.publishEvent("HIDE_LOADING");
 ```
 
 内置了两个事件，可以直接使用以后看需求扩展：
 
 ```java
 // 设置加载更多开关
-models.publishEvent(Lx.EVENT_LOAD_MORE_ENABLE, false)
+list.publishEvent(Lx.EVENT_LOAD_MORE_ENABLE, false)
 // 结束加载更多
-models.publishEvent(Lx.EVENT_FINISH_LOAD_MORE);
+list.publishEvent(Lx.EVENT_FINISH_LOAD_MORE);
 
 // Lx.java
 public static final String EVENT_FINISH_LOAD_MORE            = "EVENT_FINISH_LOAD_MORE"; // 结束加载更多，开启下一次
@@ -701,7 +701,7 @@ class StudentItemBind extends LxItemBind<Student> {
 加载更多功能由 `LxStartEdgeLoadMoreComponent` 和 `LxEndEdgeLoadMoreComponent` 承担，可以选择性的使用它们；
 
 ```java
-LxAdapter.of(models)
+LxAdapter.of(list)
         .bindItem(new StudentItemBind())
         // 顶部加载更多，提前 10 个预加载
         .component(new LxStartEdgeLoadMoreComponent(10, comp -> {
@@ -724,14 +724,14 @@ LxAdapter.of(models)
 
 
 ```java
-LxAdapter.of(models)
+LxAdapter.of(list)
         .bindItem(new StudentItemBind())
         // 多选
         .component(new LxSelectComponent(Lx.SELECT_MULTI))
         .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
 
 // 获取选择后的结果
-List<Student> result = models.filterTo(LxModel::isSelected, LxModel::unpack);
+List<Student> result = list.filterTo(LxModel::isSelected, LxModel::unpack);
 
 // 获取从 component 中获取
 LxSelectComponent component = adapter.getComponent(LxSelectComponent.class);
@@ -811,7 +811,7 @@ static class SelectItemBind extends LxItemBind<NoNameData> {
 - BindSlideAnimator
 
 ```java
-LxAdapter.of(models)
+LxAdapter.of(list)
         .bindItem(new StudentItemBind())
         // 缩放动画
         .component(new LxBindAnimatorComponent(new BindScaleAnimator()))
@@ -841,7 +841,7 @@ class StudentItemBind extends LxItemBind<Student> {
 这部分参考 [wasabeef-recyclerview-animators](https://github.com/wasabeef/recyclerview-animators) 实现，它可以提供更多动画类型的实现。
 
 ```java
-LxAdapter.of(models)
+LxAdapter.of(list)
         .bindItem(new StudentItemBind())
         // 缩放动画
         .component(new LxItemAnimatorComponent(new ScaleInAnimator()))
@@ -856,7 +856,7 @@ LxAdapter.of(models)
 - 采用生成 `View` 的方式，优点是实实在在的 `View`，点击事件什么的自然都支持，缺点是你需要提供一个容器，而且视图之间没有挤压的效果；
 
 ```java
-LxAdapter.of(models)
+LxAdapter.of(list)
         .bindItem(new StudentItemBind())
         // 悬挂效果
         .component(new LxFixedComponent())
@@ -913,7 +913,7 @@ options.dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
 // 关闭触摸自动触发侧滑
 options.touchItemView4Swipe = false;
 L
-xAdapter.of(models)
+xAdapter.of(list)
         .bindItem(new StudentItemBind())
         // 当侧滑和拖拽发生时触发的时机，可以响应的做高亮效果
         .component(new LxDragSwipeComponent(options, (state, holder, context) -> {
@@ -998,7 +998,7 @@ class StudentItemBind extends LxItemBind<Student> {
 内部使用 `SnapHelper` 实现，很简单，只是要把他封装成 `LxComponent` 的形式，统一起来，由 `LxSnapComponent` 实现；
 
 ```java
-LxAdapter.of(models)
+LxAdapter.of(list)
         .bindItem(new StudentItemBind())
         // 实现 ViewPager 效果
         .component(new LxSnapComponent(Lx.SNAP_MODE_PAGER))

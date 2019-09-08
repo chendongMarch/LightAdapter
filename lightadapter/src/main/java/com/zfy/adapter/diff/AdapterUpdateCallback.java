@@ -1,4 +1,4 @@
-package com.zfy.adapter.list;
+package com.zfy.adapter.diff;
 
 import android.os.Handler;
 import android.os.Looper;

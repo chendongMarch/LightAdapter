@@ -3,8 +3,12 @@ package com.zfy.adapter;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 
-import com.zfy.adapter.function.LxTypeSplit;
-import com.zfy.adapter.list.LxList;
+import com.zfy.adapter.data.LxModel;
+import com.zfy.adapter.diff.DiffableList;
+import com.zfy.adapter.function._Consumer;
+import com.zfy.adapter.function._Function;
+import com.zfy.adapter.function._Predicate;
+import com.zfy.adapter.helper.LxTypeSplit;
 import com.zfy.adapter.listener.OnAdapterEventInterceptor;
 
 import java.util.ArrayList;
@@ -16,14 +20,19 @@ import java.util.List;
  *
  * @author chendong
  */
-public abstract class LxModelList extends LxList {
+public class LxList extends DiffableList<LxModel> {
 
     private LxTypeSplit                     typeSplit;
     private List<OnAdapterEventInterceptor> interceptors;
     private LxAdapter                       adapter;
 
-    public LxModelList() {
+    public LxList(boolean async) {
+        super(async);
         typeSplit = new LxTypeSplit();
+    }
+
+    public LxList() {
+        this(false);
     }
 
     @Override
@@ -63,5 +72,26 @@ public abstract class LxModelList extends LxList {
                 break;
             }
         }
+    }
+
+    public <R> List<R> filterTo(_Predicate<LxModel> test, _Function<LxModel, R> function) {
+        List<R> l = new ArrayList<>();
+        for (LxModel t : this) {
+            if (test.test(t)) {
+                l.add(function.map(t));
+            }
+        }
+        return l;
+    }
+
+
+    public static abstract class UnpackConsumer<T> implements _Consumer<LxModel> {
+
+        @Override
+        public void accept(LxModel model) {
+            onAccept(model.unpack());
+        }
+
+        protected abstract void onAccept(T t);
     }
 }

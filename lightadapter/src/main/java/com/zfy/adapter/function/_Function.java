@@ -1,4 +1,4 @@
-package com.zfy.adapter.list;
+package com.zfy.adapter.function;
 
 /**
  * CreateAt : 2018/11/21

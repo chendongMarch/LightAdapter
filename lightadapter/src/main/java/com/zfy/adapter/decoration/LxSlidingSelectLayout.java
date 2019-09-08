@@ -9,8 +9,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.zfy.adapter.LxAdapter;
-import com.zfy.adapter.function.LxUtil;
-import com.zfy.adapter.list._Consumer;
+import com.zfy.adapter.helper.LxUtil;
+import com.zfy.adapter.function._Consumer;
 
 /**
  * CreateAt : 2016/9/12

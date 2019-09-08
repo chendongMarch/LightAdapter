@@ -1,4 +1,4 @@
-package com.zfy.adapter.function;
+package com.zfy.adapter.helper;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -6,8 +6,8 @@ import android.util.SparseArray;
 
 import com.zfy.adapter.Lx;
 import com.zfy.adapter.LxAdapter;
+import com.zfy.adapter.LxList;
 import com.zfy.adapter.data.LxModel;
-import com.zfy.adapter.list.LxList;
 
 import java.util.ArrayList;
 import java.util.List;

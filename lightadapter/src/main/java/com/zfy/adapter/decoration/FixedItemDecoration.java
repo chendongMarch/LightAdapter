@@ -8,7 +8,7 @@ import android.view.View;
 import com.zfy.adapter.LxAdapter;
 import com.zfy.adapter.LxVh;
 import com.zfy.adapter.data.TypeOpts;
-import com.zfy.adapter.function.LxUtil;
+import com.zfy.adapter.helper.LxUtil;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,11 +1,13 @@
-package com.zfy.adapter.list;
+package com.zfy.adapter.diff;
 
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 
-import com.zfy.adapter.data.LxModel;
-import com.zfy.adapter.function.LxUtil;
+import com.zfy.adapter.data.Diffable;
+import com.zfy.adapter.helper.LxUtil;
+import com.zfy.adapter.function._Consumer;
+import com.zfy.adapter.function._Predicate;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -20,41 +22,49 @@ import java.util.ListIterator;
  *
  * @author chendong
  */
-public abstract class LxList extends AbstractList<LxModel> {
+public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
 
-    public interface ListUpdateObserver {
-        void onChange(List list);
+    public interface ListUpdateObserver<E> {
+        void onChange(List<E> list);
     }
 
-    private   List<ListUpdateObserver> updateObservers;
-    protected AdapterUpdateCallback    updateCallback;
+    private final List<ListUpdateObserver<E>> updateObservers;
+    private final AdapterUpdateCallback       updateCallback;
+    private final IDiffDispatcher<E>          dispatcher;
 
-    public LxList() {
+    public DiffableList(boolean async) {
         updateCallback = new AdapterUpdateCallback();
         updateObservers = new ArrayList<>();
+        dispatcher = async
+                ? new AsyncDiffDispatcher<>(updateCallback)
+                : new SyncDiffDispatcher<>(updateCallback);
+    }
+
+    public DiffableList() {
+        this(false);
     }
 
     public void setAdapter(RecyclerView.Adapter adapter) {
         updateCallback.setAdapter(adapter);
     }
 
-    public void addUpdateObserver(ListUpdateObserver updateObserver) {
+    public void addUpdateObserver(ListUpdateObserver<E> updateObserver) {
         this.updateObservers.add(updateObserver);
     }
 
-    /**
-     * 获取内部真正的 list
-     *
-     * @return List
-     */
-    public abstract List<LxModel> list();
 
+    public void update(@NonNull List<E> newItems) {
+        dispatcher.update(newItems);
+    }
 
+    public List<E> list() {
+        return dispatcher.list();
+    }
 
     /******************************************读方法*********************************************/
 
     @Override
-    public LxModel get(int i) {
+    public E get(int i) {
         return list().get(i);
     }
 
@@ -75,7 +85,7 @@ public abstract class LxList extends AbstractList<LxModel> {
 
     @NonNull
     @Override
-    public List<LxModel> subList(@IntRange(from = 0) int fromIndex, @IntRange(from = 0) int toIndex) {
+    public List<E> subList(@IntRange(from = 0) int fromIndex, @IntRange(from = 0) int toIndex) {
         return list().subList(fromIndex, toIndex);
     }
 
@@ -83,12 +93,12 @@ public abstract class LxList extends AbstractList<LxModel> {
     /******************************************写方法*********************************************/
 
     @Override
-    public boolean add(LxModel t) {
+    public boolean add(E t) {
         return list().add(t);
     }
 
     @Override
-    public LxModel set(@IntRange(from = 0) int index, @NonNull LxModel element) {
+    public E set(@IntRange(from = 0) int index, @NonNull E element) {
         return list().set(index, element);
     }
 
@@ -98,7 +108,7 @@ public abstract class LxList extends AbstractList<LxModel> {
     }
 
     @Override
-    public LxModel remove(@IntRange(from = 0) int index) {
+    public E remove(@IntRange(from = 0) int index) {
         return list().remove(index);
     }
 
@@ -108,56 +118,28 @@ public abstract class LxList extends AbstractList<LxModel> {
     }
 
     @Override
-    public boolean addAll(Collection<? extends LxModel> c) {
+    public boolean addAll(Collection<? extends E> c) {
         return list().addAll(c);
     }
 
     @NonNull
     @Override
-    public ListIterator<LxModel> listIterator(final int index) {
+    public ListIterator<E> listIterator(final int index) {
         return list().listIterator(index);
     }
 
     @Override
-    public Iterator<LxModel> iterator() {
+    public Iterator<E> iterator() {
         return list().iterator();
     }
 
 
     // 发布数据更新
-    private void dispatchUpdate(@NonNull List<LxModel> newItems) {
+    private void dispatchUpdate(@NonNull List<E> newItems) {
         update(newItems);
-        for (ListUpdateObserver updateObserver : updateObservers) {
+        for (ListUpdateObserver<E> updateObserver : updateObservers) {
             updateObserver.onChange(newItems);
         }
-    }
-
-    /**
-     * 更新为新的数据
-     *
-     * @param newItems 新的数据源
-     */
-    public abstract void update(@NonNull List<LxModel> newItems);
-
-
-    public List<LxModel> filter(_Predicate<LxModel> test) {
-        List<LxModel> l = new ArrayList<>();
-        for (LxModel t : this) {
-            if (test.test(t)) {
-                l.add(t);
-            }
-        }
-        return l;
-    }
-
-    public <R> List<R> filterTo(_Predicate<LxModel> test, _Function<LxModel, R> function) {
-        List<R> l = new ArrayList<>();
-        for (LxModel t : this) {
-            if (test.test(t)) {
-                l.add(function.map(t));
-            }
-        }
-        return l;
     }
 
     /**
@@ -165,7 +147,7 @@ public abstract class LxList extends AbstractList<LxModel> {
      *
      * @return 快照
      */
-    public List<LxModel> snapshot() {
+    public List<E> snapshot() {
         return new ArrayList<>(list());
     }
 
@@ -173,7 +155,7 @@ public abstract class LxList extends AbstractList<LxModel> {
      * 清空列表
      */
     public void updateClear() {
-        List<LxModel> snapshot = snapshot();
+        List<E> snapshot = snapshot();
         snapshot.clear();
         dispatchUpdate(snapshot);
     }
@@ -185,8 +167,8 @@ public abstract class LxList extends AbstractList<LxModel> {
      * @return 添加是否成功
      * @see List#addAll(Collection)
      */
-    public boolean updateAddAll(@NonNull List<LxModel> newItems) {
-        List<LxModel> snapshot = snapshot();
+    public boolean updateAddAll(@NonNull List<E> newItems) {
+        List<E> snapshot = snapshot();
         boolean result = snapshot.addAll(newItems);
         if (result) {
             dispatchUpdate(snapshot);
@@ -201,8 +183,8 @@ public abstract class LxList extends AbstractList<LxModel> {
      * @return 添加是否成功
      * @see List#add(Object)
      */
-    public boolean updateAdd(@NonNull LxModel newItem) {
-        List<LxModel> snapshot = snapshot();
+    public boolean updateAdd(@NonNull E newItem) {
+        List<E> snapshot = snapshot();
         boolean result = snapshot.add(newItem);
         if (result) {
             dispatchUpdate(snapshot);
@@ -219,8 +201,8 @@ public abstract class LxList extends AbstractList<LxModel> {
      * @return 添加是否成功
      * @see List#addAll(int, Collection)
      */
-    public boolean updateAddAll(@IntRange(from = 0) int index, @NonNull List<LxModel> newItems) {
-        List<LxModel> snapshot = snapshot();
+    public boolean updateAddAll(@IntRange(from = 0) int index, @NonNull List<E> newItems) {
+        List<E> snapshot = snapshot();
         boolean result = snapshot.addAll(index, newItems);
         if (result) {
             dispatchUpdate(snapshot);
@@ -235,8 +217,8 @@ public abstract class LxList extends AbstractList<LxModel> {
      * @param newItem 新的单个数据源
      * @see List#add(int, Object)
      */
-    public void updateAdd(@IntRange(from = 0) int index, @NonNull LxModel newItem) {
-        List<LxModel> snapshot = snapshot();
+    public void updateAdd(@IntRange(from = 0) int index, @NonNull E newItem) {
+        List<E> snapshot = snapshot();
         snapshot.add(index, newItem);
         dispatchUpdate(snapshot);
     }
@@ -249,9 +231,9 @@ public abstract class LxList extends AbstractList<LxModel> {
      * @return 删除的那个元素
      * @see List#remove(int)
      */
-    public LxModel updateRemove(@IntRange(from = 0) int index) {
-        List<LxModel> snapshot = snapshot();
-        LxModel remove = snapshot.remove(index);
+    public E updateRemove(@IntRange(from = 0) int index) {
+        List<E> snapshot = snapshot();
+        E remove = snapshot.remove(index);
         if (remove != null) {
             dispatchUpdate(snapshot);
         }
@@ -266,12 +248,12 @@ public abstract class LxList extends AbstractList<LxModel> {
      * @param shouldRemove 是否应该删除的条件
      * @return 删除了多少个元素
      */
-    public int updateRemove(int removeCount, boolean fromEnd, _Predicate<LxModel> shouldRemove) {
-        List<LxModel> snapshot = snapshot();
+    public int updateRemove(int removeCount, boolean fromEnd, _Predicate<E> shouldRemove) {
+        List<E> snapshot = snapshot();
         int count = 0;
         if (fromEnd) {
-            ListIterator<LxModel> iterator = snapshot.listIterator(snapshot.size() - 1);
-            LxModel previous;
+            ListIterator<E> iterator = snapshot.listIterator(snapshot.size() - 1);
+            E previous;
             while (iterator.hasPrevious()) {
                 if (removeCount >= 0 && count >= removeCount) {
                     break;
@@ -283,8 +265,8 @@ public abstract class LxList extends AbstractList<LxModel> {
                 }
             }
         } else {
-            Iterator<LxModel> iterator = snapshot.iterator();
-            LxModel next;
+            Iterator<E> iterator = snapshot.iterator();
+            E next;
             while (iterator.hasNext()) {
                 if (removeCount >= 0 && count >= removeCount) {
                     break;
@@ -305,9 +287,9 @@ public abstract class LxList extends AbstractList<LxModel> {
      *
      * @param shouldRemove 是否应该删除
      * @return 删除元素的个数
-     * @see LxList#updateRemove(int, boolean, _Predicate)
+     * @see DiffableList#updateRemove(int, boolean, _Predicate)
      */
-    public int updateRemove(_Predicate<LxModel> shouldRemove) {
+    public int updateRemove(_Predicate<E> shouldRemove) {
         return updateRemove(-1, false, shouldRemove);
 
     }
@@ -319,8 +301,8 @@ public abstract class LxList extends AbstractList<LxModel> {
      * @return 是否删除了元素
      * @see List#remove(Object)
      */
-    public boolean updateRemove(@NonNull LxModel item) {
-        List<LxModel> snapshot = snapshot();
+    public boolean updateRemove(@NonNull E item) {
+        List<E> snapshot = snapshot();
         boolean remove = snapshot.remove(item);
         if (remove) {
             dispatchUpdate(snapshot);
@@ -337,9 +319,9 @@ public abstract class LxList extends AbstractList<LxModel> {
      * @return 设置的元素
      * @see List#set(int, Object)
      */
-    public LxModel updateSet(@IntRange(from = 0) int index, @NonNull _Consumer<LxModel> howToUpdateConsumer) {
-        List<LxModel> snapshot = snapshot();
-        LxModel t = setItem(snapshot, index, howToUpdateConsumer);
+    public E updateSet(@IntRange(from = 0) int index, @NonNull _Consumer<E> howToUpdateConsumer) {
+        List<E> snapshot = snapshot();
+        E t = setItem(snapshot, index, howToUpdateConsumer);
         dispatchUpdate(snapshot);
         return t;
     }
@@ -353,9 +335,9 @@ public abstract class LxList extends AbstractList<LxModel> {
      * @return 设置的元素
      * @see List#set(int, Object)
      */
-    public LxModel updateSet(LxModel model, @NonNull _Consumer<LxModel> howToUpdateConsumer) {
-        List<LxModel> snapshot = snapshot();
-        LxModel t = setItem(snapshot, indexOf(model), howToUpdateConsumer);
+    public E updateSet(E model, @NonNull _Consumer<E> howToUpdateConsumer) {
+        List<E> snapshot = snapshot();
+        E t = setItem(snapshot, indexOf(model), howToUpdateConsumer);
         dispatchUpdate(snapshot);
         return t;
     }
@@ -366,22 +348,22 @@ public abstract class LxList extends AbstractList<LxModel> {
      * @param shouldUpdate        返回是否需要更新这一项
      * @param howToUpdateConsumer 如何更新该数据
      */
-    public void updateSet(@NonNull _Predicate<LxModel> shouldUpdate, @NonNull _Consumer<LxModel> howToUpdateConsumer) {
-        List<LxModel> ts = foreach(shouldUpdate, howToUpdateConsumer);
+    public void updateSet(@NonNull _Predicate<E> shouldUpdate, @NonNull _Consumer<E> howToUpdateConsumer) {
+        List<E> ts = foreach(shouldUpdate, howToUpdateConsumer);
         dispatchUpdate(ts);
     }
 
 
-    public void updateSet(@NonNull _Consumer<LxModel> howToUpdateConsumer) {
-        List<LxModel> ts = foreach(item -> true, howToUpdateConsumer);
+    public void updateSet(@NonNull _Consumer<E> howToUpdateConsumer) {
+        List<E> ts = foreach(item -> true, howToUpdateConsumer);
         dispatchUpdate(ts);
     }
 
 
     // 循环数据执行操作
-    private List<LxModel> foreach(_Predicate<LxModel> needUpdate, _Consumer<LxModel> consumer) {
-        List<LxModel> snapshot = snapshot();
-        LxModel t;
+    private List<E> foreach(_Predicate<E> needUpdate, _Consumer<E> consumer) {
+        List<E> snapshot = snapshot();
+        E t;
         for (int i = 0; i < snapshot.size(); i++) {
             t = snapshot.get(i);
             if (needUpdate.test(t)) {
@@ -392,9 +374,9 @@ public abstract class LxList extends AbstractList<LxModel> {
     }
 
     // 复制数据后实现 set(index, item) 功能
-    private LxModel setItem(List<LxModel> list, int pos, _Consumer<LxModel> consumer) {
-        LxModel item = list.get(pos);
-        LxModel copy = (LxModel) LxUtil.copy(item);
+    private E setItem(List<E> list, int pos, _Consumer<E> consumer) {
+        E item = list.get(pos);
+        E copy = (E) LxUtil.copy(item);
         consumer.accept(copy);
         return list.set(pos, copy);
     }

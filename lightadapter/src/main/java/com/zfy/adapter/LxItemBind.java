@@ -8,8 +8,8 @@ import com.zfy.adapter.data.LxContext;
 import com.zfy.adapter.data.LxModel;
 import com.zfy.adapter.data.TypeOpts;
 import com.zfy.adapter.data.Typeable;
-import com.zfy.adapter.function.LxEvent;
-import com.zfy.adapter.function.LxUtil;
+import com.zfy.adapter.helper.LxEvent;
+import com.zfy.adapter.helper.LxUtil;
 
 import java.util.List;
 
@@ -78,7 +78,7 @@ public abstract class LxItemBind<D> implements Typeable {
         return typeOpts;
     }
 
-    public LxModelList getData() {
+    public LxList getData() {
         return adapter.getData();
     }
 

@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import com.zfy.adapter.component.LxComponent;
 import com.zfy.adapter.data.LxModel;
 import com.zfy.adapter.data.TypeOpts;
-import com.zfy.adapter.function.LxSpan;
+import com.zfy.adapter.helper.LxSpan;
 import com.zfy.adapter.listener.OnAdapterEventInterceptor;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ import java.util.Set;
  */
 public class LxAdapter extends RecyclerView.Adapter<LxVh> {
 
-    @NonNull private LxModelList data;
+    @NonNull private LxList data;
     /*default*/ LayoutInflater inflater;
     private Context      context;
     private RecyclerView view;
@@ -40,7 +40,7 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
 
     public static class Builder {
 
-        private LxModelList                     data;
+        private LxList                          data;
         private SparseArray<LxItemBind>         binders;
         private RecyclerView.LayoutManager      layoutManager;
         private RecyclerView                    view;
@@ -82,7 +82,7 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
         }
     }
 
-    public static Builder of(@NonNull LxModelList data) {
+    public static Builder of(@NonNull LxList data) {
         Builder builder = new Builder();
         builder.data = data;
         return builder;
@@ -181,7 +181,7 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
     }
 
     public @NonNull
-    LxModelList getData() {
+    LxList getData() {
         return data;
     }
 

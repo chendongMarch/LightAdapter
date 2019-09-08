@@ -1,8 +1,8 @@
-package com.zfy.adapter.function;
+package com.zfy.adapter.helper;
 
 import com.zfy.adapter.Lx;
 import com.zfy.adapter.data.LxModel;
-import com.zfy.adapter.list._BiFunction;
+import com.zfy.adapter.function._BiFunction;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.zfy.adapter.function;
+package com.zfy.adapter.helper;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;

@@ -1,4 +1,4 @@
-package com.zfy.adapter.function;
+package com.zfy.adapter.helper;
 
 import android.support.v4.view.GestureDetectorCompat;
 import android.view.GestureDetector;

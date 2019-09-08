@@ -17,7 +17,7 @@ import com.zfy.adapter.Lx;
 import com.zfy.adapter.LxAdapter;
 import com.zfy.adapter.LxGlobal;
 import com.zfy.adapter.LxItemBind;
-import com.zfy.adapter.LxModelList;
+import com.zfy.adapter.LxList;
 import com.zfy.adapter.LxVh;
 import com.zfy.adapter.animation.BindScaleAnimator;
 import com.zfy.adapter.component.LxDragSwipeComponent;
@@ -30,9 +30,7 @@ import com.zfy.adapter.data.Diffable;
 import com.zfy.adapter.data.LxContext;
 import com.zfy.adapter.data.LxModel;
 import com.zfy.adapter.data.TypeOpts;
-import com.zfy.adapter.function.LxTransformations;
-import com.zfy.adapter.list.LxList;
-import com.zfy.adapter.list.LxModelDiffList;
+import com.zfy.adapter.helper.LxTransformations;
 import com.zfy.adapter.listener.OnAdapterEventInterceptor;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
@@ -64,7 +62,9 @@ public class NewSampleTestActivity extends MvpActivity {
     @BindView(R.id.content_rv)    RecyclerView mRecyclerView;
     @BindView(R.id.fix_container) ViewGroup    mFixContainerFl;
 
-    private LxModelList mLxModels = new LxModelDiffList();
+    private LxList mLxModels = new LxList();
+//    private LxModelList mLxModels = new LxModelList(true);
+
 
     private void test() {
 
@@ -78,7 +78,7 @@ public class NewSampleTestActivity extends MvpActivity {
                 })
                 .build();
 
-        LxModelList models = new LxModelDiffList();
+        LxList models = new LxList();
         models.publishEvent("HIDE_LOADING");
         LxAdapter.of(models)
                 // 这里指定了 5 种类型的数据绑定
@@ -94,7 +94,7 @@ public class NewSampleTestActivity extends MvpActivity {
 
         // 定义事件拦截器
         OnAdapterEventInterceptor interceptor = (event, adapter, extra) -> {
-            LxModelList lxModels = adapter.getData();
+            LxList lxModels = adapter.getData();
             // 隐藏 loading 条目
             if ("HIDE_LOADING".equals(event)) {
                 LxList extTypeData = lxModels.getExtTypeData(Lx.VIEW_TYPE_LOADING);
@@ -205,10 +205,12 @@ public class NewSampleTestActivity extends MvpActivity {
                     ExecutorsPool.ui(() -> {
                         if (mLxModels.size() > 130) {
                             LxList customTypeData = mLxModels.getExtTypeData(Lx.VIEW_TYPE_LOADING);
-                            customTypeData.updateSet(0, data -> {
-                                NoNameData nameData = data.unpack();
-                                nameData.desc = "加载完成～";
-                                nameData.status = -1;
+                            customTypeData.updateSet(0, new LxList.UnpackConsumer<NoNameData>() {
+                                @Override
+                                protected void onAccept(NoNameData noNameData) {
+                                    noNameData.desc = "加载完成～";
+                                    noNameData.status = -1;
+                                }
                             });
                             mLxModels.publishEvent(Lx.EVENT_LOAD_MORE_ENABLE, false);
                         } else {
