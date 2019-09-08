@@ -209,15 +209,15 @@ public class NewSampleTestActivity extends MvpActivity {
                                 NoNameData nameData = data.unpack();
                                 nameData.desc = "加载完成～";
                                 nameData.status = -1;
-                                component.setLoadMoreEnable(false);
                             });
+                            mLxModels.publishEvent(Lx.EVENT_LOAD_MORE_ENABLE, false);
                         } else {
                             LxList contentTypeData = mLxModels.getContentTypeData();
                             contentTypeData.updateAddAll(loadData(10));
                             LxList customTypeData = mLxModels.getExtTypeData(Lx.VIEW_TYPE_LOADING);
                             customTypeData.updateClear();
+                            mLxModels.publishEvent(Lx.EVENT_FINISH_LOAD_MORE, null);
                         }
-                        mLxModels.publishEvent(Lx.EVENT_FINISH_END_EDGE_LOAD_MORE, null);
                     }, 2000);
                 }))
                 .component(new LxDragSwipeComponent(dragSwipeOptions, (state, holder, context) -> {

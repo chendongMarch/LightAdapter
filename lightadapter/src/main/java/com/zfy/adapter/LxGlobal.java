@@ -38,20 +38,61 @@ public class LxGlobal {
     static {
         addOnAdapterEventInterceptor((event, adapter, extra) -> {
             switch (event) {
-                case Lx.EVENT_FINISH_END_EDGE_LOAD_MORE:
+                case Lx.EVENT_FINISH_LOAD_MORE:
                     LxEndEdgeLoadMoreComponent endEdgeLoadMoreComponent = adapter.getComponent(LxEndEdgeLoadMoreComponent.class);
                     if (endEdgeLoadMoreComponent != null) {
                         endEdgeLoadMoreComponent.finishLoadMore();
                     }
-                    break;
-                case Lx.EVENT_FINISH_START_EDGE_LOAD_MORE:
                     LxStartEdgeLoadMoreComponent startEdgeLoadMoreComponent = adapter.getComponent(LxStartEdgeLoadMoreComponent.class);
                     if (startEdgeLoadMoreComponent != null) {
                         startEdgeLoadMoreComponent.finishLoadMore();
                     }
                     break;
+                case Lx.EVENT_FINISH_END_EDGE_LOAD_MORE:
+                    endEdgeLoadMoreComponent = adapter.getComponent(LxEndEdgeLoadMoreComponent.class);
+                    if (endEdgeLoadMoreComponent != null) {
+                        endEdgeLoadMoreComponent.finishLoadMore();
+                    }
+                    break;
+                case Lx.EVENT_FINISH_START_EDGE_LOAD_MORE:
+                    startEdgeLoadMoreComponent = adapter.getComponent(LxStartEdgeLoadMoreComponent.class);
+                    if (startEdgeLoadMoreComponent != null) {
+                        startEdgeLoadMoreComponent.finishLoadMore();
+                    }
+                    break;
+                case Lx.EVENT_LOAD_MORE_ENABLE:
+                    if (!(extra instanceof Boolean)) {
+                        break;
+                    }
+                    endEdgeLoadMoreComponent = adapter.getComponent(LxEndEdgeLoadMoreComponent.class);
+                    if (endEdgeLoadMoreComponent != null) {
+                        endEdgeLoadMoreComponent.setLoadMoreEnable((Boolean) extra);
+                    }
+                    startEdgeLoadMoreComponent = adapter.getComponent(LxStartEdgeLoadMoreComponent.class);
+                    if (startEdgeLoadMoreComponent != null) {
+                        startEdgeLoadMoreComponent.setLoadMoreEnable((Boolean) extra);
+                    }
+                    break;
+                case Lx.EVENT_END_EDGE_LOAD_MORE_ENABLE:
+                    if (!(extra instanceof Boolean)) {
+                        break;
+                    }
+                    endEdgeLoadMoreComponent = adapter.getComponent(LxEndEdgeLoadMoreComponent.class);
+                    if (endEdgeLoadMoreComponent != null) {
+                        endEdgeLoadMoreComponent.setLoadMoreEnable((Boolean) extra);
+                    }
+                    break;
+                case Lx.EVENT_START_EDGE_LOAD_MORE_ENABLE:
+                    if (!(extra instanceof Boolean)) {
+                        break;
+                    }
+                    startEdgeLoadMoreComponent = adapter.getComponent(LxStartEdgeLoadMoreComponent.class);
+                    if (startEdgeLoadMoreComponent != null) {
+                        startEdgeLoadMoreComponent.setLoadMoreEnable((Boolean) extra);
+                    }
+                    break;
             }
-            return false;
+            return true;
         });
     }
 

@@ -655,10 +655,20 @@ models.publishEvent("HIDE_LOADING");
 内置了两个事件，可以直接使用以后看需求扩展：
 
 ```java
-// 结束底部加载更多
-models.publishEvent(Lx.EVENT_FINISH_END_EDGE_LOAD_MORE)
-// 结束顶部加载更多
-models.publishEvent(Lx.EVENT_FINISH_START_EDGE_LOAD_MORE)
+// 设置加载更多开关
+models.publishEvent(Lx.EVENT_LOAD_MORE_ENABLE, false)
+// 结束加载更多
+models.publishEvent(Lx.EVENT_FINISH_LOAD_MORE);
+
+// Lx.java
+public static final String EVENT_FINISH_LOAD_MORE            = "EVENT_FINISH_LOAD_MORE"; // 结束加载更多，开启下一次
+public static final String EVENT_FINISH_END_EDGE_LOAD_MORE   = "EVENT_FINISH_END_EDGE_LOAD_MORE";  // 结束底部加载更多，开启下一次
+public static final String EVENT_FINISH_START_EDGE_LOAD_MORE = "EVENT_FINISH_START_EDGE_LOAD_MORE"; // 结束顶部加载更多，开启下一次
+public static final String EVENT_LOAD_MORE_ENABLE            = "EVENT_LOAD_MORE_ENABLE"; // 设置加载更多开关
+public static final String EVENT_END_EDGE_LOAD_MORE_ENABLE   = "EVENT_END_EDGE_LOAD_MORE_ENABLE"; // 设置底部加载更多开关
+public static final String EVENT_START_EDGE_LOAD_MORE_ENABLE = "EVENT_START_EDGE_LOAD_MORE_ENABLE"; // 设置顶部加载更多开关
+
+// 其他自定义扩展和处理
 ```
 
 ## 功能：跨越多列（Span）
