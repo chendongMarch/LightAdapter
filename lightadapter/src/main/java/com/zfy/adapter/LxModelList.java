@@ -30,7 +30,7 @@ public abstract class LxModelList extends LxList {
     public void setAdapter(RecyclerView.Adapter adapter) {
         super.setAdapter(adapter);
         this.adapter = (LxAdapter) adapter;
-        typeSplit.setAdapter(this.adapter, this.adapter.contentTypes);
+        typeSplit.setAdapter(this.adapter, this.adapter.hasExtType);
     }
 
     public @NonNull
@@ -39,8 +39,8 @@ public abstract class LxModelList extends LxList {
     }
 
     public @NonNull
-    LxList getCustomTypeData(int viewType) {
-        return typeSplit.getCustomTypeData(viewType);
+    LxList getExtTypeData(int viewType) {
+        return typeSplit.getExtTypeData(viewType);
     }
 
     public void addInterceptor(OnAdapterEventInterceptor interceptor) {

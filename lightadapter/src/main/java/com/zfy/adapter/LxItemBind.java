@@ -9,10 +9,9 @@ import com.zfy.adapter.data.LxModel;
 import com.zfy.adapter.data.TypeOpts;
 import com.zfy.adapter.data.Typeable;
 import com.zfy.adapter.function.LxEvent;
+import com.zfy.adapter.function.LxUtil;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * CreateAt : 2019-08-30
@@ -56,7 +55,7 @@ public abstract class LxItemBind<D> implements Typeable {
         context.data = unpack;
         context.model = data;
         context.viewType = data.getItemType();
-        context.payloads = parsePayloads(payloads);
+        context.payloads = LxUtil.parsePayloads(payloads);
         holder.setLxContext(context);
 
         onBindView(context, holder, unpack);
@@ -83,24 +82,71 @@ public abstract class LxItemBind<D> implements Typeable {
         return adapter.getData();
     }
 
-    private List<String> parsePayloads(List<Object> payloads) {
-        List<String> list = new ArrayList<>();
-        for (Object payload : payloads) {
-            if (!(payload instanceof Set) || ((Set) payload).isEmpty()) {
-                continue;
-            }
-            Set msgSet = (Set) payload;
-            for (Object o : msgSet) {
-                if (o instanceof String) {
-                    list.add((String) o);
-                }
-            }
-        }
-        return list;
-    }
 
     @Override
     public int getItemType() {
         return typeOpts.viewType;
     }
+
+
+    public static <DType> LxItemBindBuilder<DType> of(Class<DType> clazz, TypeOpts opts) {
+        return new LxItemBindBuilder<>(opts);
+    }
+
+
+    public interface OnViewBind<D> {
+        void onBindView(LxContext context, LxVh holder, D data);
+    }
+
+    public interface OnEventBind<D> {
+        void onEvent(LxContext context, D data, int eventType);
+    }
+
+
+    public static class LxItemBindBuilder<DType> {
+
+        private TypeOpts           opts;
+        private OnViewBind<DType>  viewBind;
+        private OnEventBind<DType> eventBind;
+
+        private LxItemBindBuilder(TypeOpts opts) {
+            this.opts = opts;
+        }
+
+        public LxItemBindBuilder<DType> onBindView(OnViewBind<DType> onViewBind) {
+            this.viewBind = onViewBind;
+            return this;
+        }
+
+        public LxItemBindBuilder<DType> onBindEvent(OnEventBind<DType> onEvent) {
+            this.eventBind = onEvent;
+            return this;
+        }
+
+        public LxItemBind<DType> build() {
+            return new LxItemBindImpl(opts);
+        }
+
+        class LxItemBindImpl extends LxItemBind<DType> {
+
+            LxItemBindImpl(TypeOpts opts) {
+                super(opts);
+            }
+
+            @Override
+            public void onBindView(LxContext context, LxVh holder, DType data) {
+                if (viewBind != null) {
+                    viewBind.onBindView(context, holder, data);
+                }
+            }
+
+            @Override
+            public void onEvent(LxContext context, DType data, int eventType) {
+                if (eventBind != null) {
+                    eventBind.onEvent(context, data, eventType);
+                }
+            }
+        }
+    }
+
 }

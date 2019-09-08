@@ -35,7 +35,8 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
 
     private SparseArray<LxItemBind> binders;
     private Set<LxComponent>        components;
-    /*default*/ Set<Integer> contentTypes;
+    /*default*/ boolean      hasExtType;
+
 
     public static class Builder {
 
@@ -44,13 +45,11 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
         private RecyclerView.LayoutManager      layoutManager;
         private RecyclerView                    view;
         private Set<LxComponent>                components;
-        private Set<Integer>                    contentTypes;
         private List<OnAdapterEventInterceptor> interceptors;
 
         private Builder() {
             binders = new SparseArray<>();
             components = new HashSet<>();
-            contentTypes = new HashSet<>();
             interceptors = new ArrayList<>();
         }
 
@@ -61,12 +60,6 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
             return this;
         }
 
-        public Builder contentType(int... contentTypes) {
-            for (int contentType : contentTypes) {
-                this.contentTypes.add(contentType);
-            }
-            return this;
-        }
 
         public Builder component(LxComponent component) {
             this.components.add(component);
@@ -100,10 +93,13 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
 
         this.binders = builder.binders;
         this.components = builder.components;
-        this.contentTypes = builder.contentTypes;
+        this.hasExtType = false;
         for (int i = 0; i < binders.size(); i++) {
             LxItemBind lxItemBind = binders.valueAt(i);
             lxItemBind.onAdapterAttached(this);
+            if (!Lx.isContentType(lxItemBind.getTypeOpts().viewType)) {
+                this.hasExtType = true;
+            }
         }
 
         // set view layout

@@ -54,15 +54,18 @@ public class Lx {
     public static final int EVENT_LONG_PRESS   = 1; // 长按事件
     public static final int EVENT_DOUBLE_CLICK = 2; // 双击事件
 
+    public static final int VIEW_TYPE_MAX          = 4096;
+    public static       int VIEW_TYPE_BASE         = VIEW_TYPE_MAX / 2; // 基础 viewType
+    public static       int VIEW_TYPE_CONTENT_BASE = VIEW_TYPE_BASE + 1; // 内容类型基础 viewType
+    public static       int VIEW_TYPE_EXT_BASE     = VIEW_TYPE_BASE - 1; // 扩展类型基础 viewType
 
-    public static final int VIEW_TYPE_DEFAULT = 0; // 默认 viewType
-    public static       int VIEW_TYPE_BASE    = 1; // 基础 viewType
-    public static final int VIEW_TYPE_HEADER  = Lx.incrementViewType(); // 内置 header
-    public static final int VIEW_TYPE_FOOTER  = Lx.incrementViewType(); // 内置 footer
-    public static final int VIEW_TYPE_EMPTY   = Lx.incrementViewType(); // 内置空载
-    public static final int VIEW_TYPE_LOADING = Lx.incrementViewType(); // 内置 loading
-    public static final int VIEW_TYPE_FAKE    = Lx.incrementViewType(); // 内置假数据
-    public static final int VIEW_TYPE_SECTION = Lx.incrementViewType(); // 隔断
+    public static final int VIEW_TYPE_DEFAULT = Lx.contentTypeOf(); // 默认 viewType
+    public static final int VIEW_TYPE_SECTION = Lx.contentTypeOf(); // 隔断 viewType
+    public static final int VIEW_TYPE_HEADER  = Lx.extTypeOf(); // 内置 header
+    public static final int VIEW_TYPE_FOOTER  = Lx.extTypeOf(); // 内置 footer
+    public static final int VIEW_TYPE_EMPTY   = Lx.extTypeOf(); // 内置空载
+    public static final int VIEW_TYPE_LOADING = Lx.extTypeOf(); // 内置 loading
+    public static final int VIEW_TYPE_FAKE    = Lx.extTypeOf(); // 内置假数据
 
     @IntDef({DRAG_SWIPE_STATE_NONE, DRAG_STATE_ACTIVE, SWIPE_STATE_ACTIVE, DRAG_STATE_RELEASE, SWIPE_STATE_RELEASE})
     @Retention(RetentionPolicy.SOURCE)
@@ -95,10 +98,17 @@ public class Lx {
     public static final int FIXED_USE_DRAW = 0;
     public static final int FIXED_USE_VIEW = 1;
 
-    public static int incrementViewType() {
-        return VIEW_TYPE_BASE++;
+    public static int contentTypeOf() {
+        return VIEW_TYPE_CONTENT_BASE++;
     }
 
+    public static int extTypeOf() {
+        return VIEW_TYPE_EXT_BASE--;
+    }
+
+    public static boolean isContentType(int viewType) {
+        return viewType > VIEW_TYPE_CONTENT_BASE;
+    }
     public static final int DEFAULT_BLOCK_ID = 0;
 
     public static final String EVENT_FINISH_END_EDGE_LOAD_MORE   = "EVENT_FINISH_END_EDGE_LOAD_MORE";

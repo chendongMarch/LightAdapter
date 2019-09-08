@@ -125,10 +125,10 @@ public class LxSlidingSelectLayout extends FrameLayout {
             mStartPosittion = position;
         }
 
-        int size = mAdapter.getData().size();
-        for (int i = mStartPosittion; i < size; i++) {
-
-        }
+//        int size = mAdapter.getData().size();
+//        for (int i = mStartPosittion; i < size; i++) {
+//
+//        }
         Object data = mAdapter.getData().get(position);
         // 当前触摸的点与上一次触摸的点相同 || 没有pos || 没有数据
         if (mPrePublishPos == position || data == null) {

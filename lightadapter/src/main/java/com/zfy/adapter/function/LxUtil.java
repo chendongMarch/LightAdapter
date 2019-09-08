@@ -12,6 +12,10 @@ import com.zfy.adapter.BuildConfig;
 import com.zfy.adapter.Lx;
 import com.zfy.adapter.data.Copyable;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 /**
  * CreateAt : 2019-09-01
  * Describe :
@@ -162,5 +166,21 @@ public class LxUtil {
         return input;
     }
 
+
+    public static List<String> parsePayloads(List<Object> payloads) {
+        List<String> list = new ArrayList<>();
+        for (Object payload : payloads) {
+            if (!(payload instanceof Set) || ((Set) payload).isEmpty()) {
+                continue;
+            }
+            Set msgSet = (Set) payload;
+            for (Object o : msgSet) {
+                if (o instanceof String) {
+                    list.add((String) o);
+                }
+            }
+        }
+        return list;
+    }
 
 }

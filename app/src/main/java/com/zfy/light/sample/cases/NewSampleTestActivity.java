@@ -56,9 +56,10 @@ import butterknife.OnClick;
 @MvpV(layout = R.layout.new_sample_activity)
 public class NewSampleTestActivity extends MvpActivity {
 
-    public static final int TYPE_STUDENT = Lx.incrementViewType();
-    public static final int TYPE_TEACHER = Lx.incrementViewType();
-    public static final int TYPE_SELECT  = Lx.incrementViewType();
+    public static final int TYPE_TOP_HEADER = Lx.extTypeOf(); // 扩展类型
+    public static final int TYPE_STUDENT    = Lx.contentTypeOf(); // 业务类型
+    public static final int TYPE_TEACHER    = Lx.contentTypeOf();
+    public static final int TYPE_SELECT     = Lx.contentTypeOf();
 
     @BindView(R.id.content_rv)    RecyclerView mRecyclerView;
     @BindView(R.id.fix_container) ViewGroup    mFixContainerFl;
@@ -66,11 +67,19 @@ public class NewSampleTestActivity extends MvpActivity {
     private LxModelList mLxModels = new LxModelDiffList();
 
     private void test() {
+
+        LxItemBind.of(Student.class, TypeOpts.make(R.layout.item_section))
+                .onBindView((context, holder, data) -> {
+
+                })
+                .onBindEvent((context, data, eventType) -> {
+
+                })
+                .build();
+
         LxModelList models = new LxModelDiffList();
         models.publishEvent("HIDE_LOADING");
         LxAdapter.of(models)
-                // 指定老师、学生类型，是我们的业务类型，其他的是扩展类型
-                .contentType(TYPE_STUDENT, TYPE_TEACHER)
                 // 这里指定了 5 种类型的数据绑定
                 .bindItem(new StudentItemBind(), new TeacherItemBind(),
                         new HeaderItemBind(), new FooterItemBind(), new EmptyItemBind())
@@ -87,8 +96,8 @@ public class NewSampleTestActivity extends MvpActivity {
             LxModelList lxModels = adapter.getData();
             // 隐藏 loading 条目
             if ("HIDE_LOADING".equals(event)) {
-                LxList customTypeData = lxModels.getCustomTypeData(Lx.VIEW_TYPE_LOADING);
-                customTypeData.updateClear();
+                LxList extTypeData = lxModels.getExtTypeData(Lx.VIEW_TYPE_LOADING);
+                extTypeData.updateClear();
             }
             // 返回 true 表示停止事件的传递
             return true;
@@ -154,8 +163,7 @@ public class NewSampleTestActivity extends MvpActivity {
 //            }
 //        });
 
-        LxAdapter adapter = LxAdapter.of(mLxModels)
-                .contentType(TYPE_STUDENT, TYPE_TEACHER, Lx.VIEW_TYPE_SECTION, TYPE_SELECT)
+        LxAdapter.of(mLxModels)
                 .bindItem(new StudentItemBind(), new TeacherItemBind(),
                         new HeaderItemBind(), new FooterItemBind(),
                         new EmptyItemBind(), new LoadingItemBind(), new SectionItemBind(), new SelectItemBind())
@@ -180,7 +188,7 @@ public class NewSampleTestActivity extends MvpActivity {
                         LxList contentTypeData = mLxModels.getContentTypeData();
                         contentTypeData.updateAddAll(loadData(10));
 
-                        LxList customTypeData = mLxModels.getCustomTypeData(Lx.VIEW_TYPE_LOADING);
+                        LxList customTypeData = mLxModels.getExtTypeData(Lx.VIEW_TYPE_LOADING);
                         customTypeData.updateClear();
 
                         mLxModels.publishEvent(Lx.EVENT_FINISH_END_EDGE_LOAD_MORE, null);
@@ -421,7 +429,7 @@ public class NewSampleTestActivity extends MvpActivity {
                     break;
                 case Lx.EVENT_LONG_PRESS:
                     // 获取 header，会把顶部的两个 header 单独获取出来
-                    LxList headerData = getData().getCustomTypeData(Lx.VIEW_TYPE_HEADER);
+                    LxList headerData = getData().getExtTypeData(Lx.VIEW_TYPE_HEADER);
                     // 更新 header
                     headerData.updateSet(0, d -> {
                         NoNameData firstData = d.unpack();
@@ -429,7 +437,7 @@ public class NewSampleTestActivity extends MvpActivity {
                     });
 
                     // 获取 footer，会把底部的两个 footer 单独获取出来
-                    LxList footerData = getData().getCustomTypeData(Lx.VIEW_TYPE_FOOTER);
+                    LxList footerData = getData().getExtTypeData(Lx.VIEW_TYPE_FOOTER);
                     // 清空 footer
                     footerData.updateClear();
                     break;
@@ -469,7 +477,7 @@ public class NewSampleTestActivity extends MvpActivity {
         public void onEvent(LxContext context, Teacher data, int eventType) {
             ToastX.show("点击老师 position = " + context.position + " data = " + data.name + " eventType = " + eventType);
             // 点击更新 header
-            LxList list = getData().getCustomTypeData(Lx.VIEW_TYPE_HEADER);
+            LxList list = getData().getExtTypeData(Lx.VIEW_TYPE_HEADER);
             list.updateSet(0, m -> {
                 NoNameData header = m.unpack();
                 header.desc = String.valueOf(System.currentTimeMillis());
@@ -505,7 +513,7 @@ public class NewSampleTestActivity extends MvpActivity {
 
             if (eventType == Lx.EVENT_LONG_PRESS) {
                 // 长按删除 header
-                LxList list = getData().getCustomTypeData(Lx.VIEW_TYPE_HEADER);
+                LxList list = getData().getExtTypeData(Lx.VIEW_TYPE_HEADER);
                 list.updateRemove(0);
             }
             if (eventType == Lx.EVENT_CLICK) {
@@ -552,7 +560,7 @@ public class NewSampleTestActivity extends MvpActivity {
         public void onEvent(LxContext context, NoNameData data, int eventType) {
             if (eventType == Lx.EVENT_LONG_PRESS) {
                 // 长按删除 footer
-                LxList list = getData().getCustomTypeData(Lx.VIEW_TYPE_FOOTER);
+                LxList list = getData().getExtTypeData(Lx.VIEW_TYPE_FOOTER);
                 list.updateRemove(0);
             }
             if (eventType == Lx.EVENT_CLICK) {
@@ -562,7 +570,7 @@ public class NewSampleTestActivity extends MvpActivity {
             }
             if (eventType == Lx.EVENT_DOUBLE_CLICK) {
                 // 双击再加一个 footer
-                LxList list = getData().getCustomTypeData(Lx.VIEW_TYPE_FOOTER);
+                LxList list = getData().getExtTypeData(Lx.VIEW_TYPE_FOOTER);
                 list.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new NoNameData("", String.valueOf(System.currentTimeMillis()))));
             }
         }

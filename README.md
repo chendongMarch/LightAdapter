@@ -25,29 +25,29 @@
 - Feature
 - 设计分析
 - 内置的数据类型
-	- TypeOpts
-	- LxModel
-	- LxContext
+	- TypeOpts ～ 定义类型
+	- LxModel ～ 定义数据
+	- LxContext ～ 定义上下文
 - 基础
-	- 基础：LxGlobal
-	- 基础：LxAdapter
-	- 基础：LxItemBind
-	- 基础：LxList
-	- 基础：LxVH
-	- 基础：点击事件
-	- 基础：扩展自定义类型
+	- 基础：LxGlobal ～ 全局配置
+	- 基础：LxAdapter ～ 核心适配器
+	- 基础：LxItemBind ～ 按类型绑定
+	- 基础：LxList ～ 告别手动 notify, 全自动数据更新
+	- 基础：LxVH ～ ViewHolder 扩展，链式编程
+	- 基础：点击事件 ～ 单击、双击、长按
+	- 基础：扩展自定义类型 ～ 灵活的类型扩展
 - 功能
-	- 功能：事件发布
-	- 功能：跨越多列（Span）
-	- 功能：加载更多（LoadMore）
-	- 功能：选择器（Selector)
-	- 功能：列表动画（Animator）
-	- 功能：悬挂效果（Fixed）
-	- 功能：拖拽和侧滑(drag/swipe)
-	- 功能：实现 ViewPager (Snap)
+	- 功能：事件发布 ～ 分离可抽离的逻辑
+	- 功能：跨越多列（Span）～ 打造多种布局效果
+	- 功能：加载更多（LoadMore）～ 分页加载数据
+	- 功能：选择器（Selector) ～ 选择器，单选，多选
+	- 功能：列表动画（Animator）～ 灵活动画效果
+	- 功能：悬挂效果（Fixed）～ 悬停在页面顶部
+	- 功能：拖拽和侧滑(drag/swipe) ～ 拖拽排序，侧滑删除
+	- 功能：实现 ViewPager (Snap) ～ ViewPager 效果
 - 进阶
-	- 进阶：使用 Idable 优化 change
-	- 进阶：使用 payloads
+	- 进阶：使用 Idable 优化 change ～ 优化更新
+	- 进阶：使用 payloads ～ 比局部更新更高效，有效载荷更新数据
 ```
 
 ## Feature
@@ -189,11 +189,11 @@ models.update(tempList);
 
 ## 基础：LxItemBind
 
-既然是面向类型的，那么每种类型的数据绑定会单独处理，这些由 `LxItemBind` 负责；
+`LxAdapter` 是完全面向类型的，每种类型的数据绑定会单独处理，这些由 `LxItemBind` 负责：
 
 ```java
 // 自增的数据类型，不需要自己去定义 1、2、3
-public static final int TYPE_STUDENT = Lx.incrementViewType();
+public static final int TYPE_STUDENT = Lx.contentTypeOf();
 
 class StudentItemBind extends LxItemBind<Student> {
 
@@ -214,6 +214,19 @@ class StudentItemBind extends LxItemBind<Student> {
 
     }
 }
+```
+
+也支持使用构建者模式快速创建新的类型绑定：
+
+```java
+LxItemBind.of(Student.class, TypeOpts.make(R.layout.item_section))
+        .onBindView((context, holder, data) -> {
+        	// ...
+        })
+        .onBindEvent((context, data, eventType) -> {
+        	// ...
+        })
+        .build();`
 ```
 
 ## 基础：LxList
@@ -305,7 +318,7 @@ LxModelList list = new LxModelDiffList();
 list.getContentTypeData();
 
 // 获取指定类型的数据
-list.getCustomTypeData(Lx.VIEW_TYPE_HEADER);
+list.getExtTypeData(Lx.VIEW_TYPE_HEADER);
 ```
 
 ## 基础：LxVH
@@ -439,6 +452,8 @@ class StudentItemBind extends LxItemBind<Student> {
 
 ## 基础：扩展自定义类型
 
+> 多类型是 `LxAdapter` 的核心思想；
+
 开发过程中，我们通常会有一些特殊类型的数据，比如:
 
 - `Header`
@@ -449,8 +464,16 @@ class StudentItemBind extends LxItemBind<Student> {
 
 作为一个框架来说，无法完全覆盖这些业务场景，而且比较常见的使用 `inflate view` 添加的方式并不友好，容易出错，也丧失了一些特性；
 
-所以我们把数据分为两种，一种称为内容类型数据，一种称为扩展类型数据，它们大概以如下方式排列：
+所以我们把数据分为两种:
 
+- 一种称为内容类型数据，通常是我们的业务类型，比如之前的学生、老师，也有可能是一些自定义类型，比如隔断，它们穿插在业务数据中间，也是一种业务类型；
+- 一种称为扩展类型数据，它们是业务无关的，可以单独分离的，比如 Header，Footer, 空载页， Loading, 骨架屏等等；
+
+比如下面这个数据:
+
+⚠️ 内容类型一定要是连续的，也就是说不能出现 `Header` 插在 `学生类型` 中间，所有的内容类型要在一起，不能被其他类型分离；
+
+```
 - Header1
 - Header2
 - 学生（内容类型1）
@@ -460,24 +483,44 @@ class StudentItemBind extends LxItemBind<Student> {
 - Footer1
 - Footer2
 - Loading
+```
 
-主要问题在于添加到数据列表中的其他类型数据污染了我们的内容列表，我们无法分离出真正的业务数据列表，这样就使得数据的更新、处理变得很困难，为了解决这个问题我们需要明确，哪些是内容，那些是其他；
+这种类型组合的主要问题在于数据混合在一起，我们分不出来哪些业务类型，哪些是扩展类型，因此数据的更新和处理变得很困难，对数据的操作要满足以下两点：
+
+1. 操作内容类型时，要屏蔽扩展类型的影响，要保持和网络获取的业务数据列表的一致性，就好像我们的列表中只有内容类型数据一样；
+2. 操作扩展类型时，可能针对任何一种扩展类型做增删改，不会影响内容类型的数据列表；
+
+因此我们在创建类型时就要声明好哪些是内容类型，哪些是扩展类型，我们通过如下方式标记：
 
 ```java
-public static final int TYPE_STUDENT = Lx.incrementViewType();
-public static final int TYPE_TEACHER = Lx.incrementViewType();
+// Lx.java 内置部分类型，可以直接使用
+public static final int VIEW_TYPE_DEFAULT = Lx.contentTypeOf(); // 默认 viewType
+public static final int VIEW_TYPE_SECTION = Lx.contentTypeOf(); // 隔断 viewType
+public static final int VIEW_TYPE_HEADER  = Lx.extTypeOf(); // 内置 header
+public static final int VIEW_TYPE_FOOTER  = Lx.extTypeOf(); // 内置 footer
+public static final int VIEW_TYPE_EMPTY   = Lx.extTypeOf(); // 内置空载
+public static final int VIEW_TYPE_LOADING = Lx.extTypeOf(); // 内置 loading
+public static final int VIEW_TYPE_FAKE    = Lx.extTypeOf(); // 内置假数据
 
+// 也可以自己扩展，使用不同方法生成类型，标记类型的归属
+// 指定老师、学生类型，是我们的业务类型，其他的是扩展类型
+public static final int TYPE_TOP_HEADER = Lx.extTypeOf(); // 扩展类型
+public static final int TYPE_STUDENT    = Lx.contentTypeOf(); // 业务类型
+public static final int TYPE_TEACHER    = Lx.contentTypeOf();
+```
+
+构建 `LxAdapter` 和平常一样使用，这里我们使用了 5 种类型：
+
+```java
 LxModelList models = new LxModelDiffList();
 LxAdapter.of(models)
-        // 指定老师、学生类型，是我们的业务类型，其他的是扩展类型
-        .contentType(TYPE_STUDENT, TYPE_TEACHER)
         // 这里指定了 5 种类型的数据绑定
         .bindItem(new StudentItemBind(), new TeacherItemBind(),
                 new HeaderItemBind(),new FooterItemBind(),new EmptyItemBind())
         .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
 ```
 
-添加数据
+添加数据，它们被添加到一个数据源列表中：
 
 ```java
 List<LxModel> snapshot = models.snapshot();
@@ -502,7 +545,22 @@ snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("foo
 models.update(snapshot);
 ```
 
-更新数据
+从源数据中获取类型数据，使用下面两个方法获取分离的类型的数据列表：
+
+```java
+// 数据源
+LxModelList models = new LxModelDiffList();
+// 生成 Adaper
+LxAdapter.of(models)...
+// 获取内容类型，在这里是中间的学生和老师
+LxList contentTypeData = models.getContentTypeData();
+// 获取自定义的 TOP_HEADER 类型
+LxList extTypeData = models.getExtTypeData(TYPE_TOP_HEADER);
+// 获取内置自定义的 VIEW_TYPE_HEADER 类型
+LxList extTypeData = models.getExtTypeData(Lx.VIEW_TYPE_HEADER);
+```
+
+更新数据，增删改内容类型数据，增删改扩展类型数据：
 
 ```java
 class StudentItemBind extends LxItemBind<Student> {
@@ -521,7 +579,7 @@ class StudentItemBind extends LxItemBind<Student> {
                 break;
             case Lx.EVENT_LONG_PRESS:
                 // 获取 header，会把顶部的两个 header 单独获取出来
-                LxList headerData = getData().getCustomTypeData(Lx.VIEW_TYPE_HEADER);
+                LxList headerData = getData().getExtTypeData(Lx.VIEW_TYPE_HEADER);
                 // 更新 header
                 headerData.updateSet(0, d -> {
                     CustomTypeData firstData = d.unpack();
@@ -529,7 +587,7 @@ class StudentItemBind extends LxItemBind<Student> {
                 });
 
                 // 获取 footer，会把底部的两个 footer 单独获取出来
-                LxList footerData = getData().getCustomTypeData(Lx.VIEW_TYPE_FOOTER);
+                LxList footerData = getData().getExtTypeData(Lx.VIEW_TYPE_FOOTER);
                 // 清空 footer
                 footerData.updateClear();
                 break;
@@ -563,7 +621,7 @@ OnAdapterEventInterceptor interceptor = (event, adapter, extra) -> {
     LxModelList lxModels = adapter.getData();
     // 隐藏 loading 条目
     if ("HIDE_LOADING".equals(event)) {
-        LxList customTypeData = lxModels.getCustomTypeData(Lx.VIEW_TYPE_LOADING);
+        LxList customTypeData = lxModels.getExtTypeData(Lx.VIEW_TYPE_LOADING);
         customTypeData.updateClear();
     }
     // 返回 true 表示停止事件的传递

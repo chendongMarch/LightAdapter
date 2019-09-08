@@ -11,7 +11,6 @@ import com.zfy.adapter.list.LxList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  *
@@ -38,41 +37,32 @@ public class LxTypeSplit {
     };
 
     private LxAdapter     adapter;
-    private Set<Integer>  contentTypes;
     private LxBlockedList blockedList;
+    private boolean       hasExtType;
 
-    public void setAdapter(LxAdapter adapter, Set<Integer> contentTypes) {
+    public void setAdapter(LxAdapter adapter, boolean hasExtType) {
         this.adapter = adapter;
-        this.contentTypes = contentTypes;
+        this.hasExtType = hasExtType;
         this.blockedList = new LxBlockedList();
     }
 
     public @NonNull
     LxList getContentTypeData() {
-        if (this.contentTypes == null || this.contentTypes.isEmpty()) {
-            return adapter.getData();
+        if (hasExtType) {
+            LxList contentList = blockedList.getContentTypeList();
+            return contentList == null ? EMPTY : contentList;
         }
-        LxList contentList = blockedList.getContentList();
-        return contentList == null ? EMPTY : contentList;
+        return adapter.getData();
     }
 
     public @NonNull
-    LxList getCustomTypeData(int viewType) {
-        if (this.contentTypes == null || this.contentTypes.isEmpty()) {
-            return EMPTY;
+    LxList getExtTypeData(int viewType) {
+        if (hasExtType) {
+            LxList typedList = blockedList.getExtTypeList(viewType);
+            return typedList == null ? EMPTY : typedList;
         }
-        LxList typedList = blockedList.getTypedList(viewType);
-        return typedList == null ? EMPTY : typedList;
-    }
+        return EMPTY;
 
-    private boolean isContentType(int viewType) {
-        if (contentTypes == null || contentTypes.isEmpty()) {
-            // 没有多类型，没有自定义类型的时候均为 内容类型
-            // throw new IllegalStateException("期望获取类型是否是内容类型，但是没有设置 contentType");
-            LxUtil.log("期望获取类型是否是内容类型，但是没有设置 contentType");
-            return true;
-        }
-        return contentTypes.contains(viewType);
     }
 
     private class LxBlockedList extends LxList {
@@ -101,7 +91,7 @@ public class LxTypeSplit {
             blockIds.clear();
             List<LxModel> list = adapter.getData();
             for (LxModel lxModel : list) {
-                boolean isContentType = isContentType(lxModel.getItemType());
+                boolean isContentType = Lx.isContentType(lxModel.getItemType());
                 int blockId = isContentType ? Lx.DEFAULT_BLOCK_ID : lxModel.getItemType();
                 LxBlockedList.HandleUpdateLxList handleUpdateLxList = array.get(blockId);
                 if (handleUpdateLxList == null) {
@@ -125,14 +115,14 @@ public class LxTypeSplit {
         }
 
         @Nullable
-        LxList getTypedList(int blockId) {
+        LxList getExtTypeList(int blockId) {
             trySplitList();
             return array.get(blockId);
         }
 
-        LxList getContentList() {
+        LxList getContentTypeList() {
             trySplitList();
-            return getTypedList(Lx.DEFAULT_BLOCK_ID);
+            return getExtTypeList(Lx.DEFAULT_BLOCK_ID);
         }
 
 
