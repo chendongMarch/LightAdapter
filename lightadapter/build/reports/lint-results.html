@@ -176,7 +176,7 @@ document.getElementById(id).style.display = 'none';
       <span class="mdl-layout-title">Lint Report: 3 warnings</span>
       <div class="mdl-layout-spacer"></div>
       <nav class="mdl-navigation mdl-layout--large-screen-only">
-Check performed at Tue Sep 03 13:47:22 CST 2019      </nav>
+Check performed at Sun Sep 08 16:40:47 CST 2019      </nav>
     </div>
   </header>
   <div class="mdl-layout__drawer">
@@ -276,14 +276,14 @@ Dismiss</button>            </div>
               <div class="mdl-card__supporting-text">
 <div class="issue">
 <div class="warningslist">
-<span class="location"><a href="../../src/main/java/com/zfy/adapter/decoration/LxSlidingSelectLayout.java">../../src/main/java/com/zfy/adapter/decoration/LxSlidingSelectLayout.java</a>:89</span>: <span class="message">Custom view <code>LxSlidingSelectLayout</code> overrides <code>onTouchEvent</code> but not <code>performClick</code></span><br /><pre class="errorlines">
-<span class="lineno">  86 </span>    }
-<span class="lineno">  87 </span>
-<span class="lineno">  88 </span>    <span class="annotation">@Override</span>
-<span class="caretline"><span class="lineno">  89 </span>    <span class="keyword">public</span> <span class="keyword">boolean</span> <span class="warning">onTouchEvent</span>(MotionEvent ev) {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-<span class="lineno">  90 </span>        <span class="keyword">int</span> action = MotionEventCompat.getActionMasked(ev);
-<span class="lineno">  91 </span>        <span class="keyword">switch</span> (action) {
-<span class="lineno">  92 </span>            <span class="keyword">case</span> MotionEvent.ACTION_DOWN:
+<span class="location"><a href="../../src/main/java/com/zfy/adapter/decoration/LxSlidingSelectLayout.java">../../src/main/java/com/zfy/adapter/decoration/LxSlidingSelectLayout.java</a>:90</span>: <span class="message">Custom view <code>LxSlidingSelectLayout</code> overrides <code>onTouchEvent</code> but not <code>performClick</code></span><br /><pre class="errorlines">
+<span class="lineno">  87 </span>    }
+<span class="lineno">  88 </span>
+<span class="lineno">  89 </span>    <span class="annotation">@Override</span>
+<span class="caretline"><span class="lineno">  90 </span>    <span class="keyword">public</span> <span class="keyword">boolean</span> <span class="warning">onTouchEvent</span>(MotionEvent ev) {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+<span class="lineno">  91 </span>
+<span class="lineno">  92 </span>        <span class="keyword">int</span> action = ev.getActionMasked();
+<span class="lineno">  93 </span>        <span class="keyword">switch</span> (action) {
 </pre>
 
 </div>

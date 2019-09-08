@@ -1,22 +1,22 @@
 [
     {
         "merged": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/res/merged/release/drawable-mdpi-v4/notify_panel_notification_icon_bg.png",
-        "source": "/Users/march/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/f76fa56dd467f8ee05075360d1f4cc55/res/drawable-mdpi-v4/notify_panel_notification_icon_bg.png"
+        "source": "/Users/march/.gradle/caches/transforms-1/files-1.1/support-compat-26.1.0.aar/a5292c2def845c7134d2f9fadacd45e1/res/drawable-mdpi-v4/notify_panel_notification_icon_bg.png"
     },
     {
         "merged": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/res/merged/release/drawable-mdpi-v4/notification_bg_low_pressed.9.png",
-        "source": "/Users/march/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/f76fa56dd467f8ee05075360d1f4cc55/res/drawable-mdpi-v4/notification_bg_low_pressed.9.png"
+        "source": "/Users/march/.gradle/caches/transforms-1/files-1.1/support-compat-26.1.0.aar/a5292c2def845c7134d2f9fadacd45e1/res/drawable-mdpi-v4/notification_bg_low_pressed.9.png"
     },
     {
         "merged": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/res/merged/release/drawable-mdpi-v4/notification_bg_normal_pressed.9.png",
-        "source": "/Users/march/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/f76fa56dd467f8ee05075360d1f4cc55/res/drawable-mdpi-v4/notification_bg_normal_pressed.9.png"
+        "source": "/Users/march/.gradle/caches/transforms-1/files-1.1/support-compat-26.1.0.aar/a5292c2def845c7134d2f9fadacd45e1/res/drawable-mdpi-v4/notification_bg_normal_pressed.9.png"
     },
     {
         "merged": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/res/merged/release/drawable-mdpi-v4/notification_bg_normal.9.png",
-        "source": "/Users/march/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/f76fa56dd467f8ee05075360d1f4cc55/res/drawable-mdpi-v4/notification_bg_normal.9.png"
+        "source": "/Users/march/.gradle/caches/transforms-1/files-1.1/support-compat-26.1.0.aar/a5292c2def845c7134d2f9fadacd45e1/res/drawable-mdpi-v4/notification_bg_normal.9.png"
     },
     {
         "merged": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/res/merged/release/drawable-mdpi-v4/notification_bg_low_normal.9.png",
-        "source": "/Users/march/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/f76fa56dd467f8ee05075360d1f4cc55/res/drawable-mdpi-v4/notification_bg_low_normal.9.png"
+        "source": "/Users/march/.gradle/caches/transforms-1/files-1.1/support-compat-26.1.0.aar/a5292c2def845c7134d2f9fadacd45e1/res/drawable-mdpi-v4/notification_bg_low_normal.9.png"
     }
 ]

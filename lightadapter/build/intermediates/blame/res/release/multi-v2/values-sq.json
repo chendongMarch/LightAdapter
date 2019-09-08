@@ -4,7 +4,7 @@
             "outputFile": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/incremental/mergeReleaseResources/merged.dir/values-sq/values-sq.xml",
             "map": [
                 {
-                    "source": "/Users/march/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/f76fa56dd467f8ee05075360d1f4cc55/res/values-sq/values-sq.xml",
+                    "source": "/Users/march/.gradle/caches/transforms-1/files-1.1/support-compat-26.1.0.aar/a5292c2def845c7134d2f9fadacd45e1/res/values-sq/values-sq.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
@@ -19,7 +19,7 @@
             "outputFile": "/Users/march/AndroidPro/LightAdapterSample/lightadapter/build/intermediates/res/merged/release/values-sq/values-sq.xml",
             "map": [
                 {
-                    "source": "/Users/march/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/f76fa56dd467f8ee05075360d1f4cc55/res/values-sq/values-sq.xml",
+                    "source": "/Users/march/.gradle/caches/transforms-1/files-1.1/support-compat-26.1.0.aar/a5292c2def845c7134d2f9fadacd45e1/res/values-sq/values-sq.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
