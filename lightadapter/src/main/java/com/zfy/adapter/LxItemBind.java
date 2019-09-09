@@ -67,6 +67,11 @@ public abstract class LxItemBind<D> implements Typeable {
                 onEvent(context, (D) context.data, eventType);
             });
         }
+        if (typeOpts.enableFocusChange) {
+            LxEvent.setFocusEvent(holder, (context, eventType) -> {
+                LxItemBind.this.onEvent(context, (D) context.data, eventType);
+            });
+        }
     }
 
     public abstract void onBindView(LxContext context, LxVh holder, D data);

@@ -44,7 +44,7 @@ public class Lx {
     public static final int SPAN_SIZE_THIRD   = -0x33; // span size 占据 1/3
     public static final int SPAN_SIZE_QUARTER = -0x34; // span size 占据 1/4
 
-    @IntDef({EVENT_CLICK, EVENT_LONG_PRESS, EVENT_DOUBLE_CLICK})
+    @IntDef({EVENT_CLICK, EVENT_LONG_PRESS, EVENT_DOUBLE_CLICK, EVENT_FOCUS_ATTACH, EVENT_FOCUS_DETACH})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EventType {
 
@@ -53,6 +53,9 @@ public class Lx {
     public static final int EVENT_CLICK        = 0; // 单击事件
     public static final int EVENT_LONG_PRESS   = 1; // 长按事件
     public static final int EVENT_DOUBLE_CLICK = 2; // 双击事件
+    public static final int EVENT_FOCUS_CHANGE = 3; // 焦点变化事件
+    public static final int EVENT_FOCUS_ATTACH = 4; // 获得焦点事件
+    public static final int EVENT_FOCUS_DETACH = 5; // 失去焦点事件
 
     public static final int VIEW_TYPE_MAX                     = 4096;
     public static       int VIEW_TYPE_BASE                    = VIEW_TYPE_MAX / 2; // 基础 viewType

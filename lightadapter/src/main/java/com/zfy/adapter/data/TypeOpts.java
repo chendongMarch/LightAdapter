@@ -2,8 +2,8 @@ package com.zfy.adapter.data;
 
 import android.support.annotation.LayoutRes;
 
-import com.zfy.adapter.animation.BindAnimator;
 import com.zfy.adapter.Lx;
+import com.zfy.adapter.animation.BindAnimator;
 
 /**
  * CreateAt : 2019-08-30
@@ -17,9 +17,10 @@ public class TypeOpts {
     @LayoutRes public int layoutId; // 布局资源
     public            int spanSize = Lx.SPAN_NONE; // 跨越行数
 
-    public boolean enableClick     = true; // 是否允许点击事件
-    public boolean enableLongPress = false; // 是否允许长按事件
-    public boolean enableDbClick   = false; // 是否允许双击事件
+    public boolean enableClick       = true; // 是否允许点击事件
+    public boolean enableLongPress   = false; // 是否允许长按事件
+    public boolean enableDbClick     = false; // 是否允许双击事件
+    public boolean enableFocusChange = false; // 是否焦点变化
 
     public            boolean enableDrag  = false; // 是否允许拖动
     public            boolean enableSwipe = false; // 是否允许滑动

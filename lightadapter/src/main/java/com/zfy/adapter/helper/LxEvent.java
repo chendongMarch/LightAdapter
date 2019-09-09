@@ -17,18 +17,18 @@ import com.zfy.adapter.listener.OnItemEventListener;
  */
 public class LxEvent {
 
-    public static void setClickEvent(LxVh holder, OnItemEventListener listener) {
+    private static void setClickEvent(LxVh holder, OnItemEventListener listener) {
         holder.itemView.setOnClickListener(v -> listener.onEvent(holder.getLxContext(), Lx.EVENT_CLICK));
     }
 
-    public static void setLongPressEvent(LxVh holder, OnItemEventListener listener) {
+    private static void setLongPressEvent(LxVh holder, OnItemEventListener listener) {
         holder.itemView.setOnLongClickListener(v -> {
             listener.onEvent(holder.getLxContext(), Lx.EVENT_LONG_PRESS);
             return true;
         });
     }
 
-    public static void setDoubleClickEvent(LxVh holder, boolean setClick, boolean setLongPress, OnItemEventListener listener) {
+    private static void setDoubleClickEvent(LxVh holder, boolean setClick, boolean setLongPress, OnItemEventListener listener) {
         View view = holder.itemView;
         GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
             @Override
@@ -85,5 +85,14 @@ public class LxEvent {
                 setLongPressEvent(holder, listener);
             }
         }
+    }
+
+    public static void setFocusEvent(LxVh holder, OnItemEventListener listener) {
+        holder.itemView.setFocusable(true);
+        holder.itemView.setFocusableInTouchMode(true);
+        holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
+            listener.onEvent(holder.getLxContext(), hasFocus ? Lx.EVENT_FOCUS_ATTACH : Lx.EVENT_FOCUS_DETACH);
+            listener.onEvent(holder.getLxContext(), Lx.EVENT_FOCUS_CHANGE);
+        });
     }
 }

@@ -428,8 +428,6 @@ public class NewSampleTestActivity extends MvpActivity {
 
         @Override
         public void onBindView(LxContext context, LxVh holder, Student data) {
-
-
             if (context.payloads.isEmpty()) {
                 holder.setText(R.id.title_tv, "学：" + data.name)
                         .setText(R.id.desc_tv, "支持Swipe，pos = " + context.position + " ,type =" + TYPE_STUDENT + ", 点击触发payloads更新, 悬停在页面顶部")
@@ -447,7 +445,6 @@ public class NewSampleTestActivity extends MvpActivity {
         @Override
         public void onEvent(LxContext context, Student data, int eventType) {
             ToastX.show("点击学生 position = " + context.position + " data = " + data.name + " eventType = " + eventType);
-
             switch (eventType) {
                 case Lx.EVENT_CLICK:
                     // 获取内容类型，这里面只包括了学生和老师的数据

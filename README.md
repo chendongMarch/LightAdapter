@@ -90,6 +90,7 @@ public class TypeOpts {
     public boolean enableClick     = true; // 是否允许点击事件
     public boolean enableLongPress = false; // 是否允许长按事件
     public boolean enableDbClick   = false; // 是否允许双击事件
+    public boolean enableFocusChange   = false; // 是否焦点变化事件
 
     public            boolean enableDrag  = false; // 是否允许拖动
     public            boolean enableSwipe = false; // 是否允许滑动
@@ -423,6 +424,7 @@ class StudentItemBind extends LxItemBind<Student> {
             opts.enableClick = true; // 开启单击，默认开启
             opts.enableLongPress = true; // 开启长按，默认不开启
             opts.enableDbClick = true; // 开启双击，默认不开启
+            opts.enableFocusChange = true; // 开启焦点检测事件，默认不开启
         }));
     }
 
@@ -446,6 +448,16 @@ class StudentItemBind extends LxItemBind<Student> {
             case Lx.EVENT_DOUBLE_CLICK:
                 // 双击
                 break;
+            case Lx.EVENT_FOCUS_CHANGE:
+                // 焦点变化，可以通过 context.holder.itemView.hasFocus() 判断有没有焦点
+                break;
+            case Lx.EVENT_FOCUS_ATTACH:
+                // 焦点变化，获得焦点
+                break;
+            case Lx.EVENT_FOCUS_DETACH:
+                // 焦点变化，失去焦点
+                break;
+
         }
     }
 }
