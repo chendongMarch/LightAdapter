@@ -37,6 +37,7 @@ import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.R;
 import com.zfy.light.sample.Utils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -58,6 +59,8 @@ public class NewSampleTestActivity extends MvpActivity {
     public static final int TYPE_STUDENT    = Lx.contentTypeOf(); // 业务类型
     public static final int TYPE_TEACHER    = Lx.contentTypeOf();
     public static final int TYPE_SELECT     = Lx.contentTypeOf();
+    public static final int TYPE_GROUP      = Lx.contentTypeOf();
+    public static final int TYPE_CHILD      = Lx.contentTypeOf();
 
     @BindView(R.id.content_rv)    RecyclerView mRecyclerView;
     @BindView(R.id.fix_container) ViewGroup    mFixContainerFl;
@@ -150,21 +153,16 @@ public class NewSampleTestActivity extends MvpActivity {
             return true;
         });
 
-        LxDragSwipeComponent.DragSwipeOptions dragSwipeOptions = new LxDragSwipeComponent.DragSwipeOptions();
-        dragSwipeOptions.longPressItemView4Drag = true;
-        dragSwipeOptions.touchItemView4Swipe = true;
+        // initLoadMoreTest();
 
-//        mFixContainerFl.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-//                    ToastX.show("触摸了");
-//                }
-//                return true;
-//            }
-//        });
+//        initLoadMoreTest();
+//        initNormalTest();
+//        initSelectTest();
+//        initDragSwipeTest();
+        initGroupListTest();
+    }
 
-
+    private void initLoadMoreTest() {
         LxItemBind<NoNameData> loadingBind = LxItemBind.of(NoNameData.class)
                 .opts(TypeOpts.make(opts -> {
                     opts.viewType = Lx.VIEW_TYPE_LOADING;
@@ -184,15 +182,9 @@ public class NewSampleTestActivity extends MvpActivity {
                 .bindItem(new StudentItemBind(), new TeacherItemBind(),
                         new SectionItemBind(), new SelectItemBind(),
                         new HeaderItemBind(), new FooterItemBind(),
-                        new EmptyItemBind(), loadingBind)
-                //                .component(new LxSnapComponent(Lx.SNAP_MODE_PAGER))
+                        new EmptyItemBind(), loadingBind,
+                        new GroupItemBind(), new ChildItemBind())
                 .component(new LxFixedComponent())
-                //                .component(new LxBindAnimatorComponent())
-                //                .component(new LxItemAnimatorComponent(new ScaleInLeftAnimator()))
-                .component(new LxSelectComponent(Lx.SELECT_MULTI, (data, toSelect) -> {
-                    data.getExtras().putBoolean("change_now", true);
-                    return false;
-                }))
                 .component(new LxStartEdgeLoadMoreComponent((component) -> {
                     ToastX.show("顶部加载更多");
                     ExecutorsPool.ui(() -> {
@@ -222,6 +214,74 @@ public class NewSampleTestActivity extends MvpActivity {
                         }
                     }, 2000);
                 }))
+                .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+        setData();
+    }
+
+
+    private void initNormalTest() {
+        LxDragSwipeComponent.DragSwipeOptions dragSwipeOptions = new LxDragSwipeComponent.DragSwipeOptions();
+        dragSwipeOptions.longPressItemView4Drag = true;
+        dragSwipeOptions.touchItemView4Swipe = true;
+
+        LxItemBind<NoNameData> loadingBind = LxItemBind.of(NoNameData.class)
+                .opts(TypeOpts.make(opts -> {
+                    opts.viewType = Lx.VIEW_TYPE_LOADING;
+                    opts.layoutId = R.layout.loading_view;
+                    opts.spanSize = Lx.SPAN_SIZE_ALL;
+                }))
+                .onViewBind((context, holder, data) -> {
+                    holder.setText(R.id.content_tv, data.desc);
+
+                    if (data.status == -1) {
+                        holder.setGone(R.id.pb);
+                    }
+                })
+                .build();
+
+        LxAdapter.of(mLxModels)
+                .bindItem(new StudentItemBind(), new TeacherItemBind(),
+                        new SectionItemBind(), new SelectItemBind(),
+                        new HeaderItemBind(), new FooterItemBind(),
+                        new EmptyItemBind(), loadingBind,
+                        new GroupItemBind(), new ChildItemBind())
+                //                .component(new LxSnapComponent(Lx.SNAP_MODE_PAGER))
+                .component(new LxFixedComponent())
+                //                .component(new LxBindAnimatorComponent())
+                //                .component(new LxItemAnimatorComponent(new ScaleInLeftAnimator()))
+                .component(new LxSelectComponent(Lx.SELECT_MULTI, (data, toSelect) -> {
+                    data.getExtras().putBoolean("change_now", true);
+                    return false;
+                }))
+//                .component(new LxStartEdgeLoadMoreComponent((component) -> {
+//                    ToastX.show("顶部加载更多");
+//                    ExecutorsPool.ui(() -> {
+//                        mLxModels.publishEvent(Lx.EVENT_FINISH_START_EDGE_LOAD_MORE, null);
+//                    }, 2000);
+//                }))
+//                .component(new LxEndEdgeLoadMoreComponent(10, (component) -> { // 加载回调
+//                    ToastX.show("底部加载更多");
+//                    mLxModels.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_LOADING, new NoNameData("加载中～")));
+//                    ExecutorsPool.ui(() -> {
+//                        if (mLxModels.size() > 130) {
+//                            LxList customTypeData = mLxModels.getExtTypeData(Lx.VIEW_TYPE_LOADING);
+//                            customTypeData.updateSet(0, new LxList.UnpackConsumer<NoNameData>() {
+//                                @Override
+//                                protected void onAccept(NoNameData noNameData) {
+//                                    noNameData.desc = "加载完成～";
+//                                    noNameData.status = -1;
+//                                }
+//                            });
+//                            mLxModels.publishEvent(Lx.EVENT_LOAD_MORE_ENABLE, false);
+//                        } else {
+//                            LxList contentTypeData = mLxModels.getContentTypeData();
+//                            contentTypeData.updateAddAll(loadData(10));
+//                            LxList customTypeData = mLxModels.getExtTypeData(Lx.VIEW_TYPE_LOADING);
+//                            customTypeData.updateClear();
+//                            mLxModels.publishEvent(Lx.EVENT_FINISH_LOAD_MORE, null);
+//                        }
+//                    }, 2000);
+//                }))
                 .component(new LxDragSwipeComponent(dragSwipeOptions, (state, holder, context) -> {
                     switch (state) {
                         case Lx.DRAG_SWIPE_STATE_NONE:
@@ -241,9 +301,66 @@ public class NewSampleTestActivity extends MvpActivity {
                     }
                 }))
                 .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+    }
 
 
-        setData2();
+    private void initDragSwipeTest() {
+        LxDragSwipeComponent.DragSwipeOptions dragSwipeOptions = new LxDragSwipeComponent.DragSwipeOptions();
+        dragSwipeOptions.longPressItemView4Drag = true;
+        dragSwipeOptions.touchItemView4Swipe = true;
+
+
+        LxAdapter.of(mLxModels)
+                .bindItem(new StudentItemBind(), new TeacherItemBind(),
+                        new SectionItemBind(), new SelectItemBind(),
+                        new HeaderItemBind(), new FooterItemBind(),
+                        new EmptyItemBind())
+                .component(new LxDragSwipeComponent(dragSwipeOptions, (state, holder, context) -> {
+                    switch (state) {
+                        case Lx.DRAG_SWIPE_STATE_NONE:
+                            break;
+                        case Lx.DRAG_STATE_ACTIVE:
+                            holder.itemView.animate().scaleX(1.13f).scaleY(1.13f).setDuration(300).start();
+                            break;
+                        case Lx.DRAG_STATE_RELEASE:
+                            holder.itemView.animate().scaleX(1f).scaleY(1f).setDuration(300).start();
+                            break;
+                        case Lx.SWIPE_STATE_ACTIVE:
+                            holder.itemView.setBackgroundColor(Color.GRAY);
+                            break;
+                        case Lx.SWIPE_STATE_RELEASE:
+                            holder.itemView.setBackgroundColor(Color.WHITE);
+                            break;
+                    }
+                }))
+                .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+        setData();
+    }
+
+    private void initSelectTest() {
+
+        LxAdapter.of(mLxModels)
+                .bindItem(new StudentItemBind(), new TeacherItemBind(),
+                        new SectionItemBind(), new SelectItemBind(),
+                        new HeaderItemBind(), new FooterItemBind(),
+                        new EmptyItemBind(),
+                        new GroupItemBind(), new ChildItemBind())
+                .component(new LxSelectComponent(Lx.SELECT_MULTI, (data, toSelect) -> {
+                    data.getExtras().putBoolean("change_now", true);
+                    return false;
+                }))
+                .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+
+        setAllStudent();
+    }
+
+
+    public void initGroupListTest() {
+        LxAdapter.of(mLxModels)
+                .bindItem(new GroupItemBind(), new ChildItemBind())
+                .component(new LxFixedComponent())
+                .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+        setGroupChildData();
     }
 
     @OnClick({R.id.add_header_btn, R.id.add_footer_btn, R.id.empty_btn})
@@ -286,7 +403,29 @@ public class NewSampleTestActivity extends MvpActivity {
     }
 
 
-    private void setData2() {
+    private void setGroupChildData() {
+        List<GroupData> groupDataList = new ArrayList<>();
+        for (int i = 0; i < 15; i++) {
+            GroupData groupData = new GroupData("group -> " + i);
+            groupData.groupId = i;
+            groupDataList.add(groupData);
+            List<ChildData> childDataList = new ArrayList<>();
+            for (int j = 0; j < 5; j++) {
+                ChildData childData = new ChildData("child -> " + j + " ,group -> " + i);
+                childData.childId = j;
+                childData.groupId = i;
+                childData.groupData = groupData;
+                childDataList.add(childData);
+            }
+            groupData.children = childDataList;
+        }
+
+        List<LxModel> lxModels = LxTransformations.pack(TYPE_GROUP, groupDataList);
+        mLxModels.update(lxModels);
+    }
+
+
+    private void setAllStudent() {
         int count = 100;
         List<NoNameData> students = ListX.range(count, index -> new NoNameData(index + " " + System.currentTimeMillis()));
         List<LxModel> models = LxTransformations.pack(TYPE_SELECT, students);
@@ -367,6 +506,90 @@ public class NewSampleTestActivity extends MvpActivity {
         NoNameData(String url, String desc) {
             this.url = url;
             this.desc = desc;
+        }
+    }
+
+    static class GroupData {
+        public List<ChildData> children;
+        public String          title;
+        public boolean         expand;
+        public int             groupId;
+
+        public GroupData(String title) {
+            this.title = title;
+        }
+    }
+
+    static class ChildData {
+        public String    title;
+        public int       childId;
+        public int       groupId;
+        public GroupData groupData;
+
+        public ChildData(String title) {
+            this.title = title;
+        }
+    }
+
+    static class GroupItemBind extends LxItemBind<GroupData> {
+
+        GroupItemBind() {
+            super(TypeOpts.make(opts -> {
+                opts.spanSize = Lx.SPAN_SIZE_ALL;
+                opts.viewType = TYPE_GROUP;
+                opts.layoutId = R.layout.item_section;
+                opts.enableFixed = true;
+            }));
+        }
+
+        @Override
+        public void onBindView(LxContext context, LxVh holder, GroupData data) {
+            holder.setText(R.id.section_tv, data.title + " " + (data.expand ? "展开" : "关闭"));
+        }
+
+        @Override
+        public void onEvent(LxContext context, GroupData listItem, int eventType) {
+            LxList models = adapter.getData();
+            if (listItem.expand) {
+                // 收起
+                models.updateRemove(item -> item.getItemType() == TYPE_CHILD && item.<ChildData>unpack().groupId == listItem.groupId);
+                models.updateSet(context.model, item -> {
+                    GroupData groupData = item.unpack();
+                    groupData.expand = false;
+                });
+            } else {
+                // 展开
+                List<LxModel> lxModels = LxTransformations.pack(TYPE_CHILD, listItem.children);
+                models.updateAddAll(context.position + 1, lxModels);
+                models.updateSet(context.model, item -> {
+                    GroupData groupData = item.unpack();
+                    groupData.expand = true;
+                });
+            }
+        }
+    }
+
+    static class ChildItemBind extends LxItemBind<ChildData> {
+
+        ChildItemBind() {
+            super(TypeOpts.make(opts -> {
+                opts.spanSize = Lx.SPAN_SIZE_ALL;
+                opts.viewType = TYPE_CHILD;
+                opts.layoutId = R.layout.item_simple;
+            }));
+        }
+
+        @Override
+        public void onBindView(LxContext context, LxVh holder, ChildData data) {
+            holder.setText(R.id.sample_tv, data.title + " ，点击删除");
+        }
+
+        @Override
+        public void onEvent(LxContext context, ChildData data, int eventType) {
+            // 点击删除子项
+            data.groupData.children.remove(data);
+            LxList models = adapter.getData();
+            models.updateRemove(context.position);
         }
     }
 

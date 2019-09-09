@@ -74,9 +74,9 @@ public abstract class LxItemBind<D> implements Typeable {
         }
     }
 
-    public abstract void onBindView(LxContext context, LxVh holder, D data);
+    public abstract void onBindView(LxContext context, LxVh holder, D listItem);
 
-    public void onEvent(LxContext context, D data, @Lx.EventType int eventType) {
+    public void onEvent(LxContext context, D listItem, @Lx.EventType int eventType) {
     }
 
     public TypeOpts getTypeOpts() {
