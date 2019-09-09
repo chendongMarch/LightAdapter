@@ -66,7 +66,6 @@ public class FixedItemDecoration extends RecyclerView.ItemDecoration {
             publishActualViewAttach(null);
             return;
         }
-        Log.e("chendong", "lastCalcPosition = " + lastCalcPosition + " ，lastFixedPosition = " + lastFixedPosition);
 
         if (lastCalcPosition == lastFixedPosition) {
             draw(c, parent, adapter, firstView, lastFixItemView, lastSecondItemView);
@@ -74,7 +73,8 @@ public class FixedItemDecoration extends RecyclerView.ItemDecoration {
             return;
         }
         // 根据查找到的那个创建 view，用来绘制
-        RecyclerView.ViewHolder holder = useActualView ? null : parent.findViewHolderForAdapterPosition(lastFixedPosition);
+        RecyclerView.ViewHolder holder = null;
+        // useActualView ? null : parent.findViewHolderForAdapterPosition(lastFixedPosition);
         if (holder == null) {
             int itemViewType = adapter.getItemViewType(lastFixedPosition);
             holder = adapter.onCreateViewHolder(parent, itemViewType);
