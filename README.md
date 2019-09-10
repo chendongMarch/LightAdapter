@@ -1,5 +1,6 @@
 ![](https://cdn1.showjoy.com/shop/images/20190904/9HTXBS92UUT4GOTN2PM21567587709442.jpeg)
 
+
 # LxAdapter
 
 
@@ -20,6 +21,38 @@
 </div>
 
 ## 目录
+
+
+
+- [Feature](#Feature)
+- 设计分析
+- 内置的数据类型
+	- TypeOpts ～ 定义类型
+	- LxModel ～ 定义数据
+	- LxContext ～ 定义上下文
+- 基础
+	- 基础：LxGlobal ～ 全局配置
+	- 基础：LxAdapter ～ 核心适配器
+	- 基础：LxItemBind ～ 按类型绑定
+	- 基础：LxList ～ 告别手动 notify, 全自动数据更新
+	- 基础：LxVH ～ ViewHolder 扩展，链式编程
+	- 基础：点击事件 ～ 单击、双击、长按
+	- 基础：扩展自定义类型 ～ 灵活的类型扩展
+- 功能
+	- 功能：事件发布 ～ 分离可抽离的逻辑
+	- 功能：跨越多列（Span）～ 打造多种布局效果
+	- 功能：加载更多（LoadMore）～ 分页加载数据
+	- 功能：选择器（Selector) ～ 选择器，单选，多选
+	- 功能：列表动画（Animator）～ 灵活动画效果
+	- 功能：悬挂效果（Fixed）～ 悬停在页面顶部
+	- 功能：拖拽和侧滑(drag/swipe) ～ 拖拽排序，侧滑删除
+	- 功能：实现 ViewPager (Snap) ～ ViewPager 效果
+	- 功能：实现分组列表 (Expandable) ～ 分组列表+悬停+展开收起简单搞定
+- 进阶
+	- 进阶：使用 Idable 优化 change ～ 优化更新
+	- 进阶：使用 payloads ～ 比局部更新更高效，有效载荷更新数据
+
+
 
 ```
 - Feature
@@ -45,6 +78,7 @@
 	- 功能：悬挂效果（Fixed）～ 悬停在页面顶部
 	- 功能：拖拽和侧滑(drag/swipe) ～ 拖拽排序，侧滑删除
 	- 功能：实现 ViewPager (Snap) ～ ViewPager 效果
+	- 功能：实现分组列表 (Expandable) ～ 分组列表+悬停+展开收起简单搞定
 - 进阶
 	- 进阶：使用 Idable 优化 change ～ 优化更新
 	- 进阶：使用 payloads ～ 比局部更新更高效，有效载荷更新数据
@@ -1044,6 +1078,152 @@ LxAdapter.of(mLxModels)
         }))
         .attachTo(mRecyclerView, new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 ```
+
+## 实现分组列表（Expandable）
+
+基于我们基本的设计架构是可以很轻松的实现分组列表效果的，但是这个场景用到的时候比较多，所以内置一些辅助类，用来更好、更简单的实现分组列表；
+
+首先 **组** 的数据结构需要实现接口 `LxExpandable.ExpandableGroup`:
+
+```java
+static class GroupData implements LxExpandable.ExpandableGroup<GroupData, ChildData> {
+
+    public List<ChildData> children;
+    public String          title;
+    public boolean         expand;
+    public int             groupId;
+
+    @Override
+    public List<ChildData> getChildren() {
+        return children;
+    }
+
+    @Override
+    public boolean isExpand() {
+        return expand;
+    }
+
+    @Override
+    public void setExpand(boolean expand) {
+        this.expand = expand;
+    }
+
+    @Override
+    public int getGroupId() {
+        return groupId;
+    }
+}
+```
+
+然后 **子** 的数据结构需要实现接口 `LxExpandable.ExpandableChild`：
+
+```java
+static class ChildData implements LxExpandable.ExpandableChild<GroupData, ChildData> {
+
+    public String    title;
+    public int       childId;
+    public int       groupId;
+    public GroupData groupData;
+
+    @Override
+    public int getGroupId() {
+        return groupId;
+    }
+
+    @Override
+    public GroupData getGroupData() {
+        return groupData;
+    }
+}
+```
+
+然后定义的 `GroupItemBind` 和  `ChildItemBind`：
+
+点击分组可以展开或者收起当前的分组子数据：
+
+```java
+static class GroupItemBind extends LxItemBind<GroupData> {
+
+    GroupItemBind() {
+        super(TypeOpts.make(opts -> {
+            opts.spanSize = Lx.SPAN_SIZE_ALL;
+            opts.viewType = Lx.VIEW_TYPE_EXPANDABLE_GROUP;
+            opts.layoutId = R.layout.item_group;
+            opts.enableFixed = true;
+        }));
+    }
+
+    @Override
+    public void onBindView(LxContext context, LxVh holder, GroupData data) {
+        holder.setText(R.id.section_tv, data.title + " " + (data.expand ? "展开" : "关闭"));
+    }
+
+    @Override
+    public void onEvent(LxContext context, GroupData listItem, int eventType) {
+        // 展开/关闭分组
+        LxExpandable.toggleExpand(adapter, context, listItem);
+    }
+}
+```
+
+点击子数据，可以删除当前子数据：
+
+```java
+static class ChildItemBind extends LxItemBind<ChildData> {
+
+    ChildItemBind() {
+        super(TypeOpts.make(opts -> {
+            opts.spanSize = Lx.SPAN_SIZE_ALL;
+            opts.viewType = Lx.VIEW_TYPE_EXPANDABLE_CHILD;
+            opts.layoutId = R.layout.item_simple;
+        }));
+    }
+
+    @Override
+    public void onBindView(LxContext context, LxVh holder, ChildData data) {
+        holder.setText(R.id.sample_tv, data.title + " ，点击删除");
+    }
+
+    @Override
+    public void onEvent(LxContext context, ChildData data, int eventType) {
+        // 点击删除子项
+        LxExpandable.removeChild(adapter, context, data);
+    }
+}
+```
+
+生成 `LxAdapter`:
+
+```java
+LxAdapter.of(mLxModels)
+        .bindItem(new GroupItemBind(), new ChildItemBind())
+        .component(new LxFixedComponent())
+        .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+```
+
+我们模拟一些假数据：
+
+```java
+List<GroupData> groupDataList = new ArrayList<>();
+for (int i = 0; i < 15; i++) {
+    GroupData groupData = new GroupData("group -> " + i);
+    groupData.groupId = i;
+    groupDataList.add(groupData);
+    List<ChildData> childDataList = new ArrayList<>();
+    for (int j = 0; j < 5; j++) {
+        ChildData childData = new ChildData("child -> " + j + " ,group -> " + i);
+        childData.childId = j;
+        childData.groupId = i;
+        childData.groupData = groupData;
+        childDataList.add(childData);
+    }
+    groupData.children = childDataList;
+}
+List<LxModel> lxModels = LxTransformations.pack(Lx.VIEW_TYPE_EXPANDABLE_GROUP, groupDataList);
+mLxModels.update(lxModels);
+```
+
+是不是很简单啊，感觉上还是写了一些代码，没有一行代码实现xxx 的感觉，只是提供一个思路，如果类库内部接管太多业务逻辑其实是不友好的，可以看下 `LxExpandable` 的代码，其实就是对数据处理的一些封装，基于基本的设计思想很容易抽离出来；
 
 ## 进阶：使用 Idable 优化 change
 
