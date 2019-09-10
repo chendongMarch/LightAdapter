@@ -22,69 +22,38 @@
 
 ## 目录
 
-
-
-- [Feature](#Feature)
+<!-- TOC -->
+- [特性](#特性)
 - [设计分析](#设计分析)
-- 内置的数据类型
-	- TypeOpts ～ 定义类型
-	- LxModel ～ 定义数据
-	- LxContext ～ 定义上下文
+  - [内置的数据类型](#内置的数据类型)
+  - [TypeOpts](#typeopts)
+  - [LxModel](#lxmodel)
+  - [LxContext](#lxcontext)
 - 基础
-	- 基础：LxGlobal ～ 全局配置
-	- 基础：LxAdapter ～ 核心适配器
-	- 基础：LxItemBind ～ 按类型绑定
-	- 基础：LxList ～ 告别手动 notify, 全自动数据更新
-	- 基础：LxVH ～ ViewHolder 扩展，链式编程
-	- 基础：点击事件 ～ 单击、双击、长按
-	- 基础：扩展自定义类型 ～ 灵活的类型扩展
+  - [基础：LxGlobal](#基础lxglobal)
+  - [基础：LxAdapter](#基础lxadapter)
+  - [基础：LxItemBind](#基础lxitembind)
+  - [基础：LxList](#基础lxlist)
+  - [基础：LxVH](#基础lxvh)
+  - [基础：点击事件](#基础点击事件)
+  - [基础：扩展自定义类型](#基础扩展自定义类型)
 - 功能
-	- 功能：事件发布 ～ 分离可抽离的逻辑
-	- 功能：跨越多列（Span）～ 打造多种布局效果
-	- 功能：加载更多（LoadMore）～ 分页加载数据
-	- 功能：选择器（Selector) ～ 选择器，单选，多选
-	- 功能：列表动画（Animator）～ 灵活动画效果
-	- 功能：悬挂效果（Fixed）～ 悬停在页面顶部
-	- 功能：拖拽和侧滑(drag/swipe) ～ 拖拽排序，侧滑删除
-	- 功能：实现 ViewPager (Snap) ～ ViewPager 效果
-	- 功能：实现分组列表 (Expandable) ～ 分组列表+悬停+展开收起简单搞定
+  - [功能：事件发布](#功能事件发布)
+  - [功能：跨越多列（Span）](#功能跨越多列span)
+  - [功能：加载更多（LoadMore）](#功能加载更多loadmore)
+  - [功能：选择器（Selector）](#功能选择器selector)
+  - [功能：列表动画（Animator）](#功能列表动画animator)
+  - [功能：悬挂效果（Fixed）](#功能悬挂效果fixed)
+  - [功能：拖拽和侧滑(drag/swipe)](#功能拖拽和侧滑dragswipe)
+  - [功能：实现 ViewPager (Snap)](#功能实现-viewpager-snap)
 - 进阶
-	- 进阶：使用 Idable 优化 change ～ 优化更新
-	- 进阶：使用 payloads ～ 比局部更新更高效，有效载荷更新数据
+  - [进阶：使用 Idable 优化 change](#进阶使用-idable-优化-change)
+  - [进阶：使用 payloads](#进阶使用-payloads)
+
+<!-- /TOC -->
 
 
-
-```
-- Feature
-- 设计分析
-- 内置的数据类型
-	- TypeOpts ～ 定义类型
-	- LxModel ～ 定义数据
-	- LxContext ～ 定义上下文
-- 基础
-	- 基础：LxGlobal ～ 全局配置
-	- 基础：LxAdapter ～ 核心适配器
-	- 基础：LxItemBind ～ 按类型绑定
-	- 基础：LxList ～ 告别手动 notify, 全自动数据更新
-	- 基础：LxVH ～ ViewHolder 扩展，链式编程
-	- 基础：点击事件 ～ 单击、双击、长按
-	- 基础：扩展自定义类型 ～ 灵活的类型扩展
-- 功能
-	- 功能：事件发布 ～ 分离可抽离的逻辑
-	- 功能：跨越多列（Span）～ 打造多种布局效果
-	- 功能：加载更多（LoadMore）～ 分页加载数据
-	- 功能：选择器（Selector) ～ 选择器，单选，多选
-	- 功能：列表动画（Animator）～ 灵活动画效果
-	- 功能：悬挂效果（Fixed）～ 悬停在页面顶部
-	- 功能：拖拽和侧滑(drag/swipe) ～ 拖拽排序，侧滑删除
-	- 功能：实现 ViewPager (Snap) ～ ViewPager 效果
-	- 功能：实现分组列表 (Expandable) ～ 分组列表+悬停+展开收起简单搞定
-- 进阶
-	- 进阶：使用 Idable 优化 change ～ 优化更新
-	- 进阶：使用 payloads ～ 比局部更新更高效，有效载荷更新数据
-```
-
-## Feature
+## 特性
 
 - 使用`LxAdapter` 完成单类型、多类型数据适配；
 - 使用 `LxVH` 作为 `ViewHolder` 进行数据绑定；
@@ -1079,7 +1048,7 @@ LxAdapter.of(mLxModels)
         .attachTo(mRecyclerView, new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 ```
 
-## 实现分组列表（Expandable）
+## 功能：实现分组列表（Expandable）
 
 基于我们基本的设计架构是可以很轻松的实现分组列表效果的，但是这个场景用到的时候比较多，所以内置一些辅助类，用来更好、更简单的实现分组列表；
 
