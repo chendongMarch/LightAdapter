@@ -25,7 +25,7 @@
 
 
 - [Feature](#Feature)
-- 设计分析
+- [设计分析](#设计分析)
 - 内置的数据类型
 	- TypeOpts ～ 定义类型
 	- LxModel ～ 定义数据
