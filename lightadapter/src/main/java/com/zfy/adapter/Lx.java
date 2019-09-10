@@ -62,13 +62,15 @@ public class Lx {
     public static       int VIEW_TYPE_CONTENT_BASE_4_GENERATE = VIEW_TYPE_BASE + 1; // 内容类型基础 viewType
     public static       int VIEW_TYPE_EXT_BASE_4_GENERATE     = VIEW_TYPE_BASE - 1; // 扩展类型基础 viewType
 
-    public static final int VIEW_TYPE_DEFAULT = Lx.contentTypeOf(); // 默认 viewType
-    public static final int VIEW_TYPE_SECTION = Lx.contentTypeOf(); // 隔断 viewType
-    public static final int VIEW_TYPE_HEADER  = Lx.extTypeOf(); // 内置 header
-    public static final int VIEW_TYPE_FOOTER  = Lx.extTypeOf(); // 内置 footer
-    public static final int VIEW_TYPE_EMPTY   = Lx.extTypeOf(); // 内置空载
-    public static final int VIEW_TYPE_LOADING = Lx.extTypeOf(); // 内置 loading
-    public static final int VIEW_TYPE_FAKE    = Lx.extTypeOf(); // 内置假数据
+    public static final int VIEW_TYPE_DEFAULT          = Lx.contentTypeOf(); // 默认 viewType
+    public static final int VIEW_TYPE_SECTION          = Lx.contentTypeOf(); // 隔断 viewType
+    public static final int VIEW_TYPE_HEADER           = Lx.extTypeOf(); // 内置 header
+    public static final int VIEW_TYPE_FOOTER           = Lx.extTypeOf(); // 内置 footer
+    public static final int VIEW_TYPE_EMPTY            = Lx.extTypeOf(); // 内置空载
+    public static final int VIEW_TYPE_LOADING          = Lx.extTypeOf(); // 内置 loading
+    public static final int VIEW_TYPE_FAKE             = Lx.extTypeOf(); // 内置假数据
+    public static final int VIEW_TYPE_EXPANDABLE_GROUP = Lx.contentTypeOf();
+    public static final int VIEW_TYPE_EXPANDABLE_CHILD = Lx.contentTypeOf();
 
     @IntDef({DRAG_SWIPE_STATE_NONE, DRAG_STATE_ACTIVE, SWIPE_STATE_ACTIVE, DRAG_STATE_RELEASE, SWIPE_STATE_RELEASE})
     @Retention(RetentionPolicy.SOURCE)

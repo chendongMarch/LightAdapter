@@ -24,12 +24,15 @@ import com.zfy.adapter.component.LxDragSwipeComponent;
 import com.zfy.adapter.component.LxEndEdgeLoadMoreComponent;
 import com.zfy.adapter.component.LxFixedComponent;
 import com.zfy.adapter.component.LxSelectComponent;
+import com.zfy.adapter.component.LxSnapComponent;
 import com.zfy.adapter.component.LxStartEdgeLoadMoreComponent;
 import com.zfy.adapter.data.Copyable;
 import com.zfy.adapter.data.Diffable;
 import com.zfy.adapter.data.LxContext;
 import com.zfy.adapter.data.LxModel;
 import com.zfy.adapter.data.TypeOpts;
+import com.zfy.adapter.decoration.LxSlidingSelectLayout;
+import com.zfy.adapter.helper.LxExpandable;
 import com.zfy.adapter.helper.LxTransformations;
 import com.zfy.adapter.listener.OnAdapterEventInterceptor;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
@@ -55,15 +58,14 @@ import butterknife.OnClick;
 @MvpV(layout = R.layout.new_sample_activity)
 public class NewSampleTestActivity extends MvpActivity {
 
-    public static final int TYPE_TOP_HEADER = Lx.extTypeOf(); // 扩展类型
-    public static final int TYPE_STUDENT    = Lx.contentTypeOf(); // 业务类型
-    public static final int TYPE_TEACHER    = Lx.contentTypeOf();
-    public static final int TYPE_SELECT     = Lx.contentTypeOf();
-    public static final int TYPE_GROUP      = Lx.contentTypeOf();
-    public static final int TYPE_CHILD      = Lx.contentTypeOf();
+    public static final int TYPE_STUDENT = Lx.contentTypeOf(); // 业务类型
+    public static final int TYPE_TEACHER = Lx.contentTypeOf();
+    public static final int TYPE_SELECT  = Lx.contentTypeOf();
+    public static final int TYPE_PAGER   = Lx.contentTypeOf();
 
-    @BindView(R.id.content_rv)    RecyclerView mRecyclerView;
-    @BindView(R.id.fix_container) ViewGroup    mFixContainerFl;
+    @BindView(R.id.content_rv)    RecyclerView          mRecyclerView;
+    @BindView(R.id.fix_container) ViewGroup             mFixContainerFl;
+    @BindView(R.id.select_layout) LxSlidingSelectLayout mLxSlidingSelectLayout;
 
     private LxList mLxModels = new LxList();
 //    private LxModelList mLxModels = new LxModelList(true);
@@ -153,15 +155,34 @@ public class NewSampleTestActivity extends MvpActivity {
             return true;
         });
 
-        // initLoadMoreTest();
 
-//        initLoadMoreTest();
-//        initNormalTest();
-//        initSelectTest();
-//        initDragSwipeTest();
-        initGroupListTest();
+        initDragSwipeTest();
     }
 
+    @OnClick({R.id.test_pager_btn, R.id.test_drag_swipe_btn, R.id.test_load_more_btn, R.id.test_expandable_btn, R.id.test_select_btn})
+    public void clickTestView(View view) {
+        mLxModels.updateClear();
+        mLxSlidingSelectLayout.setEnabled(false);
+        switch (view.getId()) {
+            case R.id.test_drag_swipe_btn:
+                initDragSwipeTest();
+                break;
+            case R.id.test_load_more_btn:
+                initLoadMoreTest();
+                break;
+            case R.id.test_expandable_btn:
+                initGroupListTest();
+                break;
+            case R.id.test_select_btn:
+                initSelectTest();
+                break;
+            case R.id.test_pager_btn:
+                initPagerTest();
+                break;
+            default:
+                break;
+        }
+    }
     private void initLoadMoreTest() {
         LxItemBind<NoNameData> loadingBind = LxItemBind.of(NoNameData.class)
                 .opts(TypeOpts.make(opts -> {
@@ -181,8 +202,8 @@ public class NewSampleTestActivity extends MvpActivity {
         LxAdapter.of(mLxModels)
                 .bindItem(new StudentItemBind(), new TeacherItemBind(),
                         new SectionItemBind(), new SelectItemBind(),
-                        new HeaderItemBind(), new FooterItemBind(),
-                        new EmptyItemBind(), loadingBind,
+                        new HeaderItemBind(), new FooterItemBind(), new EmptyItemBind(),
+                        loadingBind,
                         new GroupItemBind(), new ChildItemBind())
                 .component(new LxFixedComponent())
                 .component(new LxStartEdgeLoadMoreComponent((component) -> {
@@ -195,7 +216,7 @@ public class NewSampleTestActivity extends MvpActivity {
                     ToastX.show("底部加载更多");
                     mLxModels.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_LOADING, new NoNameData("加载中～")));
                     ExecutorsPool.ui(() -> {
-                        if (mLxModels.size() > 130) {
+                        if (mLxModels.size() > 80) {
                             LxList customTypeData = mLxModels.getExtTypeData(Lx.VIEW_TYPE_LOADING);
                             customTypeData.updateSet(0, new LxList.UnpackConsumer<NoNameData>() {
                                 @Override
@@ -301,6 +322,8 @@ public class NewSampleTestActivity extends MvpActivity {
                     }
                 }))
                 .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+
+        setData();
     }
 
 
@@ -308,7 +331,6 @@ public class NewSampleTestActivity extends MvpActivity {
         LxDragSwipeComponent.DragSwipeOptions dragSwipeOptions = new LxDragSwipeComponent.DragSwipeOptions();
         dragSwipeOptions.longPressItemView4Drag = true;
         dragSwipeOptions.touchItemView4Swipe = true;
-
 
         LxAdapter.of(mLxModels)
                 .bindItem(new StudentItemBind(), new TeacherItemBind(),
@@ -338,6 +360,7 @@ public class NewSampleTestActivity extends MvpActivity {
     }
 
     private void initSelectTest() {
+        mLxSlidingSelectLayout.setEnabled(true);
 
         LxAdapter.of(mLxModels)
                 .bindItem(new StudentItemBind(), new TeacherItemBind(),
@@ -357,10 +380,38 @@ public class NewSampleTestActivity extends MvpActivity {
 
     public void initGroupListTest() {
         LxAdapter.of(mLxModels)
-                .bindItem(new GroupItemBind(), new ChildItemBind())
+                .bindItem(new HeaderItemBind(), new FooterItemBind(), new EmptyItemBind(),
+                        new GroupItemBind(), new ChildItemBind())
                 .component(new LxFixedComponent())
                 .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
         setGroupChildData();
+    }
+
+
+    public void initPagerTest() {
+        LxAdapter.of(mLxModels)
+                .bindItem(new HeaderItemBind(), new FooterItemBind(), new EmptyItemBind(),
+                        new PagerItemBind())
+                .component(new LxSnapComponent(Lx.SNAP_MODE_PAGER, new LxSnapComponent.OnPageChangeListener() {
+
+                    @Override
+                    public void onPageSelected(int lastPosition, int position) {
+                        RecyclerView.ViewHolder holder = mRecyclerView.findViewHolderForAdapterPosition(position);
+                        RecyclerView.ViewHolder lastHolder = mRecyclerView.findViewHolderForAdapterPosition(lastPosition);
+                        holder.itemView.animate().scaleX(1.13f).scaleY(1.13f).setDuration(300).start();
+                        if (lastHolder != null && !lastHolder.equals(holder)) {
+                            lastHolder.itemView.animate().scaleX(1f).scaleY(1f).setDuration(300).start();
+                        }
+                    }
+
+                    @Override
+                    public void onPageScrollStateChanged(int state) {
+
+                    }
+                }))
+                .attachTo(mRecyclerView, new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        List<NoNameData> sections = ListX.range(10, index -> new NoNameData(index + " "));
+        mLxModels.update(LxTransformations.pack(TYPE_PAGER, sections));
     }
 
     @OnClick({R.id.add_header_btn, R.id.add_footer_btn, R.id.empty_btn})
@@ -368,11 +419,23 @@ public class NewSampleTestActivity extends MvpActivity {
         switch (view.getId()) {
             case R.id.add_header_btn:
                 LxModel header = LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new NoNameData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
-                mLxModels.updateAdd(1, header);
+                LxList headerData = mLxModels.getExtTypeData(Lx.VIEW_TYPE_HEADER);
+                if (headerData.isEmpty()) {
+                    mLxModels.updateAdd(0, header);
+                } else {
+                    headerData.updateAdd(0, header);
+                }
+                mRecyclerView.smoothScrollToPosition(0);
                 break;
             case R.id.add_footer_btn:
                 LxModel footer = LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new NoNameData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
-                mLxModels.updateAdd(mLxModels.size() - 1, footer);
+                LxList footerData = mLxModels.getExtTypeData(Lx.VIEW_TYPE_FOOTER);
+                if (footerData.isEmpty()) {
+                    mLxModels.updateAddLast(footer);
+                } else {
+                    footerData.updateAdd(footer);
+                }
+                mRecyclerView.smoothScrollToPosition(mLxModels.size() - 1);
                 break;
             case R.id.empty_btn:
                 showEmpty();
@@ -420,7 +483,7 @@ public class NewSampleTestActivity extends MvpActivity {
             groupData.children = childDataList;
         }
 
-        List<LxModel> lxModels = LxTransformations.pack(TYPE_GROUP, groupDataList);
+        List<LxModel> lxModels = LxTransformations.pack(Lx.VIEW_TYPE_EXPANDABLE_GROUP, groupDataList);
         mLxModels.update(lxModels);
     }
 
@@ -509,7 +572,7 @@ public class NewSampleTestActivity extends MvpActivity {
         }
     }
 
-    static class GroupData {
+    static class GroupData implements LxExpandable.ExpandableGroup<GroupData, ChildData> {
         public List<ChildData> children;
         public String          title;
         public boolean         expand;
@@ -518,9 +581,31 @@ public class NewSampleTestActivity extends MvpActivity {
         public GroupData(String title) {
             this.title = title;
         }
+
+        @Override
+        public List<ChildData> getChildren() {
+            return children;
+        }
+
+        @Override
+        public boolean isExpand() {
+            return expand;
+        }
+
+        @Override
+        public void setExpand(boolean expand) {
+            this.expand = expand;
+        }
+
+        @Override
+        public int getGroupId() {
+            return groupId;
+        }
+
     }
 
-    static class ChildData {
+    static class ChildData implements LxExpandable.ExpandableChild<GroupData, ChildData> {
+
         public String    title;
         public int       childId;
         public int       groupId;
@@ -529,14 +614,40 @@ public class NewSampleTestActivity extends MvpActivity {
         public ChildData(String title) {
             this.title = title;
         }
+
+        @Override
+        public int getGroupId() {
+            return groupId;
+        }
+
+
+        @Override
+        public GroupData getGroupData() {
+            return groupData;
+        }
     }
 
+
+    static class PagerItemBind extends LxItemBind<NoNameData> {
+
+        public PagerItemBind() {
+            super(TypeOpts.make(opts -> {
+                opts.layoutId = R.layout.item_pager;
+                opts.viewType = TYPE_PAGER;
+            }));
+        }
+
+        @Override
+        public void onBindView(LxContext context, LxVh holder, NoNameData listItem) {
+            holder.setText(R.id.content_tv, listItem.desc);
+        }
+    }
     static class GroupItemBind extends LxItemBind<GroupData> {
 
         GroupItemBind() {
             super(TypeOpts.make(opts -> {
                 opts.spanSize = Lx.SPAN_SIZE_ALL;
-                opts.viewType = TYPE_GROUP;
+                opts.viewType = Lx.VIEW_TYPE_EXPANDABLE_GROUP;
                 opts.layoutId = R.layout.item_section;
                 opts.enableFixed = true;
             }));
@@ -549,23 +660,7 @@ public class NewSampleTestActivity extends MvpActivity {
 
         @Override
         public void onEvent(LxContext context, GroupData listItem, int eventType) {
-            LxList models = adapter.getData();
-            if (listItem.expand) {
-                // 收起
-                models.updateRemove(item -> item.getItemType() == TYPE_CHILD && item.<ChildData>unpack().groupId == listItem.groupId);
-                models.updateSet(context.model, item -> {
-                    GroupData groupData = item.unpack();
-                    groupData.expand = false;
-                });
-            } else {
-                // 展开
-                List<LxModel> lxModels = LxTransformations.pack(TYPE_CHILD, listItem.children);
-                models.updateAddAll(context.position + 1, lxModels);
-                models.updateSet(context.model, item -> {
-                    GroupData groupData = item.unpack();
-                    groupData.expand = true;
-                });
-            }
+            LxExpandable.toggleExpand(adapter, context, listItem);
         }
     }
 
@@ -574,7 +669,7 @@ public class NewSampleTestActivity extends MvpActivity {
         ChildItemBind() {
             super(TypeOpts.make(opts -> {
                 opts.spanSize = Lx.SPAN_SIZE_ALL;
-                opts.viewType = TYPE_CHILD;
+                opts.viewType = Lx.VIEW_TYPE_EXPANDABLE_CHILD;
                 opts.layoutId = R.layout.item_simple;
             }));
         }
@@ -587,9 +682,7 @@ public class NewSampleTestActivity extends MvpActivity {
         @Override
         public void onEvent(LxContext context, ChildData data, int eventType) {
             // 点击删除子项
-            data.groupData.children.remove(data);
-            LxList models = adapter.getData();
-            models.updateRemove(context.position);
+            LxExpandable.removeChild(adapter, context, data);
         }
     }
 
@@ -615,33 +708,15 @@ public class NewSampleTestActivity extends MvpActivity {
         }
     }
 
-
-    static class LoadingItemBind extends LxItemBind<NoNameData> {
-
-        LoadingItemBind() {
-            super(TypeOpts.make(opts -> {
-                opts.viewType = Lx.VIEW_TYPE_LOADING;
-                opts.layoutId = R.layout.loading_view;
-                opts.spanSize = Lx.SPAN_SIZE_ALL;
-            }));
-        }
-
-        @Override
-        public void onBindView(LxContext context, LxVh holder, NoNameData data) {
-            holder.setText(R.id.content_tv, data.desc);
-        }
-
-    }
-
-
     static class StudentItemBind extends LxItemBind<Student> {
 
         StudentItemBind() {
             super(TypeOpts.make(opts -> {
                 opts.layoutId = R.layout.item_squire1;
                 opts.enableClick = true;
-                opts.enableLongPress = true;
+                opts.enableLongPress = false;
                 opts.enableDbClick = false;
+                opts.enableClick = false;
                 opts.viewType = TYPE_STUDENT;
                 opts.spanSize = Lx.SPAN_SIZE_ALL;
                 opts.enableSwipe = true;
@@ -653,8 +728,7 @@ public class NewSampleTestActivity extends MvpActivity {
         public void onBindView(LxContext context, LxVh holder, Student data) {
             if (context.payloads.isEmpty()) {
                 holder.setText(R.id.title_tv, "学：" + data.name)
-                        .setText(R.id.desc_tv, "支持Swipe，pos = " + context.position + " ,type =" + TYPE_STUDENT + ", 点击触发payloads更新, 悬停在页面顶部")
-                        .swipeOnLongPress(adapter, R.id.title_tv);
+                        .setText(R.id.desc_tv, "支持Swipe，pos = " + context.position + " ,type =" + TYPE_STUDENT + ", 点击触发payloads更新, 悬停在页面顶部");
             } else {
                 for (String payload : context.payloads) {
                     if (payload.equals("name_change")) {
@@ -710,6 +784,7 @@ public class NewSampleTestActivity extends MvpActivity {
                 opts.viewType = TYPE_TEACHER;
                 opts.spanSize = 1;
                 opts.enableDrag = true;
+                opts.enableClick = false;
                 opts.bindAnimator = new BindScaleAnimator();
             }));
         }
@@ -718,7 +793,6 @@ public class NewSampleTestActivity extends MvpActivity {
         public void onBindView(LxContext context, LxVh holder, Teacher data) {
             holder.setText(R.id.title_tv, "师：" + data.name)
                     .setText(R.id.desc_tv, "支持Drag，pos = " + context.position + " ,type =" + TYPE_TEACHER)
-                    .dragOnLongPress(adapter, R.id.title_tv)
                     .setTextColor(R.id.title_tv, context.model.isSelected() ? Color.RED : Color.BLACK);
         }
 

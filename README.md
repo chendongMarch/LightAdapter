@@ -1019,6 +1019,32 @@ LxAdapter.of(list)
         .attachTo(mRecyclerView, new LinearLayoutManager(getContext()));
 ```
 
+模拟 `ViewPager` 添加了 `OnPageChangeListener`
+
+```java
+LxAdapter.of(mLxModels)
+        .bindItem(new PagerItemBind())
+        .component(new LxSnapComponent(Lx.SNAP_MODE_PAGER, new LxSnapComponent.OnPageChangeListener() {
+
+            @Override
+            public void onPageSelected(int lastPosition, int position) {
+                // 选中监听
+                RecyclerView.ViewHolder holder = mRecyclerView.findViewHolderForAdapterPosition(position);
+                RecyclerView.ViewHolder lastHolder = mRecyclerView.findViewHolderForAdapterPosition(lastPosition
+                holder.itemView.animate().scaleX(1.13f).scaleY(1.13f).setDuration(300).start();
+                if (lastHolder != null && !lastHolder.equals(holder)) {
+                    lastHolder.itemView.animate().scaleX(1f).scaleY(1f).setDuration(300).start();
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                // 滑动状态监听
+            }
+        }))
+        .attachTo(mRecyclerView, new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+```
+
 ## 进阶：使用 Idable 优化 change
 
 使用 `DiffUtil` 比对数据时，类库不知道它们是不是同一个对象，会使用一个自增的 `ID` 作为唯一标示，以此来触发 `notifyDataSetChange`，所以当你更改列表中的一个数据时，只会执行一次绑定，这是内部做的优化；

@@ -88,7 +88,9 @@ public class LxSlidingSelectLayout extends FrameLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-
+        if (!isEnabled()) {
+            return super.onTouchEvent(ev);
+        }
         int action = ev.getActionMasked();
         switch (action) {
             case MotionEvent.ACTION_DOWN:

@@ -10,7 +10,7 @@ publish {
     userOrg = 'zfy'
     groupId = 'com.zfy'
     artifactId = 'lxadapter'
-    publishVersion = '2.0.2'
+    publishVersion = '2.0.3'
     desc = 'lxadapter'
     website = 'https://github.com/chendongMarch/LxAdapter'
 }

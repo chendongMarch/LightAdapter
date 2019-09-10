@@ -28,7 +28,6 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
         void onChange(List<E> list);
     }
 
-    private final UpdateResult<E>             updateResult;
     private final List<ListUpdateObserver<E>> updateObservers;
     private final AdapterUpdateCallback       updateCallback;
     private final IDiffDispatcher<E>          dispatcher;
@@ -39,7 +38,6 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
         dispatcher = async
                 ? new AsyncDiffDispatcher<>(updateCallback)
                 : new SyncDiffDispatcher<>(updateCallback);
-        updateResult = new UpdateResult();
     }
 
     public DiffableList() {
@@ -167,50 +165,59 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
      * 在原有数据基础上面追加数据
      *
      * @param newItems 新的数据源
-     * @return 添加结果
+     * @return 添加是否成功
      * @see List#addAll(Collection)
      */
-    public List<E> updateAddAll(@NonNull List<E> newItems) {
+    public boolean updateAddAll(@NonNull List<E> newItems) {
         List<E> snapshot = snapshot();
         boolean result = snapshot.addAll(newItems);
         if (result) {
             dispatchUpdate(snapshot);
         }
-        return snapshot;
+        return result;
     }
 
     /**
      * 在原有数据基础上面追加数据
      *
      * @param newItem 新的单个数据源
-     * @return 添加结果
+     * @return 添加是否成功
      * @see List#add(Object)
      */
-    public List<E> updateAdd(@NonNull E newItem) {
+    public boolean updateAdd(@NonNull E newItem) {
         List<E> snapshot = snapshot();
         boolean result = snapshot.add(newItem);
         if (result) {
             dispatchUpdate(snapshot);
         }
-        return snapshot;
+        return result;
     }
 
+    /**
+     * 在原有数据基础上面追加数据
+     *
+     * @param newItem 新的单个数据源
+     * @see List#add(int, Object)
+     */
+    public void updateAddLast(@NonNull E newItem) {
+        updateAdd(size(), newItem);
+    }
 
     /**
      * 在原有数据基础上面追加数据
      *
      * @param index    下标
      * @param newItems 新的数据源
-     * @return 添加结果
+     * @return 添加是否成功
      * @see List#addAll(int, Collection)
      */
-    public List<E> updateAddAll(@IntRange(from = 0) int index, @NonNull List<E> newItems) {
+    public boolean updateAddAll(@IntRange(from = 0) int index, @NonNull List<E> newItems) {
         List<E> snapshot = snapshot();
         boolean result = snapshot.addAll(index, newItems);
         if (result) {
             dispatchUpdate(snapshot);
         }
-        return snapshot;
+        return result;
     }
 
     /**
@@ -218,14 +225,12 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
      *
      * @param index   下标
      * @param newItem 新的单个数据源
-     * @return 结果
      * @see List#add(int, Object)
      */
-    public List<E> updateAdd(@IntRange(from = 0) int index, @NonNull E newItem) {
+    public void updateAdd(@IntRange(from = 0) int index, @NonNull E newItem) {
         List<E> snapshot = snapshot();
         snapshot.add(index, newItem);
         dispatchUpdate(snapshot);
-        return snapshot;
     }
 
 
@@ -236,13 +241,13 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
      * @return 删除的那个元素
      * @see List#remove(int)
      */
-    public List<E> updateRemove(@IntRange(from = 0) int index) {
+    public E updateRemove(@IntRange(from = 0) int index) {
         List<E> snapshot = snapshot();
         E remove = snapshot.remove(index);
         if (remove != null) {
             dispatchUpdate(snapshot);
         }
-        return snapshot;
+        return remove;
     }
 
     /**
@@ -253,7 +258,7 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
      * @param shouldRemove 是否应该删除的条件
      * @return 删除了多少个元素
      */
-    public List<E> updateRemove(int removeCount, boolean fromEnd, _Predicate<E> shouldRemove) {
+    public int updateRemove(int removeCount, boolean fromEnd, _Predicate<E> shouldRemove) {
         List<E> snapshot = snapshot();
         int count = 0;
         if (fromEnd) {
@@ -284,7 +289,7 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
             }
         }
         dispatchUpdate(snapshot);
-        return snapshot;
+        return count;
     }
 
     /**
@@ -294,7 +299,7 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
      * @return 删除元素的个数
      * @see DiffableList#updateRemove(int, boolean, _Predicate)
      */
-    public List<E> updateRemove(_Predicate<E> shouldRemove) {
+    public int updateRemove(_Predicate<E> shouldRemove) {
         return updateRemove(-1, false, shouldRemove);
 
     }
@@ -306,13 +311,13 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
      * @return 是否删除了元素
      * @see List#remove(Object)
      */
-    public List<E> updateRemove(@NonNull E item) {
+    public boolean updateRemove(@NonNull E item) {
         List<E> snapshot = snapshot();
         boolean remove = snapshot.remove(item);
         if (remove) {
             dispatchUpdate(snapshot);
         }
-        return snapshot;
+        return remove;
     }
 
 
@@ -385,5 +390,6 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
         consumer.accept(copy);
         return list.set(pos, copy);
     }
+
 
 }
