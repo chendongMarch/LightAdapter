@@ -419,21 +419,21 @@ public class NewSampleTestActivity extends MvpActivity {
         switch (view.getId()) {
             case R.id.add_header_btn:
                 LxModel header = LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new NoNameData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
-                LxList headerData = mLxModels.getExtTypeData(Lx.VIEW_TYPE_HEADER);
-                if (headerData.isEmpty()) {
-                    mLxModels.updateAdd(0, header);
-                } else {
+                if (mLxModels.hasType(Lx.VIEW_TYPE_HEADER)) {
+                    LxList headerData = mLxModels.getExtTypeData(Lx.VIEW_TYPE_HEADER);
                     headerData.updateAdd(0, header);
+                } else {
+                    mLxModels.updateAdd(0, header);
                 }
                 mRecyclerView.smoothScrollToPosition(0);
                 break;
             case R.id.add_footer_btn:
                 LxModel footer = LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new NoNameData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
-                LxList footerData = mLxModels.getExtTypeData(Lx.VIEW_TYPE_FOOTER);
-                if (footerData.isEmpty()) {
-                    mLxModels.updateAddLast(footer);
-                } else {
+                if (mLxModels.hasType(Lx.VIEW_TYPE_FOOTER)) {
+                    LxList footerData = mLxModels.getExtTypeData(Lx.VIEW_TYPE_FOOTER);
                     footerData.updateAdd(footer);
+                } else {
+                    mLxModels.updateAddLast(footer);
                 }
                 mRecyclerView.smoothScrollToPosition(mLxModels.size() - 1);
                 break;

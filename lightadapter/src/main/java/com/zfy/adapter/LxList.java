@@ -52,6 +52,10 @@ public class LxList extends DiffableList<LxModel> {
         return typeSplit.getExtTypeData(viewType);
     }
 
+    public boolean hasType(int viewType) {
+        return !typeSplit.getExtTypeData(viewType).isEmpty();
+    }
+
     public void addInterceptor(OnAdapterEventInterceptor interceptor) {
         if (interceptors == null) {
             interceptors = new ArrayList<>();
