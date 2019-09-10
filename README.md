@@ -46,7 +46,7 @@
   - [功能：悬挂效果（Fixed）](#功能悬挂效果fixed)
   - [功能：拖拽和侧滑（Drag/Swipe）](#功能拖拽和侧滑dragswipe)
   - [功能：实现 ViewPager (Snap) ](#功能实现-viewpager-snap)
-  - [功能：实现分组列表 (Expandable) ～ 按组划分，展开收起](#功能实现-expandable)
+  - [功能：实现分组列表 (Expandable) ～ 按组划分，展开收起](#功能实现分组列表expandable)
 - 进阶
   - [进阶：使用 Idable 优化 change](#进阶使用-idable-优化-change)
   - [进阶：使用 payloads](#进阶使用-payloads)
