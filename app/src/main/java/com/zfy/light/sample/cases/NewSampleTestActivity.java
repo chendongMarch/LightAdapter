@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.march.common.exts.ListX;
@@ -64,6 +65,7 @@ public class NewSampleTestActivity extends MvpActivity {
     public static final int TYPE_SELECT  = Lx.contentTypeOf();
     public static final int TYPE_PAGER   = Lx.contentTypeOf();
 
+    @BindView(R.id.debug_tv)      TextView              mDebugTv;
     @BindView(R.id.content_rv)    RecyclerView          mRecyclerView;
     @BindView(R.id.fix_container) ViewGroup             mFixContainerFl;
     @BindView(R.id.select_layout) LxSlidingSelectLayout mLxSlidingSelectLayout;
@@ -156,6 +158,7 @@ public class NewSampleTestActivity extends MvpActivity {
             return true;
         });
 
+        mDebugTv.setText("演示：拖拽排序，侧滑删除");
 
         initDragSwipeTest();
     }
@@ -166,23 +169,23 @@ public class NewSampleTestActivity extends MvpActivity {
         mLxSlidingSelectLayout.setEnabled(false);
         switch (view.getId()) {
             case R.id.test_drag_swipe_btn:
-                ToastX.show("测试拖拽，侧滑～");
+                mDebugTv.setText("演示：拖拽排序，侧滑删除");
                 initDragSwipeTest();
                 break;
             case R.id.test_load_more_btn:
-                ToastX.show("测试加载更多～");
+                mDebugTv.setText("演示：加载更多");
                 initLoadMoreTest();
                 break;
             case R.id.test_expandable_btn:
-                ToastX.show("测试分组列表～");
+                mDebugTv.setText("演示：分组列表");
                 initGroupListTest();
                 break;
             case R.id.test_select_btn:
-                ToastX.show("测试选择器，滑动选中～");
+                mDebugTv.setText("演示：选择器，滑动选中");
                 initSelectTest();
                 break;
             case R.id.test_pager_btn:
-                ToastX.show("测试 ViewPager 效果～");
+                mDebugTv.setText("演示：ViewPager 效果");
                 initPagerTest();
                 break;
             default:
@@ -222,7 +225,7 @@ public class NewSampleTestActivity extends MvpActivity {
                     ToastX.show("底部加载更多");
                     mLxModels.updateAdd(LxTransformations.pack(Lx.VIEW_TYPE_LOADING, new NoNameData("加载中～")));
                     ExecutorsPool.ui(() -> {
-                        if (mLxModels.size() > 80) {
+                        if (mLxModels.size() > 70) {
                             LxList customTypeData = mLxModels.getExtTypeData(Lx.VIEW_TYPE_LOADING);
                             customTypeData.updateSet(0, new LxList.UnpackConsumer<NoNameData>() {
                                 @Override
@@ -239,7 +242,7 @@ public class NewSampleTestActivity extends MvpActivity {
                             customTypeData.updateClear();
                             mLxModels.publishEvent(Lx.EVENT_FINISH_LOAD_MORE, null);
                         }
-                    }, 2000);
+                    }, 1000);
                 }))
                 .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
         setData();
@@ -424,6 +427,7 @@ public class NewSampleTestActivity extends MvpActivity {
     public void clickView(View view) {
         switch (view.getId()) {
             case R.id.add_header_btn:
+                mDebugTv.setText("演示：添加Header");
                 LxModel header = LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new NoNameData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
                 if (mLxModels.hasType(Lx.VIEW_TYPE_HEADER)) {
                     LxList headerData = mLxModels.getExtTypeData(Lx.VIEW_TYPE_HEADER);
@@ -434,6 +438,7 @@ public class NewSampleTestActivity extends MvpActivity {
                 mRecyclerView.smoothScrollToPosition(0);
                 break;
             case R.id.add_footer_btn:
+                mDebugTv.setText("演示：添加Footer");
                 LxModel footer = LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new NoNameData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
                 if (mLxModels.hasType(Lx.VIEW_TYPE_FOOTER)) {
                     LxList footerData = mLxModels.getExtTypeData(Lx.VIEW_TYPE_FOOTER);
@@ -444,6 +449,7 @@ public class NewSampleTestActivity extends MvpActivity {
                 mRecyclerView.smoothScrollToPosition(mLxModels.size() - 1);
                 break;
             case R.id.empty_btn:
+                mDebugTv.setText("演示：空载页");
                 showEmpty();
                 break;
             default:

@@ -4,11 +4,11 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+
     <com.zfy.adapter.decoration.LxSlidingSelectLayout
         android:layout_width="match_parent"
         android:id="@+id/select_layout"
         android:layout_height="match_parent">
-
 
 
         <android.support.v7.widget.RecyclerView
@@ -26,6 +26,7 @@
         android:minHeight="120dp"
         android:id="@+id/fix_container"
         android:layout_height="wrap_content" />
+
 
     <LinearLayout
         app:layout_constraintRight_toRightOf="parent"
@@ -82,6 +83,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="ViewPager" />
+
+
+        <TextView
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:textSize="20sp"
+            app:layout_constraintTop_toTopOf="parent"
+            android:textColor="#f00"
+            android:padding="10dp"
+            android:textStyle="bold"
+            android:text="拖拽、侧滑"
+            android:background="#0f0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/debug_tv" />
+
     </LinearLayout>
 
 
