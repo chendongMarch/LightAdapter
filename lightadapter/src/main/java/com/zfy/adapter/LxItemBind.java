@@ -1,5 +1,6 @@
 package com.zfy.adapter;
 
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,7 +59,13 @@ public abstract class LxItemBind<D> implements Typeable {
         context.payloads = LxUtil.parsePayloads(payloads);
         holder.setLxContext(context);
 
+        Bundle condition = data.getCondition();
+        context.condition = condition;
+
         onBindView(context, holder, unpack);
+
+        condition.clear();
+        context.clear();
     }
 
     private void onBindEvent(LxVh holder, int viewType) {

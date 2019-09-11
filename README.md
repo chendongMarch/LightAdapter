@@ -20,39 +20,53 @@
 
 </div>
 
+<span id="top"> </span>
+
+<!-- http://cdn1.showjoy.com/shop/images/20190911/Y6HO22A85HL6LBHBGEMD1568190538159.gif -->
+<!-- http://cdn1.showjoy.com/shop/images/20190911/GIWTASSPUTE8K6XXOP751568190536961.gif -->
+<!-- http://cdn1.showjoy.com/shop/images/20190911/KNW6SI4H7INBVWE1Y3761568190536907.jpg -->
+<a style="position:fixed;right:20px;bottom:20px;" href="#top">
+  <span style="display:flex;flex-direction:column;justify-content:center;align-items:center;">
+    <span style="font-size:16px;font-weight:bold;background:" href="#top">点我回顶部</span>
+    <img style="width:100px;" src="http://cdn1.showjoy.com/shop/images/20190911/IEQ88UTNXOBZD1YISQ2E1568190538146.gif"/>
+  </span>
+ </a>
+
 ## 目录
 
 <!-- TOC -->
-- [特性](#特性)
-- [设计分析](#设计分析)
-- [内置的数据类型](#内置的数据类型)
+- [特性](#feature)
+- [设计分析](#design)
+- [内置的数据类型](#data)
   - [TypeOpts ～ 配置化类型](#typeopts)
   - [LxModel ～ 数据包装](#lxmodel)
   - [LxContext ～ 上下文对象](#lxcontext)
 - 基础
-  - [基础：LxGlobal ～ 全局配置](#基础lxglobal)
-  - [基础：LxAdapter ～ 适配器](#基础lxadapter)
-  - [基础：LxItemBind ～ 类型绑定](#基础lxitembind)
-  - [基础：LxList ～ 数据源，自动更新](#基础lxlist)
-  - [基础：LxVH ～ 扩展 ViewHolder](#基础lxvh)
-  - [基础：点击事件 ～ 单击、双击、长按、焦点](#基础点击事件)
-  - [基础：扩展自定义类型 ～ 灵活扩展](#基础扩展自定义类型)
+  - [基础：LxGlobal ～ 全局配置](#lxglobal)
+  - [基础：LxAdapter ～ 适配器](#lxadapter)
+  - [基础：LxItemBind ～ 类型绑定](itembind)
+  - [基础：LxList ～ 数据源，自动更新，告别 notify](lxlist)
+  - [基础：LxVH ～ 扩展 ViewHolder](#lxvh)
+  - [基础：点击事件 ～ 单击、双击、长按、焦点](#event)
+  - [基础：扩展自定义类型 ～ 灵活扩展](#multitype)
 - 功能
-  - [功能：事件发布 ～ 将数据更新抽象成事件](#功能事件发布)
-  - [功能：跨越多列（Span）～ 灵活布局](#功能跨越多列span)
-  - [功能：加载更多（LoadMore）～ 赋能分页加载](#功能加载更多loadmore)
-  - [功能：选择器（Selector）～ 面向选择器业务场景](#功能选择器selector)
-  - [功能：列表动画（Animator）](#功能列表动画animator)
-  - [功能：悬挂效果（Fixed）](#功能悬挂效果fixed)
-  - [功能：拖拽和侧滑（Drag/Swipe）](#功能拖拽和侧滑dragswipe)
-  - [功能：实现 ViewPager (Snap) ](#功能实现-viewpager-snap)
-  - [功能：实现分组列表 (Expandable) ～ 按组划分，展开收起](#功能实现分组列表expandable)
+  - [功能：事件发布 ～ 将数据更新抽象成事件](#publishevent)
+  - [功能：跨越多列（Span）～ 灵活布局](#span)
+  - [功能：加载更多（LoadMore）～ 赋能分页加载](#loadmore)
+  - [功能：选择器（Selector）～ 面向选择器业务场景](#selector)
+  - [功能：列表动画（Animator）](#animator)
+  - [功能：悬挂效果（Fixed）](#fixed)
+  - [功能：拖拽和侧滑（Drag/Swipe）](#dragswipe)
+  - [功能：实现 ViewPager (Snap) ](#snap)
+  - [功能：实现分组列表 (Expandable) ～ 按组划分，展开收起](#expandable)
 - 进阶
-  - [进阶：使用 Idable 优化 change](#进阶使用-idable-优化-change)
-  - [进阶：使用 payloads](#进阶使用-payloads)
+  - [进阶：使用条件更新](#condition)
+  - [进阶：使用 Idable 优化 change](#idable)
+  - [进阶：使用有效载荷（payloads）更新 ](#payloads)
 
 <!-- /TOC -->
 
+<span id="feature"></span>
 
 ## 特性
 
@@ -71,14 +85,19 @@
 - 支持 `ItemAnimator` / `BindAnimator` 两种方式实现添加布局动画。
 - 支持借助 `SnapHelper` 快速实现 `ViewPager` 效果；
 
+<span id="design"></span>
+
 ## 设计分析
 
 1. 数据源统一使用 `LxList`，内部借助 `DiffUtil` 实现数据的自动更新，当需要更改数据时，只需要使用它的内部方法即可；
 2. 每种类型是完全分离的，使用 `LxItemBind` 来描述如何对该类型进行数据的绑定，事件的响应，以此来保证每种类型数据绑定的可复用性，已经类型之间的独立性；
 3. 拖拽、侧滑、`Snap` 使用、动画、选择器、加载更多，这些功能都分离出来，每个功能由单独的 `component` 负责，这样职责更加分离，需要时注入指定的 `component` 即可，也保证了良好的扩展性；
 
+<span id="data"></span>
 
 ## 内置的数据类型
+
+<span id="typeopts"></span>
 
 ### TypeOpts
 
@@ -103,6 +122,8 @@ public class TypeOpts {
     public BindAnimator bindAnimator; // 每种类型可以支持不同的动画效果
 }
 ```
+
+<span id="lxmodel"></span>
 
 ### LxModel
 
@@ -129,6 +150,7 @@ public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable,
 // 将你的数据包装成 LxModel
 LxModel header = LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new NoNameData());
 ```
+<span id="lxcontext"></span>
 
 ### LxContext
 
@@ -147,6 +169,7 @@ public class LxContext {
 }
 ```
 
+<span id="lxglobal"></span>
 
 ## 基础：LxGlobal
 
@@ -170,7 +193,7 @@ LxGlobal.addOnAdapterEventInterceptor((event, adapter, extra) -> {
     return true;
 });
 ```
-
+<span id="lxadapter"></span>
 
 ## 基础：LxAdapter
 
@@ -191,6 +214,8 @@ List<LxModel> tempList = LxTransformations.pack(TYPE_STUDENT, students);
 // 发布更新
 list.update(tempList);
 ```
+
+<span id="itembind"></span>
 
 ## 基础：LxItemBind
 
@@ -234,6 +259,8 @@ LxItemBind.of(Student.class)
         })
         .build();
 ```
+
+<span id="lxlist"></span>
 
 ## 基础：LxList
 
@@ -327,6 +354,8 @@ list.getContentTypeData();
 list.getExtTypeData(Lx.VIEW_TYPE_HEADER);
 ```
 
+<span id="lxvh"></span>
+
 ## 基础：LxVH
 
 为了支持同时对多个控件进行一样的绑定操作，可以使用 `Ids` 来包含多个 `id`:
@@ -409,7 +438,7 @@ holder
         // 设置触摸触发侧滑事件
         .swipeOnTouch(R.id.tv);
 ```
-
+<span id="event"></span>
 
 ## 基础：点击事件
 
@@ -466,6 +495,8 @@ class StudentItemBind extends LxItemBind<Student> {
     }
 }
 ```
+
+<span id="multitype"></span>
 
 ## 基础：扩展自定义类型
 
@@ -623,6 +654,7 @@ class StudentItemBind extends LxItemBind<Student> {
 
 我们发现，添加和更改每种特殊的类型，是非常方便的，没有针对性的去做 `Header` `Footer` 这些固定的功能，其实它们只是数据的一种类型，可以按照自己的需要做任意的扩展，这样会灵活很多，其他的比如骨架屏、空载页、加载中效果都可以基于这个实现；
 
+<span id="publishevent"></span>
 
 ## 功能：事件发布
 
@@ -686,6 +718,7 @@ public static final String EVENT_START_EDGE_LOAD_MORE_ENABLE = "EVENT_START_EDGE
 
 // 其他自定义扩展和处理
 ```
+<span id="span"></span>
 
 ## 功能：跨越多列（Span）
 
@@ -711,6 +744,7 @@ class StudentItemBind extends LxItemBind<Student> {
     // ...
 }
 ```
+<span id="loadmore"></span>
 
 ## 功能：加载更多（LoadMore）
 
@@ -731,6 +765,8 @@ LxAdapter.of(list)
         }))
         .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
 ```
+
+<span id="selector"></span>
 
 ## 功能：选择器（Selector）
 
@@ -809,6 +845,8 @@ static class SelectItemBind extends LxItemBind<NoNameData> {
 </com.zfy.adapter.decoration.LxSlidingSelectLayout>
 ```
 
+<span id="animator"></span>
+
 ## 功能：列表动画（Animator）
 
 动画分为了两种:
@@ -864,6 +902,8 @@ LxAdapter.of(list)
         .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
 ```
 
+<span id="fixed"></span>
+
 ## 功能：悬挂效果（Fixed）
 
 针对每种类型悬挂效果，可以支持所有类型所有布局文件的顶部悬挂效果，需要使用 `LxFixedComponent` 实现，支持两种实现方式：
@@ -898,6 +938,8 @@ class StudentItemBind extends LxItemBind<Student> {
     // ...
 }
 ```
+
+<span id="dragswipe"></span>
 
 ## 功能：拖拽和侧滑(drag/swipe)
 
@@ -1009,6 +1051,8 @@ class StudentItemBind extends LxItemBind<Student> {
 }
 ```
 
+<span id="snap"></span>
+
 ## 功能：实现 ViewPager (Snap)
 
 内部使用 `SnapHelper` 实现，很简单，只是要把他封装成 `LxComponent` 的形式，统一起来，由 `LxSnapComponent` 实现；
@@ -1048,6 +1092,8 @@ LxAdapter.of(mLxModels)
         }))
         .attachTo(mRecyclerView, new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 ```
+
+<span id="expandable"></span>
 
 ## 功能：实现分组列表（Expandable）
 
@@ -1195,6 +1241,8 @@ mLxModels.update(lxModels);
 
 是不是很简单啊，感觉上还是写了一些代码，没有一行代码实现xxx 的感觉，只是提供一个思路，如果类库内部接管太多业务逻辑其实是不友好的，可以看下 `LxExpandable` 的代码，其实就是对数据处理的一些封装，基于基本的设计思想很容易抽离出来；
 
+<span id="idable"></span>
+
 ## 进阶：使用 Idable 优化 change
 
 使用 `DiffUtil` 比对数据时，类库不知道它们是不是同一个对象，会使用一个自增的 `ID` 作为唯一标示，以此来触发 `notifyDataSetChange`，所以当你更改列表中的一个数据时，只会执行一次绑定，这是内部做的优化；
@@ -1218,7 +1266,56 @@ static class Student implements Idable  {
 }
 ```
 
-## 进阶：使用 payloads
+<span id="condition"></span>
+
+## 进阶：使用条件更新
+
+- 场景1：我们的数据并没有改变，但是我们仍旧想触发数据的更新；
+- 场景2：只想更新一个控件，比如下载进度条，这个更新比较频繁，但是不想做不必要的刷新；
+
+基于以上两种应用场景，条件更新应运而生，你可以不改变数据，但是触发更新，并且可以指定条件，仅刷新一个控件的显示，类似 payloads 但是不需要计算有效载荷，只需要制定一个条件即可；
+
+```java
+static class StudentItemBind extends LxItemBind<Student> {
+
+    StudentItemBind() {
+        super(TypeOpts.make(opts -> {
+            opts.layoutId = R.layout.item_squire;
+            opts.viewType = TYPE_STUDENT;
+        }));
+    }
+
+    @Override
+    public void onBindView(LxContext context, LxVh holder, Student data) {
+        Bundle condition = context.condition;
+        // 条件更新，数据没有变化
+        if (!condition.isEmpty()) {
+          // 只更新 title 显示
+          boolean needUpdate = condition.getBoolean("update_name", false);
+          if (needUpdate) {
+            String updateNameContent = condition.getString("update_name_content");
+            holder.setText(R.id.title_tv, updateNameContent + "," + data.name);
+          }
+          return;
+        }
+        // 其他更新逻辑...
+    }
+
+    @Override
+    public void onEvent(LxContext context, Student listItem, int eventType) {
+         adapter.getData().updateSet(context.position, data -> {
+            // 发布条件更新，数据不用更改
+            Bundle condition = data.getCondition();
+            condition.putBoolean("update_name", true);
+            condition.putString("update_name_content", "条件更新");
+         });
+    }
+}
+```
+
+<span id="payloads"></span>
+
+## 进阶：使用有效载荷（payloads）更新
 
 某些场景我们只更改了一部分数据，但是会触发 `notifyDataSetChanged` 重新执行整个条目的绑定，这样会造成性能的损耗，有时图片要重新加载，很不友好，因此我们需要 `payploads` 更新的方式；
 

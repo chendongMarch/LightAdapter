@@ -25,19 +25,28 @@ public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable,
     private int     moduleId; // 模块ID
     private boolean selected;
 
-    private Bundle extras;
+    private Bundle extra;
+    private Bundle condition;
 
-    public Bundle getExtras() {
-        if (extras == null) {
-            extras = new Bundle();
+    public Bundle getExtra() {
+        if (extra == null) {
+            extra = new Bundle();
         }
-        return extras;
+        return extra;
+    }
+
+    public Bundle getCondition() {
+        if (condition == null) {
+            condition = new Bundle();
+        }
+        return condition;
     }
 
     public LxModel(Object data) {
         this.data = data;
         this.incrementId = ID++;
     }
+
 
     public void setType(int type) {
         this.type = type;
@@ -82,6 +91,10 @@ public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable,
         // 相同地址，则一定完全相同
         if (this.equals(newItem)) {
             return true;
+        }
+        // 有条件更新，直接调用 bind
+        if (!getCondition().isEmpty() || !newItem.getCondition().isEmpty()) {
+            return false;
         }
         // 如果考虑使用 payloads，则根据条件返回 false
         if (canCompare(newItem, this)) {

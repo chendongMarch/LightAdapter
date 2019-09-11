@@ -1,6 +1,7 @@
 package com.zfy.light.sample.cases;
 
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -165,18 +166,23 @@ public class NewSampleTestActivity extends MvpActivity {
         mLxSlidingSelectLayout.setEnabled(false);
         switch (view.getId()) {
             case R.id.test_drag_swipe_btn:
+                ToastX.show("测试拖拽，侧滑～");
                 initDragSwipeTest();
                 break;
             case R.id.test_load_more_btn:
+                ToastX.show("测试加载更多～");
                 initLoadMoreTest();
                 break;
             case R.id.test_expandable_btn:
+                ToastX.show("测试分组列表～");
                 initGroupListTest();
                 break;
             case R.id.test_select_btn:
+                ToastX.show("测试选择器，滑动选中～");
                 initSelectTest();
                 break;
             case R.id.test_pager_btn:
+                ToastX.show("测试 ViewPager 效果～");
                 initPagerTest();
                 break;
             default:
@@ -271,7 +277,7 @@ public class NewSampleTestActivity extends MvpActivity {
                 //                .component(new LxBindAnimatorComponent())
                 //                .component(new LxItemAnimatorComponent(new ScaleInLeftAnimator()))
                 .component(new LxSelectComponent(Lx.SELECT_MULTI, (data, toSelect) -> {
-                    data.getExtras().putBoolean("change_now", true);
+                    data.getExtra().putBoolean("change_now", true);
                     return false;
                 }))
 //                .component(new LxStartEdgeLoadMoreComponent((component) -> {
@@ -369,7 +375,7 @@ public class NewSampleTestActivity extends MvpActivity {
                         new EmptyItemBind(),
                         new GroupItemBind(), new ChildItemBind())
                 .component(new LxSelectComponent(Lx.SELECT_MULTI, (data, toSelect) -> {
-                    data.getExtras().putBoolean("change_now", true);
+                    data.getExtra().putBoolean("change_now", true);
                     return false;
                 }))
                 .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
@@ -542,7 +548,6 @@ public class NewSampleTestActivity extends MvpActivity {
             }
             return strings;
         }
-
     }
 
     static class Teacher {
@@ -713,10 +718,9 @@ public class NewSampleTestActivity extends MvpActivity {
         StudentItemBind() {
             super(TypeOpts.make(opts -> {
                 opts.layoutId = R.layout.item_squire1;
-                opts.enableClick = true;
                 opts.enableLongPress = false;
                 opts.enableDbClick = false;
-                opts.enableClick = false;
+                opts.enableClick = true;
                 opts.viewType = TYPE_STUDENT;
                 opts.spanSize = Lx.SPAN_SIZE_ALL;
                 opts.enableSwipe = true;
@@ -726,6 +730,15 @@ public class NewSampleTestActivity extends MvpActivity {
 
         @Override
         public void onBindView(LxContext context, LxVh holder, Student data) {
+            Bundle condition = context.condition;
+            if (!condition.isEmpty()) {
+                boolean needUpdate = condition.getBoolean("update_name", false);
+                String updateNameContent = condition.getString("update_name_content");
+                if (needUpdate) {
+                    holder.setText(R.id.title_tv, updateNameContent + "," + data.name);
+                }
+                return;
+            }
             if (context.payloads.isEmpty()) {
                 holder.setText(R.id.title_tv, "学：" + data.name)
                         .setText(R.id.desc_tv, "支持Swipe，pos = " + context.position + " ,type =" + TYPE_STUDENT + ", 点击触发payloads更新, 悬停在页面顶部");
@@ -736,19 +749,23 @@ public class NewSampleTestActivity extends MvpActivity {
                     }
                 }
             }
-
         }
 
         @Override
-        public void onEvent(LxContext context, Student data, int eventType) {
-            ToastX.show("点击学生 position = " + context.position + " data = " + data.name + " eventType = " + eventType);
+        public void onEvent(LxContext context, Student listItem, int eventType) {
+            ToastX.show("点击学生 position = " + context.position + " data = " + listItem.name + " eventType = " + eventType);
             switch (eventType) {
                 case Lx.EVENT_CLICK:
                     // 获取内容类型，这里面只包括了学生和老师的数据
                     // 这样我们就可以愉快的操作业务类型数据了，不用管什么 Header/Footer
-                    LxList contentTypeData = getData().getContentTypeData();
+//                    LxList contentTypeData = getData().getContentTypeData();
                     // 删除第一个吧
-                    contentTypeData.updateRemove(0);
+//                    contentTypeData.updateRemove(0);
+                    adapter.getData().updateSet(context.position, data -> {
+                        Bundle condition = data.getCondition();
+                        condition.putBoolean("update_name", true);
+                        condition.putString("update_name_content", "条件更新");
+                    });
                     break;
                 case Lx.EVENT_LONG_PRESS:
                     // 获取 header，会把顶部的两个 header 单独获取出来
@@ -940,7 +957,7 @@ public class NewSampleTestActivity extends MvpActivity {
                     .setText(R.id.title_tv, model.isSelected() ? "我被选中" : "我没有被选中")
                     .setTextColor(R.id.title_tv, model.isSelected() ? Color.RED : Color.BLACK);
 
-            boolean changeNow = model.getExtras().getBoolean("change_now", false);
+            boolean changeNow = model.getExtra().getBoolean("change_now", false);
             // 选中时，执行缩放动画，提醒用户
             View view = holder.getView(R.id.container_cl);
             if (changeNow) {
@@ -953,7 +970,7 @@ public class NewSampleTestActivity extends MvpActivity {
                         view.animate().scaleX(1f).scaleY(1f).setDuration(300).start();
                     }
                 }
-                model.getExtras().putBoolean("change_now", false);
+                model.getExtra().putBoolean("change_now", false);
             } else {
                 if (model.isSelected()) {
                     if (view.getScaleX() == 1) {

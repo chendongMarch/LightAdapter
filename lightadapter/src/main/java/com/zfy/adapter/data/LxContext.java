@@ -1,5 +1,7 @@
 package com.zfy.adapter.data;
 
+import android.os.Bundle;
+
 import com.zfy.adapter.LxVh;
 
 import java.util.List;
@@ -12,11 +14,23 @@ import java.util.List;
  */
 public class LxContext {
 
-    public               Object       data;
-    public               LxModel      model;
-    public               int          position;
-    public               LxVh         holder;
-    public               int          viewType;
-    public               List<String> payloads;
+    public Object       data;
+    public LxModel      model;
+    public int          position;
+    public LxVh         holder;
+    public int          viewType;
+    public List<String> payloads;
+    public Bundle       condition;
 
+
+    public void clear() {
+        if (condition != null) {
+            condition.clear();
+            condition = null;
+        }
+        if (payloads != null) {
+            payloads.clear();
+            payloads = null;
+        }
+    }
 }
