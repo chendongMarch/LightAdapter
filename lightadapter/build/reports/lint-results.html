@@ -176,7 +176,7 @@ document.getElementById(id).style.display = 'none';
       <span class="mdl-layout-title">Lint Report: 3 warnings</span>
       <div class="mdl-layout-spacer"></div>
       <nav class="mdl-navigation mdl-layout--large-screen-only">
-Check performed at Mon Sep 09 14:08:49 CST 2019      </nav>
+Check performed at Wed Sep 11 10:47:38 CST 2019      </nav>
     </div>
   </header>
   <div class="mdl-layout__drawer">
@@ -281,9 +281,9 @@ Dismiss</button>            </div>
 <span class="lineno">  88 </span>
 <span class="lineno">  89 </span>    <span class="annotation">@Override</span>
 <span class="caretline"><span class="lineno">  90 </span>    <span class="keyword">public</span> <span class="keyword">boolean</span> <span class="warning">onTouchEvent</span>(MotionEvent ev) {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-<span class="lineno">  91 </span>
-<span class="lineno">  92 </span>        <span class="keyword">int</span> action = ev.getActionMasked();
-<span class="lineno">  93 </span>        <span class="keyword">switch</span> (action) {
+<span class="lineno">  91 </span>        <span class="keyword">if</span> (!isEnabled()) {
+<span class="lineno">  92 </span>            <span class="keyword">return</span> <span class="keyword">super</span>.onTouchEvent(ev);
+<span class="lineno">  93 </span>        }
 </pre>
 
 </div>

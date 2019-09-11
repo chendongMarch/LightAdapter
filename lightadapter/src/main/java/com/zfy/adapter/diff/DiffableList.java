@@ -153,6 +153,7 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
 
     /**
      * 清空列表
+     * @return 列表
      */
     public List<E> updateClear() {
         List<E> snapshot = snapshot();
