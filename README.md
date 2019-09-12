@@ -10,7 +10,7 @@
 
 > [GitHub - LxAdapter](https://github.com/chendongMarch/LxAdapter)
 
-> com.zfy:lxadapter:2.0.4
+> com.zfy:lxadapter:2.0.5
 
 <!--more-->
 
