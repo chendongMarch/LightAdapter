@@ -16,6 +16,10 @@ import java.util.List;
  */
 public class LxComponent {
 
+    public void onAttachedToAdapter(LxAdapter adapter) {
+
+    }
+
     public void onAttachedToRecyclerView(LxAdapter adapter, @NonNull RecyclerView recyclerView) {
 
     }

@@ -12,6 +12,8 @@ import java.util.List;
  * CreateAt : 2019-09-09
  * Describe :
  *
+ * 分组列表，展开和收起，删除等
+ *
  * @author chendong
  */
 public class LxExpandable {

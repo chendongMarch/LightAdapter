@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <item name="tag_listener" type="id"></item>
+    <item name="tag_offset" type="id"></item>
+    <item name="tag_position" type="id"></item>
+</resources>

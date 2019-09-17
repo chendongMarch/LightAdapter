@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.zfy.adapter.Lx;
 import com.zfy.adapter.LxAdapter;
+import com.zfy.adapter.LxList;
 import com.zfy.adapter.LxVh;
 import com.zfy.adapter.helper.LxUtil;
 import com.zfy.adapter.listener.OnLoadMoreListener;
@@ -132,5 +133,37 @@ public class LxLoadMoreComponent extends LxComponent {
 
     public void finishLoadMore() {
         loadingMore = false;
+    }
+
+    @Override
+    public void onAttachedToAdapter(LxAdapter lxAdapter) {
+        super.onAttachedToAdapter(lxAdapter);
+        LxList data = lxAdapter.getData();
+        // 结束加载监听
+        data.addEventHandler(Lx.EVENT_FINISH_LOAD_MORE, (event, adapter, extra) -> {
+            LxEndEdgeLoadMoreComponent endEdgeLoadMoreComponent = adapter.getComponent(LxEndEdgeLoadMoreComponent.class);
+            if (endEdgeLoadMoreComponent != null) {
+                endEdgeLoadMoreComponent.finishLoadMore();
+            }
+            LxStartEdgeLoadMoreComponent startEdgeLoadMoreComponent = adapter.getComponent(LxStartEdgeLoadMoreComponent.class);
+            if (startEdgeLoadMoreComponent != null) {
+                startEdgeLoadMoreComponent.finishLoadMore();
+            }
+        });
+        // 加载开关
+        data.addEventHandler(Lx.EVENT_LOAD_MORE_ENABLE, (event, adapter, extra) -> {
+            if (!(extra instanceof Boolean)) {
+                return;
+            }
+            LxEndEdgeLoadMoreComponent endEdgeLoadMoreComponent = adapter.getComponent(LxEndEdgeLoadMoreComponent.class);
+            if (endEdgeLoadMoreComponent != null) {
+                endEdgeLoadMoreComponent.setLoadMoreEnable((Boolean) extra);
+            }
+            LxStartEdgeLoadMoreComponent startEdgeLoadMoreComponent = adapter.getComponent(LxStartEdgeLoadMoreComponent.class);
+            if (startEdgeLoadMoreComponent != null) {
+                startEdgeLoadMoreComponent.setLoadMoreEnable((Boolean) extra);
+            }
+        });
+
     }
 }

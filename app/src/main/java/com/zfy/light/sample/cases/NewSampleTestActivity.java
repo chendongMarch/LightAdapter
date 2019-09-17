@@ -4,7 +4,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,10 +32,13 @@ import com.zfy.adapter.data.Diffable;
 import com.zfy.adapter.data.LxContext;
 import com.zfy.adapter.data.LxModel;
 import com.zfy.adapter.data.TypeOpts;
+import com.zfy.adapter.data.Typeable;
 import com.zfy.adapter.decoration.LxSlidingSelectLayout;
 import com.zfy.adapter.helper.LxExpandable;
+import com.zfy.adapter.helper.LxManager;
+import com.zfy.adapter.helper.LxNesting;
 import com.zfy.adapter.helper.LxTransformations;
-import com.zfy.adapter.listener.OnAdapterEventInterceptor;
+import com.zfy.adapter.listener.EventHandler;
 import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
 import com.zfy.component.basic.mvx.mvp.app.MvpV;
 import com.zfy.light.sample.R;
@@ -60,13 +62,18 @@ import butterknife.OnClick;
 @MvpV(layout = R.layout.new_sample_activity)
 public class NewSampleTestActivity extends MvpActivity {
 
-    public static final int TYPE_STUDENT = Lx.contentTypeOf(); // 业务类型
-    public static final int TYPE_TEACHER = Lx.contentTypeOf();
-    public static final int TYPE_SELECT  = Lx.contentTypeOf();
-    public static final int TYPE_PAGER   = Lx.contentTypeOf();
+    public static final String HIDE_LOADING = "HIDE_LOADING";
+
+    public static final int TYPE_STUDENT              = Lx.contentTypeOf(); // 业务类型
+    public static final int TYPE_TEACHER              = Lx.contentTypeOf();
+    public static final int TYPE_SELECT               = Lx.contentTypeOf();
+    public static final int TYPE_PAGER                = Lx.contentTypeOf();
+    public static final int TYPE_VERTICAL_IMG         = Lx.contentTypeOf();
+    public static final int TYPE_HORIZONTAL_IMG       = Lx.contentTypeOf();
+    public static final int TYPE_HORIZONTAL_CONTAINER = Lx.contentTypeOf();
 
     @BindView(R.id.debug_tv)      TextView              mDebugTv;
-    @BindView(R.id.content_rv)    RecyclerView          mRecyclerView;
+    @BindView(R.id.content_rv)    RecyclerView          mContentRv;
     @BindView(R.id.fix_container) ViewGroup             mFixContainerFl;
     @BindView(R.id.select_layout) LxSlidingSelectLayout mLxSlidingSelectLayout;
 
@@ -74,7 +81,13 @@ public class NewSampleTestActivity extends MvpActivity {
 //    private LxModelList mLxModels = new LxModelList(true);
 
 
+    public static final String CLEAR_ALL_DATA = "CLEAR_ALL_DATA";
     private void test() {
+
+        LxGlobal.addEventHandler(CLEAR_ALL_DATA, (event, adapter, extra) -> {
+            adapter.getData().updateClear();
+        });
+
 
         LxItemBind.of(Student.class)
                 .opts(TypeOpts.make(R.layout.item_section))
@@ -90,9 +103,9 @@ public class NewSampleTestActivity extends MvpActivity {
         models.publishEvent("HIDE_LOADING");
         LxAdapter.of(models)
                 // 这里指定了 5 种类型的数据绑定
-                .bindItem(new StudentItemBind(), new TeacherItemBind(),
-                        new HeaderItemBind(), new FooterItemBind(), new EmptyItemBind())
-                .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+                .bindItem(new StudentItemBind(), new TeacherItemBind())
+                .bindItem(new HeaderItemBind(), new FooterItemBind(), new EmptyItemBind())
+                .attachTo(mContentRv, LxManager.grid(getContext(), 3));
 
         LxDragSwipeComponent.DragSwipeOptions options = new LxDragSwipeComponent.DragSwipeOptions();
         // 关闭触摸自动触发侧滑
@@ -101,25 +114,20 @@ public class NewSampleTestActivity extends MvpActivity {
         options.longPressItemView4Drag = false;
 
         // 定义事件拦截器
-        OnAdapterEventInterceptor interceptor = (event, adapter, extra) -> {
+        EventHandler handler = (event, adapter, extra) -> {
             LxList lxModels = adapter.getData();
-            // 隐藏 loading 条目
-            if ("HIDE_LOADING".equals(event)) {
-                LxList extTypeData = lxModels.getExtTypeData(Lx.VIEW_TYPE_LOADING);
-                extTypeData.updateClear();
-            }
-            // 返回 true 表示停止事件的传递
-            return true;
+            LxList extTypeData = lxModels.getExtTypeData(Lx.VIEW_TYPE_LOADING);
+            extTypeData.updateClear();
         };
         // 全局注入，会对所有 Adapter 生效
-        LxGlobal.addOnAdapterEventInterceptor(interceptor);
+        LxGlobal.addEventHandler(HIDE_LOADING, handler);
         // 对 Adapter 注入，仅对当前 Adapter 生效
         LxAdapter.of(models)
                 .bindItem(new StudentItemBind())
-                .onEvent(interceptor)
-                .attachTo(mRecyclerView, new LinearLayoutManager(getContext()));
+                .onEvent(HIDE_LOADING, handler)
+                .attachTo(mContentRv, LxManager.linear(getContext()));
         // 直接在数据层注入，会对该数据作为数据源的 Adapter 生效
-        models.addInterceptor(interceptor);
+        models.addEventHandler(HIDE_LOADING, handler);
 
 
 //        List snapshot = models.snapshot();
@@ -149,25 +157,22 @@ public class NewSampleTestActivity extends MvpActivity {
             Glide.with(view).load(url).into(view);
         });
 
-        LxGlobal.addOnAdapterEventInterceptor((event, adapter, extra) -> {
-            // 定义全局公共事件，用来清空数据
-            if ("CLEAR_ALL_DATA".equals(event)) {
-                adapter.getData().updateClear();
-            }
-            // 返回 true, 事件将不会往下分发
-            return true;
-        });
 
         mDebugTv.setText("演示：拖拽排序，侧滑删除");
-
-        initDragSwipeTest();
+        initImgTest();
     }
 
-    @OnClick({R.id.test_pager_btn, R.id.test_drag_swipe_btn, R.id.test_load_more_btn, R.id.test_expandable_btn, R.id.test_select_btn})
+    @OnClick({R.id.test_pager_btn, R.id.test_drag_swipe_btn,
+            R.id.test_load_more_btn, R.id.test_expandable_btn,
+            R.id.test_select_btn, R.id.test_img_btn})
     public void clickTestView(View view) {
-        mLxModels.updateClear();
+        mLxModels = new LxList();
         mLxSlidingSelectLayout.setEnabled(false);
         switch (view.getId()) {
+            case R.id.test_img_btn:
+                mDebugTv.setText("演示：图片");
+                initImgTest();
+                break;
             case R.id.test_drag_swipe_btn:
                 mDebugTv.setText("演示：拖拽排序，侧滑删除");
                 initDragSwipeTest();
@@ -244,7 +249,8 @@ public class NewSampleTestActivity extends MvpActivity {
                         }
                     }, 1000);
                 }))
-                .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+                .layoutManager(new GridLayoutManager(getContext(), 3))
+                .attachTo(mContentRv, LxManager.grid(getContext(), 3));
         setData();
     }
 
@@ -330,7 +336,7 @@ public class NewSampleTestActivity extends MvpActivity {
                             break;
                     }
                 }))
-                .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+                .attachTo(mContentRv, LxManager.grid(getContext(), 3));
 
         setData();
     }
@@ -364,7 +370,8 @@ public class NewSampleTestActivity extends MvpActivity {
                             break;
                     }
                 }))
-                .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+                .layoutManager(new GridLayoutManager(getContext(), 3))
+                .attachTo(mContentRv, LxManager.grid(getContext(), 3));
         setData();
     }
 
@@ -381,7 +388,7 @@ public class NewSampleTestActivity extends MvpActivity {
                     data.getExtra().putBoolean("change_now", true);
                     return false;
                 }))
-                .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+                .attachTo(mContentRv, LxManager.grid(getContext(), 3));
 
         setAllStudent();
     }
@@ -392,7 +399,7 @@ public class NewSampleTestActivity extends MvpActivity {
                 .bindItem(new HeaderItemBind(), new FooterItemBind(), new EmptyItemBind(),
                         new GroupItemBind(), new ChildItemBind())
                 .component(new LxFixedComponent())
-                .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+                .attachTo(mContentRv, LxManager.grid(getContext(), 3));
         setGroupChildData();
     }
 
@@ -405,8 +412,8 @@ public class NewSampleTestActivity extends MvpActivity {
 
                     @Override
                     public void onPageSelected(int lastPosition, int position) {
-                        RecyclerView.ViewHolder holder = mRecyclerView.findViewHolderForAdapterPosition(position);
-                        RecyclerView.ViewHolder lastHolder = mRecyclerView.findViewHolderForAdapterPosition(lastPosition);
+                        RecyclerView.ViewHolder holder = mContentRv.findViewHolderForAdapterPosition(position);
+                        RecyclerView.ViewHolder lastHolder = mContentRv.findViewHolderForAdapterPosition(lastPosition);
                         holder.itemView.animate().scaleX(1.13f).scaleY(1.13f).setDuration(300).start();
                         if (lastHolder != null && !lastHolder.equals(holder)) {
                             lastHolder.itemView.animate().scaleX(1f).scaleY(1f).setDuration(300).start();
@@ -418,10 +425,32 @@ public class NewSampleTestActivity extends MvpActivity {
 
                     }
                 }))
-                .attachTo(mRecyclerView, new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+                .attachTo(mContentRv, LxManager.linear(getContext(), true));
         List<NoNameData> sections = ListX.range(10, index -> new NoNameData(index + " "));
         mLxModels.update(LxTransformations.pack(TYPE_PAGER, sections));
     }
+
+
+    public void initImgTest() {
+        // mContentRv.addItemDecoration(new GridSpaceItemDecoration(2, 20, true));
+        LxAdapter.of(mLxModels)
+                .bindItem(new VerticalImgItemBind(), new HorizontalImgContainerItemBind())
+                .attachTo(mContentRv, LxManager.grid(getContext(), 2));
+
+        List<LxModel> snapshot = mLxModels.snapshot();
+        for (int i = 0; i < 100; i++) {
+            if (i % 3 == 0) {
+                NoNameData data = new NoNameData(Utils.randomImage(), i + "");
+                data.datas = ListX.range(((int) (Math.random() * 10)) + 5, integer -> new NoNameData(Utils.randomImage(), integer + ": 横向"));
+                snapshot.add(LxTransformations.pack(TYPE_HORIZONTAL_CONTAINER, data));
+            } else {
+                snapshot.add(LxTransformations.pack(TYPE_VERTICAL_IMG, new NoNameData(Utils.randomImage(), i + "：竖向")));
+            }
+        }
+        mLxModels.update(snapshot);
+
+    }
+
 
     @OnClick({R.id.add_header_btn, R.id.add_footer_btn, R.id.empty_btn})
     public void clickView(View view) {
@@ -435,7 +464,7 @@ public class NewSampleTestActivity extends MvpActivity {
                 } else {
                     mLxModels.updateAdd(0, header);
                 }
-                mRecyclerView.smoothScrollToPosition(0);
+                mContentRv.smoothScrollToPosition(0);
                 break;
             case R.id.add_footer_btn:
                 mDebugTv.setText("演示：添加Footer");
@@ -446,7 +475,7 @@ public class NewSampleTestActivity extends MvpActivity {
                 } else {
                     mLxModels.updateAddLast(footer);
                 }
-                mRecyclerView.smoothScrollToPosition(mLxModels.size() - 1);
+                mContentRv.smoothScrollToPosition(mLxModels.size() - 1);
                 break;
             case R.id.empty_btn:
                 mDebugTv.setText("演示：空载页");
@@ -565,10 +594,26 @@ public class NewSampleTestActivity extends MvpActivity {
         }
     }
 
+
+    static class InnerTypeData implements Typeable {
+
+        int type;
+
+        @Override
+        public int getItemType() {
+            return type;
+        }
+    }
+
     static class NoNameData {
         int    status;
         String url;
         String desc;
+
+        int pos;
+        int offset;
+
+        List<NoNameData> datas;
 
         public NoNameData() {
         }
@@ -940,6 +985,69 @@ public class NewSampleTestActivity extends MvpActivity {
             holder.setClick(R.id.refresh_tv, v -> setData());
         }
     }
+
+
+    static class VerticalImgItemBind extends LxItemBind<NoNameData> {
+
+        public VerticalImgItemBind() {
+            super(TypeOpts.make(opts -> {
+                opts.viewType = TYPE_VERTICAL_IMG;
+                opts.layoutId = R.layout.item_img;
+                opts.spanSize = 1;
+            }));
+        }
+
+        @Override
+        public void onBindView(LxContext context, LxVh holder, NoNameData listItem) {
+            holder.setImage(R.id.cover_iv, listItem.url)
+                    .setText(R.id.title_tv, listItem.desc)
+                    .setLayoutParams(SizeX.WIDTH / 2, SizeX.WIDTH / 2);
+        }
+    }
+
+    static class HorizontalImgItemBind extends LxItemBind<NoNameData> {
+
+        public HorizontalImgItemBind() {
+            super(TypeOpts.make(TYPE_HORIZONTAL_IMG, R.layout.item_img));
+        }
+
+        @Override
+        public void onBindView(LxContext context, LxVh holder, NoNameData listItem) {
+            holder.setImage(R.id.cover_iv, listItem.url);
+        }
+    }
+
+
+    static class HorizontalImgContainerItemBind extends LxItemBind<NoNameData> {
+
+        public HorizontalImgContainerItemBind() {
+            super(TypeOpts.make(opts -> {
+                opts.viewType = TYPE_HORIZONTAL_CONTAINER;
+                opts.layoutId = R.layout.item_horizontal_container;
+                opts.spanSize = Lx.SPAN_SIZE_ALL;
+            }));
+        }
+
+        // 初始化没有 adapter 时的 callback，放在这里是避免多次创建造成性能问题
+        // 使用 list 创建一个 Adapter 绑定到 view 上
+        private LxNesting.OnNoAdapterCallback callback = (view, list) -> {
+            LxAdapter.of(list)
+                    .bindItem(new HorizontalImgItemBind())
+                    .attachTo(view, LxManager.linear(view.getContext(), true));
+        };
+
+        @Override
+        public void onBindView(LxContext context, LxVh holder, NoNameData listItem) {
+            holder.setText(R.id.title_tv, listItem.desc + " , offset = " + listItem.offset + " pos = " + listItem.pos);
+            // 获取到控件
+            RecyclerView contentRv = holder.getView(R.id.content_rv);
+            // 打包横向滑动的数据，这个 type 可自定义
+            List<LxModel> packDatas = LxTransformations.pack(TYPE_HORIZONTAL_IMG, listItem.datas);
+            // 设置，这里会尝试恢复上次的位置，并计算接下来滑动的位置
+            LxNesting.setup(contentRv, context.model, packDatas, callback);
+        }
+    }
+
 
     static class SelectItemBind extends LxItemBind<NoNameData> {
 

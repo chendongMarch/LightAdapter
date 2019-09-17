@@ -85,6 +85,13 @@
             android:text="ViewPager" />
 
 
+        <Button
+            android:id="@+id/test_img_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="图片混合" />
+
+
         <TextView
             android:layout_marginTop="10dp"
             android:gravity="center"

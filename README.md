@@ -52,9 +52,11 @@
   - [功能：拖拽和侧滑（Drag/Swipe）](#dragswipe)
   - [功能：实现 ViewPager (Snap) ](#snap)
   - [功能：实现分组列表 (Expandable) ～ 按组划分，展开收起](#expandable)
+  - [功能：实现 RecyclerView 嵌套 (Nesting) ～ 嵌套滑动，恢复滑动位置](#nesting)
 - 进阶
   - [进阶：使用条件更新](#condition)
   - [进阶：使用 Idable 优化 change](#idable)
+  - [进阶：使用 Typeable 内置类型](#typeable)
   - [进阶：使用有效载荷（payloads）更新 ](#payloads)
 
 <!-- /TOC -->
@@ -71,12 +73,16 @@
 - 支持针对每种数据类型，进行细粒度的配置侧滑、拖拽、顶部悬停、跨越多列、动画等效果；
 - 支持单击事件、双击事件、长按事件；
 - 支持自动检测数据更新的线程，避免出现在子线程更新数据的情况；
-- 支持使用 `payloads` 实现有效更新；
 - 支持自定义类型，可扩展实现 `Header/Fooer/Loading/Empty/Fake` 等场景效果；
 - 支持列表顶部、列表底部，预加载更多数据；
 - 支持快速实现选择器效果，单选、多选、滑动选中。
 - 支持 `ItemAnimator` / `BindAnimator` 两种方式实现添加布局动画。
 - 支持借助 `SnapHelper` 快速实现 `ViewPager` 效果；
+- 支持发布订阅模式的事件抽离，更容易分离公共逻辑；
+- 支持使用 `payloads` 实现有效更新；
+- 支持使用 `condition` 实现条件更新，按照指定条件更新数据，拒绝无脑刷新；
+- 使用 `LxExpandable` 快速实现分组列表；
+- 使用 `LxNesting` 快速实现 `RecyclerView` 的嵌套滑动；
 
 <span id="design"></span>
 
@@ -174,16 +180,13 @@ LxGlobal.setImgUrlLoader((view, url, extra) -> {
 });
 ```
 
-设置全局事件拦截，这部份详细的会在下面 **事件发布** 一节说明：
+设置全局事件处理，这部份详细的会在下面 **事件发布** 一节说明：
 
 ```java
-LxGlobal.addOnAdapterEventInterceptor((event, adapter, extra) -> {
-    // 定义全局公共事件，用来清空数据
-    if ("CLEAR_ALL_DATA".equals(event)) {
-        adapter.getData().updateClear();
-    }
-    // 返回 true, 事件将不会往下分发
-    return true;
+public static final String CLEAR_ALL_DATA = "CLEAR_ALL_DATA";
+
+LxGlobal.addEventHandler(CLEAR_ALL_DATA, (event, adapter, extra) -> {
+    adapter.getData().updateClear();
 });
 ```
 <span id="lxadapter"></span>
@@ -197,7 +200,7 @@ LxList list = new LxList();
 LxAdapter.of(list)
         // 这里指定了两个类型的数据绑定
         .bindItem(new StudentItemBind(), new TeacherItemBind())
-        .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+        .attachTo(mRecyclerView, LxManager.grid(getContext(), 3));
 
 // 以下是为 Adapter 更新数据，应该在下面讲解，放在这里是为了让整个流程看起来更加完整
 // 假设我们获取到了数据
@@ -558,7 +561,7 @@ LxAdapter.of(list)
         // 这里指定了 5 种类型的数据绑定
         .bindItem(new StudentItemBind(), new TeacherItemBind(),
                 new HeaderItemBind(),new FooterItemBind(),new EmptyItemBind())
-        .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+        .attachTo(mRecyclerView, LxManager.grid(getContext(), 3));
 ```
 
 添加数据，它们被添加到一个数据源列表中：
@@ -658,29 +661,27 @@ class StudentItemBind extends LxItemBind<Student> {
 使用事件，这个过程将会变得很方便而且容易提取为单独的业务逻辑：
 
 ```java
-// 定义事件拦截器
-OnAdapterEventInterceptor interceptor = (event, adapter, extra) -> {
+// 事件
+public static final String HIDE_LOADING = "HIDE_LOADING";
+
+// 定义事件处理器
+EventHandler handler = (event, adapter, extra) -> {
     LxList lxModels = adapter.getData();
-    // 隐藏 loading 条目
-    if ("HIDE_LOADING".equals(event)) {
-        LxList customTypeData = lxModels.getExtTypeData(Lx.VIEW_TYPE_LOADING);
-        customTypeData.updateClear();
-    }
-    // 返回 true 表示停止事件的传递
-    return true;
+    LxList extTypeData = lxModels.getExtTypeData(Lx.VIEW_TYPE_LOADING);
+    extTypeData.updateClear();
 };
 
-// 1. 全局注入，会对所有 Adapter 生效
-LxGlobal.addOnAdapterEventInterceptor(interceptor);
+// 全局注入，会对所有 Adapter 生效
+LxGlobal.addEventHandler(HIDE_LOADING, handler);
 
-// 2. 对 Adapter 注入，仅对当前 Adapter 生效
-LxAdapter.of(list)
+// 对 Adapter 注入，仅对当前 Adapter 生效
+LxAdapter.of(models)
         .bindItem(new StudentItemBind())
-        .onEvent(interceptor)
-        .attachTo(mRecyclerView, new LinearLayoutManager(getContext()));
+        .onEvent(HIDE_LOADING, handler)
+        .attachTo(mContentRv, LxManager.linear(getContext()));
 
-// 3. 直接在数据层注入，会对该数据作为数据源的 Adapter 生效
-list.addInterceptor(interceptor);
+// 直接在数据层注入，会对该数据作为数据源的 Adapter 生效
+models.addEventHandler(HIDE_LOADING, handler);
 ```
 
 当我们数据更新完成时，需要发布事件：
@@ -689,8 +690,8 @@ list.addInterceptor(interceptor);
 // 数据源
 LxList list = new LxList();
 
-// 发布隐藏 Loading 事件
-list.publishEvent("HIDE_LOADING");
+// 一般我们在 Presenter 等数据处理层会拿到数据源，使用数据源可以直接向 Adapter 发布事件
+list.publishEvent(HIDE_LOADING);
 ```
 
 内置了两个事件，可以直接使用以后看需求扩展：
@@ -756,7 +757,7 @@ LxAdapter.of(list)
             // 在这里做网络请求，完成后调用 finish 接口
             comp.finishLoadMore();
         }))
-        .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+        .attachTo(mRecyclerView, LxManager.grid(getContext(), 3));
 ```
 
 <span id="selector"></span>
@@ -773,7 +774,7 @@ LxAdapter.of(list)
         .bindItem(new StudentItemBind())
         // 多选
         .component(new LxSelectComponent(Lx.SELECT_MULTI))
-        .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+        .attachTo(mRecyclerView, LxManager.grid(getContext(), 3));
 
 // 获取选择后的结果
 List<Student> result = list.filterTo(LxModel::isSelected, LxModel::unpack);
@@ -862,7 +863,7 @@ LxAdapter.of(list)
         .bindItem(new StudentItemBind())
         // 缩放动画
         .component(new LxBindAnimatorComponent(new BindScaleAnimator()))
-        .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+        .attachTo(mRecyclerView, LxManager.grid(getContext(), 3));
 ```
 
 也可以分类型指定动画，每种类型给予不同的动画效果
@@ -892,7 +893,7 @@ LxAdapter.of(list)
         .bindItem(new StudentItemBind())
         // 缩放动画
         .component(new LxItemAnimatorComponent(new ScaleInAnimator()))
-        .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+        .attachTo(mRecyclerView, LxManager.grid(getContext(), 3));
 ```
 
 <span id="fixed"></span>
@@ -911,7 +912,7 @@ LxAdapter.of(list)
         .component(new LxFixedComponent())
         // 悬挂效果
         .component(new LxFixedComponent(mMyViewGroup))
-        .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+        .attachTo(mRecyclerView, LxManager.grid(getContext(), 3));
 ```
 
 同时在 `TypeOpts` 中说明哪些类型需要支持悬挂
@@ -985,7 +986,7 @@ xAdapter.of(list)
                     break;
             }
         }))
-        .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+        .attachTo(mRecyclerView, LxManager.grid(getContext(), 3));
 ```
 
 最后在 `TypeOpts` 里面配置该类型是否支持侧滑和拖拽，这样可以灵活的控制每种类型数据的行为：
@@ -1091,6 +1092,8 @@ LxAdapter.of(mLxModels)
 ## 功能：实现分组列表（Expandable）
 
 基于我们基本的设计架构是可以很轻松的实现分组列表效果的，但是这个场景用到的时候比较多，所以内置一些辅助类，用来更好、更简单的实现分组列表；
+
+针对分组列表的场景设计了 `LxExpandable` 辅助类；
 
 首先 **组** 的数据结构需要实现接口 `LxExpandable.ExpandableGroup`:
 
@@ -1207,7 +1210,7 @@ static class ChildItemBind extends LxItemBind<ChildData> {
 LxAdapter.of(mLxModels)
         .bindItem(new GroupItemBind(), new ChildItemBind())
         .component(new LxFixedComponent())
-        .attachTo(mRecyclerView, new GridLayoutManager(getContext(), 3));
+        .attachTo(mRecyclerView, LxManager.grid(getContext(), 3));
 ```
 
 我们模拟一些假数据：
@@ -1234,6 +1237,50 @@ mLxModels.update(lxModels);
 
 是不是很简单啊，感觉上还是写了一些代码，没有一行代码实现xxx 的感觉，只是提供一个思路，如果类库内部接管太多业务逻辑其实是不友好的，可以看下 `LxExpandable` 的代码，其实就是对数据处理的一些封装，基于基本的设计思想很容易抽离出来；
 
+<span id="nesting"></span>
+
+## 功能：实现嵌套滑动（Nesting）
+
+开发中有种比较常见的场景，垂直的列表中，嵌套横向滑动的列表：
+
+1. 横向滑动和纵向滑动事件不能冲突；
+2. 上下滑动时，不能因为加载横向的列表造成滑动的卡顿；
+3. 滑动过的横向列表，再回来时，要保持原先的滑动状态；
+
+针对这种场景，设计了 `LxNesting` 辅助工具；
+
+最外层列表的使用跟之前一样就不再赘述了，主要说一下横向列表如何使用 `LxNesting`
+
+```java
+class HorizontalImgContainerItemBind extends LxItemBind<NoNameData> {
+    public HorizontalImgContainerItemBind() {
+        super(TypeOpts.make(opts -> {
+            opts.viewType = TYPE_HORIZONTAL_CONTAINER;
+            opts.layoutId = R.layout.item_horizontal_container;
+            opts.spanSize = Lx.SPAN_SIZE_ALL;
+        }));
+    }
+
+    // 初始化没有 adapter 时的 callback，放在这里是避免多次创建造成性能问题
+    // 使用 list 创建一个 Adapter 绑定到 view 上
+    private LxNesting.OnNoAdapterCallback callback = (view, list) -> {
+        LxAdapter.of(list)
+                .bindItem(new HorizontalImgItemBind())
+                .attachTo(view, LxManager.linear(view.getContext(), true));
+    };
+
+    @Override
+    public void onBindView(LxContext context, LxVh holder, NoNameData listItem) {
+        // 获取到控件
+        RecyclerView contentRv = holder.getView(R.id.content_rv);
+        // 打包横向滑动的数据，这个 type 可自定义
+        List<LxModel> packDatas = LxTransformations.pack(TYPE_HORIZONTAL_IMG, listItem.datas);
+        // 设置，这里会尝试恢复上次的位置，并计算接下来滑动的位置
+        LxNesting.setup(contentRv, context.model, packDatas, callback);
+    }
+}
+```
+
 <span id="idable"></span>
 
 ## 进阶：使用 Idable 优化 change
@@ -1255,6 +1302,25 @@ static class Student implements Idable  {
     @Override
     public Object getObjId() {
         return id;
+    }
+}
+```
+
+
+<span id="typeable"></span>
+
+## 进阶：使用 Typeable 内置类型
+
+上面的例子中我们主要使用 `LxTransformations` 打包数据，这样相对来说可以尽量少的修改你的数据类，但是每次都需要设置一个类型，否则将会使用默认类型，也可以使用数据类实现 `Typeable` 接口，在接口方法中返回类型，这样打包数据的时候就不需要指定类型了，内部会检测是否是 `Typeable` 子类，获取真正的类型；
+
+```java
+static class InnerTypeData implements Typeable {
+    
+    int type;
+
+    @Override
+    public int getItemType() {
+        return type;
     }
 }
 ```

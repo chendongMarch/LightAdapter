@@ -29,11 +29,11 @@ public abstract class LxItemBind<D> implements Typeable {
         this.typeOpts = opts;
     }
 
-    public void onAdapterAttached(LxAdapter adapter) {
+    void onAdapterAttached(LxAdapter adapter) {
         this.adapter = adapter;
     }
 
-    public LxVh onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    LxVh onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = adapter.inflater.inflate(typeOpts.layoutId, parent, false);
         LxContext context = (LxContext) view.getTag(R.id.item_context);
         if (context == null) {
@@ -47,7 +47,7 @@ public abstract class LxItemBind<D> implements Typeable {
         return lxVh;
     }
 
-    public void onBindViewHolder(@NonNull LxVh holder, int position, LxModel data, @NonNull List<Object> payloads) {
+    void onBindViewHolder(@NonNull LxVh holder, int position, LxModel data, @NonNull List<Object> payloads) {
         D unpack = data.unpack();
 
         LxContext context = (LxContext) holder.itemView.getTag(R.id.item_context);

@@ -13,11 +13,12 @@ import com.zfy.adapter.component.LxComponent;
 import com.zfy.adapter.data.LxModel;
 import com.zfy.adapter.data.TypeOpts;
 import com.zfy.adapter.helper.LxSpan;
-import com.zfy.adapter.listener.OnAdapterEventInterceptor;
+import com.zfy.adapter.listener.EventHandler;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -40,17 +41,17 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
 
     public static class Builder {
 
-        private LxList                          data;
-        private SparseArray<LxItemBind>         binders;
-        private RecyclerView.LayoutManager      layoutManager;
-        private RecyclerView                    view;
-        private Set<LxComponent>                components;
-        private List<OnAdapterEventInterceptor> interceptors;
+        private LxList                     data;
+        private SparseArray<LxItemBind>    binders;
+        private RecyclerView.LayoutManager layoutManager;
+        private RecyclerView               view;
+        private Set<LxComponent>           components;
+        private Map<String, EventHandler>  interceptors;
 
         private Builder() {
             binders = new SparseArray<>();
             components = new HashSet<>();
-            interceptors = new ArrayList<>();
+            interceptors = new HashMap<>();
         }
 
         public Builder bindItem(LxItemBind... binders) {
@@ -66,8 +67,13 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
             return this;
         }
 
-        public Builder onEvent(OnAdapterEventInterceptor interceptor) {
-            this.interceptors.add(interceptor);
+        public Builder onEvent(String event, EventHandler interceptor) {
+            this.interceptors.put(event, interceptor);
+            return this;
+        }
+
+        public Builder layoutManager(RecyclerView.LayoutManager manager) {
+            this.layoutManager = manager;
             return this;
         }
 
@@ -112,12 +118,16 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
             this.view.setAdapter(this);
         }
         this.data.setAdapter(this);
-        if (LxGlobal.interceptors != null) {
-            builder.interceptors.addAll(LxGlobal.interceptors);
+        if (LxGlobal.handlers != null) {
+            builder.interceptors.putAll(LxGlobal.handlers);
         }
-        for (OnAdapterEventInterceptor interceptor : builder.interceptors) {
-            this.data.addInterceptor(interceptor);
+        for (Map.Entry<String, EventHandler> entry : builder.interceptors.entrySet()) {
+            this.data.addEventHandler(entry.getKey(), entry.getValue());
         }
+        for (LxComponent component : components) {
+            component.onAttachedToAdapter(this);
+        }
+
     }
 
     @Override

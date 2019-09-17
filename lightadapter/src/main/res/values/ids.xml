@@ -6,5 +6,6 @@
     <item name="item_pos" type="id" />
     <item name="item_context" type="id" />
     <item name="drag_swipe_state" type="id" />
+    <item name="tag_listener" type="id" />
 
 </resources>

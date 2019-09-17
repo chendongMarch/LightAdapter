@@ -9,10 +9,12 @@ import com.zfy.adapter.function._Consumer;
 import com.zfy.adapter.function._Function;
 import com.zfy.adapter.function._Predicate;
 import com.zfy.adapter.helper.LxTypeSplit;
-import com.zfy.adapter.listener.OnAdapterEventInterceptor;
+import com.zfy.adapter.listener.EventHandler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * CreateAt : 2018/11/8
@@ -22,9 +24,9 @@ import java.util.List;
  */
 public class LxList extends DiffableList<LxModel> {
 
-    private LxTypeSplit                     typeSplit;
-    private List<OnAdapterEventInterceptor> interceptors;
-    private LxAdapter                       adapter;
+    private LxTypeSplit               typeSplit;
+    private Map<String, EventHandler> interceptors;
+    private LxAdapter                 adapter;
 
     public LxList(boolean async) {
         super(async);
@@ -56,11 +58,11 @@ public class LxList extends DiffableList<LxModel> {
         return !typeSplit.getExtTypeData(viewType).isEmpty();
     }
 
-    public void addInterceptor(OnAdapterEventInterceptor interceptor) {
+    public void addEventHandler(String event, EventHandler interceptor) {
         if (interceptors == null) {
-            interceptors = new ArrayList<>();
+            interceptors = new HashMap<>(4);
         }
-        interceptors.add(interceptor);
+        interceptors.put(event, interceptor);
     }
 
     public void publishEvent(String event) {
@@ -71,10 +73,9 @@ public class LxList extends DiffableList<LxModel> {
         if (interceptors == null || interceptors.isEmpty()) {
             return;
         }
-        for (OnAdapterEventInterceptor interceptor : interceptors) {
-            if (interceptor.intercept(event, this.adapter, extra)) {
-                break;
-            }
+        EventHandler eventInterceptor = interceptors.get(event);
+        if (eventInterceptor != null) {
+            eventInterceptor.intercept(event, adapter, extra);
         }
     }
 
