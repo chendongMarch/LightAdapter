@@ -1,4 +1,4 @@
-com.zfy.adapter
+com.zfy.lxadapter
 int attr font 0x7f040001
 int attr fontProviderAuthority 0x7f040002
 int attr fontProviderCerts 0x7f040003

@@ -50,6 +50,7 @@
     <item name="line3" type="id"/>
     <item name="onAttachStateChangeListener" type="id"/>
     <item name="onDateChanged" type="id"/>
+    <item name="tag_listener" type="id"/>
     <item name="text" type="id"/>
     <item name="text2" type="id"/>
     <item name="textWatcher" type="id"/>

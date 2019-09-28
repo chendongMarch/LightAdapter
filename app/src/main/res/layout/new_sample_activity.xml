@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
 
-    <com.zfy.adapter.decoration.LxSlidingSelectLayout
+    <com.zfy.lxadapter.decoration.LxSlidingSelectLayout
         android:layout_width="match_parent"
         android:id="@+id/select_layout"
         android:layout_height="match_parent">
@@ -17,7 +17,7 @@
             android:layout_height="match_parent" />
 
 
-    </com.zfy.adapter.decoration.LxSlidingSelectLayout>
+    </com.zfy.lxadapter.decoration.LxSlidingSelectLayout>
 
 
     <FrameLayout

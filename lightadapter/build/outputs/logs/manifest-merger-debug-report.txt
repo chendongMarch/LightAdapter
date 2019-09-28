@@ -1,14 +1,14 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/AndroidManifest.xml:1:1-2:32
-INJECTED from /Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/AndroidManifest.xml:1:1-2:32
-INJECTED from /Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/AndroidManifest.xml:1:1-2:32
+ADDED from /Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/AndroidManifest.xml:1:1-2:34
+INJECTED from /Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/AndroidManifest.xml:1:1-2:34
+INJECTED from /Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/AndroidManifest.xml:1:1-2:34
 	package
-		ADDED from /Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/AndroidManifest.xml:2:5-30
+		ADDED from /Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/AndroidManifest.xml:2:5-32
 		INJECTED from /Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/AndroidManifest.xml
 		INJECTED from /Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/AndroidManifest.xml
 	xmlns:android
-		ADDED from /Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/AndroidManifest.xml:1:1-2:32
+		ADDED from /Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/AndroidManifest.xml:1:1-2:34
 uses-sdk
 INJECTED from /Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/AndroidManifest.xml

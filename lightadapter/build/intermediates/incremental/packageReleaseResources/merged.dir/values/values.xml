@@ -6,5 +6,6 @@
     <item name="item_data" type="id"/>
     <item name="item_pos" type="id"/>
     <item name="item_view" type="id"/>
+    <item name="tag_listener" type="id"/>
     <string name="app_name">LightAdapter</string>
 </resources>

@@ -88,11 +88,11 @@ public final class R {
         public static int onDateChanged = 0x7f0c001c;
         public static int right_icon = 0x7f0c001d;
         public static int right_side = 0x7f0c001e;
-        public static int text = 0x7f0c001f;
-        public static int text2 = 0x7f0c0020;
-        public static int textWatcher = 0x7f0c0021;
-        public static int time = 0x7f0c0022;
-        public static int title = 0x7f0c0023;
+        public static int text = 0x7f0c0020;
+        public static int text2 = 0x7f0c0021;
+        public static int textWatcher = 0x7f0c0022;
+        public static int time = 0x7f0c0023;
+        public static int title = 0x7f0c0024;
     }
     public static final class integer {
         public static int status_bar_notification_info_maxnum = 0x7f0d0001;

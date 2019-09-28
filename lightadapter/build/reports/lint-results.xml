@@ -46,7 +46,7 @@
         errorLine1="    public boolean onTouchEvent(MotionEvent ev) {"
         errorLine2="                   ~~~~~~~~~~~~">
         <location
-            file="/Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/java/com/zfy/adapter/decoration/LxSlidingSelectLayout.java"
+            file="/Users/march/AndroidPro/LightAdapterSample/lightadapter/src/main/java/com/zfy/lxadapter/decoration/LxSlidingSelectLayout.java"
             line="90"
             column="20"/>
     </issue>
