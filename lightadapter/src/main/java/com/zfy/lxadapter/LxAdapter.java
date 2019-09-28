@@ -1,6 +1,7 @@
 package com.zfy.lxadapter;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import com.zfy.lxadapter.component.LxComponent;
 import com.zfy.lxadapter.data.LxModel;
 import com.zfy.lxadapter.data.TypeOpts;
+import com.zfy.lxadapter.function._Function;
 import com.zfy.lxadapter.helper.LxSpan;
 import com.zfy.lxadapter.listener.EventHandler;
 
@@ -27,35 +29,46 @@ import java.util.Set;
  *
  * @author chendong
  */
-public class LxAdapter extends RecyclerView.Adapter<LxVh> {
+public class LxAdapter extends RecyclerView.Adapter<LxViewHolder> {
 
     @NonNull private LxList data;
     /*default*/ LayoutInflater inflater;
     private Context      context;
     private RecyclerView view;
 
-    private SparseArray<LxItemBind> binders;
-    private Set<LxComponent>        components;
+    private SparseArray<LxItemBinder> binders;
+    private Set<LxComponent>          components;
     /*default*/ boolean      hasExtType;
 
 
     public static class Builder {
 
-        private LxList                     data;
-        private SparseArray<LxItemBind>    binders;
-        private RecyclerView.LayoutManager layoutManager;
-        private RecyclerView               view;
-        private Set<LxComponent>           components;
-        private Map<String, EventHandler>  interceptors;
+        private          LxList                     data;
+        private          SparseArray<LxItemBinder>  binders;
+        private          RecyclerView.LayoutManager layoutManager;
+        private          RecyclerView               view;
+        private          Set<LxComponent>           components;
+        private          Map<String, EventHandler>  interceptors;
+        private @NonNull Bundle                     params;
 
         private Builder() {
             binders = new SparseArray<>();
             components = new HashSet<>();
             interceptors = new HashMap<>();
+            params = new Bundle();
         }
 
-        public Builder bindItem(LxItemBind... binders) {
-            for (LxItemBind bind : binders) {
+        public Builder params(@NonNull Bundle params) {
+            this.params = params;
+            return this;
+        }
+
+        public Builder compose(_Function<Builder, Builder> mapper) {
+            return mapper.map(this);
+        }
+
+        public Builder bindItem(LxItemBinder... binders) {
+            for (LxItemBinder bind : binders) {
                 this.binders.append(bind.getItemType(), bind);
             }
             return this;
@@ -101,8 +114,8 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
         this.components = builder.components;
         this.hasExtType = false;
         for (int i = 0; i < binders.size(); i++) {
-            LxItemBind lxItemBind = binders.valueAt(i);
-            lxItemBind.onAdapterAttached(this);
+            LxItemBinder lxItemBind = binders.valueAt(i);
+            lxItemBind.onAdapterAttached(this, builder.params);
             if (!Lx.isContentType(lxItemBind.getTypeOpts().viewType)) {
                 this.hasExtType = true;
             }
@@ -151,23 +164,23 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
 
     @NonNull
     @Override
-    public LxVh onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LxItemBind lxItemBind = binders.get(viewType);
-        LxVh holder = lxItemBind.onCreateViewHolder(parent, viewType);
+    public LxViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LxItemBinder lxItemBind = binders.get(viewType);
+        LxViewHolder holder = lxItemBind.onCreateViewHolder(parent, viewType);
         holder.setItemViewType(viewType);
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull LxVh holder, int position) {
+    public void onBindViewHolder(@NonNull LxViewHolder holder, int position) {
         // ignore
     }
 
     @Override
-    public void onBindViewHolder(@NonNull LxVh holder, int position, @NonNull List<Object> payloads) {
+    public void onBindViewHolder(@NonNull LxViewHolder holder, int position, @NonNull List<Object> payloads) {
         LxModel lxModel = data.get(position);
         int viewType = getItemViewType(position);
-        LxItemBind lxItemBind = binders.get(viewType);
+        LxItemBinder lxItemBind = binders.get(viewType);
         lxItemBind.onBindViewHolder(holder, position, lxModel, payloads);
         for (LxComponent component : components) {
             component.onBindViewHolder(this, holder, position, payloads);
@@ -185,7 +198,7 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
     }
 
     @Override
-    public void onViewAttachedToWindow(@NonNull LxVh holder) {
+    public void onViewAttachedToWindow(@NonNull LxViewHolder holder) {
         super.onViewAttachedToWindow(holder);
         LxSpan.onViewAttachedToWindow(this, holder);
     }
@@ -204,7 +217,7 @@ public class LxAdapter extends RecyclerView.Adapter<LxVh> {
     }
 
     public TypeOpts getTypeOpts(int viewType) {
-        LxItemBind bind = binders.get(viewType);
+        LxItemBinder bind = binders.get(viewType);
         if (bind == null) {
             throw new IllegalStateException("ItemBind Is Null");
         }

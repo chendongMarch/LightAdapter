@@ -6,7 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import com.zfy.lxadapter.Lx;
 import com.zfy.lxadapter.LxAdapter;
 import com.zfy.lxadapter.LxList;
-import com.zfy.lxadapter.LxVh;
+import com.zfy.lxadapter.LxViewHolder;
 import com.zfy.lxadapter.helper.LxUtil;
 import com.zfy.lxadapter.listener.OnLoadMoreListener;
 
@@ -43,7 +43,7 @@ public class LxLoadMoreComponent extends LxComponent {
     }
 
     @Override
-    public void onBindViewHolder(LxAdapter adapter, @NonNull LxVh holder, int position, @NonNull List<Object> payloads) {
+    public void onBindViewHolder(LxAdapter adapter, @NonNull LxViewHolder holder, int position, @NonNull List<Object> payloads) {
         if (loadMoreOn == Lx.LOAD_MORE_ON_SCROLL) {
             return;
         }

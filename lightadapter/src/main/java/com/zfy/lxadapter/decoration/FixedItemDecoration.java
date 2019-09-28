@@ -5,7 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.zfy.lxadapter.LxAdapter;
-import com.zfy.lxadapter.LxVh;
+import com.zfy.lxadapter.LxViewHolder;
 import com.zfy.lxadapter.data.TypeOpts;
 import com.zfy.lxadapter.helper.LxUtil;
 
@@ -77,7 +77,7 @@ public class FixedItemDecoration extends RecyclerView.ItemDecoration {
         if (holder == null) {
             int itemViewType = adapter.getItemViewType(lastFixedPosition);
             holder = adapter.onCreateViewHolder(parent, itemViewType);
-            LxVh lxVh = (LxVh) holder;
+            LxViewHolder lxVh = (LxViewHolder) holder;
             lxVh.setItemViewType(itemViewType);
             adapter.onBindViewHolder(lxVh, lastFixedPosition, PAY_LOADS);
         }

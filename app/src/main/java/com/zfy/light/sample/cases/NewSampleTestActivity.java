@@ -14,12 +14,16 @@ import com.march.common.exts.ListX;
 import com.march.common.exts.SizeX;
 import com.march.common.exts.ToastX;
 import com.march.common.pool.ExecutorsPool;
+import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
+import com.zfy.component.basic.mvx.mvp.app.MvpV;
+import com.zfy.light.sample.R;
+import com.zfy.light.sample.Utils;
 import com.zfy.lxadapter.Lx;
 import com.zfy.lxadapter.LxAdapter;
 import com.zfy.lxadapter.LxGlobal;
-import com.zfy.lxadapter.LxItemBind;
+import com.zfy.lxadapter.LxItemBinder;
 import com.zfy.lxadapter.LxList;
-import com.zfy.lxadapter.LxVh;
+import com.zfy.lxadapter.LxViewHolder;
 import com.zfy.lxadapter.animation.BindScaleAnimator;
 import com.zfy.lxadapter.component.LxDragSwipeComponent;
 import com.zfy.lxadapter.component.LxEndEdgeLoadMoreComponent;
@@ -39,10 +43,6 @@ import com.zfy.lxadapter.helper.LxManager;
 import com.zfy.lxadapter.helper.LxNesting;
 import com.zfy.lxadapter.helper.LxTransformations;
 import com.zfy.lxadapter.listener.EventHandler;
-import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
-import com.zfy.component.basic.mvx.mvp.app.MvpV;
-import com.zfy.light.sample.R;
-import com.zfy.light.sample.Utils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -89,7 +89,7 @@ public class NewSampleTestActivity extends MvpActivity {
         });
 
 
-        LxItemBind.of(Student.class)
+        LxItemBinder.of(Student.class)
                 .opts(TypeOpts.make(R.layout.item_section))
                 .onViewBind((context, holder, data) -> {
 
@@ -198,7 +198,7 @@ public class NewSampleTestActivity extends MvpActivity {
         }
     }
     private void initLoadMoreTest() {
-        LxItemBind<NoNameData> loadingBind = LxItemBind.of(NoNameData.class)
+        LxItemBinder<NoNameData> loadingBind = LxItemBinder.of(NoNameData.class)
                 .opts(TypeOpts.make(opts -> {
                     opts.viewType = Lx.VIEW_TYPE_LOADING;
                     opts.layoutId = R.layout.loading_view;
@@ -260,7 +260,7 @@ public class NewSampleTestActivity extends MvpActivity {
         dragSwipeOptions.longPressItemView4Drag = true;
         dragSwipeOptions.touchItemView4Swipe = true;
 
-        LxItemBind<NoNameData> loadingBind = LxItemBind.of(NoNameData.class)
+        LxItemBinder<NoNameData> loadingBind = LxItemBinder.of(NoNameData.class)
                 .opts(TypeOpts.make(opts -> {
                     opts.viewType = Lx.VIEW_TYPE_LOADING;
                     opts.layoutId = R.layout.loading_view;
@@ -684,7 +684,7 @@ public class NewSampleTestActivity extends MvpActivity {
     }
 
 
-    static class PagerItemBind extends LxItemBind<NoNameData> {
+    static class PagerItemBind extends LxItemBinder<NoNameData> {
 
         public PagerItemBind() {
             super(TypeOpts.make(opts -> {
@@ -694,11 +694,12 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LxContext context, LxVh holder, NoNameData listItem) {
+        public void onBindView(LxContext context, LxViewHolder holder, NoNameData listItem) {
             holder.setText(R.id.content_tv, listItem.desc);
         }
     }
-    static class GroupItemBind extends LxItemBind<GroupData> {
+
+    static class GroupItemBind extends LxItemBinder<GroupData> {
 
         GroupItemBind() {
             super(TypeOpts.make(opts -> {
@@ -710,7 +711,7 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LxContext context, LxVh holder, GroupData data) {
+        public void onBindView(LxContext context, LxViewHolder holder, GroupData data) {
             holder.setText(R.id.section_tv, data.title + " " + (data.expand ? "展开" : "关闭"));
         }
 
@@ -720,18 +721,18 @@ public class NewSampleTestActivity extends MvpActivity {
         }
     }
 
-    static class ChildItemBind extends LxItemBind<ChildData> {
+    static class ChildItemBind extends LxItemBinder<ChildData> {
 
-        ChildItemBind() {
-            super(TypeOpts.make(opts -> {
+        public ChildItemBind() {
+            super(opts -> {
                 opts.spanSize = Lx.SPAN_SIZE_ALL;
                 opts.viewType = Lx.VIEW_TYPE_EXPANDABLE_CHILD;
                 opts.layoutId = R.layout.item_simple;
-            }));
+            });
         }
 
         @Override
-        public void onBindView(LxContext context, LxVh holder, ChildData data) {
+        public void onBindView(LxContext context, LxViewHolder holder, ChildData data) {
             holder.setText(R.id.sample_tv, data.title + " ，点击删除");
         }
 
@@ -742,7 +743,7 @@ public class NewSampleTestActivity extends MvpActivity {
         }
     }
 
-    static class SectionItemBind extends LxItemBind<NoNameData> {
+    static class SectionItemBind extends LxItemBinder<NoNameData> {
 
         public SectionItemBind() {
             super(TypeOpts.make(opts -> {
@@ -754,7 +755,7 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LxContext context, LxVh holder, NoNameData data) {
+        public void onBindView(LxContext context, LxViewHolder holder, NoNameData data) {
             holder.setText(R.id.section_tv, data.desc);
         }
 
@@ -764,7 +765,7 @@ public class NewSampleTestActivity extends MvpActivity {
         }
     }
 
-    static class StudentItemBind extends LxItemBind<Student> {
+    static class StudentItemBind extends LxItemBinder<Student> {
 
         StudentItemBind() {
             super(TypeOpts.make(opts -> {
@@ -780,7 +781,7 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LxContext context, LxVh holder, Student data) {
+        public void onBindView(LxContext context, LxViewHolder holder, Student data) {
             Bundle condition = context.condition;
             if (!condition.isEmpty()) {
                 boolean needUpdate = condition.getBoolean("update_name", false);
@@ -844,7 +845,7 @@ public class NewSampleTestActivity extends MvpActivity {
         }
     }
 
-    static class TeacherItemBind extends LxItemBind<Teacher> {
+    static class TeacherItemBind extends LxItemBinder<Teacher> {
 
         TeacherItemBind() {
             super(TypeOpts.make(opts -> {
@@ -858,7 +859,7 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LxContext context, LxVh holder, Teacher data) {
+        public void onBindView(LxContext context, LxViewHolder holder, Teacher data) {
             holder.setText(R.id.title_tv, "师：" + data.name)
                     .setText(R.id.desc_tv, "支持Drag，pos = " + context.position + " ,type =" + TYPE_TEACHER)
                     .setTextColor(R.id.title_tv, context.model.isSelected() ? Color.RED : Color.BLACK);
@@ -880,7 +881,7 @@ public class NewSampleTestActivity extends MvpActivity {
         }
     }
 
-    static class HeaderItemBind extends LxItemBind<NoNameData> {
+    static class HeaderItemBind extends LxItemBinder<NoNameData> {
 
         HeaderItemBind() {
             super(TypeOpts.make(opts -> {
@@ -894,7 +895,7 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LxContext context, LxVh holder, NoNameData data) {
+        public void onBindView(LxContext context, LxViewHolder holder, NoNameData data) {
             holder.setText(R.id.desc_tv, data.desc)
                     .setImage(R.id.cover_iv, data.url, null);
         }
@@ -929,7 +930,7 @@ public class NewSampleTestActivity extends MvpActivity {
     }
 
 
-    static class FooterItemBind extends LxItemBind<NoNameData> {
+    static class FooterItemBind extends LxItemBinder<NoNameData> {
 
         FooterItemBind() {
             super(TypeOpts.make(opts -> {
@@ -943,7 +944,7 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LxContext context, LxVh holder, NoNameData data) {
+        public void onBindView(LxContext context, LxViewHolder holder, NoNameData data) {
             holder.setText(R.id.desc_tv, data.desc);
         }
 
@@ -967,7 +968,7 @@ public class NewSampleTestActivity extends MvpActivity {
         }
     }
 
-    class EmptyItemBind extends LxItemBind<NoNameData> {
+    class EmptyItemBind extends LxItemBinder<NoNameData> {
 
         EmptyItemBind() {
             super(TypeOpts.make(opts -> {
@@ -981,13 +982,13 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LxContext context, LxVh holder, NoNameData data) {
+        public void onBindView(LxContext context, LxViewHolder holder, NoNameData data) {
             holder.setClick(R.id.refresh_tv, v -> setData());
         }
     }
 
 
-    static class VerticalImgItemBind extends LxItemBind<NoNameData> {
+    static class VerticalImgItemBind extends LxItemBinder<NoNameData> {
 
         public VerticalImgItemBind() {
             super(TypeOpts.make(opts -> {
@@ -998,27 +999,27 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LxContext context, LxVh holder, NoNameData listItem) {
+        public void onBindView(LxContext context, LxViewHolder holder, NoNameData listItem) {
             holder.setImage(R.id.cover_iv, listItem.url)
                     .setText(R.id.title_tv, listItem.desc)
                     .setLayoutParams(SizeX.WIDTH / 2, SizeX.WIDTH / 2);
         }
     }
 
-    static class HorizontalImgItemBind extends LxItemBind<NoNameData> {
+    static class HorizontalImgItemBind extends LxItemBinder<NoNameData> {
 
         public HorizontalImgItemBind() {
             super(TypeOpts.make(TYPE_HORIZONTAL_IMG, R.layout.item_img));
         }
 
         @Override
-        public void onBindView(LxContext context, LxVh holder, NoNameData listItem) {
+        public void onBindView(LxContext context, LxViewHolder holder, NoNameData listItem) {
             holder.setImage(R.id.cover_iv, listItem.url);
         }
     }
 
 
-    static class HorizontalImgContainerItemBind extends LxItemBind<NoNameData> {
+    static class HorizontalImgContainerItemBind extends LxItemBinder<NoNameData> {
 
         public HorizontalImgContainerItemBind() {
             super(TypeOpts.make(opts -> {
@@ -1037,7 +1038,7 @@ public class NewSampleTestActivity extends MvpActivity {
         };
 
         @Override
-        public void onBindView(LxContext context, LxVh holder, NoNameData listItem) {
+        public void onBindView(LxContext context, LxViewHolder holder, NoNameData listItem) {
             holder.setText(R.id.title_tv, listItem.desc + " , offset = " + listItem.offset + " pos = " + listItem.pos);
             // 获取到控件
             RecyclerView contentRv = holder.getView(R.id.content_rv);
@@ -1049,7 +1050,7 @@ public class NewSampleTestActivity extends MvpActivity {
     }
 
 
-    static class SelectItemBind extends LxItemBind<NoNameData> {
+    static class SelectItemBind extends LxItemBinder<NoNameData> {
 
         SelectItemBind() {
             super(TypeOpts.make(opts -> {
@@ -1062,7 +1063,7 @@ public class NewSampleTestActivity extends MvpActivity {
         }
 
         @Override
-        public void onBindView(LxContext context, LxVh holder, NoNameData data) {
+        public void onBindView(LxContext context, LxViewHolder holder, NoNameData data) {
             LxModel model = context.model;
 
             holder

@@ -6,7 +6,7 @@ import android.view.View;
 
 import com.zfy.lxadapter.animation.BindAnimator;
 import com.zfy.lxadapter.LxAdapter;
-import com.zfy.lxadapter.LxVh;
+import com.zfy.lxadapter.LxViewHolder;
 import com.zfy.lxadapter.data.TypeOpts;
 
 import java.util.List;
@@ -40,7 +40,7 @@ public class LxBindAnimatorComponent extends LxComponent {
     }
 
     @Override
-    public void onBindViewHolder(LxAdapter adapter, @NonNull LxVh holder, int position, @NonNull List<Object> payloads) {
+    public void onBindViewHolder(LxAdapter adapter, @NonNull LxViewHolder holder, int position, @NonNull List<Object> payloads) {
         super.onBindViewHolder(adapter, holder, position, payloads);
         if (!enableAnimator) {
             return;

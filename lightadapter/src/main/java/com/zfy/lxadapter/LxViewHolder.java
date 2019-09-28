@@ -21,8 +21,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.zfy.lxadapter.data.Ids;
 import com.zfy.lxadapter.component.LxDragSwipeComponent;
+import com.zfy.lxadapter.data.Ids;
 import com.zfy.lxadapter.data.LxContext;
 
 import java.lang.annotation.Retention;
@@ -37,14 +37,14 @@ import java.util.List;
  *
  * @author chendong
  */
-public class LxVh extends RecyclerView.ViewHolder {
+public class LxViewHolder extends RecyclerView.ViewHolder {
 
     public static int UNSET = -100;
 
     private SparseArray<View> cacheViews;
     private int               itemViewType;
 
-    public LxVh(View itemView) {
+    public LxViewHolder(View itemView) {
         super(itemView);
         this.cacheViews = new SparseArray<>(5);
     }
@@ -135,49 +135,49 @@ public class LxVh extends RecyclerView.ViewHolder {
         }
     }
 
-    public LxVh setVisibility(Ids ids, @Visibility int visibility) {
+    public LxViewHolder setVisibility(Ids ids, @Visibility int visibility) {
         for (int id : ids.ids()) {
             setVisibility(getView(id), visibility);
         }
         return this;
     }
 
-    public LxVh setVisibility(@IdRes int resId, @Visibility int visibility) {
+    public LxViewHolder setVisibility(@IdRes int resId, @Visibility int visibility) {
         return setVisibility(all(resId), visibility);
     }
 
-    public LxVh setGone(@IdRes int... resIds) {
+    public LxViewHolder setGone(@IdRes int... resIds) {
         return setVisibility(all(resIds), View.GONE);
     }
 
-    public LxVh setVisible(@IdRes int... resIds) {
+    public LxViewHolder setVisible(@IdRes int... resIds) {
         return setVisibility(all(resIds), View.VISIBLE);
     }
 
 
-    public LxVh setInVisible(@IdRes int... resIds) {
+    public LxViewHolder setInVisible(@IdRes int... resIds) {
         return setVisibility(all(resIds), View.INVISIBLE);
     }
 
-    public LxVh setVisibleGone(@IdRes int resId, boolean isVisible) {
+    public LxViewHolder setVisibleGone(@IdRes int resId, boolean isVisible) {
         return setVisibility(all(resId), isVisible ? View.VISIBLE : View.GONE);
     }
 
-    public LxVh setVisibleGone(Ids ids, boolean isVisible) {
+    public LxViewHolder setVisibleGone(Ids ids, boolean isVisible) {
         return setVisibility(ids, isVisible ? View.VISIBLE : View.GONE);
     }
 
-    public LxVh setVisibleInVisible(@IdRes int resId, boolean isVisible) {
+    public LxViewHolder setVisibleInVisible(@IdRes int resId, boolean isVisible) {
         return setVisibility(all(resId), isVisible ? View.VISIBLE : View.INVISIBLE);
     }
 
-    public LxVh setVisibleInVisible(Ids ids, boolean isVisible) {
+    public LxViewHolder setVisibleInVisible(Ids ids, boolean isVisible) {
         return setVisibility(ids, isVisible ? View.VISIBLE : View.INVISIBLE);
     }
 
     //////////////////////////////  -- View.setSelect --  //////////////////////////////
 
-    public LxVh setSelect(Ids ids, boolean isSelect) {
+    public LxViewHolder setSelect(Ids ids, boolean isSelect) {
         for (int id : ids.ids()) {
             View view = getView(id);
             if (view == null) {
@@ -188,21 +188,21 @@ public class LxVh extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public LxVh setSelect(@IdRes int resId, boolean isSelect) {
+    public LxViewHolder setSelect(@IdRes int resId, boolean isSelect) {
         return setSelect(all(resId), isSelect);
     }
 
-    public LxVh setSelectYes(@IdRes int... resIds) {
+    public LxViewHolder setSelectYes(@IdRes int... resIds) {
         return setSelect(all(resIds), true);
     }
 
-    public LxVh setSelectNo(@IdRes int... resIds) {
+    public LxViewHolder setSelectNo(@IdRes int... resIds) {
         return setSelect(all(resIds), false);
     }
 
     //////////////////////////////  -- View.setChecked --  //////////////////////////////
 
-    public LxVh setChecked(Ids ids, boolean isCheck) {
+    public LxViewHolder setChecked(Ids ids, boolean isCheck) {
         for (int id : ids.ids()) {
             View view = getView(id);
             if (view == null || !(view instanceof CompoundButton)) {
@@ -213,21 +213,21 @@ public class LxVh extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public LxVh setChecked(@IdRes int resId, boolean isCheck) {
+    public LxViewHolder setChecked(@IdRes int resId, boolean isCheck) {
         return setChecked(all(resId), isCheck);
     }
 
-    public LxVh setCheckedYes(@IdRes int... resIds) {
+    public LxViewHolder setCheckedYes(@IdRes int... resIds) {
         return setChecked(all(resIds), true);
     }
 
-    public LxVh setCheckedNo(@IdRes int... resIds) {
+    public LxViewHolder setCheckedNo(@IdRes int... resIds) {
         return setChecked(all(resIds), false);
     }
 
     //////////////////////////////  -- View.bg --  //////////////////////////////
 
-    public LxVh setBgDrawable(Ids ids, Drawable drawable) {
+    public LxViewHolder setBgDrawable(Ids ids, Drawable drawable) {
         for (int id : ids.ids()) {
             View view = getView(id);
             if (view == null) {
@@ -242,11 +242,11 @@ public class LxVh extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public LxVh setBgDrawable(@IdRes int resId, Drawable drawable) {
+    public LxViewHolder setBgDrawable(@IdRes int resId, Drawable drawable) {
         return setBgDrawable(all(resId), drawable);
     }
 
-    public LxVh setBgRes(Ids ids, @DrawableRes int bgRes) {
+    public LxViewHolder setBgRes(Ids ids, @DrawableRes int bgRes) {
         for (int id : ids.ids()) {
             View view = getView(id);
             if (view == null) {
@@ -257,11 +257,11 @@ public class LxVh extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public LxVh setBgRes(@IdRes int resId, @DrawableRes int bgRes) {
+    public LxViewHolder setBgRes(@IdRes int resId, @DrawableRes int bgRes) {
         return setBgRes(all(resId), bgRes);
     }
 
-    public LxVh setBgColor(Ids ids, int color) {
+    public LxViewHolder setBgColor(Ids ids, int color) {
         for (int id : ids.ids()) {
             View view = getView(id);
             if (view == null) {
@@ -272,11 +272,11 @@ public class LxVh extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public LxVh setBgColor(@IdRes int resId, int color) {
+    public LxViewHolder setBgColor(@IdRes int resId, int color) {
         return setBgColor(all(resId), color);
     }
 
-    public LxVh setBgColorRes(Ids ids, @ColorRes int colorRes) {
+    public LxViewHolder setBgColorRes(Ids ids, @ColorRes int colorRes) {
         for (int id : ids.ids()) {
             View view = getView(id);
             if (view == null) {
@@ -287,14 +287,14 @@ public class LxVh extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public LxVh setBgColorRes(@IdRes int resId, @ColorRes int colorRes) {
+    public LxViewHolder setBgColorRes(@IdRes int resId, @ColorRes int colorRes) {
         return setBgColorRes(all(resId), colorRes);
     }
 
 
     //////////////////////////////  -- TextView 文本颜色 --  //////////////////////////////
 
-    public LxVh setTextColor(Ids ids, int color) {
+    public LxViewHolder setTextColor(Ids ids, int color) {
         for (int id : ids.ids()) {
             View view = getView(id);
             if (view == null || !(view instanceof TextView)) {
@@ -305,21 +305,21 @@ public class LxVh extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public LxVh setTextColor(@IdRes int resId, int color) {
+    public LxViewHolder setTextColor(@IdRes int resId, int color) {
         return setTextColor(all(resId), color);
     }
 
-    public LxVh setTextColorRes(@IdRes int resId, @ColorRes int colorRes) {
+    public LxViewHolder setTextColorRes(@IdRes int resId, @ColorRes int colorRes) {
         return setTextColor(all(resId), getColor(colorRes));
     }
 
-    public LxVh setTextColorRes(Ids ids, @ColorRes int colorRes) {
+    public LxViewHolder setTextColorRes(Ids ids, @ColorRes int colorRes) {
         return setTextColor(ids, getColor(colorRes));
     }
 
     //////////////////////////////  -- TextView 文本 --  //////////////////////////////
 
-    public LxVh setText(@IdRes int resId, CharSequence txt, boolean goneIfEmpty) {
+    public LxViewHolder setText(@IdRes int resId, CharSequence txt, boolean goneIfEmpty) {
         TextView view = getView(resId);
         if (view == null) {
             return this;
@@ -336,14 +336,14 @@ public class LxVh extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public LxVh setText(@IdRes int resId, CharSequence txt) {
+    public LxViewHolder setText(@IdRes int resId, CharSequence txt) {
         if (txt == null) {
             return this;
         }
         return setText(resId, txt, false);
     }
 
-    public LxVh setTextRes(@IdRes int resId, @StringRes int txtRes) {
+    public LxViewHolder setTextRes(@IdRes int resId, @StringRes int txtRes) {
         if (txtRes == 0) {
             return this;
         }
@@ -353,7 +353,7 @@ public class LxVh extends RecyclerView.ViewHolder {
 
     //////////////////////////////  -- ImageView --  //////////////////////////////
 
-    public LxVh setImage(@IdRes int resId, Drawable imgResId) {
+    public LxViewHolder setImage(@IdRes int resId, Drawable imgResId) {
         ImageView iv = getView(resId);
         if (iv == null) {
             return this;
@@ -363,7 +363,7 @@ public class LxVh extends RecyclerView.ViewHolder {
     }
 
 
-    public LxVh setImage(@IdRes int resId, @DrawableRes int imgResId) {
+    public LxViewHolder setImage(@IdRes int resId, @DrawableRes int imgResId) {
         ImageView iv = getView(resId);
         if (iv == null) {
             return this;
@@ -372,7 +372,7 @@ public class LxVh extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public LxVh setImage(@IdRes int resId, Bitmap bitmap) {
+    public LxViewHolder setImage(@IdRes int resId, Bitmap bitmap) {
         ImageView iv = getView(resId);
         if (iv == null) {
             return this;
@@ -381,7 +381,7 @@ public class LxVh extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public LxVh setImage(@IdRes int resId, String url, Object extra) {
+    public LxViewHolder setImage(@IdRes int resId, String url, Object extra) {
         ImageView iv = getView(resId);
         if (iv == null) {
             return this;
@@ -393,12 +393,12 @@ public class LxVh extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public LxVh setImage(@IdRes int resId, String url) {
+    public LxViewHolder setImage(@IdRes int resId, String url) {
         setImage(resId, url, null);
         return this;
     }
 
-    public LxVh setElevation(@IdRes int resId, int sizeInPx) {
+    public LxViewHolder setElevation(@IdRes int resId, int sizeInPx) {
         View view = getView(resId);
         ViewCompat.setElevation(view, sizeInPx);
         return this;
@@ -407,13 +407,31 @@ public class LxVh extends RecyclerView.ViewHolder {
 
     //////////////////////////////  -- View.Event Click --  //////////////////////////////
 
+
+    public LxViewHolder linkClick(@IdRes int sourceId, @IdRes int targetId) {
+        setClick(sourceId, v -> {
+            View view = getView(targetId);
+            if (view != null) {
+                view.performClick();
+            }
+        });
+        return this;
+    }
+
+    public LxViewHolder linkClick(@IdRes int sourceId) {
+        setClick(sourceId, v -> {
+            itemView.performClick();
+        });
+        return this;
+    }
+
     /**
      * 设置 View 点击监听
      *
      * @param ids view id 数组
      * @return holder
      */
-    public LxVh setClick(int... ids) {
+    public LxViewHolder setClick(int... ids) {
         for (int id : ids) {
             View view = getView(id);
             if (view == null) {
@@ -432,7 +450,7 @@ public class LxVh extends RecyclerView.ViewHolder {
      * @param listener 点击事件
      * @return holder
      */
-    public LxVh setClick(Ids ids, View.OnClickListener listener) {
+    public LxViewHolder setClick(Ids ids, View.OnClickListener listener) {
         if (listener == null) {
             return this;
         }
@@ -454,7 +472,7 @@ public class LxVh extends RecyclerView.ViewHolder {
      * @param listener 点击事件
      * @return holder
      */
-    public LxVh setClick(int resId, View.OnClickListener listener) {
+    public LxViewHolder setClick(int resId, View.OnClickListener listener) {
         return setClick(all(resId), listener);
     }
 
@@ -464,7 +482,7 @@ public class LxVh extends RecyclerView.ViewHolder {
      * @param listener 监听事件
      * @return holder
      */
-    public LxVh setClick(View.OnClickListener listener) {
+    public LxViewHolder setClick(View.OnClickListener listener) {
         itemView.setOnClickListener(listener);
         return this;
     }
@@ -478,7 +496,7 @@ public class LxVh extends RecyclerView.ViewHolder {
      * @param ids view id 数组
      * @return holder
      */
-    public LxVh setLongClick(int... ids) {
+    public LxViewHolder setLongClick(int... ids) {
         for (int id : ids) {
             View view = getView(id);
             if (view == null) {
@@ -496,7 +514,7 @@ public class LxVh extends RecyclerView.ViewHolder {
      * @param listener 监听事件
      * @return holder
      */
-    public LxVh setLongClick(Ids ids, View.OnLongClickListener listener) {
+    public LxViewHolder setLongClick(Ids ids, View.OnLongClickListener listener) {
         for (int id : ids.ids()) {
             View view = getView(id);
             if (view == null) {
@@ -515,11 +533,11 @@ public class LxVh extends RecyclerView.ViewHolder {
      * @param listener 监听
      * @return holder
      */
-    public LxVh setLongClick(int resId, View.OnLongClickListener listener) {
+    public LxViewHolder setLongClick(int resId, View.OnLongClickListener listener) {
         return setLongClick(all(resId), listener);
     }
 
-    public LxVh setLongClick(View.OnLongClickListener listener) {
+    public LxViewHolder setLongClick(View.OnLongClickListener listener) {
         itemView.setLongClickable(true);
         itemView.setOnLongClickListener(listener);
         return this;
@@ -528,7 +546,7 @@ public class LxVh extends RecyclerView.ViewHolder {
 
     //////////////////////////////  -- View LayoutParams --  //////////////////////////////
 
-    public LxVh setLayoutParams(Ids ids, int width, int height) {
+    public LxViewHolder setLayoutParams(Ids ids, int width, int height) {
         for (int id : ids.ids()) {
             View view = getView(id);
             if (view == null) {
@@ -546,11 +564,11 @@ public class LxVh extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public LxVh setLayoutParams(int resId, int width, int height) {
+    public LxViewHolder setLayoutParams(int resId, int width, int height) {
         return setLayoutParams(all(resId), width, height);
     }
 
-    public LxVh setLayoutParams(int width, int height) {
+    public LxViewHolder setLayoutParams(int width, int height) {
         ViewGroup.LayoutParams layoutParams = itemView.getLayoutParams();
         if (width != UNSET && width > 0) {
             layoutParams.width = width;
@@ -564,7 +582,7 @@ public class LxVh extends RecyclerView.ViewHolder {
 
     //////////////////////////////  -- drag & swipe --  //////////////////////////////
 
-    public LxVh dragOnTouch(LxAdapter adapter, int... ids) {
+    public LxViewHolder dragOnTouch(LxAdapter adapter, int... ids) {
         LxDragSwipeComponent component = adapter.getComponent(LxDragSwipeComponent.class);
         if (component == null) {
             return this;
@@ -582,7 +600,7 @@ public class LxVh extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public LxVh dragOnLongPress(LxAdapter adapter, int... ids) {
+    public LxViewHolder dragOnLongPress(LxAdapter adapter, int... ids) {
         LxDragSwipeComponent component = adapter.getComponent(LxDragSwipeComponent.class);
         if (component == null) {
             return this;
@@ -600,7 +618,7 @@ public class LxVh extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public LxVh swipeOnTouch(LxAdapter adapter, int... ids) {
+    public LxViewHolder swipeOnTouch(LxAdapter adapter, int... ids) {
         LxDragSwipeComponent component = adapter.getComponent(LxDragSwipeComponent.class);
         if (component == null) {
             return this;
@@ -618,7 +636,7 @@ public class LxVh extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public LxVh swipeOnLongPress(LxAdapter adapter, int... ids) {
+    public LxViewHolder swipeOnLongPress(LxAdapter adapter, int... ids) {
         LxDragSwipeComponent component = adapter.getComponent(LxDragSwipeComponent.class);
         if (component == null) {
             return this;

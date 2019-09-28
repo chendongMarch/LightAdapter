@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 
 import com.zfy.lxadapter.Lx;
 import com.zfy.lxadapter.LxAdapter;
-import com.zfy.lxadapter.LxVh;
+import com.zfy.lxadapter.LxViewHolder;
 import com.zfy.lxadapter.data.TypeOpts;
 
 
@@ -19,7 +19,7 @@ import com.zfy.lxadapter.data.TypeOpts;
  */
 public class LxSpan {
 
-    public static void onViewAttachedToWindow(LxAdapter adapter, LxVh holder) {
+    public static void onViewAttachedToWindow(LxAdapter adapter, LxViewHolder holder) {
         RecyclerView view = adapter.getView();
         if (view == null) {
             throw new IllegalStateException("set RecyclerView first");

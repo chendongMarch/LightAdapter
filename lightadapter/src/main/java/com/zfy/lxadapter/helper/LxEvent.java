@@ -6,7 +6,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.zfy.lxadapter.Lx;
-import com.zfy.lxadapter.LxVh;
+import com.zfy.lxadapter.LxViewHolder;
 import com.zfy.lxadapter.listener.OnItemEventListener;
 
 /**
@@ -17,18 +17,18 @@ import com.zfy.lxadapter.listener.OnItemEventListener;
  */
 public class LxEvent {
 
-    private static void setClickEvent(LxVh holder, OnItemEventListener listener) {
+    private static void setClickEvent(LxViewHolder holder, OnItemEventListener listener) {
         holder.itemView.setOnClickListener(v -> listener.onEvent(holder.getLxContext(), Lx.EVENT_CLICK));
     }
 
-    private static void setLongPressEvent(LxVh holder, OnItemEventListener listener) {
+    private static void setLongPressEvent(LxViewHolder holder, OnItemEventListener listener) {
         holder.itemView.setOnLongClickListener(v -> {
             listener.onEvent(holder.getLxContext(), Lx.EVENT_LONG_PRESS);
             return true;
         });
     }
 
-    private static void setDoubleClickEvent(LxVh holder, boolean setClick, boolean setLongPress, OnItemEventListener listener) {
+    private static void setDoubleClickEvent(LxViewHolder holder, boolean setClick, boolean setLongPress, OnItemEventListener listener) {
         View view = holder.itemView;
         GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
             @Override
@@ -74,7 +74,7 @@ public class LxEvent {
     }
 
 
-    public static void setEvent(LxVh holder, boolean setClick, boolean setLongPress, boolean setDoubleClick, OnItemEventListener listener) {
+    public static void setEvent(LxViewHolder holder, boolean setClick, boolean setLongPress, boolean setDoubleClick, OnItemEventListener listener) {
         if (setDoubleClick) {
             setDoubleClickEvent(holder, setClick, setLongPress, listener);
         } else {
@@ -87,7 +87,7 @@ public class LxEvent {
         }
     }
 
-    public static void setFocusEvent(LxVh holder, OnItemEventListener listener) {
+    public static void setFocusEvent(LxViewHolder holder, OnItemEventListener listener) {
         holder.itemView.setFocusable(true);
         holder.itemView.setFocusableInTouchMode(true);
         holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {

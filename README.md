@@ -39,7 +39,7 @@
   - [基础：LxAdapter ～ 适配器](#lxadapter)
   - [基础：LxItemBind ～ 类型绑定](itembind)
   - [基础：LxList ～ 数据源，自动更新，告别 notify](lxlist)
-  - [基础：LxVH ～ 扩展 ViewHolder](#lxvh)
+  - [基础：LxViewHolder ～ 扩展 ViewHolder](#LxViewHolder)
   - [基础：点击事件 ～ 单击、双击、长按、焦点](#event)
   - [基础：扩展自定义类型 ～ 灵活扩展](#multitype)
 - 功能
@@ -66,9 +66,9 @@
 ## 特性
 
 - 使用`LxAdapter` 完成单类型、多类型数据适配；
-- 使用 `LxVH` 作为 `ViewHolder` 进行数据绑定；
+- 使用 `LxViewHolder` 作为 `ViewHolder` 进行数据绑定；
 - 使用 `LxList` 作为数据源，基于 `DiffUtil` 并自动完成数据比对和更新；
-- 使用 `LxItemBind` 完成每种类型的数据绑定和事件处理；
+- 使用 `LxItemBinder` 完成每种类型的数据绑定和事件处理；
 - 使用 `LxComponent` 完成分离、易于扩展的扩展功能，如果加载更多等；
 - 支持针对每种数据类型，进行细粒度的配置侧滑、拖拽、顶部悬停、跨越多列、动画等效果；
 - 支持单击事件、双击事件、长按事件；
@@ -89,7 +89,7 @@
 ## 设计分析
 
 1. 数据源统一使用 `LxList`，内部借助 `DiffUtil` 实现数据的自动更新，当需要更改数据时，只需要使用它的内部方法即可；
-2. 每种类型是完全分离的，使用 `LxItemBind` 来描述如何对该类型进行数据的绑定，事件的响应，以此来保证每种类型数据绑定的可复用性，已经类型之间的独立性；
+2. 每种类型是完全分离的，使用 `LxItemBinder` 来描述如何对该类型进行数据的绑定，事件的响应，以此来保证每种类型数据绑定的可复用性，已经类型之间的独立性；
 3. 拖拽、侧滑、`Snap` 使用、动画、选择器、加载更多，这些功能都分离出来，每个功能由单独的 `component` 负责，这样职责更加分离，需要时注入指定的 `component` 即可，也保证了良好的扩展性；
 
 <span id="data"></span>
@@ -162,7 +162,7 @@ public class LxContext {
     public               Object       data; // 实际包装的数据
     public               LxModel      model; // 列表的数据
     public               int          position; // 当前的位置
-    public               LxVh         holder; // 绑定数据的 holder
+    public               LxViewHolder         holder; // 绑定数据的 holder
     public               int          viewType; // 数据类型
     public               List<String> payloads; // 有效更新的 payloads
 }
@@ -213,15 +213,15 @@ list.update(tempList);
 
 <span id="itembind"></span>
 
-## 基础：LxItemBind
+## 基础：LxItemBinder
 
-`LxAdapter` 是完全面向类型的，每种类型的数据绑定会单独处理，这些由 `LxItemBind` 负责：
+`LxAdapter` 是完全面向类型的，每种类型的数据绑定会单独处理，这些由 `LxItemBinder` 负责：
 
 ```java
 // 自增的数据类型，不需要自己去定义 1、2、3
 public static final int TYPE_STUDENT = Lx.contentTypeOf();
 
-class StudentItemBind extends LxItemBind<Student> {
+class StudentItemBind extends LxItemBinder<Student> {
 
     StudentItemBind() {
         // 指定类型和布局文件
@@ -230,7 +230,7 @@ class StudentItemBind extends LxItemBind<Student> {
 
     // 在这里完成数据的绑定
     @Override
-    public void onBindView(LxContext context, LxVh holder, Student data) {
+    public void onBindView(LxContext context, LxViewHolder holder, Student data) {
         holder.setText(R.id.title_tv, "学：" + data.name);
     }
 
@@ -245,7 +245,7 @@ class StudentItemBind extends LxItemBind<Student> {
 也支持使用构建者模式快速创建新的类型绑定：
 
 ```java
-LxItemBind.of(Student.class)
+LxItemBinder.of(Student.class)
         .opts(TypeOpts.make(R.layout.item_section))
         .onViewBind((context, holder, data) -> {
             // ...
@@ -350,9 +350,9 @@ list.getContentTypeData();
 list.getExtTypeData(Lx.VIEW_TYPE_HEADER);
 ```
 
-<span id="lxvh"></span>
+<span id="LxViewHolder"></span>
 
-## 基础：LxVH
+## 基础：LxViewHolder
 
 为了支持同时对多个控件进行一样的绑定操作，可以使用 `Ids` 来包含多个 `id`:
 
@@ -443,7 +443,7 @@ holder
 
 
 ```java
-class StudentItemBind extends LxItemBind<Student> {
+class StudentItemBind extends LxItemBinder<Student> {
 
     StudentItemBind() {
         // 指定类型和布局文件
@@ -458,7 +458,7 @@ class StudentItemBind extends LxItemBind<Student> {
     }
 
     @Override
-    public void onBindView(LxContext context, LxVh holder, Student data) {
+    public void onBindView(LxContext context, LxViewHolder holder, Student data) {
         holder.setText(R.id.title_tv, "学：" + data.name)
                 // 给控件加点击事件
                 .setClick(R.id.title_tv, v -> {
@@ -607,7 +607,7 @@ LxList extTypeData = list.getExtTypeData(Lx.VIEW_TYPE_HEADER);
 更新数据，增删改内容类型数据，增删改扩展类型数据：
 
 ```java
-class StudentItemBind extends LxItemBind<Student> {
+class StudentItemBind extends LxItemBinder<Student> {
 
     // ... 省略部分代码
 
@@ -719,7 +719,7 @@ public static final String EVENT_START_EDGE_LOAD_MORE_ENABLE = "EVENT_START_EDGE
 当使用 `GridLayoutManager` 布局时，可能某种类型需要跨越多列，需要针对每种类型进行指定；
 
 ```java
-class StudentItemBind extends LxItemBind<Student> {
+class StudentItemBind extends LxItemBinder<Student> {
 
     StudentItemBind() {
         // 指定类型和布局文件
@@ -789,10 +789,10 @@ if (component != null) {
 在 `BindView` 中描述当数据被选中时如何显示：
 
 ```java
-static class SelectItemBind extends LxItemBind<NoNameData> {
+static class SelectItemBind extends LxItemBinder<NoNameData> {
 
     @Override
-    public void onBindView(LxContext context, LxVh holder, NoNameData data) {
+    public void onBindView(LxContext context, LxViewHolder holder, NoNameData data) {
         holder
                 .setLayoutParams(SizeX.WIDTH / 3, SizeX.WIDTH / 3)
                 // 选中时，更改文字和颜色
@@ -869,7 +869,7 @@ LxAdapter.of(list)
 也可以分类型指定动画，每种类型给予不同的动画效果
 
 ```java
-class StudentItemBind extends LxItemBind<Student> {
+class StudentItemBind extends LxItemBinder<Student> {
 
     StudentItemBind() {
         super(TypeOpts.make(opts -> {
@@ -918,7 +918,7 @@ LxAdapter.of(list)
 同时在 `TypeOpts` 中说明哪些类型需要支持悬挂
 
 ```java
-class StudentItemBind extends LxItemBind<Student> {
+class StudentItemBind extends LxItemBinder<Student> {
 
     StudentItemBind() {
         super(TypeOpts.make(opts -> {
@@ -992,7 +992,7 @@ xAdapter.of(list)
 最后在 `TypeOpts` 里面配置该类型是否支持侧滑和拖拽，这样可以灵活的控制每种类型数据的行为：
 
 ```java
-class StudentItemBind extends LxItemBind<Student> {
+class StudentItemBind extends LxItemBinder<Student> {
     StudentItemBind() {
         super(TypeOpts.make(opts -> {
             opts.viewType = TYPE_STUDENT;
@@ -1018,7 +1018,7 @@ options.longPressItemView4Drag = false;
 然后在 `onBindView` 时，手动关联触发操作：
 
 ```java
-class StudentItemBind extends LxItemBind<Student> {
+class StudentItemBind extends LxItemBinder<Student> {
 
     StudentItemBind() {
         super(TypeOpts.make(opts -> {
@@ -1031,7 +1031,7 @@ class StudentItemBind extends LxItemBind<Student> {
     }
 
     @Override
-    public void onBindView(LxContext context, LxVh holder, Student data) {
+    public void onBindView(LxContext context, LxViewHolder holder, Student data) {
         holder
                 // 长按标题控件触发拖拽
                 .dragOnLongPress(adapter, R.id.title_tv)
@@ -1154,7 +1154,7 @@ static class ChildData implements LxExpandable.ExpandableChild<GroupData, ChildD
 点击分组可以展开或者收起当前的分组子数据：
 
 ```java
-static class GroupItemBind extends LxItemBind<GroupData> {
+static class GroupItemBind extends LxItemBinder<GroupData> {
 
     GroupItemBind() {
         super(TypeOpts.make(opts -> {
@@ -1166,7 +1166,7 @@ static class GroupItemBind extends LxItemBind<GroupData> {
     }
 
     @Override
-    public void onBindView(LxContext context, LxVh holder, GroupData data) {
+    public void onBindView(LxContext context, LxViewHolder holder, GroupData data) {
         holder.setText(R.id.section_tv, data.title + " " + (data.expand ? "展开" : "关闭"));
     }
 
@@ -1181,7 +1181,7 @@ static class GroupItemBind extends LxItemBind<GroupData> {
 点击子数据，可以删除当前子数据：
 
 ```java
-static class ChildItemBind extends LxItemBind<ChildData> {
+static class ChildItemBind extends LxItemBinder<ChildData> {
 
     ChildItemBind() {
         super(TypeOpts.make(opts -> {
@@ -1192,7 +1192,7 @@ static class ChildItemBind extends LxItemBind<ChildData> {
     }
 
     @Override
-    public void onBindView(LxContext context, LxVh holder, ChildData data) {
+    public void onBindView(LxContext context, LxViewHolder holder, ChildData data) {
         holder.setText(R.id.sample_tv, data.title + " ，点击删除");
     }
 
@@ -1252,7 +1252,7 @@ mLxModels.update(lxModels);
 最外层列表的使用跟之前一样就不再赘述了，主要说一下横向列表如何使用 `LxNesting`
 
 ```java
-class HorizontalImgContainerItemBind extends LxItemBind<NoNameData> {
+class HorizontalImgContainerItemBind extends LxItemBinder<NoNameData> {
     public HorizontalImgContainerItemBind() {
         super(TypeOpts.make(opts -> {
             opts.viewType = TYPE_HORIZONTAL_CONTAINER;
@@ -1270,7 +1270,7 @@ class HorizontalImgContainerItemBind extends LxItemBind<NoNameData> {
     };
 
     @Override
-    public void onBindView(LxContext context, LxVh holder, NoNameData listItem) {
+    public void onBindView(LxContext context, LxViewHolder holder, NoNameData listItem) {
         // 获取到控件
         RecyclerView contentRv = holder.getView(R.id.content_rv);
         // 打包横向滑动的数据，这个 type 可自定义
@@ -1335,7 +1335,7 @@ static class InnerTypeData implements Typeable {
 基于以上两种应用场景，条件更新应运而生，你可以不改变数据，但是触发更新，并且可以指定条件，仅刷新一个控件的显示，类似 payloads 但是不需要计算有效载荷，只需要制定一个条件即可；
 
 ```java
-static class StudentItemBind extends LxItemBind<Student> {
+static class StudentItemBind extends LxItemBinder<Student> {
 
     StudentItemBind() {
         super(TypeOpts.make(opts -> {
@@ -1345,7 +1345,7 @@ static class StudentItemBind extends LxItemBind<Student> {
     }
 
     @Override
-    public void onBindView(LxContext context, LxVh holder, Student data) {
+    public void onBindView(LxContext context, LxViewHolder holder, Student data) {
         Bundle condition = context.condition;
         // 条件更新，数据没有变化
         if (!condition.isEmpty()) {
@@ -1439,10 +1439,10 @@ class Student implements Diffable<Student>, Copyable<Student> {
 这样我们就通过比对拿到了 `payloads`, 那我们如何使用这些有效载荷呢？
 
 ```java
-class StudentItemBind extends LxItemBind<Student> {
+class StudentItemBind extends LxItemBinder<Student> {
 
     @Override
-    public void onBindView(LxContext context, LxVh holder, Student data) {
+    public void onBindView(LxContext context, LxViewHolder holder, Student data) {
         if (context.payloads.isEmpty()) {
             // 没有 payloads 正常绑定数据
             holder.setText(R.id.title_tv, "学：" + data.name);

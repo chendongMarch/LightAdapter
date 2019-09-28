@@ -2,7 +2,7 @@ package com.zfy.lxadapter.data;
 
 import android.os.Bundle;
 
-import com.zfy.lxadapter.LxVh;
+import com.zfy.lxadapter.LxViewHolder;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ public class LxContext {
     public Object       data;
     public LxModel      model;
     public int          position;
-    public LxVh         holder;
+    public LxViewHolder holder;
     public int          viewType;
     public List<String> payloads;
     public Bundle       condition;

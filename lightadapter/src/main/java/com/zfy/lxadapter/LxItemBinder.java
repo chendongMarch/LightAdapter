@@ -20,26 +20,32 @@ import java.util.List;
  *
  * @author chendong
  */
-public abstract class LxItemBind<D> implements Typeable {
+public abstract class LxItemBinder<D> implements Typeable {
 
-    protected LxAdapter adapter;
-    private   TypeOpts  typeOpts;
+    protected          LxAdapter adapter;
+    private            TypeOpts  typeOpts;
+    protected @NonNull Bundle    params;
 
-    public LxItemBind(TypeOpts opts) {
+    public LxItemBinder(TypeOpts.TypeOptsSetter setter) {
+        this(TypeOpts.make(setter));
+    }
+
+    public LxItemBinder(TypeOpts opts) {
         this.typeOpts = opts;
     }
 
-    void onAdapterAttached(LxAdapter adapter) {
+    void onAdapterAttached(LxAdapter adapter, @NonNull Bundle bundle) {
         this.adapter = adapter;
+        this.params = bundle;
     }
 
-    LxVh onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    LxViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = adapter.inflater.inflate(typeOpts.layoutId, parent, false);
         LxContext context = (LxContext) view.getTag(R.id.item_context);
         if (context == null) {
             context = new LxContext();
         }
-        LxVh lxVh = new LxVh(view);
+        LxViewHolder lxVh = new LxViewHolder(view);
         context.holder = lxVh;
         lxVh.setLxContext(context);
         view.setTag(R.id.item_context, context);
@@ -47,7 +53,7 @@ public abstract class LxItemBind<D> implements Typeable {
         return lxVh;
     }
 
-    void onBindViewHolder(@NonNull LxVh holder, int position, LxModel data, @NonNull List<Object> payloads) {
+    void onBindViewHolder(@NonNull LxViewHolder holder, int position, LxModel data, @NonNull List<Object> payloads) {
         D unpack = data.unpack();
 
         LxContext context = (LxContext) holder.itemView.getTag(R.id.item_context);
@@ -68,7 +74,7 @@ public abstract class LxItemBind<D> implements Typeable {
         context.clear();
     }
 
-    private void onBindEvent(LxVh holder, int viewType) {
+    private void onBindEvent(LxViewHolder holder, int viewType) {
         if (typeOpts.enableClick || typeOpts.enableLongPress || typeOpts.enableDbClick) {
             LxEvent.setEvent(holder, typeOpts.enableClick, typeOpts.enableLongPress, typeOpts.enableDbClick, (context, eventType) -> {
                 onEvent(context, (D) context.data, eventType);
@@ -76,12 +82,12 @@ public abstract class LxItemBind<D> implements Typeable {
         }
         if (typeOpts.enableFocusChange) {
             LxEvent.setFocusEvent(holder, (context, eventType) -> {
-                LxItemBind.this.onEvent(context, (D) context.data, eventType);
+                LxItemBinder.this.onEvent(context, (D) context.data, eventType);
             });
         }
     }
 
-    public abstract void onBindView(LxContext context, LxVh holder, D listItem);
+    public abstract void onBindView(LxContext context, LxViewHolder holder, D listItem);
 
     public void onEvent(LxContext context, D listItem, @Lx.EventType int eventType) {
     }
@@ -106,7 +112,7 @@ public abstract class LxItemBind<D> implements Typeable {
     }
 
     public interface OnViewBind<D> {
-        void onBindView(LxContext context, LxVh holder, D data);
+        void onBindView(LxContext context, LxViewHolder holder, D data);
     }
 
     public interface OnEventBind<D> {
@@ -138,18 +144,18 @@ public abstract class LxItemBind<D> implements Typeable {
             return this;
         }
 
-        public LxItemBind<DType> build() {
+        public LxItemBinder<DType> build() {
             return new LxItemBindImpl(opts);
         }
 
-        class LxItemBindImpl extends LxItemBind<DType> {
+        class LxItemBindImpl extends LxItemBinder<DType> {
 
             LxItemBindImpl(TypeOpts opts) {
                 super(opts);
             }
 
             @Override
-            public void onBindView(LxContext context, LxVh holder, DType data) {
+            public void onBindView(LxContext context, LxViewHolder holder, DType data) {
                 if (viewBind != null) {
                     viewBind.onBindView(context, holder, data);
                 }

@@ -10,7 +10,7 @@ import com.zfy.lxadapter.R;
 import com.zfy.lxadapter.Lx;
 import com.zfy.lxadapter.LxAdapter;
 import com.zfy.lxadapter.data.LxContext;
-import com.zfy.lxadapter.LxVh;
+import com.zfy.lxadapter.LxViewHolder;
 import com.zfy.lxadapter.data.TypeOpts;
 
 import java.util.Collections;
@@ -47,7 +47,7 @@ public class LxDragSwipeComponent extends LxComponent {
     }
 
     public interface OnDragSwipeStateChangeListener {
-        void stateChange(@Lx.DragSwipeState int state, LxVh holder, LxContext context);
+        void stateChange(@Lx.DragSwipeState int state, LxViewHolder holder, LxContext context);
     }
 
     private ItemTouchHelper                itemTouchHelper;
@@ -83,7 +83,7 @@ public class LxDragSwipeComponent extends LxComponent {
     }
 
 
-    public void dragOnLongPress(View view, LxVh holder) {
+    public void dragOnLongPress(View view, LxViewHolder holder) {
         TypeOpts typeOpts = adapter.getTypeOpts(holder.getViewType());
         if (typeOpts != null) {
             typeOpts.enableDrag = true;
@@ -94,7 +94,7 @@ public class LxDragSwipeComponent extends LxComponent {
         });
     }
 
-    public void dragOnTouch(View view, LxVh holder) {
+    public void dragOnTouch(View view, LxViewHolder holder) {
         TypeOpts typeOpts = adapter.getTypeOpts(holder.getViewType());
         if (typeOpts != null) {
             typeOpts.enableDrag = true;
@@ -110,7 +110,7 @@ public class LxDragSwipeComponent extends LxComponent {
         });
     }
 
-    public void swipeOnLongPress(View view, LxVh holder) {
+    public void swipeOnLongPress(View view, LxViewHolder holder) {
         TypeOpts typeOpts = adapter.getTypeOpts(holder.getViewType());
         if (typeOpts != null) {
             typeOpts.enableSwipe = true;
@@ -121,7 +121,7 @@ public class LxDragSwipeComponent extends LxComponent {
         });
     }
 
-    public void swipeOnTouch(View view, LxVh holder) {
+    public void swipeOnTouch(View view, LxViewHolder holder) {
         TypeOpts typeOpts = adapter.getTypeOpts(holder.getViewType());
         if (typeOpts != null) {
             typeOpts.enableSwipe = true;
@@ -137,14 +137,14 @@ public class LxDragSwipeComponent extends LxComponent {
         });
     }
 
-    public void startDrag(LxVh holder) {
+    public void startDrag(LxViewHolder holder) {
         if (itemTouchHelper == null) {
             return;
         }
         itemTouchHelper.startDrag(holder);
     }
 
-    public void startSwipe(LxVh holder) {
+    public void startSwipe(LxViewHolder holder) {
         if (itemTouchHelper == null) {
             return;
         }
@@ -176,11 +176,11 @@ public class LxDragSwipeComponent extends LxComponent {
         @Override
         public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
             super.onSelectedChanged(viewHolder, actionState);
-            if (!(viewHolder instanceof LxVh)) {
+            if (!(viewHolder instanceof LxViewHolder)) {
                 return;
             }
             @Lx.DragSwipeState int state = Lx.DRAG_SWIPE_STATE_NONE;
-            LxVh holder = (LxVh) viewHolder;
+            LxViewHolder holder = (LxViewHolder) viewHolder;
             switch (actionState) {
                 case ItemTouchHelper.ACTION_STATE_DRAG:
                     holder.itemView.setTag(R.id.drag_swipe_state, TAG_DRAG);
@@ -199,11 +199,11 @@ public class LxDragSwipeComponent extends LxComponent {
         @Override
         public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
             super.clearView(recyclerView, viewHolder);
-            if (!(viewHolder instanceof LxVh)) {
+            if (!(viewHolder instanceof LxViewHolder)) {
                 return;
             }
             int state = Lx.DRAG_SWIPE_STATE_NONE;
-            LxVh holder = (LxVh) viewHolder;
+            LxViewHolder holder = (LxViewHolder) viewHolder;
             Object tag = holder.itemView.getTag(R.id.drag_swipe_state);
             if (tag == null) {
                 return;
@@ -223,7 +223,7 @@ public class LxDragSwipeComponent extends LxComponent {
 
         @Override
         public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-            LxVh lxVh = (LxVh) viewHolder;
+            LxViewHolder lxVh = (LxViewHolder) viewHolder;
             int dragFlags = options.dragFlags;
             int swipeFlags = options.swipeFlags;
             TypeOpts typeOpts = adapter.getTypeOpts(lxVh.getViewType());
@@ -259,8 +259,8 @@ public class LxDragSwipeComponent extends LxComponent {
         @Override
         public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder source,
                               RecyclerView.ViewHolder target) {
-            LxVh sourceHolder = (LxVh) source;
-            LxVh targetHolder = (LxVh) target;
+            LxViewHolder sourceHolder = (LxViewHolder) source;
+            LxViewHolder targetHolder = (LxViewHolder) target;
             return sourceHolder.getViewType() == targetHolder.getViewType();
         }
 
