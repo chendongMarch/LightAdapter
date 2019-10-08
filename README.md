@@ -185,7 +185,7 @@ LxGlobal.setImgUrlLoader((view, url, extra) -> {
 ```java
 public static final String CLEAR_ALL_DATA = "CLEAR_ALL_DATA";
 
-LxGlobal.addEventHandler(CLEAR_ALL_DATA, (event, adapter, extra) -> {
+LxGlobal.addAdapterEventDispatcher(CLEAR_ALL_DATA, (event, adapter, extra) -> {
     adapter.getData().updateClear();
 });
 ```
@@ -236,7 +236,7 @@ class StudentItemBind extends LxItemBinder<Student> {
 
     // 在这里完成事件的分发
     @Override
-    public void onEvent(LxContext context, Student data, int eventType) {
+    public void onItemEvent(LxContext context, Student data, int eventType) {
 
     }
 }
@@ -439,7 +439,7 @@ holder
 ## 基础：点击事件
 
 点击事件需要在 `TypeOpts` 手动开启，单击事件默认是开启的；
-重写 `onEvent` 方法，根据 `eventType` 的不同，对不同事件进行处理；
+重写 `onItemEvent` 方法，根据 `eventType` 的不同，对不同事件进行处理；
 
 
 ```java
@@ -466,7 +466,7 @@ class StudentItemBind extends LxItemBinder<Student> {
     }
 
     @Override
-    public void onEvent(LxContext context, Student data, int eventType) {
+    public void onItemEvent(LxContext context, Student data, int eventType) {
         switch (eventType) {
             case Lx.EVENT_CLICK:
                 // 单击
@@ -612,7 +612,7 @@ class StudentItemBind extends LxItemBinder<Student> {
     // ... 省略部分代码
 
     @Override
-    public void onEvent(LxContext context, Student data, LxModel model, int eventType) {
+    public void onItemEvent(LxContext context, Student data, LxModel model, int eventType) {
         switch (eventType) {
             case Lx.EVENT_CLICK:
                 // 获取内容类型，这里面只包括了学生和老师的数据
@@ -665,23 +665,23 @@ class StudentItemBind extends LxItemBinder<Student> {
 public static final String HIDE_LOADING = "HIDE_LOADING";
 
 // 定义事件处理器
-EventHandler handler = (event, adapter, extra) -> {
+AdapterEventDispatcher handler = (event, adapter, extra) -> {
     LxList lxModels = adapter.getData();
     LxList extTypeData = lxModels.getExtTypeData(Lx.VIEW_TYPE_LOADING);
     extTypeData.updateClear();
 };
 
 // 全局注入，会对所有 Adapter 生效
-LxGlobal.addEventHandler(HIDE_LOADING, handler);
+LxGlobal.addAdapterEventDispatcher(HIDE_LOADING, handler);
 
 // 对 Adapter 注入，仅对当前 Adapter 生效
 LxAdapter.of(models)
         .bindItem(new StudentItemBind())
-        .onEvent(HIDE_LOADING, handler)
+        .onAdapterEvent(HIDE_LOADING, handler)
         .attachTo(mContentRv, LxManager.linear(getContext()));
 
 // 直接在数据层注入，会对该数据作为数据源的 Adapter 生效
-models.addEventHandler(HIDE_LOADING, handler);
+models.addAdapterEventDispatcher(HIDE_LOADING, handler);
 ```
 
 当我们数据更新完成时，需要发布事件：
@@ -1361,7 +1361,7 @@ static class StudentItemBind extends LxItemBinder<Student> {
     }
 
     @Override
-    public void onEvent(LxContext context, Student listItem, int eventType) {
+    public void onItemEvent(LxContext context, Student listItem, int eventType) {
          adapter.getData().updateSet(context.position, data -> {
             // 发布条件更新，数据不用更改
             Bundle condition = data.getCondition();

@@ -1,0 +1,146 @@
+apply plugin: 'checkstyle'
+
+def reportsDir = "${project.buildDir}/reports"
+def rootDir = project.rootDir
+
+def checkEnable = true // 开启检查
+def onlyCheckModifyFile = true // 只检查修改的文件
+
+checkstyle {
+    // 工具版本
+    toolVersion '7.7'
+    ignoreFailures false
+    showViolations true
+    // 配置文件路径
+    configFile file("${rootDir}/config/checkstyle.xml")
+    // filter 路径
+    configProperties.checkstyleSuppressionsPath = file("${rootDir}/config/suppressions.xml").absolutePath
+}
+
+// 运行 ./gradlew checkstyle 检查代码
+task checkstyle(type: Checkstyle, group: 'verification') {
+    if (!checkEnable) {
+        return
+    }
+    def reportXmlFile = file("$reportsDir/checkstyle/error.xml")
+    def reportHtmlFile = file("$reportsDir/checkstyle/error.html")
+    file(reportsDir).deleteDir()
+    try {
+        // 检测代码路径
+        // source project.rootDir // 全部检查
+        // source 'xxx/src' // 检查
+        // source 'lib-xxx/src' // 检查子模块
+        source 'src' // 检查 src 下
+        // 检查 Java 代码
+        // include '**/*.java' // 根据是否 commit 时检查，生成 include
+        //排除项
+        exclude '**/gen/**'
+        exclude '**/test/**'
+        exclude '**/res/**'
+        exclude '**/androidTest/**'
+        exclude '**/R.java'
+        exclude '**/BuildConfig.java'
+        exclude '**/*.so'
+
+        // 是否只检查修改的文件
+        if (onlyCheckModifyFile) {
+            def statusInfo = getGitStatusInfo()
+            def filePathList = getUnCommitFilePaths(statusInfo)
+            def includeList = new ArrayList<String>()
+            for (int i = 0; i < filePathList.size(); i++) {
+                String filePath = filePathList[i]
+                String[] filePathSplitArray = filePath.split("/")
+                String fileName = filePathSplitArray[filePathSplitArray.length - 1]
+                includeList.add("**/" + fileName)
+            }
+            exclude '**/*.java'
+            if (!includeList.isEmpty()) {
+                exclude '**/*.java'
+                include includeList
+            }
+            log(statusInfo)
+            log(includeList)
+        } else {
+            include '**/*.java'
+        }
+        classpath = files()
+
+        // 报告检查结果，支持 html 和 xml 两种报告形式，可以任选其一( html 更具有可读性)
+        reports {
+            xml.enabled = true
+            html.enabled = true
+            xml {
+                destination reportXmlFile
+            }
+            html {
+                destination reportHtmlFile
+            }
+        }
+    } catch (Exception e) {
+        log("checkstyle catch an exception.")
+        e.printStackTrace()
+    }
+}
+
+// src是一个文件路径，target是一个目录路径
+def copyFile(boolean forceUpdate, String src, String target) {
+    def fileName = "pre-commit"
+    def targetFile = file(target + "/" + fileName)
+
+    if (targetFile.exists() && targetFile.isFile() && !forceUpdate) {
+        // 目标文件存在且没有强制更新，不需要copy操作
+        println(targetFile.absolutePath + " exist.")
+    } else {
+        def srcFile = file(src)
+        if (srcFile.isFile()) {
+            copy {
+                from srcFile
+                into target
+            }
+        }
+    }
+
+    // targetFile = file(target + "/" + fileName)
+    if (targetFile.isFile()) {
+        if (!targetFile.canExecute()) {
+            targetFile.setExecutable(true)
+        }
+        if (!targetFile.canWrite()) {
+            targetFile.setWritable(true)
+        }
+    }
+}
+
+// 过滤java文件
+static def getUnCommitFilePaths(String statusInfo) {
+    ArrayList<String> filePathList = new ArrayList<String>()
+    String[] lines = statusInfo.split("\\n")
+    for (String line : lines) {
+        if (!line.startsWith("D ") && line.contains(".java")) {
+            String[] filePath = line.trim().split(" ")
+            for (String str : filePath) {
+                if (str.contains(".java")) {
+                    filePathList.add(str)
+                }
+            }
+        }
+    }
+    return filePathList
+}
+
+// 使用 git 命令获取没有 commit 的文件列表
+def getGitStatusInfo() {
+    try {
+        String changeInfo = 'git status -s'.execute(null, project.rootDir).text.trim()
+        log("git status info ${changeInfo}")
+        log("git status info ${project.rootDir}")
+        return changeInfo == null ? "" : changeInfo
+    } catch (Exception e) {
+        e.printStackTrace()
+        return ""
+    }
+}
+
+static def log(msg) {
+    println("checkstyle ${msg}")
+}

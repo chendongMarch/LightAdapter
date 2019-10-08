@@ -1,0 +1,154 @@
+// 编译版本
+ext.versions = [
+        compileSdkVersion: 28,
+        minSdkVersion    : 17,
+        targetSdkVersion : 26,
+]
+
+// 依赖版本
+ext.lib_version = [
+        // 官方支持库的版本
+        support_version  : '28.0.0',
+        dbflow_version   : "4.0.0-beta2",
+        fresco_version   : '1.3.0',
+        lifecycle_version: '1.1.1',
+        kotlin_version   : '1.2.51',
+]
+
+// 依赖
+ext.deps = [
+
+        lifecycle_extensions   : "android.arch.lifecycle:extensions:${ext.lib_version.lifecycle_version}",
+        lifecycle_runtime      : "android.arch.lifecycle:runtime:${ext.lib_version.lifecycle_version}",
+        lifecycle_compiler     : "android.arch.lifecycle:compiler:${ext.lib_version.lifecycle_version}",
+
+        bindingAdapter         : 'me.tatarka.bindingcollectionadapter2:bindingcollectionadapter:2.3.0-beta3',
+        bindingAdapterRv       : 'me.tatarka.bindingcollectionadapter2:bindingcollectionadapter-recyclerview:2.3.0-beta3',
+
+        kotlin                 : "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${lib_version.kotlin_version}",
+        arouterApi             : 'com.alibaba:arouter-api:1.4.1',
+        arouterCompiler        : 'com.alibaba:arouter-compiler:1.2.2',
+
+        /*************************************** SDK *************************************/
+
+        // Google support
+        design                 : "com.android.support:design:${lib_version.support_version}",
+        appcompat_v7           : "com.android.support:appcompat-v7:${lib_version.support_version}",
+        support_v4             : "com.android.support:support-v4:${lib_version.support_version}",
+        recyclerView_v7        : "com.android.support:recyclerview-v7:${lib_version.support_version}",
+        cardView_v7            : "com.android.support:cardview-v7:${lib_version.support_version}",
+        multidex               : 'com.android.support:multidex:1.0.2',
+        constraint             : "com.android.support.constraint:constraint-layout:1.1.3",
+        support_fragment       : "com.android.support:support-fragment:${lib_version.support_version}",
+        /*************************************** 数据库 ***************************************/
+        // green dao
+        greendao               : 'org.greenrobot:greendao:2.2.0',
+        // db flow
+        dbflow_processor       : "com.github.Raizlabs.DBFlow:dbflow-processor:${lib_version.dbflow_version}",
+        dbflow_core            : "com.github.Raizlabs.DBFlow:dbflow-core:${lib_version.dbflow_version}",
+        dbflow                 : "com.github.Raizlabs.DBFlow:dbflow:${lib_version.dbflow_version}",
+
+        /*********************************** 图像 *************************************/
+        // 图片加载
+        glide                  : 'com.github.bumptech.glide:glide:3.7.0',
+        glide4                 : 'com.github.bumptech.glide:glide:4.7.1',
+        glide4Compiler         : 'com.github.bumptech.glide:compiler:4.7.1',
+        glideOkHttp            : 'com.github.bumptech.glide:okhttp3-integration:4.7.1',
+        // fresco
+        fresco                 : "com.facebook.fresco:fresco:${lib_version.fresco_version}",
+        animated_gif           : "com.facebook.fresco:animated-gif:${lib_version.fresco_version}",
+        animated_webp          : "com.facebook.fresco:animated-webp:${lib_version.fresco_version}",
+        webpsupport            : "com.facebook.fresco:webpsupport:${lib_version.fresco_version}",
+        // 缩放 image view
+        PhotoView              : 'com.github.chrisbanes:PhotoView:1.2.6',
+
+        /*********************************** 控件 *************************************/
+        // 下拉加载库
+        ultra_ptr              : 'in.srain.cube:ultra-ptr:1.0.11',
+        // google flex
+        flexbox                : 'com.google.android:flexbox:0.2.7',
+
+        /********************************** 网络与数据解析 *******************************/
+        // gson解析
+        gson                   : 'com.google.code.gson:gson:2.8.2',
+        fastjson               : 'com.alibaba:fastjson:1.2.9',
+        // network
+        okhttp3                : 'com.squareup.okhttp3:okhttp:3.12.1',
+        okhttp3_mock           : 'com.squareup.okhttp3:mockwebserver:3.12.1',
+        okhttp3_logger         : 'com.squareup.okhttp3:logging-interceptor:3.12.1',
+        retrofit               : 'com.squareup.retrofit2:retrofit:2.4.0',
+        converter_gson         : 'com.squareup.retrofit2:converter-gson:2.4.0',
+        adapter_rxjava2        : 'com.squareup.retrofit2:adapter-rxjava2:2.4.0',
+        // 调试工具类库
+        stetho                 : 'com.facebook.stetho:stetho:1.5.0',
+        stetho_okhttp3         : 'com.facebook.stetho:stetho-okhttp3:1.5.0',
+        cookie                 : 'com.github.franmontiel:PersistentCookieJar:v1.0.1',
+
+        /********************************** 响应式 ***************************************/
+        // rx base
+        rxjava2                : 'io.reactivex.rxjava2:rxjava:2.1.12',
+        rxandroid              : 'io.reactivex.rxjava2:rxandroid:2.0.2',
+
+        /********************************** 辅助优化 ***********************************/
+        //内存检测
+        leakCanaryDebug        : "com.squareup.leakcanary:leakcanary-android:1.5.4",
+        leakCanaryRelease      : "com.squareup.leakcanary:leakcanary-android-no-op:1.5.4",
+
+        /************************************** 常用 ***********************************/
+        // 文件缓存 lru
+        disklrucache           : 'com.jakewharton:disklrucache:2.0.1',
+        // 线程调度+任务管理
+        bolts                  : 'com.parse.bolts:bolts-tasks:1.4.0',
+        // 事件总线
+        eventbus               : 'org.greenrobot:eventbus:3.1.1',
+        // 控件注解
+        butterknife         : 'com.jakewharton:butterknife:9.0.0',
+        butterknifeProcessor: 'com.jakewharton:butterknife-compiler:9.0.0',
+
+        /************************************** 其他 ***********************************/
+        // zxing
+        zxing               : "com.google.zxing:core:3.3.0",
+        walle               : "com.meituan.android.walle:library:1.1.6",
+        mmkv                : 'com.tencent:mmkv:1.0.17',
+        exoPlayer           : 'com.google.android.exoplayer:exoplayer:2.9.1',
+        exoPlayerUI      : 'com.google.android.exoplayer:exoplayer-ui:2.9.1',
+        /************************************** 自定义 ***********************************/
+        common           : 'com.zfy:common:0.1.1',
+        assistant_release: 'com.zfy:assistant-release:1.0.1',
+        assistant_debug  : 'com.zfy:assistant-debug:1.0.1',
+        qrcode           : 'com.zfy:qrcode:0.0.2',
+        paysdk           : 'com.zfy:paysdk:1.0.1',
+        webkit           : 'com.zfy:webkit:1.0.1',
+        lightadapter     : 'com.zfy:lightadapter:1.0.1',
+        lxadapter        : 'com.zfy:lxadapter:2.0.6',
+        mantis_compiler  : 'com.zfy:mantis-compiler:0.1.0',
+        mantisAnnotation : 'com.zfy:mantis-annotation:0.0.6',
+        mantisApi        : 'com.zfy:mantis-api:0.0.7',
+        // 滑动选中
+        slidingSelect    : 'com.march.slidingselect:slidingselect:0.0.1',
+
+        /************************************** 第三方 ***********************************/
+        aliPay           : 'com.alibaba.alipay:alipaySingle:20160825@jar',
+        wechatSocial     : 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:5.1.6',
+        wechatPay              : 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:5.1.6',
+        buglyUpgradeCrashReport: 'com.tencent.bugly:crashreport_upgrade:1.4.1',
+        buglyTinker            : 'com.tencent.tinker:tinker-android-lib:1.9.6',
+
+        /************************************** 继续扩展 ***********************************/
+
+        utilcode               : 'com.blankj:utilcode:1.17.1',
+        BRVAH                  : 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.42',
+        roundImgView           : 'com.makeramen:roundedimageview:2.3.0',
+        smartRefresh           : 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0-alpha-14',
+        smartRefreshHeader     : 'com.scwang.smartrefresh:SmartRefreshHeader:1.1.0-alpha-14',
+        immersionBar           : 'com.gyf.immersionbar:immersionbar:2.3.2-beta01',
+        room                   : 'android.arch.persistence.room:runtime:1.1.1',
+        testRoom               : "android.arch.core:core-testing:1.1.1",
+        roomCompiler           : 'android.arch.persistence.room:compiler:1.1.1',
+        pictureSelector        : 'com.github.LuckSiege.PictureSelector:picture_library:v2.2.3',
+        rxdownload             : 'zlc.season:rxdownload:1.1.1'
+
+]
+//
+ext.deps.lxadapter = project(':lightadapter')
+//ext.deps.common = project(':common')

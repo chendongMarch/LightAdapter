@@ -89,7 +89,7 @@ public class LxLoadMoreComponent extends LxComponent {
                         return;
                     }
                     if ((viewOrientation == RecyclerView.VERTICAL && dy > 0) || (viewOrientation == RecyclerView.HORIZONTAL && dx > 0)) {
-                        int lastVisiblePosition = LxUtil.getLastVisiblePosition(recyclerView);
+                        int lastVisiblePosition = LxUtil.findLastVisibleItemPosition(recyclerView);
                         reachEdge = lastVisiblePosition + 1 + startLoadMoreCount >= adapter.getItemCount();
                     }
                 }
@@ -119,7 +119,7 @@ public class LxLoadMoreComponent extends LxComponent {
                         return;
                     }
                     if ((viewOrientation == RecyclerView.VERTICAL && dy < 0) || (viewOrientation == RecyclerView.HORIZONTAL && dx < 0)) {
-                        int firstPos = LxUtil.getFirstVisiblePosition(recyclerView);
+                        int firstPos = LxUtil.findFirstVisibleItemPosition(recyclerView);
                         reachEdge = firstPos <= startLoadMoreCount;
                     }
                 }

@@ -1,0 +1,5 @@
+apply from: '../scripts/module.gradle'
+
+dependencies {
+    implementation deps.appcompat_v7
+}

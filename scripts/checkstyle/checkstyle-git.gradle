@@ -1,0 +1,114 @@
+// git hook check style
+// 过滤当前修改的所有 java 文件，可以根据自己需要修改过滤文件的规则
+// 这边是获取修改的 java 文件
+
+static def getUnCommitFilePaths(String statusInfo) {
+    ArrayList<String> filePathList = new ArrayList<String>()
+    String[] lines = statusInfo.split("\\n")
+    for (String line : lines) {
+        if (!line.startsWith("D ") && line.contains(".java")) {
+            String[] filePath = line.trim().split(" ")
+            for (String str : filePath) {
+                if (str.contains(".java")) {
+                    filePathList.add(str)
+                }
+            }
+        }
+    }
+    return filePathList
+}
+
+// 日志
+static def log(msg) {
+    println(">>> ${msg} <<<")
+}
+
+// 运行命令
+String exec(command) {
+    return command.execute(null, project.rootDir).text.trim()
+}
+
+// 当前是不是 windows 系统
+static def isWindows() {
+    return System.properties['os.name'].contains('windows')
+}
+
+// 检查代码，生成到文件，然后再检查文件是不是包含错误
+// 不太优雅，命令是异步的，做了个循环检测
+def checkStyleByJarOnReportFile() {
+    def checkJarPath = './config/checkstyle-8.17-all.jar'
+    def checkXmlPath = './config/checkstyle.xml'
+    def outputPath = "${project.rootDir}/checkstyle.report"
+    file(outputPath).delete()
+    String statusInfo = exec('git status -s')
+
+    List<String> filePathList = getUnCommitFilePaths(statusInfo)
+    String files = ''
+    for (filePath in filePathList) {
+        files = files + ' ' + filePath
+    }
+    exec("java -jar ${checkJarPath} -c ${checkXmlPath} -o ${outputPath} ${files}")
+    def outputFile = file(outputPath)
+    for (; ;) {
+        if (outputFile.exists()) {
+            def report = file(outputPath).text.toLowerCase()
+            if (report.contains("error") || report.contains("warn")) {
+                log('请检查代码')
+            } else {
+                log('没有错误')
+            }
+            break
+        } else {
+            log("没有 ${outputFile.absolutePath} ${outputFile.exists()}")
+        }
+    }
+}
+
+// 检查代码，同步运行命令，发现错误中断进程，禁止提交
+def checkStyleByJarOnResult() {
+    def checkJarPath = './config/checkstyle-8.17-all.jar'
+    def checkXmlPath = './config/checkstyle.xml'
+    def outputPath = "${project.rootDir}/checkstyle.report"
+    file(outputPath).delete()
+    String statusInfo = exec('git status -s')
+    log(statusInfo)
+    List<String> filePathList = getUnCommitFilePaths(statusInfo)
+    String files = ''
+    for (filePath in filePathList) {
+        files = files + ' ' + filePath
+    }
+    def result = exec("java -jar ${checkJarPath} -c ${checkXmlPath} ${files}").toLowerCase()
+    if (result.contains("error") || result.contains("warn")) {
+        file(outputPath).write(result)
+        log('[checkstyle.report]: Code Check Style Error')
+        throw new RuntimeException("[checkstyle.report]: Code Check Style Error")
+    } else {
+        log('Good! No Error.')
+    }
+}
+
+// 拷贝 pre-commit
+def installPreCommit() {
+    def preCommitFile = file("${project.rootDir}/.git/hooks/pre-commit")
+    if (!preCommitFile.exists()) {
+        preCommitFile.createNewFile()
+    }
+    preCommitFile.write(isWindows()
+            ? "${project.rootDir}\\gradlew checkStyleTask".replace("\\", "\\\\")
+            : "./gradlew checkStyleTask")
+}
+
+// 安装 git hook
+task installCheckStyleGitHook() {
+}
+installCheckStyleGitHook.doLast {
+    installPreCommit()
+}
+
+// 检查代码
+task checkStyleTask() {
+}
+
+checkStyleTask.doLast {
+    checkStyleByJarOnResult()
+}

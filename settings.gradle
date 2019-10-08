@@ -1,3 +1,6 @@
 include ':app'
 include ':component_basic'
 include ':lightadapter'
+
+project(':lightadapter').projectDir = new File("/Users/march/AndroidPro/haier/HaierBroV2", 'lightadapter')
+project(':component_basic').projectDir = new File("/Users/march/AndroidPro/haier/HaierBroV2", 'component_basic')

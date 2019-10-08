@@ -27,7 +27,7 @@ public class LinearSpaceItemDecoration extends RecyclerView.ItemDecoration {
 
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-        int position = parent.getChildAdapterPosition(view); // item position
+        int position = parent.getChildAdapterPosition(view); // item layoutPosition
         if (includeEdge) {
             outRect.left = position == 0 ? spacing : 0;
             outRect.right = spacing;

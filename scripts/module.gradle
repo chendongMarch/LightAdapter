@@ -1,17 +1,13 @@
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'com.jakewharton.butterknife'
 
 android {
     compileSdkVersion versions.compileSdkVersion
     defaultConfig {
         minSdkVersion versions.minSdkVersion
-        // ARouter
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [AROUTER_MODULE_NAME: project.getName(), AROUTER_GENERATE_DOC: "enable"]
-            }
-        }
     }
     buildTypes {
         debug {
@@ -27,9 +23,9 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
         sourceCompatibility JavaVersion.VERSION_1_8
     }
-    dataBinding {
-        enabled true
-    }
+//    dataBinding {
+//        enabled true
+//    }
     lintOptions {
         abortOnError false
     }
@@ -41,8 +37,11 @@ android {
     }
 }
 
+kapt {
+    arguments {
+        arg("AROUTER_MODULE_NAME", project.getName())
+    }
+}
+
 dependencies {
-//    add('annotationProcessor', libs.arouterCompiler, {})
-    add('annotationProcessor', libs.butterknifeProcessor, {})
-    add('annotationProcessor', lifecycle.compiler, {})
 }

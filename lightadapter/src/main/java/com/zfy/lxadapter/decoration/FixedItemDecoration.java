@@ -59,7 +59,7 @@ public class FixedItemDecoration extends RecyclerView.ItemDecoration {
         }
         LxAdapter adapter = (LxAdapter) parent.getAdapter();
         View firstView = parent.getChildAt(0);
-        int firstPosition = LxUtil.getFirstVisiblePosition(parent);
+        int firstPosition = LxUtil.findFirstVisibleItemPosition(parent);
         int lastFixedPosition = getLastPinPosition(firstPosition, adapter);
         if (lastFixedPosition < 0) {
             publishActualViewAttach(null);

@@ -1,0 +1,2 @@
+// 依赖配置化脚本
+apply from: "scripts/_deps.gradle"

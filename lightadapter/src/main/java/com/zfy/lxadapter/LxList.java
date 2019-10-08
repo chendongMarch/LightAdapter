@@ -5,11 +5,10 @@ import android.support.v7.widget.RecyclerView;
 
 import com.zfy.lxadapter.data.LxModel;
 import com.zfy.lxadapter.diff.DiffableList;
-import com.zfy.lxadapter.function._Consumer;
 import com.zfy.lxadapter.function._Function;
 import com.zfy.lxadapter.function._Predicate;
 import com.zfy.lxadapter.helper.LxTypeSplit;
-import com.zfy.lxadapter.listener.EventHandler;
+import com.zfy.lxadapter.listener.AdapterEventDispatcher;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,9 +23,10 @@ import java.util.Map;
  */
 public class LxList extends DiffableList<LxModel> {
 
-    private LxTypeSplit               typeSplit;
-    private Map<String, EventHandler> interceptors;
-    private LxAdapter                 adapter;
+    private LxTypeSplit                         typeSplit;
+    private LxAdapter                           adapter;
+    private Map<String, AdapterEventDispatcher> interceptors;
+    private int                                 dataStartPosition;
 
     public LxList(boolean async) {
         super(async);
@@ -42,6 +42,16 @@ public class LxList extends DiffableList<LxModel> {
         super.setAdapter(adapter);
         this.adapter = (LxAdapter) adapter;
         typeSplit.setAdapter(this.adapter, this.adapter.hasExtType);
+        calcDataStartPosition();
+    }
+
+    @Override
+    public LxModel get(int i) {
+        int size = size();
+        if (size == 0) {
+            return null;
+        }
+        return super.get(adapter.isInfinite ? i % size : i);
     }
 
     public @NonNull
@@ -58,7 +68,38 @@ public class LxList extends DiffableList<LxModel> {
         return !typeSplit.getExtTypeData(viewType).isEmpty();
     }
 
-    public void addEventHandler(String event, EventHandler interceptor) {
+    public int getDataStartPosition() {
+        return dataStartPosition;
+    }
+
+    private void calcDataStartPosition() {
+        if (adapter == null) {
+            return;
+        }
+        boolean hasExtType = adapter.hasExtType;
+        if (hasExtType) {
+            LxModel lxModel;
+            int count = size();
+            for (int i = 0; i < count; i++) {
+                lxModel = get(i);
+                if (Lx.isContentType(lxModel.getItemType())) {
+                    dataStartPosition = i;
+                    break;
+                }
+            }
+        } else {
+            dataStartPosition = 0;
+        }
+    }
+
+
+    @Override
+    public void update(@NonNull List<LxModel> newItems) {
+        super.update(newItems);
+        calcDataStartPosition();
+    }
+
+    public void addEventHandler(String event, AdapterEventDispatcher interceptor) {
         if (interceptors == null) {
             interceptors = new HashMap<>(4);
         }
@@ -73,9 +114,9 @@ public class LxList extends DiffableList<LxModel> {
         if (interceptors == null || interceptors.isEmpty()) {
             return;
         }
-        EventHandler eventInterceptor = interceptors.get(event);
+        AdapterEventDispatcher eventInterceptor = interceptors.get(event);
         if (eventInterceptor != null) {
-            eventInterceptor.intercept(event, adapter, extra);
+            eventInterceptor.dispatch(event, adapter, extra);
         }
     }
 
@@ -90,13 +131,4 @@ public class LxList extends DiffableList<LxModel> {
     }
 
 
-    public static abstract class UnpackConsumer<T> implements _Consumer<LxModel> {
-
-        @Override
-        public void accept(LxModel model) {
-            onAccept(model.unpack());
-        }
-
-        protected abstract void onAccept(T t);
-    }
 }

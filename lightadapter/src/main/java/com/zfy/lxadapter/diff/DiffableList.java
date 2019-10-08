@@ -133,6 +133,13 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
         return list().iterator();
     }
 
+    public List<E> updateDataSetChanged(List<E> newItems) {
+        list().clear();
+        list().addAll(newItems);
+        updateCallback.adapter.notifyDataSetChanged();
+        return newItems;
+    }
+
 
     // 发布数据更新
     private void dispatchUpdate(@NonNull List<E> newItems) {
@@ -151,8 +158,10 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
         return new ArrayList<>(list());
     }
 
+
     /**
      * 清空列表
+     *
      * @return 列表
      */
     public List<E> updateClear() {

@@ -1,0 +1,37 @@
+// 按照清单文件自动添加依赖
+dependencies {
+    if (project.hasProperty('entryComponent')) {
+        def defEntryComponent = project.entryComponent
+        if (defEntryComponent == null && defEntryComponent.length() == 0) {
+            return
+        }
+        try {
+            for (def value : comps) {
+                if (checkProp(value, 'Compile', true)) {
+                    String compileType = 'api'
+                    if (checkProp(value, 'Remote', true)) {
+                        add(compileType, value.remotePath, {})
+                    } else {
+                        add(compileType, project(":${value.localPath}"), {})
+                    }
+                }
+            }
+        } catch (e) {
+            e.printStackTrace()
+        }
+    }
+}
+
+def log(msg) {
+    println("comp_deps ${msg}")
+}
+
+def checkProp(comp, prop, defValue) {
+    def key = "${comp.name}${prop}"
+    if (project.hasProperty(key)) {
+        return "${project.property(key)}" == 'true'
+    } else {
+        return defValue
+    }
+}
+

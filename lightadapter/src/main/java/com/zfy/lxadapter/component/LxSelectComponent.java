@@ -64,46 +64,46 @@ public class LxSelectComponent extends LxComponent {
         }
     }
 
-    private void doSelect(LxModel data) {
+    private void doSelect(LxModel model) {
         if (selectMode == Lx.SELECT_SINGLE) {
-            unSelectOther(data);
+            unSelectOther(model);
         }
-        if (data.isSelected()) {
+        if (model.isSelected()) {
             return;
         }
-        if (interceptor != null && interceptor.intercept(data, true)) {
+        if (interceptor != null && interceptor.intercept(model, true)) {
             return;
         }
-        data.setSelected(true);
-        int modelIndex = adapter.getData().indexOf(data);
+        model.setSelected(true);
+        int modelIndex = adapter.getData().indexOf(model);
         adapter.notifyItemChanged(modelIndex);
     }
 
-    private void unSelect(LxModel data) {
-        if (!data.isSelected()) {
+    private void unSelect(LxModel model) {
+        if (!model.isSelected()) {
             return;
         }
-        if (interceptor != null && interceptor.intercept(data, false)) {
+        if (interceptor != null && interceptor.intercept(model, false)) {
             return;
         }
-        data.setSelected(false);
-        int modelIndex = adapter.getData().indexOf(data);
+        model.setSelected(false);
+        int modelIndex = adapter.getData().indexOf(model);
         adapter.notifyItemChanged(modelIndex);
     }
 
-    private void toggleSelectItem(LxModel data) {
-        if (data.isSelected()) {
-            unSelect(data);
+    private void toggleSelectItem(LxModel model) {
+        if (model.isSelected()) {
+            unSelect(model);
         } else {
-            doSelect(data);
+            doSelect(model);
         }
     }
 
-    public void select(LxModel data) {
+    public void select(LxModel model) {
         if (selectMode == Lx.SELECT_SINGLE) {
-            doSelect(data);
+            doSelect(model);
         } else {
-            toggleSelectItem(data);
+            toggleSelectItem(model);
         }
     }
 

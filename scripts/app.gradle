@@ -1,28 +1,29 @@
+// 为 app module 配置统一依赖
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply from: '../scripts/utils.gradle'
+apply from: '../scripts/_utils.gradle'
+apply plugin: 'com.alibaba.arouter'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion versions.compileSdkVersion
     defaultConfig {
+        applicationId params.applicationId
         minSdkVersion versions.minSdkVersion
         targetSdkVersion versions.targetSdkVersion
         versionCode gitVersionCode()
         versionName gitVersionName()
         multiDexEnabled true
-        // ARouter
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [AROUTER_MODULE_NAME: project.getName(), AROUTER_GENERATE_DOC: "enable"]
-            }
-        }
-    }
-    // data binding
-    dataBinding {
-        enabled true
     }
 
+    // data binding
+    dataBinding {
+        enabled false
+    }
+
+    // java8 support
     android {
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_8
@@ -30,6 +31,18 @@ android {
         }
     }
 
+    // buildTypes
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+
+        }
+    }
+
+    // source
     sourceSets {
         main {
             res.srcDirs = ['src/main/res']
@@ -37,11 +50,24 @@ android {
         }
     }
 
+    // lint
     lintOptions {
         checkReleaseBuilds false
         abortOnError false
     }
+
+    // heap
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
 }
+
+kapt {
+    arguments {
+        arg("AROUTER_MODULE_NAME", project.getName())
+    }
+}
+
 
 // 整合打出包的路径
 android.applicationVariants.all { variant ->
@@ -53,6 +79,8 @@ android.applicationVariants.all { variant ->
     }
 }
 
+
+// 转移 apk
 def copyApk() {
     def dir = new File(getProjectDir().getPath() + "/build/outputs/apk/")
     def files = dir.listFiles()
@@ -66,9 +94,7 @@ def copyApk() {
 }
 
 tasks.whenTaskAdded { task ->
-    if (task.name.equalsIgnoreCase('assemblerelease')
-            || task.name.equalsIgnoreCase('assembledebug')
-            || task.name.equalsIgnoreCase('assemblefortest')) {
+    if (task.name.contains('assemble')) {
         task.doLast {
             copyApk()
         }
@@ -77,8 +103,17 @@ tasks.whenTaskAdded { task ->
 
 // add dependencies for app
 dependencies {
-    add('api', libs.kotlin, {})
-    add('annotationProcessor', libs.butterknifeProcessor, {})
-    add('annotationProcessor', libs.arouterCompiler, {})
-    add('annotationProcessor', lifecycle.compiler, {})
+    add('kapt', deps.butterknifeProcessor, {})
+    add('kapt', deps.arouterCompiler, {})
+    add('kapt', deps.lifecycle_compiler, {})
+    add('kapt', deps.mantis_compiler, {})
+    add('kapt', deps.roomCompiler, {})
 }
+
+def componentsPath = "${project.rootProject.rootDir.path}/components.gradle"
+if (new File(componentsPath).exists()) {
+    apply from: componentsPath
+}
+// 组件化依赖
+def componentDepsPath = "${project.rootProject.rootDir.path}/scripts/component/component_deps.gradle"
+apply from: componentDepsPath

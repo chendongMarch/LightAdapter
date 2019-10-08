@@ -1,0 +1,48 @@
+ext.params = [
+        applicationId : "com.zfy.mantis.sample",
+        resourcePrefix: "index_"
+]
+apply from: '../scripts/app.gradle'
+
+// 以下还和正常的配置一样，根据需要来配置
+// 如果没有特殊的配置，下面可以全部不写
+android {
+
+    defaultConfig {
+        ndk {
+            abiFilters 'armeabi'
+        }
+        manifestPlaceholders = [qq_id: "1106810205"]
+    }
+
+    // 如果有签名的话
+    signingConfigs {
+        sign {
+            storeFile file(keyPath)
+            storePassword keyPwd
+            keyAlias alias
+            keyPassword storePwd
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+    }
+
+    // 如果有 build type
+    buildTypes {
+        release {
+            signingConfig signingConfigs.sign
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField "int", "Environment", "1" // 环境变量，1开发，2测试，3正式
+        }
+        debug {
+            signingConfig signingConfigs.sign
+            buildConfigField "int", "Environment", "3" // 环境变量，1开发，2测试，3正式
+        }
+    }
+}
+
+// 如果有额外依赖
+dependencies {
+    implementation deps.cardView_v7
+}

@@ -3,9 +3,8 @@ package com.zfy.light.sample;
 import android.content.Intent;
 import android.view.View;
 
-import com.zfy.component.basic.ComponentX;
-import com.zfy.component.basic.mvx.mvp.app.MvpActivity;
-import com.zfy.component.basic.mvx.mvp.app.MvpV;
+import com.zfy.component.basic.app.AppActivity;
+import com.zfy.component.basic.app.Layout;
 import com.zfy.light.sample.cases.NewSampleTestActivity;
 
 import butterknife.OnClick;
@@ -16,8 +15,8 @@ import butterknife.OnClick;
  *
  * @author chendong
  */
-@MvpV(layout = R.layout.entry_activity)
-public class EntryActivity extends MvpActivity {
+@Layout(R.layout.entry_activity)
+public class EntryActivity extends AppActivity {
 
     @Override
     public void init() {
@@ -27,7 +26,7 @@ public class EntryActivity extends MvpActivity {
     public void clickView(View view) {
         switch (view.getId()) {
             case R.id.entry:
-                launchActivity(new Intent(getContext(), NewSampleTestActivity.class), 0);
+                startActivity(new Intent(getContext(), NewSampleTestActivity.class));
                 break;
             default:
                 break;

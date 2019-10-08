@@ -30,7 +30,7 @@ public class GridSpaceItemDecoration extends RecyclerView.ItemDecoration {
 
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-        int position = parent.getChildAdapterPosition(view); // item position
+        int position = parent.getChildAdapterPosition(view); // item layoutPosition
         int column = position % spanCount; // item column
 
         if (includeEdge) {

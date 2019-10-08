@@ -2,6 +2,7 @@ package com.zfy.lxadapter.data;
 
 import android.os.Bundle;
 
+import com.zfy.lxadapter.LxAdapter;
 import com.zfy.lxadapter.LxViewHolder;
 
 import java.util.List;
@@ -16,7 +17,8 @@ public class LxContext {
 
     public Object       data;
     public LxModel      model;
-    public int          position;
+    public int          layoutPosition;
+    public int          dataPosition;
     public LxViewHolder holder;
     public int          viewType;
     public List<String> payloads;
@@ -32,5 +34,9 @@ public class LxContext {
             payloads.clear();
             payloads = null;
         }
+    }
+
+    public int getDataPosition(LxAdapter adapter) {
+        return adapter.getData().indexOf(model);
     }
 }

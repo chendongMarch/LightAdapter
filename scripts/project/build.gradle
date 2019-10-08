@@ -1,5 +1,7 @@
+apply from: "scripts/project.gradle"
+
+// 以下和正常一样根据需要编写
 buildscript {
-    apply from: "./scripts/dependence.gradle"
     repositories {
         google()
         jcenter()
@@ -11,7 +13,7 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
-        classpath 'com.android.tools.build:gradle:3.1.4'
+        classpath 'com.android.tools.build:gradle:3.3.0'
         classpath 'com.novoda:bintray-release:0.8.1'
     }
 }

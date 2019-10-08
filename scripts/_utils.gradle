@@ -1,5 +1,9 @@
 // 获取 versionCode
 static def gitVersionCode() {
+    def forceVersionCode = null
+    if (forceVersionCode != null) {
+        return forceVersionCode
+    }
     def cmd = 'git rev-list HEAD --count'
     if (cmd.execute().text.trim() == "") {
         return 10

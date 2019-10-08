@@ -8,16 +8,32 @@
     <com.zfy.lxadapter.decoration.LxSlidingSelectLayout
         android:layout_width="match_parent"
         android:id="@+id/select_layout"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent" />
+
+    <View
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/content_rv"
+        app:layout_constraintLeft_toLeftOf="@id/content_rv"
+        app:layout_constraintRight_toRightOf="@id/content_rv"
+        app:layout_constraintTop_toTopOf="@id/content_rv"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@drawable/shape_selected_whell" />
 
 
-        <android.support.v7.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:id="@+id/content_rv"
-            android:layout_height="match_parent" />
+    <com.zfy.lxadapter.LxRecyclerView
+        android:layout_width="match_parent"
+        android:id="@+id/content_rv"
+        android:layout_height="match_parent" />
 
 
-    </com.zfy.lxadapter.decoration.LxSlidingSelectLayout>
+    <LinearLayout
+        android:id="@+id/picker_container"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+
+    </LinearLayout>
 
 
     <FrameLayout
@@ -84,6 +100,11 @@
             android:layout_height="wrap_content"
             android:text="ViewPager" />
 
+        <Button
+            android:id="@+id/test_picker_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="滚轮效果" />
 
         <Button
             android:id="@+id/test_img_btn"
@@ -91,6 +112,11 @@
             android:layout_height="wrap_content"
             android:text="图片混合" />
 
+        <Button
+            android:id="@+id/test_now_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="测试" />
 
         <TextView
             android:layout_marginTop="10dp"

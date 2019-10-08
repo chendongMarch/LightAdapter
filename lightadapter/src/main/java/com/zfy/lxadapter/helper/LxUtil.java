@@ -12,6 +12,7 @@ import com.zfy.lxadapter.BuildConfig;
 import com.zfy.lxadapter.Lx;
 import com.zfy.lxadapter.data.Copyable;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -74,9 +75,12 @@ public class LxUtil {
      * @param view RecyclerView
      * @return 最后一个位置 position
      */
-    public static int getLastVisiblePosition(RecyclerView view) {
+    public static int findLastVisibleItemPosition(RecyclerView view) {
         int position;
         RecyclerView.LayoutManager manager = view.getLayoutManager();
+        if (manager == null) {
+            return -1;
+        }
         if (manager instanceof GridLayoutManager) {
             position = ((GridLayoutManager) manager).findLastVisibleItemPosition();
         } else if (manager instanceof LinearLayoutManager) {
@@ -92,21 +96,71 @@ public class LxUtil {
     }
 
     /**
+     * 获取最后一条展示的位置
+     *
+     * @param view RecyclerView
+     * @return 最后一个位置 position
+     */
+    public static int findLastCompletelyVisibleItemPosition(RecyclerView view) {
+        int position;
+        RecyclerView.LayoutManager manager = view.getLayoutManager();
+        if (manager == null) {
+            return -1;
+        }
+        if (manager instanceof GridLayoutManager) {
+            position = ((GridLayoutManager) manager).findLastCompletelyVisibleItemPosition();
+        } else if (manager instanceof LinearLayoutManager) {
+            position = ((LinearLayoutManager) manager).findLastCompletelyVisibleItemPosition();
+        } else if (manager instanceof StaggeredGridLayoutManager) {
+            StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) manager;
+            int[] lastPositions = layoutManager.findLastCompletelyVisibleItemPositions(new int[layoutManager.getSpanCount()]);
+            position = getMaxPosition(lastPositions);
+        } else {
+            position = manager.getItemCount() - 1;
+        }
+        return position;
+    }
+
+    /**
      * 获取第一条展示的位置
      *
      * @param view RecyclerView
      * @return 第一条展示的位置
      */
-    public static int getFirstVisiblePosition(RecyclerView view) {
+    public static int findFirstVisibleItemPosition(RecyclerView view) {
         int position;
         RecyclerView.LayoutManager manager = view.getLayoutManager();
         if (manager instanceof GridLayoutManager) {
-            position = ((GridLayoutManager) manager).findFirstVisibleItemPosition();
+            position = ((GridLayoutManager) manager).findFirstCompletelyVisibleItemPosition();
         } else if (manager instanceof LinearLayoutManager) {
             position = ((LinearLayoutManager) manager).findFirstVisibleItemPosition();
         } else if (manager instanceof StaggeredGridLayoutManager) {
             StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) manager;
             int[] lastPositions = layoutManager.findFirstVisibleItemPositions(new int[layoutManager.getSpanCount()]);
+            position = getMaxPosition(lastPositions);
+        } else {
+            position = -1;
+        }
+        return position;
+    }
+
+
+    /**
+     * 获取第一条展示的位置
+     *
+     * @param view RecyclerView
+     * @return 第一条展示的位置
+     */
+    public static int findFirstCompletelyVisibleItemPosition(RecyclerView view) {
+        int position;
+        RecyclerView.LayoutManager manager = view.getLayoutManager();
+        if (manager instanceof GridLayoutManager) {
+            position = ((GridLayoutManager) manager).findFirstCompletelyVisibleItemPosition();
+        } else if (manager instanceof LinearLayoutManager) {
+            position = ((LinearLayoutManager) manager).findFirstCompletelyVisibleItemPosition();
+        } else if (manager instanceof StaggeredGridLayoutManager) {
+            StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) manager;
+            int[] lastPositions = layoutManager.findFirstCompletelyVisibleItemPositions(new int[layoutManager.getSpanCount()]);
             position = getMaxPosition(lastPositions);
         } else {
             position = 0;
@@ -165,7 +219,6 @@ public class LxUtil {
     public static <T> T copyAddress(T input) {
         return input;
     }
-
 
     public static List<String> parsePayloads(List<Object> payloads) {
         List<String> list = new ArrayList<>();

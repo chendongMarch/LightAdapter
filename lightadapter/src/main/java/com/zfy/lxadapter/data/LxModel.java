@@ -16,6 +16,7 @@ import java.util.Set;
  */
 public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable, Copyable<LxModel> {
 
+    public static final  Object      EMPTY_OBJ = new Object();
     private static final Set<String> EMPTY_SET = new HashSet<>();
     private static       int         ID        = 0;
 
@@ -67,6 +68,9 @@ public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable,
     private boolean canCompare(LxModel newItem, LxModel current) {
         Object newData = newItem.data;
         Object currentData = current.data;
+        if (newData == null || currentData == null) {
+            return false;
+        }
         if (newData.getClass().equals(currentData.getClass())
                 && newData instanceof Diffable
                 && currentData instanceof Diffable) {
@@ -77,6 +81,10 @@ public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable,
 
     @Override
     public boolean areItemsTheSame(LxModel newItem) {
+        // 如果考虑使用 payloads，则根据条件返回 false
+        if (canCompare(newItem, this)) {
+            return ((Diffable) data).areItemsTheSame(newItem.data);
+        }
         // 使用 ID 比较，避免调用 insert/remove
         Object objId1 = getObjId();
         Object objId2 = newItem.getObjId();

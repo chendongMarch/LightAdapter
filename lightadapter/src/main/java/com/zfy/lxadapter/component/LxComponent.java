@@ -16,12 +16,15 @@ import java.util.List;
  */
 public class LxComponent {
 
-    public void onAttachedToAdapter(LxAdapter adapter) {
+    protected LxAdapter    adapter;
+    protected RecyclerView view;
 
+    public void onAttachedToAdapter(LxAdapter adapter) {
+        this.adapter = adapter;
     }
 
     public void onAttachedToRecyclerView(LxAdapter adapter, @NonNull RecyclerView recyclerView) {
-
+        this.view = recyclerView;
     }
 
     public void onBindViewHolder(LxAdapter adapter, @NonNull LxViewHolder holder, int position, @NonNull List<Object> payloads) {

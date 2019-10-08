@@ -1,0 +1,30 @@
+// 按照清单文件自动配置是否编译组件
+def componentsPath = "${rootDir.path}/components.gradle"
+log(componentsPath)
+if (new File(componentsPath).exists()) {
+    apply from: componentsPath
+    try {
+        for (def value : comps) {
+            if (checkProp(value, 'Compile', true) && !checkProp(value, 'Remote', true)) {
+                include(value.localPath)
+            }
+        }
+    } catch (e) {
+        e.printStackTrace()
+    }
+} else {
+    log("没有监测到 components.gradle")
+}
+
+def log(msg) {
+    println("comp_settings ${msg}")
+}
+
+def checkProp(comp, prop, defValue) {
+    def key = "${comp.name}${prop}"
+    if (ext.has(key)) {
+        return "${ext.get(key)}" == 'true'
+    } else {
+        return defValue
+    }
+}

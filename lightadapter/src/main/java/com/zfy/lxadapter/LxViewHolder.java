@@ -58,7 +58,7 @@ public class LxViewHolder extends RecyclerView.ViewHolder {
         Object viewTag = itemView.getTag(R.id.item_context);
         if (viewTag != null) {
             LxContext context = (LxContext) viewTag;
-            context.position = getAdapterPosition();
+            context.layoutPosition = getAdapterPosition();
             context.viewType = getItemViewType();
             return context;
         }

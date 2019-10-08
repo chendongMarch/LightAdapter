@@ -22,24 +22,28 @@ import java.util.List;
  */
 public abstract class LxItemBinder<D> implements Typeable {
 
-    protected          LxAdapter adapter;
-    private            TypeOpts  typeOpts;
-    protected @NonNull Bundle    params;
+    public static final int BIND_TYPE_DEFAULT = 0;
 
-    public LxItemBinder(TypeOpts.TypeOptsSetter setter) {
-        this(TypeOpts.make(setter));
+    protected LxAdapter adapter;
+    private   TypeOpts  typeOpts;
+    protected int       bindType; // 绑定类型
+
+    public LxItemBinder(int bindType) {
+        this.bindType = bindType;
+        this.typeOpts = getTypeOpts();
     }
 
-    public LxItemBinder(TypeOpts opts) {
-        this.typeOpts = opts;
+    public LxItemBinder() {
+        this(BIND_TYPE_DEFAULT);
     }
 
-    void onAdapterAttached(LxAdapter adapter, @NonNull Bundle bundle) {
+    void onAdapterAttached(LxAdapter adapter) {
         this.adapter = adapter;
-        this.params = bundle;
     }
+
 
     LxViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        TypeOpts typeOpts = getTypeOpts();
         View view = adapter.inflater.inflate(typeOpts.layoutId, parent, false);
         LxContext context = (LxContext) view.getTag(R.id.item_context);
         if (context == null) {
@@ -58,7 +62,8 @@ public abstract class LxItemBinder<D> implements Typeable {
 
         LxContext context = (LxContext) holder.itemView.getTag(R.id.item_context);
         context.holder = holder;
-        context.position = position;
+        context.layoutPosition = position;
+        context.dataPosition = position - adapter.getData().getDataStartPosition();
         context.data = unpack;
         context.model = data;
         context.viewType = data.getItemType();
@@ -75,35 +80,45 @@ public abstract class LxItemBinder<D> implements Typeable {
     }
 
     private void onBindEvent(LxViewHolder holder, int viewType) {
+        TypeOpts typeOpts = getTypeOpts();
+
         if (typeOpts.enableClick || typeOpts.enableLongPress || typeOpts.enableDbClick) {
             LxEvent.setEvent(holder, typeOpts.enableClick, typeOpts.enableLongPress, typeOpts.enableDbClick, (context, eventType) -> {
-                onEvent(context, (D) context.data, eventType);
+                onItemEvent(context, (D) context.data, eventType);
             });
         }
         if (typeOpts.enableFocusChange) {
             LxEvent.setFocusEvent(holder, (context, eventType) -> {
-                LxItemBinder.this.onEvent(context, (D) context.data, eventType);
+                LxItemBinder.this.onItemEvent(context, (D) context.data, eventType);
             });
         }
     }
 
-    public abstract void onBindView(LxContext context, LxViewHolder holder, D listItem);
-
-    public void onEvent(LxContext context, D listItem, @Lx.EventType int eventType) {
+    public TypeOpts getTypeOpts() {
+        if (typeOpts == null) {
+            typeOpts = newTypeOpts();
+        }
+        return typeOpts;
     }
 
-    public TypeOpts getTypeOpts() {
-        return typeOpts;
+    protected abstract TypeOpts newTypeOpts();
+
+    protected abstract void onBindView(LxContext context, LxViewHolder holder, D listItem);
+
+    protected void onItemEvent(LxContext context, D listItem, @Lx.EventType int eventType) {
     }
 
     public LxList getData() {
         return adapter.getData();
     }
 
+    public LxAdapter getAdapter() {
+        return adapter;
+    }
 
     @Override
     public int getItemType() {
-        return typeOpts.viewType;
+        return getTypeOpts().viewType;
     }
 
 
@@ -112,17 +127,18 @@ public abstract class LxItemBinder<D> implements Typeable {
     }
 
     public interface OnViewBind<D> {
-        void onBindView(LxContext context, LxViewHolder holder, D data);
+        void onBindView(LxItemBinder binder, LxContext context, LxViewHolder holder, D data);
     }
 
     public interface OnEventBind<D> {
-        void onEvent(LxContext context, D data, int eventType);
+        void onEvent(LxItemBinder binder, LxContext context, D data, int eventType);
     }
 
 
     public static class Builder<DType> {
 
         private TypeOpts           opts;
+        private int                bindType = BIND_TYPE_DEFAULT;
         private OnViewBind<DType>  viewBind;
         private OnEventBind<DType> eventBind;
 
@@ -134,37 +150,50 @@ public abstract class LxItemBinder<D> implements Typeable {
             return this;
         }
 
+        public Builder<DType> bindType(int bindType) {
+            this.bindType = bindType;
+            return this;
+        }
+
         public Builder<DType> onViewBind(OnViewBind<DType> onViewBind) {
             this.viewBind = onViewBind;
             return this;
         }
 
-        public Builder<DType> onEventBind(OnEventBind<DType> onEvent) {
+        public Builder<DType> onItemEvent(OnEventBind<DType> onEvent) {
             this.eventBind = onEvent;
             return this;
         }
 
         public LxItemBinder<DType> build() {
-            return new LxItemBindImpl(opts);
+            return new LxItemBindImpl(bindType, opts);
         }
 
         class LxItemBindImpl extends LxItemBinder<DType> {
 
-            LxItemBindImpl(TypeOpts opts) {
-                super(opts);
+            private TypeOpts opts;
+
+            LxItemBindImpl(int bindType, TypeOpts opts) {
+                super(bindType);
+                this.opts = opts;
+            }
+
+            @Override
+            protected TypeOpts newTypeOpts() {
+                return opts;
             }
 
             @Override
             public void onBindView(LxContext context, LxViewHolder holder, DType data) {
                 if (viewBind != null) {
-                    viewBind.onBindView(context, holder, data);
+                    viewBind.onBindView(this, context, holder, data);
                 }
             }
 
             @Override
-            public void onEvent(LxContext context, DType data, int eventType) {
+            public void onItemEvent(LxContext context, DType data, int eventType) {
                 if (eventBind != null) {
-                    eventBind.onEvent(context, data, eventType);
+                    eventBind.onEvent(this, context, data, eventType);
                 }
             }
         }
