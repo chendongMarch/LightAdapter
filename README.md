@@ -10,7 +10,7 @@
 
 > [GitHub - LxAdapter](https://github.com/chendongMarch/LxAdapter)
 
-> com.zfy:lxadapter:2.0.5
+> com.zfy:lxadapter:2.0.9
 
 <!--more-->
 
@@ -1353,7 +1353,17 @@ static class AddressItemBinder extends LxItemBinder<AddressPickItemBean> {
 }
 ```
 
+<span id="extra"></span>
 
+## 进阶：使用 Extra 扩展数据
+
+在 `LxModel` 中增加了 `extra` 他是一个 `bundle` 类型的数据，可以在不增加字段的情况下扩展一下临时用的数据；
+
+```java
+LxModel model = LxPacker.pack(Lx.VIEW_TYPE_LOADING, new NoNameData("加载中～"));
+model.getExtra().putString("TEMP_DATA","Hello");
+String tempData = model.getExtra().getString("TEMP_DATA","");
+```
 
 <span id="idable"></span>
 

@@ -223,6 +223,9 @@ public class NewSampleTestActivity extends AppActivity {
     int degree = 0;
 
     private void initLoadMoreTest() {
+        LxModel model = LxPacker.pack(Lx.VIEW_TYPE_LOADING, new NoNameData("加载中～"));
+        model.getExtra().putString("TEMP_DATA","Hello");
+
         TypeOpts typeOpts = TypeOpts.make(opts -> {
             opts.viewType = Lx.VIEW_TYPE_LOADING;
             opts.layoutId = R.layout.loading_view;
