@@ -2,17 +2,18 @@ package com.zfy.lxadapter.helper;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
+import android.view.MotionEvent;
 
 import com.zfy.lxadapter.BuildConfig;
 import com.zfy.lxadapter.Lx;
 import com.zfy.lxadapter.data.Copyable;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -220,6 +221,7 @@ public class LxUtil {
         return input;
     }
 
+    @NonNull
     public static List<String> parsePayloads(List<Object> payloads) {
         List<String> list = new ArrayList<>();
         for (Object payload : payloads) {
@@ -235,5 +237,8 @@ public class LxUtil {
         }
         return list;
     }
+
+
+
 
 }

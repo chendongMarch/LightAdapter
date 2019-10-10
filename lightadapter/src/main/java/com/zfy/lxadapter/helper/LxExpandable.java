@@ -72,7 +72,7 @@ public class LxExpandable {
     public static <G extends ExpandableGroup, C extends ExpandableChild>
     void expand(LxAdapter adapter, LxContext context, ExpandableGroup<G, C> group) {
         LxList models = adapter.getData();
-        List<LxModel> lxModels = LxTransformations.pack(CHILD_TYPE, group.getChildren());
+        List<LxModel> lxModels = LxPacker.pack(CHILD_TYPE, group.getChildren());
         models.updateAddAll(context.layoutPosition + 1, lxModels);
         models.updateSet(context.model, item -> {
             ExpandableGroup<G, C> groupData = item.unpack();

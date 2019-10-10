@@ -1,6 +1,7 @@
 package com.zfy.lxadapter.data;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 
 import com.zfy.lxadapter.Lx;
 import com.zfy.lxadapter.helper.LxUtil;
@@ -26,9 +27,9 @@ public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable,
     private int     moduleId; // 模块ID
     private boolean selected;
 
-    private Bundle extra;
-    private Bundle condition;
+    private Bundle extra; // 数据扩展
 
+    @NonNull
     public Bundle getExtra() {
         if (extra == null) {
             extra = new Bundle();
@@ -36,11 +37,16 @@ public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable,
         return extra;
     }
 
-    public Bundle getCondition() {
-        if (condition == null) {
-            condition = new Bundle();
-        }
-        return condition;
+
+    // 条件更新
+
+    public void setCondition(String condition) {
+        setCondition(condition, null);
+    }
+
+    public void setCondition(String condition, Bundle bundle) {
+        getExtra().putString(Lx.KEY_CONDITION_KEY, condition);
+        getExtra().putBundle(Lx.KEY_CONDITION_VALUE, bundle);
     }
 
     public LxModel(Object data) {
@@ -94,6 +100,7 @@ public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable,
         return this.equals(newItem);
     }
 
+
     @Override
     public boolean areContentsTheSame(LxModel newItem) {
         // 相同地址，则一定完全相同
@@ -101,7 +108,8 @@ public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable,
             return true;
         }
         // 有条件更新，直接调用 bind
-        if (!getCondition().isEmpty() || !newItem.getCondition().isEmpty()) {
+        String condition = getExtra().getString(Lx.KEY_CONDITION_KEY, "");
+        if (condition != null && !condition.isEmpty()) {
             return false;
         }
         // 如果考虑使用 payloads，则根据条件返回 false

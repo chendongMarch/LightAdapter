@@ -2,6 +2,7 @@ package com.zfy.lxadapter.helper;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.ViewGroup;
@@ -10,10 +11,11 @@ import android.widget.LinearLayout;
 import com.zfy.lxadapter.LxAdapter;
 import com.zfy.lxadapter.LxItemBinder;
 import com.zfy.lxadapter.LxList;
-import com.zfy.lxadapter.LxRecyclerView;
 import com.zfy.lxadapter.component.LxPickerComponent;
 import com.zfy.lxadapter.data.LxModel;
 import com.zfy.lxadapter.function._Consumer;
+import com.zfy.lxadapter.widget.LxLinearLayoutManager;
+import com.zfy.lxadapter.widget.LxRecyclerView;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -29,21 +31,49 @@ import java.util.List;
  */
 public class LxPicker<D> {
 
+    private static final float DEFAULT_SCALE_MAX = 1.3f;
+
     public interface PickerDataFetcher<D> {
-        List<D> resp(@Nullable D pickValue, _Consumer<List<D>> callback);
+        List<D> resp(int index, @Nullable D pickValue, _Consumer<List<D>> callback);
     }
 
     public interface OnPickerDataUpdateFinishListener {
         void finish();
     }
 
+    public static class Opts {
+
+        public float   maxScaleValue      = DEFAULT_SCALE_MAX; // 缩放的比例
+        public int     listViewWidth; // 布局宽度
+        public int     listViewHeight; // 布局高度
+        public int     itemViewHeight; // 每一项的高度
+        public int     exposeViewCount; // 暴露的个数
+        public boolean infinite           = false; // 是否无限滚动
+        public float   flingVelocityRatio = 0.1f; // 增大滑动阻尼，越小阻尼越大
+        public float   baseAlpha          = 0.6f; // 基础的 alpha 值，在这个基础上变大
+        public float   baseRotation       = 45; // 基础的角度
+
+        // listViewHeight = itemViewHeight * exposeViewCount;
+
+        public void init() {
+            listViewHeight = itemViewHeight * exposeViewCount;
+        }
+
+        private void assertOpts() {
+            if (itemViewHeight <= 0 || exposeViewCount <= 0) {
+                throw new IllegalArgumentException("please set itemViewHeight and exposeViewCount!!!");
+            }
+        }
+    }
+    
+    
     private static class PickerNode<D> {
         int                    defaultPickPosition = 0;
         int                    currentPickPosition;
         int                    index;
         int                    viewType;
         LxAdapter              adapter;
-        LxPickerComponent.Opts opts;
+        Opts opts;
         PickerDataFetcher<D>   fetcher;
     }
 
@@ -58,7 +88,7 @@ public class LxPicker<D> {
 
 
     // 前后追加隐藏数据
-    private List<LxModel> addFakeData(List<LxModel> snapshot, int viewType, LxPickerComponent.Opts opts) {
+    private List<LxModel> addFakeData(List<LxModel> snapshot, int viewType, Opts opts) {
         if (opts.infinite) {
             return snapshot;
         }
@@ -80,7 +110,7 @@ public class LxPicker<D> {
 
 
     public LxAdapter addPicker(
-            LxPickerComponent.Opts opts,
+            Opts opts,
             LxItemBinder<D> itemBinder,
             PickerDataFetcher<D> pickerDataFetcher) {
         RecyclerView recyclerView = new LxRecyclerView(pickerContainer.getContext());
@@ -89,11 +119,16 @@ public class LxPicker<D> {
     }
 
 
-    public LxAdapter addPicker(RecyclerView recyclerView,
-                               LxPickerComponent.Opts opts,
-                               LxItemBinder<D> itemBinder,
-                               PickerDataFetcher<D> pickerDataFetcher) {
+    private LxAdapter addPicker(RecyclerView recyclerView,
+                                Opts opts,
+                                LxItemBinder<D> itemBinder,
+                                PickerDataFetcher<D> pickerDataFetcher) {
         LxList lxList = new LxList();
+        LxLinearLayoutManager layoutManager = new LxLinearLayoutManager(recyclerView.getContext(), LinearLayoutManager.VERTICAL, false);
+        layoutManager.setSpeedRatio(0.5f);
+        if (recyclerView instanceof LxRecyclerView) {
+            ((LxRecyclerView) recyclerView).setFlingRatio(0.5f);
+        }
         LxAdapter adapter = LxAdapter.of(lxList)
                 .bindItem(itemBinder)
                 .compose(value -> {
@@ -103,15 +138,15 @@ public class LxPicker<D> {
                     return value;
                 })
                 .component(new LxPickerComponent(opts))
-                .attachTo(recyclerView, LxManager.linear(recyclerView.getContext()));
+                .attachTo(recyclerView, layoutManager);
         addPicker(itemBinder.getTypeOpts().viewType, adapter, pickerDataFetcher);
         return adapter;
     }
 
 
     // 添加一个 Picker
-    public void addPicker(int viewType, LxAdapter adapter, PickerDataFetcher<D> pickerDataFetcher) {
-        LxPickerComponent.Opts opts = getPickerComponent(adapter).getOpts();
+    private void addPicker(int viewType, LxAdapter adapter, PickerDataFetcher<D> pickerDataFetcher) {
+        Opts opts = getPickerComponent(adapter).getOpts();
         if (opts.exposeViewCount % 2 == 0) {
             throw new IllegalArgumentException("必须是奇数");
         }
@@ -142,26 +177,26 @@ public class LxPicker<D> {
                 }
             } else {
                 D pickValue = pickerNode.adapter.getData().get(position).unpack();
-                PickerNode<D> nextNode = pickerNodeList.get(findIndex);
-                updatePickerNode(pickValue, nextNode);
+                updatePickerNode(findIndex, pickValue);
             }
         });
         pickerNodeList.addLast(pickerNode);
     }
 
-    private void updatePickerNode(D pickValue, PickerNode<D> node) {
+    private void updatePickerNode(int index, D pickValue) {
+        PickerNode<D> node = pickerNodeList.get(index);
         LxAdapter adapter = node.adapter;
         LxPickerComponent component = getPickerComponent(adapter);
-        LxPickerComponent.Opts opts = component.getOpts();
+        Opts opts = component.getOpts();
         _Consumer<List<D>> consumer = respData -> {
-            List<LxModel> pack = LxTransformations.pack(node.viewType, respData);
+            List<LxModel> pack = LxPacker.pack(node.viewType, respData);
             List<LxModel> models = addFakeData(pack, node.viewType, opts);
             adapter.getData().updateDataSetChanged(models);
             int pos = calcDefaultPosition(node.defaultPickPosition, node.opts, adapter.getData().size());
             component.selectItem(pos, false);
             node.defaultPickPosition = 0;
         };
-        List<D> resp = node.fetcher.resp(pickValue, consumer);
+        List<D> resp = node.fetcher.resp(index, pickValue, consumer);
         if (resp != null) {
             consumer.accept(resp);
         }
@@ -177,7 +212,7 @@ public class LxPicker<D> {
         return component;
     }
 
-    private int calcDefaultPosition(int pos, LxPickerComponent.Opts opts, int dataSize) {
+    private int calcDefaultPosition(int pos, Opts opts, int dataSize) {
         if (opts.infinite) {
             return pos + dataSize * 10;
         } else {
@@ -185,7 +220,7 @@ public class LxPicker<D> {
         }
     }
 
-    public void setFinishListener(OnPickerDataUpdateFinishListener finishListener) {
+    public void setOnPickerDataUpdateFinishListener(OnPickerDataUpdateFinishListener finishListener) {
         this.finishListener = finishListener;
     }
 
@@ -201,8 +236,7 @@ public class LxPicker<D> {
     // 激活选择器并且会触发选中第一个
     public void active() {
         if (!pickerNodeList.isEmpty()) {
-            PickerNode<D> first = pickerNodeList.getFirst();
-            updatePickerNode(null, first);
+            updatePickerNode(0, null);
         }
     }
 

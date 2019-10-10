@@ -68,7 +68,7 @@ public class LxList extends DiffableList<LxModel> {
         return !typeSplit.getExtTypeData(viewType).isEmpty();
     }
 
-    public int getDataStartPosition() {
+    /*default*/ int getDataStartPosition() {
         return dataStartPosition;
     }
 
@@ -120,8 +120,9 @@ public class LxList extends DiffableList<LxModel> {
         }
     }
 
-    public <R> List<R> filterTo(_Predicate<LxModel> test, _Function<LxModel, R> function) {
-        List<R> l = new ArrayList<>();
+
+    public <ReturnType> List<ReturnType> filterTo(_Predicate<LxModel> test, _Function<LxModel, ReturnType> function) {
+        List<ReturnType> l = new ArrayList<>();
         for (LxModel t : this) {
             if (test.test(t)) {
                 l.add(function.map(t));

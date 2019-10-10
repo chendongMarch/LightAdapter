@@ -82,7 +82,9 @@ public class LxNesting {
         LinearLayoutManager manager = (LinearLayoutManager) view.getLayoutManager();
         int offset = model.getExtra().getInt(KEY_OFFSET, 0);
         int pos = model.getExtra().getInt(KEY_POS, 0);
-        manager.scrollToPositionWithOffset(pos, offset);
+        if (manager != null) {
+            manager.scrollToPositionWithOffset(pos, offset);
+        }
     }
 
 }

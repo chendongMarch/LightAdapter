@@ -35,6 +35,7 @@ public class Lx {
     public @interface LoadMoreOn {
 
     }
+
     public static final int LOAD_MORE_ON_SCROLL = 0; // 通过检测 scroll 获取加载更多
     public static final int LOAD_MORE_ON_BIND   = 1; // 通过检测 onBindViewHolder 获取加载更多
 
@@ -57,10 +58,10 @@ public class Lx {
     public static final int EVENT_FOCUS_ATTACH = 4; // 获得焦点事件
     public static final int EVENT_FOCUS_DETACH = 5; // 失去焦点事件
 
-    public static final int VIEW_TYPE_MAX                     = 4096;
-    public static       int VIEW_TYPE_BASE                    = VIEW_TYPE_MAX / 2; // 基础 viewType
-    public static       int VIEW_TYPE_CONTENT_BASE_4_GENERATE = VIEW_TYPE_BASE + 1; // 内容类型基础 viewType
-    public static       int VIEW_TYPE_EXT_BASE_4_GENERATE     = VIEW_TYPE_BASE - 1; // 扩展类型基础 viewType
+    private static final int VIEW_TYPE_MAX                     = 4096;
+    private static       int VIEW_TYPE_BASE                    = VIEW_TYPE_MAX / 2; // 基础 viewType
+    private static       int VIEW_TYPE_CONTENT_BASE_4_GENERATE = VIEW_TYPE_BASE + 1; // 内容类型基础 viewType
+    private static       int VIEW_TYPE_EXT_BASE_4_GENERATE     = VIEW_TYPE_BASE - 1; // 扩展类型基础 viewType
 
     public static final int VIEW_TYPE_DEFAULT          = Lx.contentTypeOf(); // 默认 viewType
     public static final int VIEW_TYPE_SECTION          = Lx.contentTypeOf(); // 隔断 viewType
@@ -114,6 +115,7 @@ public class Lx {
     public static boolean isContentType(int viewType) {
         return viewType > VIEW_TYPE_BASE;
     }
+
     public static final int DEFAULT_BLOCK_ID = 0;
 
     public static final String EVENT_FINISH_LOAD_MORE            = "EVENT_FINISH_LOAD_MORE"; // 结束加载更多，开启下一次
@@ -123,4 +125,13 @@ public class Lx {
     public static final String EVENT_LOAD_MORE_ENABLE            = "EVENT_LOAD_MORE_ENABLE"; // 设置加载更多开关
     public static final String EVENT_END_EDGE_LOAD_MORE_ENABLE   = "EVENT_END_EDGE_LOAD_MORE_ENABLE"; // 设置底部加载更多开关
     public static final String EVENT_START_EDGE_LOAD_MORE_ENABLE = "EVENT_START_EDGE_LOAD_MORE_ENABLE"; // 设置顶部加载更多开关
+
+
+    public static final String KEY_CONDITION_KEY   = "KEY_CONDITION_KEY";
+    public static final String KEY_CONDITION_VALUE = "KEY_CONDITION_VALUE";
+
+    public static final int BIND_BY_NORMAL    = 1;
+    public static final int BIND_BY_CONDITION = 2;
+    public static final int BIND_BY_PAYLOADS  = 3;
+
 }

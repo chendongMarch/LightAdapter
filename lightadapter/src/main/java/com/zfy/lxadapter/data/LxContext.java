@@ -1,8 +1,8 @@
 package com.zfy.lxadapter.data;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 
-import com.zfy.lxadapter.LxAdapter;
 import com.zfy.lxadapter.LxViewHolder;
 
 import java.util.List;
@@ -15,28 +15,26 @@ import java.util.List;
  */
 public class LxContext {
 
-    public Object       data;
-    public LxModel      model;
-    public int          layoutPosition;
-    public int          dataPosition;
-    public LxViewHolder holder;
-    public int          viewType;
-    public List<String> payloads;
-    public Bundle       condition;
+    /*hide*/
+    public Object       data; // 包装的数据，
+    public LxModel      model; // model 数据
+    public LxViewHolder holder; // viewholder
+    public int          layoutPosition; // 布局中的位置
+    public int          dataPosition; // 数据位置
+    public int          viewType; // 类型
+    public int          bindStrategy; // 绑定类型
+
+    @NonNull
+    public List<String> payloads; // payloads 更新数据
+
+    public String conditionKey; // 条件更新的 key
+    @NonNull
+    public Bundle conditionValue; // 条件更新的数据
 
 
     public void clear() {
-        if (condition != null) {
-            condition.clear();
-            condition = null;
-        }
-        if (payloads != null) {
-            payloads.clear();
-            payloads = null;
-        }
+        conditionValue.clear();
+        payloads.clear();
     }
 
-    public int getDataPosition(LxAdapter adapter) {
-        return adapter.getData().indexOf(model);
-    }
 }

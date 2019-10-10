@@ -70,12 +70,21 @@ public abstract class LxItemBinder<D> implements Typeable {
         context.payloads = LxUtil.parsePayloads(payloads);
         holder.setLxContext(context);
 
-        Bundle condition = data.getCondition();
-        context.condition = condition;
+        Bundle extra = data.getExtra();
+        context.conditionKey = extra.getString(Lx.KEY_CONDITION_KEY);
+        Bundle bundle = extra.getBundle(Lx.KEY_CONDITION_VALUE);
+        context.conditionValue = bundle == null ? new Bundle() : bundle;
+        extra.putString(Lx.KEY_CONDITION_KEY, null);
+        extra.putBundle(Lx.KEY_CONDITION_VALUE, null);
 
+        context.bindStrategy = Lx.BIND_BY_NORMAL;
+        if (context.conditionKey != null) {
+            context.bindStrategy = Lx.BIND_BY_CONDITION;
+        } else if (!context.payloads.isEmpty()) {
+            context.bindStrategy = Lx.BIND_BY_PAYLOADS;
+        }
         onBindView(context, holder, unpack);
 
-        condition.clear();
         context.clear();
     }
 
@@ -122,8 +131,9 @@ public abstract class LxItemBinder<D> implements Typeable {
     }
 
 
-    public static <DType> Builder<DType> of(Class<DType> clazz) {
-        return new Builder<>();
+    public static <DType> Builder<DType> of(Class<DType> clazz, TypeOpts opts) {
+        Builder<DType> dTypeBuilder = new Builder<>();
+        return dTypeBuilder.opts(opts);
     }
 
     public interface OnViewBind<D> {
@@ -166,6 +176,9 @@ public abstract class LxItemBinder<D> implements Typeable {
         }
 
         public LxItemBinder<DType> build() {
+            if (opts == null) {
+                throw new IllegalArgumentException("Opts Is Null");
+            }
             return new LxItemBindImpl(bindType, opts);
         }
 

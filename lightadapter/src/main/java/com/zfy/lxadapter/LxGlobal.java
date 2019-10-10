@@ -19,6 +19,10 @@ public class LxGlobal {
         void load(ImageView view, String url, Object extra);
     }
 
+    public interface ViewBinder {
+        void bind();
+    }
+
     static Map<String, AdapterEventDispatcher> dispatchers;
     static ImgUrlLoader                        imgUrlLoader;
 

@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import com.zfy.lxadapter.Lx;
 import com.zfy.lxadapter.LxAdapter;
+import com.zfy.lxadapter.helper.LxPicker;
 import com.zfy.lxadapter.helper.LxScroller;
 import com.zfy.lxadapter.helper.LxUtil;
 
@@ -20,37 +21,11 @@ import com.zfy.lxadapter.helper.LxUtil;
  */
 public class LxPickerComponent extends LxComponent {
 
-    private static final float DEFAULT_SCALE_MAX = 1.3f;
 
     private LxSnapComponent            snapComponent;
     private OnPickerListener           onPickerListener;
-    private Opts                       opts;
+    private LxPicker.Opts              opts;
     private OnScrollListenerPickerImpl onScrollListenerPicker;
-
-    public static class Opts {
-
-        public  float   maxScaleValue      = DEFAULT_SCALE_MAX; // 缩放的比例
-        public  int     listViewWidth; // 布局宽度
-        private int     listViewHeight; // 布局高度
-        public  int     itemViewHeight; // 每一项的高度
-        public  int     exposeViewCount; // 暴露的个数
-        public  boolean infinite           = false; // 是否无限滚动
-        public  float   flingVelocityRatio = 0.1f; // 增大滑动阻尼，越小阻尼越大
-        public  float   baseAlpha          = 0.6f; // 基础的 alpha 值，在这个基础上变大
-        public  float   baseRotation       = 45; // 基础的角度
-
-        // listViewHeight = itemViewHeight * exposeViewCount;
-
-        private void init() {
-            listViewHeight = itemViewHeight * exposeViewCount;
-        }
-
-        private void assertOpts() {
-            if (itemViewHeight <= 0 || exposeViewCount <= 0) {
-                throw new IllegalArgumentException("please set itemViewHeight and exposeViewCount!!!");
-            }
-        }
-    }
 
 
     // 根据滑动比例做一些UI上的响应
@@ -64,11 +39,11 @@ public class LxPickerComponent extends LxComponent {
 
     }
 
-    public LxPickerComponent(Opts opts) {
+    public LxPickerComponent(LxPicker.Opts opts) {
         this(opts, null);
     }
 
-    public LxPickerComponent(Opts opts, OnPickerListener onPickerScrollListener) {
+    public LxPickerComponent(LxPicker.Opts opts, OnPickerListener onPickerScrollListener) {
         this.onPickerListener = onPickerScrollListener;
         this.opts = opts;
         this.opts.init();
@@ -231,7 +206,6 @@ public class LxPickerComponent extends LxComponent {
         view.scrollBy(-10, -10);
 
         onScrollListenerPicker.invalidatePicker(view, 10);
-
     }
 
 
@@ -239,7 +213,7 @@ public class LxPickerComponent extends LxComponent {
         this.onPickerListener = onPickerListener;
     }
 
-    public Opts getOpts() {
+    public LxPicker.Opts getOpts() {
         return opts;
     }
 }

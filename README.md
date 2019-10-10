@@ -25,8 +25,7 @@
 <img src="http://hibropro.oss-cn-beijing.aliyuncs.com/202949.gif"/>
 
 ## 目录
-
-<!-- TOC -->
+ 
 - [联系我](#contact)
 - [特性](#feature)
 - [设计分析](#design)
@@ -53,29 +52,29 @@
   - [功能：实现 ViewPager (Snap) ](#snap)
   - [功能：实现分组列表 (Expandable) ～ 按组划分，展开收起](#expandable)
   - [功能：实现 RecyclerView 嵌套 (Nesting) ～ 嵌套滑动，恢复滑动位置](#nesting)
+  - [功能：实现滚轮选择器效果 (Picker) ～ 多级级联滚动，数据异步获取](#picker)
 - 进阶
+  - [进阶：使用 Extra 扩展数据](#extra)
   - [进阶：使用条件更新](#condition)
   - [进阶：使用 Idable 优化 change](#idable)
   - [进阶：使用 Typeable 内置类型](#typeable)
   - [进阶：使用有效载荷（payloads）更新 ](#payloads)
-
-<!-- /TOC -->
-
+ 
 <span id="feature"></span>
 
 ## 特性
 
-- 使用`LxAdapter` 完成单类型、多类型数据适配；
+- 使用 `LxAdapter` 构建单类型、多类型数据适配器；
+- 使用 `LxItemBinder` 完成每种类型的数据绑定和事件处理；
 - 使用 `LxViewHolder` 作为 `ViewHolder` 进行数据绑定；
 - 使用 `LxList` 作为数据源，基于 `DiffUtil` 并自动完成数据比对和更新；
-- 使用 `LxItemBinder` 完成每种类型的数据绑定和事件处理；
 - 使用 `LxComponent` 完成分离、易于扩展的扩展功能，如果加载更多等；
-- 支持针对每种数据类型，进行细粒度的配置侧滑、拖拽、顶部悬停、跨越多列、动画等效果；
+- 使用 `TypeOpts` 针对每种数据类型，进行细粒度的配置侧滑、拖拽、顶部悬停、跨越多列、动画等效果；
 - 支持单击事件、双击事件、长按事件；
 - 支持自动检测数据更新的线程，避免出现在子线程更新数据的情况；
-- 支持自定义类型，可扩展实现 `Header/Fooer/Loading/Empty/Fake` 等场景效果；
+- 支持自定义类型，可灵活扩展实现 `Header/Fooer/Loading/Empty` 等场景效果；
 - 支持列表顶部、列表底部，预加载更多数据；
-- 支持快速实现选择器效果，单选、多选、滑动选中。
+- 支持快速实现选择器效果，单选、多选、滑动选中等。
 - 支持 `ItemAnimator` / `BindAnimator` 两种方式实现添加布局动画。
 - 支持借助 `SnapHelper` 快速实现 `ViewPager` 效果；
 - 支持发布订阅模式的事件抽离，更容易分离公共逻辑；
@@ -83,14 +82,16 @@
 - 支持使用 `condition` 实现条件更新，按照指定条件更新数据，拒绝无脑刷新；
 - 使用 `LxExpandable` 快速实现分组列表；
 - 使用 `LxNesting` 快速实现 `RecyclerView` 的嵌套滑动；
+- 使用 `LxPicker` 快速实现滚轮选择器效果；
 
 <span id="design"></span>
 
 ## 设计分析
 
 1. 数据源统一使用 `LxList`，内部借助 `DiffUtil` 实现数据的自动更新，当需要更改数据时，只需要使用它的内部方法即可；
-2. 每种类型是完全分离的，使用 `LxItemBinder` 来描述如何对该类型进行数据的绑定，事件的响应，以此来保证每种类型数据绑定的可复用性，已经类型之间的独立性；
+2. 每种类型是完全分离的，`LxAdapter` 作为一个适配器的容器，实际上使用 `LxItemBinder` 来描述如何对该类型进行数据的绑定，事件的响应，以此来保证每种类型数据绑定的可复用性，以及类型之间的独立性；
 3. 拖拽、侧滑、`Snap` 使用、动画、选择器、加载更多，这些功能都分离出来，每个功能由单独的 `component` 负责，这样职责更加分离，需要时注入指定的 `component` 即可，也保证了良好的扩展性；
+4. 将类型分为了 **内容类型** 和 **扩展类型** 两种，内容类型一般指的是业务数据类型，扩展类型一般是其他的类型，比如 `Header/Footer` 这种，需要注意的是每种类型、内容类型都需要是连续的。
 
 <span id="data"></span>
 
@@ -131,40 +132,53 @@ public class TypeOpts {
 
 ```java
 public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable, Copyable<LxModel> {
-    private int     incrementId;
-    private Object  data;
-    private int     type = Lx.VIEW_TYPE_DEFAULT;
-    private int     moduleId;
-    private boolean selected;
 
-    public <T> T unpack() {
-        return (T) data;
+    private int     incrementId; // 自增ID
+    private Object  data; // 内置数据
+    private int     type = Lx.VIEW_TYPE_DEFAULT; // 类型
+    private int     moduleId; // 模块ID
+    private boolean selected; // 选中
+
+    private Bundle extra; // 数据扩展
+
+    @NonNull
+    public Bundle getExtra() {
+        if (extra == null) {
+            extra = new Bundle();
+        }
+        return extra;
     }
 }
 ```
 
-数据的包装可以使用 `LxTransformations` 转换，更加方便；
+数据的包装可以使用 `LxPacker` 转换，更加方便；
 
 ```java
 // 将你的数据包装成 LxModel
-LxModel header = LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new NoNameData());
+LxModel header = LxPacker.pack(Lx.VIEW_TYPE_HEADER, new NoNameData());
+
+// 包装列表
+ArrayList<AddressBean> list = new ArrayList<>();
+List<LxModel> models = LxPacker.pack(Lx.VIEW_TYPE_HEADER, list);
 ```
 <span id="lxcontext"></span>
 
 ### LxContext
 
-在数据绑定等操作中我们需要大量的数据信息，但是我们不能全部将他们声明在方法参数中，所以定义了 `LxContext`；
-
-在一些操作中会传输 `LxContext` 对象，除了常用的数据外，也可以从 `Context` 中获取其他必要的数据；
+`LxContext` 是数据绑定过程中的上下文对象，承载了一些附加的数据，易于扩展；
 
 ```java
 public class LxContext {
-    public               Object       data; // 实际包装的数据
-    public               LxModel      model; // 列表的数据
-    public               int          position; // 当前的位置
-    public               LxViewHolder         holder; // 绑定数据的 holder
-    public               int          viewType; // 数据类型
-    public               List<String> payloads; // 有效更新的 payloads
+
+    public int          layoutPosition; // 布局中的位置
+    public int          dataPosition; // 数据位置
+    public int          viewType; // 类型
+    public int          bindStrategy; // 绑定类型
+    @NonNull
+    public List<String> payloads; // payloads 更新数据
+    public String conditionKey; // 条件更新的 key
+    @NonNull
+    public Bundle conditionValue; // 条件更新的数据
 }
 ```
 
@@ -193,20 +207,21 @@ LxGlobal.addAdapterEventDispatcher(CLEAR_ALL_DATA, (event, adapter, extra) -> {
 
 ## 基础：LxAdapter
 
-一般适配器的使用会有单类型和多类型的区分，不过单类型也是多类型的一种，`LxAdapter` 是面向类型的，因此不需要过多的关注单类型和多类型，或者说这里只有多类型；
+一般适配器的使用会有单类型和多类型的区分，不过单类型也是多类型的一种，数据的绑定使用 `LxItemBinder` 来做，所以 `LxAdapter` 就只作为一个容易， 不再考虑单类型和多类型的问题；
 
 ```java
+// 构造数据源
 LxList list = new LxList();
+// Builder 模式
 LxAdapter.of(list)
         // 这里指定了两个类型的数据绑定
         .bindItem(new StudentItemBind(), new TeacherItemBind())
         .attachTo(mRecyclerView, LxManager.grid(getContext(), 3));
 
-// 以下是为 Adapter 更新数据，应该在下面讲解，放在这里是为了让整个流程看起来更加完整
-// 假设我们获取到了数据
-List<Student> students = ListX.range(count, index -> new Student(index + " " + System.currentTimeMillis()));
+// 为 Adapter 更新数据
+List<Student> students = ListX.range(count, index -> new Student());
 // 数据打包成 LxModel 类型
-List<LxModel> tempList = LxTransformations.pack(TYPE_STUDENT, students);
+List<LxModel> tempList = LxPacker.pack(TYPE_STUDENT, students);
 // 发布更新
 list.update(tempList);
 ```
@@ -215,29 +230,28 @@ list.update(tempList);
 
 ## 基础：LxItemBinder
 
-`LxAdapter` 是完全面向类型的，每种类型的数据绑定会单独处理，这些由 `LxItemBinder` 负责：
+`LxAdapter` 是完全面向类型的，每种类型的数据绑定会单独处理，这些由 `LxItemBinder` 负责，这样可以使所有类型绑定更容易复用：
 
 ```java
 // 自增的数据类型，不需要自己去定义 1、2、3
 public static final int TYPE_STUDENT = Lx.contentTypeOf();
 
-class StudentItemBind extends LxItemBinder<Student> {
-
-    StudentItemBind() {
-        // 指定类型和布局文件
-        super(TypeOpts.make(TYPE_STUDENT, R.layout.item_squire1));
+// 实现类型绑定
+static class StudentItemBind extends LxItemBinder<Student> {
+    
+    @Override
+    protected TypeOpts newTypeOpts() {
+        return TypeOpts.make(TYPE_STUDENT, R.layout.item_squire1);
     }
-
-    // 在这里完成数据的绑定
+    
     @Override
     public void onBindView(LxContext context, LxViewHolder holder, Student data) {
-        holder.setText(R.id.title_tv, "学：" + data.name);
+      
     }
-
-    // 在这里完成事件的分发
+    
     @Override
-    public void onItemEvent(LxContext context, Student data, int eventType) {
-
+    public void onItemEvent(LxContext context, Student listItem, int eventType) {
+       
     }
 }
 ```
@@ -245,13 +259,13 @@ class StudentItemBind extends LxItemBinder<Student> {
 也支持使用构建者模式快速创建新的类型绑定：
 
 ```java
-LxItemBinder.of(Student.class)
-        .opts(TypeOpts.make(R.layout.item_section))
-        .onViewBind((context, holder, data) -> {
-            // ...
+TypeOpts opts = TypeOpts.make(R.layout.order_item);
+LxItemBinder<PayMethod> binder = LxItemBinder.of(PayMethod.class, opts)
+        .onViewBind((itemBinder, context, holder, data) -> {
+          
         })
-        .onEventBind((context, data, eventType) -> {
-            // ...
+        .onItemEvent((itemBinder, context, data, eventType) -> {
+          
         })
         .build();
 ```
@@ -418,6 +432,13 @@ holder
         .setClick(R.id.test_tv, view -> {
             ToastX.show("点击事件");
         })
+        // 点击事件
+        .setClick(view -> {
+            ToastX.show("点击事件");
+        })
+        // 将某个控件的点击事件绑定到另一个上面
+        // 针对需要触发点击效果的场景
+        .linkClick(R.id.cover_iv,R.id.item_view);
         // 长按事件，会发送到 Adapter#ChildViewLongPressEvent
         .setLongClick(R.id.test_tv)
         // 长按事件，直接设置 listener
@@ -433,28 +454,29 @@ holder
         .swipeOnLongPress(R.id.tv)
         // 设置触摸触发侧滑事件
         .swipeOnTouch(R.id.tv);
+       
 ```
 <span id="event"></span>
 
 ## 基础：点击事件
 
-点击事件需要在 `TypeOpts` 手动开启，单击事件默认是开启的；
+点击事件需要在 `TypeOpts` 设置，单击事件默认是开启的，双击、长按事件需要手动开启；
 重写 `onItemEvent` 方法，根据 `eventType` 的不同，对不同事件进行处理；
 
 
 ```java
 class StudentItemBind extends LxItemBinder<Student> {
 
-    StudentItemBind() {
-        // 指定类型和布局文件
-        super(TypeOpts.make(opts -> {
-            opts.viewType = TYPE_STUDENT;
-            opts.layoutId = R.layout.item_squire1;
-            opts.enableClick = true; // 开启单击，默认开启
-            opts.enableLongPress = true; // 开启长按，默认不开启
-            opts.enableDbClick = true; // 开启双击，默认不开启
-            opts.enableFocusChange = true; // 开启焦点检测事件，默认不开启
-        }));
+    @Override
+    protected TypeOpts newTypeOpts() {
+      return TypeOpts.make(opts -> {
+          opts.viewType = TYPE_STUDENT;
+          opts.layoutId = R.layout.item_squire1;
+          opts.enableLongPress = true; // 开启长按
+          opts.enableDbClick = true; // 开启双击
+          opts.enableClick = true; // 开启单击
+          opts.enableFocusChange = true; // 开启焦点变化事件
+      });
     }
 
     @Override
@@ -506,11 +528,11 @@ class StudentItemBind extends LxItemBinder<Student> {
 - `骨架屏`
 - `Loading`
 
-作为一个框架来说，无法完全覆盖这些业务场景，而且比较常见的使用 `inflate view` 添加的方式并不友好，容易出错，也丧失了一些特性；
+作为一个框架来说，无法完全覆盖这些业务场景；
 
 所以我们把数据分为两种:
 
-- 一种称为内容类型数据，通常是我们的业务类型，比如之前的学生、老师，也有可能是一些自定义类型，比如隔断，它们穿插在业务数据中间，也是一种业务类型；
+- 一种称为 **内容类型** 数据，通常是我们的业务类型，比如之前的学生、老师，也有可能是一些自定义类型，比如隔断，它们穿插在业务数据中间，也是一种业务类型；
 - 一种称为扩展类型数据，它们是业务无关的，可以单独分离的，比如 Header，Footer, 空载页， Loading, 骨架屏等等；
 
 比如下面这个数据:
@@ -570,20 +592,20 @@ LxAdapter.of(list)
 List<LxModel> snapshot = list.snapshot();
 
 // 添加两个 header
-snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new CustomTypeData("header1")));
-snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_HEADER, new CustomTypeData("header2")));
+snapshot.add(LxPacker.pack(Lx.VIEW_TYPE_HEADER, new CustomTypeData("header1")));
+snapshot.add(LxPacker.pack(Lx.VIEW_TYPE_HEADER, new CustomTypeData("header2")));
 
 // 交替添加 10 个学生和老师
 List<Student> students = ListX.range(10, index -> new Student());
 List<Teacher> teachers = ListX.range(10, index -> new Teacher());
 for (int i = 0; i < 10; i++) {
-    snapshot.add(LxTransformations.pack(TYPE_STUDENT, students.get(i)));
-    snapshot.add(LxTransformations.pack(TYPE_TEACHER, teachers.get(i)));
+    snapshot.add(LxPacker.pack(TYPE_STUDENT, students.get(i)));
+    snapshot.add(LxPacker.pack(TYPE_TEACHER, teachers.get(i)));
 }
 
 // 添加两个 footer
-snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("footer1")));
-snapshot.add(LxTransformations.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("footer2")));
+snapshot.add(LxPacker.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("footer1")));
+snapshot.add(LxPacker.pack(Lx.VIEW_TYPE_FOOTER, new CustomTypeData("footer2")));
 
 // 发布数据更新
 list.update(snapshot);
@@ -612,7 +634,8 @@ class StudentItemBind extends LxItemBinder<Student> {
     // ... 省略部分代码
 
     @Override
-    public void onItemEvent(LxContext context, Student data, LxModel model, int eventType) {
+    public void onItemEvent(LxContext context, Student listItem, int eventType) {
+        LxModel model = context.model;
         switch (eventType) {
             case Lx.EVENT_CLICK:
                 // 获取内容类型，这里面只包括了学生和老师的数据
@@ -638,7 +661,7 @@ class StudentItemBind extends LxItemBinder<Student> {
             case Lx.EVENT_DOUBLE_CLICK:
                 // 更新当前这一个数据
                 LxList list = getData();
-                list.updateSet(context.position, d -> {
+                list.updateSet(context.layoutPosition, d -> {
                     Student unpack = d.unpack();
                     unpack.name = String.valueOf(System.currentTimeMillis());
                 });
@@ -719,24 +742,21 @@ public static final String EVENT_START_EDGE_LOAD_MORE_ENABLE = "EVENT_START_EDGE
 当使用 `GridLayoutManager` 布局时，可能某种类型需要跨越多列，需要针对每种类型进行指定；
 
 ```java
-class StudentItemBind extends LxItemBinder<Student> {
-
-    StudentItemBind() {
-        // 指定类型和布局文件
-        super(TypeOpts.make(opts -> {
+static class StudentItemBind extends LxItemBinder<Student> {
+    @Override
+    protected TypeOpts newTypeOpts() {
+        return TypeOpts.make(opts -> {
             opts.viewType = TYPE_STUDENT;
             opts.layoutId = R.layout.item_squire1;
+            
             // 使用内置参数，跨越所有列
             opts.spanSize = Lx.SPAN_SIZE_ALL;
             // 使用内置参数，跨越总数的一半
             opts.spanSize = Lx.SPAN_SIZE_HALF;
             // 使用固定数字，跨越 3 列
             opts.spanSize = 3;
-        }));
+        });
     }
-
-    // ...
-}
 ```
 <span id="loadmore"></span>
 
@@ -776,10 +796,7 @@ LxAdapter.of(list)
         .component(new LxSelectComponent(Lx.SELECT_MULTI))
         .attachTo(mRecyclerView, LxManager.grid(getContext(), 3));
 
-// 获取选择后的结果
-List<Student> result = list.filterTo(LxModel::isSelected, LxModel::unpack);
-
-// 获取从 component 中获取
+// 从 component 中获取选中的数据集
 LxSelectComponent component = adapter.getComponent(LxSelectComponent.class);
 if (component != null) {
     List<Student> result = component.getResult();
@@ -794,10 +811,10 @@ static class SelectItemBind extends LxItemBinder<NoNameData> {
     @Override
     public void onBindView(LxContext context, LxViewHolder holder, NoNameData data) {
         holder
-                .setLayoutParams(SizeX.WIDTH / 3, SizeX.WIDTH / 3)
-                // 选中时，更改文字和颜色
-                .setText(R.id.title_tv, context.model.isSelected() ? "我被选中" : "我没有被选中")
-                .setTextColor(R.id.title_tv, context.model.isSelected() ? Color.RED : Color.BLACK);
+              .setLayoutParams(SizeX.WIDTH / 3, SizeX.WIDTH / 3)
+              // 选中时，更改文字和颜色
+              .setText(R.id.title_tv, context.model.isSelected() ? "我被选中" : "我没有被选中")
+              .setTextColor(R.id.title_tv, context.model.isSelected() ? Color.RED : Color.BLACK);
 
         // 选中时，执行缩放动画，提醒用户
         View view = holder.getView(R.id.container_cl);
@@ -920,7 +937,8 @@ LxAdapter.of(list)
 ```java
 class StudentItemBind extends LxItemBinder<Student> {
 
-    StudentItemBind() {
+    @Override
+    protected TypeOpts newTypeOpts() { 
         super(TypeOpts.make(opts -> {
             opts.viewType = TYPE_STUDENT;
             opts.layoutId = R.layout.item_squire1;
@@ -964,8 +982,8 @@ LxDragSwipeComponent.DragSwipeOptions options = new LxDragSwipeComponent.DragSwi
 options.dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
 // 关闭触摸自动触发侧滑
 options.touchItemView4Swipe = false;
-L
-xAdapter.of(list)
+
+LxAdapter.of(list)
         .bindItem(new StudentItemBind())
         // 当侧滑和拖拽发生时触发的时机，可以响应的做高亮效果
         .component(new LxDragSwipeComponent(options, (state, holder, context) -> {
@@ -1209,7 +1227,6 @@ static class ChildItemBind extends LxItemBinder<ChildData> {
 ```java
 LxAdapter.of(mLxModels)
         .bindItem(new GroupItemBind(), new ChildItemBind())
-        .component(new LxFixedComponent())
         .attachTo(mRecyclerView, LxManager.grid(getContext(), 3));
 ```
 
@@ -1231,7 +1248,7 @@ for (int i = 0; i < 15; i++) {
     }
     groupData.children = childDataList;
 }
-List<LxModel> lxModels = LxTransformations.pack(Lx.VIEW_TYPE_EXPANDABLE_GROUP, groupDataList);
+List<LxModel> lxModels = LxPacker.pack(Lx.VIEW_TYPE_EXPANDABLE_GROUP, groupDataList);
 mLxModels.update(lxModels);
 ```
 
@@ -1253,8 +1270,9 @@ mLxModels.update(lxModels);
 
 ```java
 class HorizontalImgContainerItemBind extends LxItemBinder<NoNameData> {
-    public HorizontalImgContainerItemBind() {
-        super(TypeOpts.make(opts -> {
+    @Override
+    protected TypeOpts newTypeOpts() {
+      return TypeOpts.make(opts -> {
             opts.viewType = TYPE_HORIZONTAL_CONTAINER;
             opts.layoutId = R.layout.item_horizontal_container;
             opts.spanSize = Lx.SPAN_SIZE_ALL;
@@ -1274,12 +1292,68 @@ class HorizontalImgContainerItemBind extends LxItemBinder<NoNameData> {
         // 获取到控件
         RecyclerView contentRv = holder.getView(R.id.content_rv);
         // 打包横向滑动的数据，这个 type 可自定义
-        List<LxModel> packDatas = LxTransformations.pack(TYPE_HORIZONTAL_IMG, listItem.datas);
+        List<LxModel> packDatas = LxPacker.pack(TYPE_HORIZONTAL_IMG, listItem.datas);
         // 设置，这里会尝试恢复上次的位置，并计算接下来滑动的位置
         LxNesting.setup(contentRv, context.model, packDatas, callback);
     }
 }
 ```
+
+<span id="picker"></span>
+
+## 功能：实现滚轮选择器效果（Picker）
+
+使用 `LxPicker` 实现滚轮选择器效果，内部使用 `LxPickerComponent` + `LxSnapComponent` 实现;
+
+当多个选择器级联时，第一个选择后接着就会触发第二个选择，达到递归触发的效果；
+
+```java
+// 配置
+LxPicker.Opts opts = new LxPicker.Opts();
+opts.infinite = false; // 无限滚动
+opts.exposeViewCount = 5; // 暴露的数量
+opts.maxScaleValue = 1.3f; // 缩放比例
+opts.itemViewHeight = SizeX.dp2px(50); // 每个 item 高度
+opts.listViewWidth = SizeX.WIDTH / 3; // 宽度
+
+// 容器控件
+mPicker = new LxPicker<>(mPickerLl);
+
+// 当选择流程结束时触发，在这里关闭 loading
+mPicker.setOnPickerDataUpdateFinishListener(() -> mLoadingCl.setVisibility(View.GONE));
+
+// 数据获取回调
+LxPicker.PickerDataFetcher<AddressPickItemBean> fetcher = (index, pickValue, callback) -> {
+    mLoadingCl.setVisibility(View.VISIBLE);
+    mViewModel.requestPickerData(pickValue == null ? null : pickValue.getId(), callback);
+    return null;
+};
+
+// 添加一个 picker
+mPicker.addPicker(opts, new AddressItemBinder(), fetcher);
+mPicker.addPicker(opts, new AddressItemBinder(), fetcher);
+mPicker.addPicker(opts, new AddressItemBinder(), fetcher);
+
+// 触发第一个 picker 获取数据
+mPicker.active();
+```
+
+数据绑定很简单，可以自己实现
+
+```java
+static class AddressItemBinder extends LxItemBinder<AddressPickItemBean> {
+    @Override
+    protected TypeOpts newTypeOpts() {
+        return TypeOpts.make(R.layout.pay_address_item);
+    }
+    @Override
+    protected void onBindView(LxContext context, LxViewHolder holder, AddressPickItemBean listItem) {
+        holder.setText(R.id.content_tv, listItem == null ? "" : listItem.getShortName());
+    }
+}
+```
+
+
 
 <span id="idable"></span>
 
@@ -1311,7 +1385,7 @@ static class Student implements Idable  {
 
 ## 进阶：使用 Typeable 内置类型
 
-上面的例子中我们主要使用 `LxTransformations` 打包数据，这样相对来说可以尽量少的修改你的数据类，但是每次都需要设置一个类型，否则将会使用默认类型，也可以使用数据类实现 `Typeable` 接口，在接口方法中返回类型，这样打包数据的时候就不需要指定类型了，内部会检测是否是 `Typeable` 子类，获取真正的类型；
+上面的例子中我们主要使用 `LxPacker` 打包数据，这样相对来说可以尽量少的修改你的数据类，但是每次都需要设置一个类型，否则将会使用默认类型，也可以使用数据类实现 `Typeable` 接口，在接口方法中返回类型，这样打包数据的时候就不需要指定类型了，内部会检测是否是 `Typeable` 子类，获取真正的类型；
 
 ```java
 static class InnerTypeData implements Typeable {
@@ -1471,7 +1545,7 @@ class StudentItemBind extends LxItemBinder<Student> {
  <!-- <a style="position:fixed;right:20px;bottom:20px;" href="#top">
   <span style="display:flex;flex-direction:column;justify-content:center;align-items:center;">
     <span style="font-size:16px;font-weight:bold;">点击回到顶部</span>
-    <img style="width:100px;" src="http://cdn1.showjoy.com/shop/images/20190911/IEQ88UTNXOBZD1YISQ2E1568190538146.gif"/>
+    <img style="width:100px;" src="http://cdn1.showjoy.com/shop/images/20190911/IEQ88UTNXOBZD1YISQ2E1568190538146.gif1"/>
 
   </span>
  </a> -->
