@@ -17,7 +17,7 @@ public class LxPacker {
 
     // 打包成 LxModel 列表
     public static <E> List<LxModel> pack(List<E> list) {
-        return pack(Lx.VIEW_TYPE_DEFAULT, list);
+        return pack(Lx.ViewType.DEFAULT, list);
     }
 
     // 打包成 LxModel 列表，并指定类型
@@ -31,7 +31,7 @@ public class LxPacker {
 
     // 打包成单个 LxModel
     public static <E> LxModel pack(E data) {
-        return pack(Lx.VIEW_TYPE_DEFAULT, data);
+        return pack(Lx.ViewType.DEFAULT, data);
     }
 
     // 打包单个 LxModel，并制定类型
@@ -56,7 +56,7 @@ public class LxPacker {
         DATA lastData = null;
         if (originList != null && !originList.isEmpty()) {
             LxModel lastLxModel = originList.get(originList.size() - 1);
-            if (lastLxModel.getItemType() != Lx.VIEW_TYPE_SECTION) {
+            if (lastLxModel.getItemType() != Lx.ViewType.SECTION) {
                 lastData = lastLxModel.unpack();
             }
         }
@@ -65,9 +65,9 @@ public class LxPacker {
             current = data;
             SECTION section = function.apply(lastData, current);
             if (section != null) {
-                lxModels.add(pack(Lx.VIEW_TYPE_SECTION, section));
+                lxModels.add(pack(Lx.ViewType.SECTION, section));
             }
-            lxModels.add(pack(Lx.VIEW_TYPE_DEFAULT, data));
+            lxModels.add(pack(Lx.ViewType.DEFAULT, data));
             lastData = current;
         }
         return lxModels;

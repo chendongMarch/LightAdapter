@@ -25,13 +25,13 @@ public class LxEndEdgeLoadMoreComponent extends LxLoadMoreComponent {
     public void onAttachedToAdapter(LxAdapter lxAdapter) {
         super.onAttachedToAdapter(lxAdapter);
         LxList data = lxAdapter.getData();
-        data.addEventHandler(Lx.EVENT_FINISH_END_EDGE_LOAD_MORE, (event, adapter, extra) -> {
+        data.addAdapterEventDispatcher(Lx.EVENT_FINISH_END_EDGE_LOAD_MORE, (event, adapter, extra) -> {
             LxEndEdgeLoadMoreComponent endEdgeLoadMoreComponent = lxAdapter.getComponent(LxEndEdgeLoadMoreComponent.class);
             if (endEdgeLoadMoreComponent != null) {
                 endEdgeLoadMoreComponent.finishLoadMore();
             }
         });
-        data.addEventHandler(Lx.EVENT_END_EDGE_LOAD_MORE_ENABLE, (event, adapter, extra) -> {
+        data.addAdapterEventDispatcher(Lx.EVENT_END_EDGE_LOAD_MORE_ENABLE, (event, adapter, extra) -> {
             if (extra instanceof Boolean) {
                 LxEndEdgeLoadMoreComponent endEdgeLoadMoreComponent = lxAdapter.getComponent(LxEndEdgeLoadMoreComponent.class);
                 if (endEdgeLoadMoreComponent != null) {

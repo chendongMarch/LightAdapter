@@ -140,7 +140,7 @@ public class LxLoadMoreComponent extends LxComponent {
         super.onAttachedToAdapter(lxAdapter);
         LxList data = lxAdapter.getData();
         // 结束加载监听
-        data.addEventHandler(Lx.EVENT_FINISH_LOAD_MORE, (event, adapter, extra) -> {
+        data.addAdapterEventDispatcher(Lx.EVENT_FINISH_LOAD_MORE, (event, adapter, extra) -> {
             LxEndEdgeLoadMoreComponent endEdgeLoadMoreComponent = adapter.getComponent(LxEndEdgeLoadMoreComponent.class);
             if (endEdgeLoadMoreComponent != null) {
                 endEdgeLoadMoreComponent.finishLoadMore();
@@ -151,7 +151,7 @@ public class LxLoadMoreComponent extends LxComponent {
             }
         });
         // 加载开关
-        data.addEventHandler(Lx.EVENT_LOAD_MORE_ENABLE, (event, adapter, extra) -> {
+        data.addAdapterEventDispatcher(Lx.EVENT_LOAD_MORE_ENABLE, (event, adapter, extra) -> {
             if (!(extra instanceof Boolean)) {
                 return;
             }

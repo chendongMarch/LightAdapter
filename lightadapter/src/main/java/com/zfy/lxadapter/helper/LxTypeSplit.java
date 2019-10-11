@@ -6,6 +6,7 @@ import android.util.SparseArray;
 
 import com.zfy.lxadapter.Lx;
 import com.zfy.lxadapter.LxAdapter;
+import com.zfy.lxadapter.list.LxTypedList;
 import com.zfy.lxadapter.LxList;
 import com.zfy.lxadapter.data.LxModel;
 
@@ -21,7 +22,7 @@ import java.util.List;
  */
 public class LxTypeSplit {
 
-    private static final LxList EMPTY = new LxList() {
+    private static final LxTypedList EMPTY = new LxTypedList() {
 
         private List<LxModel> list = new ArrayList<>();
 
@@ -49,7 +50,7 @@ public class LxTypeSplit {
     public @NonNull
     LxList getContentTypeData() {
         if (hasExtType) {
-            LxList contentList = blockedList.getContentTypeList();
+            LxTypedList contentList = blockedList.getContentTypeList();
             return contentList == null ? EMPTY : contentList;
         }
         return adapter.getData();
@@ -58,14 +59,14 @@ public class LxTypeSplit {
     public @NonNull
     LxList getExtTypeData(int viewType) {
         if (hasExtType) {
-            LxList typedList = blockedList.getExtTypeList(viewType);
+            LxTypedList typedList = blockedList.getExtTypeList(viewType);
             return typedList == null ? EMPTY : typedList;
         }
         return EMPTY;
 
     }
 
-    private class LxBlockedList extends LxList {
+    private class LxBlockedList extends LxTypedList {
 
         private SparseArray<HandleUpdateLxList> array;
         private List<Integer>                   blockIds;
@@ -115,18 +116,18 @@ public class LxTypeSplit {
         }
 
         @Nullable
-        LxList getExtTypeList(int blockId) {
+        LxTypedList getExtTypeList(int blockId) {
             trySplitList();
             return array.get(blockId);
         }
 
-        LxList getContentTypeList() {
+        LxTypedList getContentTypeList() {
             trySplitList();
             return getExtTypeList(Lx.DEFAULT_BLOCK_ID);
         }
 
 
-        class HandleUpdateLxList extends LxList {
+        class HandleUpdateLxList extends LxTypedList {
 
             private List<LxModel> models = new ArrayList<>();
 

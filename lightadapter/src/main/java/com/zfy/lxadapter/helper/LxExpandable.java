@@ -19,8 +19,8 @@ import java.util.List;
 public class LxExpandable {
 
 
-    public static final int GROUP_TYPE = Lx.VIEW_TYPE_EXPANDABLE_GROUP;
-    public static final int CHILD_TYPE = Lx.VIEW_TYPE_EXPANDABLE_CHILD;
+    public static final int GROUP_TYPE = Lx.ViewType.EXPANDABLE_GROUP;
+    public static final int CHILD_TYPE = Lx.ViewType.EXPANDABLE_CHILD;
 
     public interface ExpandableGroup<G, C> {
 //        public List<C> children;

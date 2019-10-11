@@ -23,7 +23,7 @@ public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable,
 
     private int     incrementId;
     private Object  data;
-    private int     type = Lx.VIEW_TYPE_DEFAULT;
+    private int     type = Lx.ViewType.DEFAULT;
     private int     moduleId; // 模块ID
     private boolean selected;
 

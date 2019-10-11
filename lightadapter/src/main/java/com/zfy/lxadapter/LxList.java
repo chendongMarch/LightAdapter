@@ -7,7 +7,6 @@ import com.zfy.lxadapter.data.LxModel;
 import com.zfy.lxadapter.diff.DiffableList;
 import com.zfy.lxadapter.function._Function;
 import com.zfy.lxadapter.function._Predicate;
-import com.zfy.lxadapter.helper.LxTypeSplit;
 import com.zfy.lxadapter.listener.AdapterEventDispatcher;
 
 import java.util.ArrayList;
@@ -16,21 +15,23 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * CreateAt : 2018/11/8
- * Describe : 对外支持更新的 List
+ * CreateAt : 2019-10-11
+ * Describe :
  *
  * @author chendong
  */
 public class LxList extends DiffableList<LxModel> {
 
-    private LxTypeSplit                         typeSplit;
-    private LxAdapter                           adapter;
-    private Map<String, AdapterEventDispatcher> interceptors;
-    private int                                 dataStartPosition;
+    protected LxAdapter                           adapter;
+    private   Map<String, AdapterEventDispatcher> interceptors;
+    protected int                                 dataStartPosition;
+
+    // 是否是异步更新
+    protected boolean async;
 
     public LxList(boolean async) {
         super(async);
-        typeSplit = new LxTypeSplit();
+        this.async = async;
     }
 
     public LxList() {
@@ -41,8 +42,6 @@ public class LxList extends DiffableList<LxModel> {
     public void setAdapter(RecyclerView.Adapter adapter) {
         super.setAdapter(adapter);
         this.adapter = (LxAdapter) adapter;
-        typeSplit.setAdapter(this.adapter, this.adapter.hasExtType);
-        calcDataStartPosition();
     }
 
     @Override
@@ -54,52 +53,7 @@ public class LxList extends DiffableList<LxModel> {
         return super.get(adapter.isInfinite ? i % size : i);
     }
 
-    public @NonNull
-    LxList getContentTypeData() {
-        return typeSplit.getContentTypeData();
-    }
-
-    public @NonNull
-    LxList getExtTypeData(int viewType) {
-        return typeSplit.getExtTypeData(viewType);
-    }
-
-    public boolean hasType(int viewType) {
-        return !typeSplit.getExtTypeData(viewType).isEmpty();
-    }
-
-    /*default*/ int getDataStartPosition() {
-        return dataStartPosition;
-    }
-
-    private void calcDataStartPosition() {
-        if (adapter == null) {
-            return;
-        }
-        boolean hasExtType = adapter.hasExtType;
-        if (hasExtType) {
-            LxModel lxModel;
-            int count = size();
-            for (int i = 0; i < count; i++) {
-                lxModel = get(i);
-                if (Lx.isContentType(lxModel.getItemType())) {
-                    dataStartPosition = i;
-                    break;
-                }
-            }
-        } else {
-            dataStartPosition = 0;
-        }
-    }
-
-
-    @Override
-    public void update(@NonNull List<LxModel> newItems) {
-        super.update(newItems);
-        calcDataStartPosition();
-    }
-
-    public void addEventHandler(String event, AdapterEventDispatcher interceptor) {
+    public void addAdapterEventDispatcher(String event, AdapterEventDispatcher interceptor) {
         if (interceptors == null) {
             interceptors = new HashMap<>(4);
         }
@@ -120,7 +74,6 @@ public class LxList extends DiffableList<LxModel> {
         }
     }
 
-
     public <ReturnType> List<ReturnType> filterTo(_Predicate<LxModel> test, _Function<LxModel, ReturnType> function) {
         List<ReturnType> l = new ArrayList<>();
         for (LxModel t : this) {
@@ -131,5 +84,27 @@ public class LxList extends DiffableList<LxModel> {
         return l;
     }
 
+    /*default*/ int getDataStartPosition() {
+        return dataStartPosition;
+    }
 
+
+    @NonNull
+    public LxList getContentTypeData() {
+        return this;
+    }
+
+    @NonNull
+    public LxList getExtTypeData(int viewType) {
+        return new LxList();
+    }
+
+    public boolean hasType(int viewType) {
+        return getExtTypeData(viewType).isEmpty();
+    }
+
+
+    protected boolean adapterHasExtType() {
+        return adapter.hasExtType;
+    }
 }

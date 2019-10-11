@@ -13,7 +13,6 @@ import com.zfy.lxadapter.helper.LxEvent;
 import com.zfy.lxadapter.helper.LxUtil;
 
 import java.util.List;
-
 /**
  * CreateAt : 2019-08-30
  * Describe :
@@ -26,10 +25,10 @@ public abstract class LxItemBinder<D> implements Typeable {
 
     protected LxAdapter adapter;
     private   TypeOpts  typeOpts;
-    protected int       bindType; // 绑定类型
+    protected int       pageType; // 绑定类型
 
-    public LxItemBinder(int bindType) {
-        this.bindType = bindType;
+    public LxItemBinder(int pageType) {
+        this.pageType = pageType;
         this.typeOpts = getTypeOpts();
     }
 
@@ -40,7 +39,6 @@ public abstract class LxItemBinder<D> implements Typeable {
     void onAdapterAttached(LxAdapter adapter) {
         this.adapter = adapter;
     }
-
 
     LxViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         TypeOpts typeOpts = getTypeOpts();
@@ -83,6 +81,9 @@ public abstract class LxItemBinder<D> implements Typeable {
         } else if (!context.payloads.isEmpty()) {
             context.bindStrategy = Lx.BIND_BY_PAYLOADS;
         }
+        context.context = getAdapter().getContext();
+        context.list = getAdapter().getData();
+
         onBindView(context, holder, unpack);
 
         context.clear();
@@ -123,6 +124,10 @@ public abstract class LxItemBinder<D> implements Typeable {
 
     public LxAdapter getAdapter() {
         return adapter;
+    }
+
+    public void setPageType(int pageType) {
+        this.pageType = pageType;
     }
 
     @Override

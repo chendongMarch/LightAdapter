@@ -13,7 +13,7 @@ import com.zfy.lxadapter.animation.BindAnimator;
  */
 public class TypeOpts {
 
-    public            int viewType = Lx.VIEW_TYPE_DEFAULT; // 数据类型
+    public            int viewType = Lx.ViewType.DEFAULT; // 数据类型
     @LayoutRes public int layoutId; // 布局资源
     public            int spanSize = Lx.SPAN_NONE; // 跨越行数
 
@@ -52,7 +52,7 @@ public class TypeOpts {
 
     public static TypeOpts make(int layoutId) {
         TypeOpts typeOpts = new TypeOpts();
-        typeOpts.viewType = Lx.VIEW_TYPE_DEFAULT;
+        typeOpts.viewType = Lx.ViewType.DEFAULT;
         typeOpts.layoutId = layoutId;
         return typeOpts;
     }

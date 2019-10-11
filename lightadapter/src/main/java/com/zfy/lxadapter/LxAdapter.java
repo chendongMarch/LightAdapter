@@ -133,7 +133,7 @@ public class LxAdapter extends RecyclerView.Adapter<LxViewHolder> {
             builder.dispatchers.putAll(LxGlobal.dispatchers);
         }
         for (Map.Entry<String, AdapterEventDispatcher> entry : builder.dispatchers.entrySet()) {
-            this.data.addEventHandler(entry.getKey(), entry.getValue());
+            this.data.addAdapterEventDispatcher(entry.getKey(), entry.getValue());
         }
         for (LxComponent component : components) {
             component.onAttachedToAdapter(this);

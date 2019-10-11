@@ -58,20 +58,18 @@ public class Lx {
     public static final int EVENT_FOCUS_ATTACH = 4; // 获得焦点事件
     public static final int EVENT_FOCUS_DETACH = 5; // 失去焦点事件
 
-    private static final int VIEW_TYPE_MAX                     = 4096;
-    private static       int VIEW_TYPE_BASE                    = VIEW_TYPE_MAX / 2; // 基础 viewType
-    private static       int VIEW_TYPE_CONTENT_BASE_4_GENERATE = VIEW_TYPE_BASE + 1; // 内容类型基础 viewType
-    private static       int VIEW_TYPE_EXT_BASE_4_GENERATE     = VIEW_TYPE_BASE - 1; // 扩展类型基础 viewType
+    private static int VIEW_TYPE_EXT_BASE_4_GENERATE_BEFORE_CONTENT = 40000;
+    private static int VIEW_TYPE_CONTENT_BASE_4_GENERATE_MIN        = 50000;
+    private static int VIEW_TYPE_CONTENT_BASE_4_GENERATE_MAX        = 59999;
+    private static int VIEW_TYPE_EXT_BASE_4_GENERATE_AFTER_CONTENT  = 60000;
 
-    public static final int VIEW_TYPE_DEFAULT          = Lx.contentTypeOf(); // 默认 viewType
-    public static final int VIEW_TYPE_SECTION          = Lx.contentTypeOf(); // 隔断 viewType
-    public static final int VIEW_TYPE_HEADER           = Lx.extTypeOf(); // 内置 header
-    public static final int VIEW_TYPE_FOOTER           = Lx.extTypeOf(); // 内置 footer
-    public static final int VIEW_TYPE_EMPTY            = Lx.extTypeOf(); // 内置空载
-    public static final int VIEW_TYPE_LOADING          = Lx.extTypeOf(); // 内置 loading
-    public static final int VIEW_TYPE_FAKE             = Lx.extTypeOf(); // 内置假数据
-    public static final int VIEW_TYPE_EXPANDABLE_GROUP = Lx.contentTypeOf();
-    public static final int VIEW_TYPE_EXPANDABLE_CHILD = Lx.contentTypeOf();
+    public static class ViewType {
+
+        public static final int DEFAULT          = Lx.contentTypeOf(); // 默认 viewType
+        public static final int SECTION          = Lx.contentTypeOf(); // 隔断 viewType
+        public static final int EXPANDABLE_GROUP = Lx.contentTypeOf(); // 分组-组
+        public static final int EXPANDABLE_CHILD = Lx.contentTypeOf(); // 分组-子
+    }
 
     @IntDef({DRAG_SWIPE_STATE_NONE, DRAG_STATE_ACTIVE, SWIPE_STATE_ACTIVE, DRAG_STATE_RELEASE, SWIPE_STATE_RELEASE})
     @Retention(RetentionPolicy.SOURCE)
@@ -105,15 +103,19 @@ public class Lx {
     public static final int FIXED_USE_VIEW = 1;
 
     public static int contentTypeOf() {
-        return VIEW_TYPE_CONTENT_BASE_4_GENERATE++;
+        return VIEW_TYPE_CONTENT_BASE_4_GENERATE_MIN++;
     }
 
-    public static int extTypeOf() {
-        return VIEW_TYPE_EXT_BASE_4_GENERATE--;
+    public static int extTypeBeforeContentOf() {
+        return VIEW_TYPE_EXT_BASE_4_GENERATE_BEFORE_CONTENT++;
+    }
+
+    public static int extTypeAfterContentOf() {
+        return VIEW_TYPE_EXT_BASE_4_GENERATE_AFTER_CONTENT++;
     }
 
     public static boolean isContentType(int viewType) {
-        return viewType > VIEW_TYPE_BASE;
+        return viewType >= VIEW_TYPE_CONTENT_BASE_4_GENERATE_MIN && viewType < VIEW_TYPE_CONTENT_BASE_4_GENERATE_MAX;
     }
 
     public static final int DEFAULT_BLOCK_ID = 0;
