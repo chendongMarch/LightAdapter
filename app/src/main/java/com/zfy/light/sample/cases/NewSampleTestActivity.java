@@ -1229,7 +1229,7 @@ public class NewSampleTestActivity extends AppActivity {
 
             if (context.bindMode == Lx.BindMode.CONDITION) {
                 // 被选中时会触发条件更新
-                if (Lx.Condition.UPDATE_SELECT.equals(context.conditionKey)) {
+                if (Lx.Condition.CONDITION_SELECTOR.equals(context.conditionKey)) {
                     holder.setText(R.id.title_tv, model.isSelected() ? "条件：我被选中" : "条件我没有被选中")
                             .setTextColor(R.id.title_tv, model.isSelected() ? Color.RED : Color.BLACK);
                     if (model.isSelected()) {

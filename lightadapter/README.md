@@ -840,37 +840,24 @@ if (component != null) {
 在 `BindView` 中描述当数据被选中时如何显示：
 
 ```java
-static class SelectItemBind extends LxItemBinder<NoNameData> {
-
+class SelectItemBind extends LxItemBinder<NoNameData> {
+    //...
     @Override
     public void onBindView(LxContext context, LxViewHolder holder, NoNameData data) {
-        holder.setLayoutParams(SizeX.WIDTH / 3, SizeX.WIDTH / 3)
-              // 选中时，更改文字和颜色
-              .setText(R.id.title_tv, context.model.isSelected() ? "我被选中" : "我没有被选中")
-              .setTextColor(R.id.title_tv, context.model.isSelected() ? Color.RED : Color.BLACK);
+        LxModel model = context.model;
 
-        // 选中时，执行缩放动画，提醒用户
-        View view = holder.getView(R.id.container_cl);
-        if (context.model.isSelected()) {
-            if (view.getScaleX() == 1) {
-                view.animate().scaleX(0.8f).scaleY(0.8f).setDuration(300).start();
-            }
-        } else {
-            if (view.getScaleX() != 1) {
-                view.animate().scaleX(1f).scaleY(1f).setDuration(300).start();
-            }
-        }
+        // 根据选中状态显示 UI
+        holder.setText(R.id.title_tv, model.isSelected() ? "我被选中" : "条件我没有被选中");
+        holder.setImage(R.id.cover_iv, "image url");
     }
-
     @Override
     public void onBindEvent(LxContext context, NoNameData data, int eventType) {
-        // 点击选中
+        // 点击某项时执行选中操作
         LxSelectComponent component = adapter.getComponent(LxSelectComponent.class);
         if (component != null) {
             component.select(context.model);
         }
     }
-
 }
 ```
 
@@ -879,48 +866,25 @@ static class SelectItemBind extends LxItemBinder<NoNameData> {
 
 ```java
 class SelectItemBind extends LxItemBinder<NoNameData> {
-    //... 
-    
+    //...
     @Override
     public void onBindView(LxContext context, LxViewHolder holder, NoNameData data) {
         LxModel model = context.model;
-        View view = holder.getView(R.id.container_cl);
+
+        // 选中触发时，会触发条件更新
+        // 如果你的 bind 方法执行了很多操作，当条件更新发生时
+        // 可以选择性的绑定部分数据，避免性能的损失
         if (context.bindMode == Lx.BindMode.CONDITION) {
-            // 被选中时会触发条件更新
-            if (Lx.Condition.UPDATE_SELECT.equals(context.conditionKey)) {
-                // 这里是为了区分两种更新方式的不同，这个文字显示一般是一样的
-                holder.setText(R.id.title_tv, model.isSelected() ? "条件：我被选中" : "条件我没有被选中")
-                        .setTextColor(R.id.title_tv, model.isSelected() ? Color.RED : Color.BLACK);
-                // 当触发选中时，做动画
-                if (model.isSelected()) {
-                    if (view.getScaleX() == 1) {
-                        view.animate().scaleX(0.8f).scaleY(0.8f).setDuration(300).start();
-                    }
-                } else {
-                    if (view.getScaleX() != 1) {
-                        view.animate().scaleX(1f).scaleY(1f).setDuration(300).start();
-                    }
-                }
+            if (context.conditionKey.equals(Lx.Condition.CONDITION_SELECTOR)) {
+                holder.setText(R.id.title_tv, model.isSelected() ? "我被选中" : "条件我没有被选中");
                 return;
             }
         }
-        // 正常绑定的时候就走正常流程即可
-        holder.setLayoutParams(SizeX.WIDTH / 3, SizeX.WIDTH / 3)
-                .setText(R.id.title_tv, model.isSelected() ? "正常：我被选中" : "正常：我没有被选中")
-                .setTextColor(R.id.title_tv, model.isSelected() ? Color.RED : Color.BLACK);
-        // 正常绑定的时候不需要动画
-        if (model.isSelected()) {
-            if (view.getScaleX() == 1) {
-                view.setScaleX(0.8f);
-                view.setScaleY(0.8f);
-            }
-        } else {
-            if (view.getScaleX() != 1) {
-                view.setScaleX(1f);
-                view.setScaleY(1f);
-            }
-        }
+        // 根据选中状态显示 UI
+        holder.setText(R.id.title_tv, model.isSelected() ? "我被选中" : "条件我没有被选中");
+        holder.setImage(R.id.cover_iv, "image url");
     }
+
 }
 ```
 
