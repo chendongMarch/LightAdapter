@@ -6,6 +6,7 @@ import android.view.ViewParent;
 
 import com.zfy.lxadapter.Lx;
 import com.zfy.lxadapter.LxAdapter;
+import com.zfy.lxadapter.LxList;
 import com.zfy.lxadapter.data.LxModel;
 import com.zfy.lxadapter.decoration.LxSlidingSelectLayout;
 
@@ -23,15 +24,15 @@ public class LxSelectComponent extends LxComponent {
         boolean intercept(LxModel data, boolean toSelect);
     }
 
-    @Lx.SelectMode private int               selectMode;
-    private                SelectInterceptor interceptor;
-    private                LxAdapter         adapter;
+    @Lx.SelectModeDef private int               selectMode;
+    private                   SelectInterceptor interceptor;
+    private                   LxAdapter         adapter;
 
-    public LxSelectComponent(@Lx.SelectMode int mode) {
+    public LxSelectComponent(@Lx.SelectModeDef int mode) {
         this(mode, null);
     }
 
-    public LxSelectComponent(@Lx.SelectMode int mode, SelectInterceptor interceptor) {
+    public LxSelectComponent(@Lx.SelectModeDef int mode, SelectInterceptor interceptor) {
         this.selectMode = mode;
         this.interceptor = interceptor;
     }
@@ -65,7 +66,7 @@ public class LxSelectComponent extends LxComponent {
     }
 
     private void doSelect(LxModel model) {
-        if (selectMode == Lx.SELECT_SINGLE) {
+        if (selectMode == Lx.SelectMode.SINGLE) {
             unSelectOther(model);
         }
         if (model.isSelected()) {
@@ -74,9 +75,7 @@ public class LxSelectComponent extends LxComponent {
         if (interceptor != null && interceptor.intercept(model, true)) {
             return;
         }
-        model.setSelected(true);
-        int modelIndex = adapter.getData().indexOf(model);
-        adapter.notifyItemChanged(modelIndex);
+        notifyItemChanged(true, model, true);
     }
 
     private void unSelect(LxModel model) {
@@ -86,10 +85,23 @@ public class LxSelectComponent extends LxComponent {
         if (interceptor != null && interceptor.intercept(model, false)) {
             return;
         }
-        model.setSelected(false);
-        int modelIndex = adapter.getData().indexOf(model);
-        adapter.notifyItemChanged(modelIndex);
+        notifyItemChanged(true, model, false);
     }
+
+
+    private void notifyItemChanged(boolean useCondition, LxModel model, boolean selected) {
+        if (useCondition) {
+            adapter.getData().updateSet(model, data -> {
+                data.setSelected(selected);
+                data.setCondition(Lx.Condition.UPDATE_SELECT);
+            });
+        } else {
+            model.setSelected(selected);
+            int layoutIndex = adapter.getData().indexOf(model);
+            adapter.notifyItemChanged(layoutIndex);
+        }
+    }
+
 
     private void toggleSelectItem(LxModel model) {
         if (model.isSelected()) {
@@ -100,7 +112,7 @@ public class LxSelectComponent extends LxComponent {
     }
 
     public void select(LxModel model) {
-        if (selectMode == Lx.SELECT_SINGLE) {
+        if (selectMode == Lx.SelectMode.SINGLE) {
             doSelect(model);
         } else {
             toggleSelectItem(model);

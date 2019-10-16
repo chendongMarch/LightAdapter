@@ -261,7 +261,7 @@ public class LxRecyclerView extends RecyclerView {
 //        super.absorbGlows(velocityX, velocityY);
 //        Log.e("chendong", "过度滚动了 " + velocityY);
 //        postDelayed(() -> {
-//            callback.onActive(velocityY > 0 ? EDGE_END : EDGE_START, velocityY);
+//            callback.onActive(velocityY > 0 ? END : START, velocityY);
 //        },500);
 //    }
 

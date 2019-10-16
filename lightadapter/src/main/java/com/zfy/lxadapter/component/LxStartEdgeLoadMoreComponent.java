@@ -14,11 +14,11 @@ import com.zfy.lxadapter.listener.OnLoadMoreListener;
 public class LxStartEdgeLoadMoreComponent extends LxLoadMoreComponent {
 
     public LxStartEdgeLoadMoreComponent(int startLoadMoreCount, OnLoadMoreListener loadMoreListener) {
-        super(Lx.LOAD_MORE_START_EDGE, startLoadMoreCount, loadMoreListener);
+        super(Lx.LoadMoreEdge.START, startLoadMoreCount, loadMoreListener);
     }
 
     public LxStartEdgeLoadMoreComponent(OnLoadMoreListener loadMoreListener) {
-        super(Lx.LOAD_MORE_START_EDGE, DEFAULT_START_LOAD_COUNT, loadMoreListener);
+        super(Lx.LoadMoreEdge.START, DEFAULT_START_LOAD_COUNT, loadMoreListener);
     }
 
 
@@ -26,13 +26,13 @@ public class LxStartEdgeLoadMoreComponent extends LxLoadMoreComponent {
     public void onAttachedToAdapter(LxAdapter lxAdapter) {
         super.onAttachedToAdapter(lxAdapter);
         LxList data = lxAdapter.getData();
-        data.addAdapterEventDispatcher(Lx.EVENT_FINISH_START_EDGE_LOAD_MORE, (event, adapter, extra) -> {
+        data.subscribe(Lx.Event.FINISH_START_EDGE_LOAD_MORE, (event, adapter, extra) -> {
             LxStartEdgeLoadMoreComponent startEdgeLoadMoreComponent = adapter.getComponent(LxStartEdgeLoadMoreComponent.class);
             if (startEdgeLoadMoreComponent != null) {
                 startEdgeLoadMoreComponent.finishLoadMore();
             }
         });
-        data.addAdapterEventDispatcher(Lx.EVENT_START_EDGE_LOAD_MORE_ENABLE, (event, adapter, extra) -> {
+        data.subscribe(Lx.Event.START_EDGE_LOAD_MORE_ENABLE, (event, adapter, extra) -> {
             if (!(extra instanceof Boolean)) {
                 return;
             }

@@ -22,9 +22,9 @@ public class LxLoadMoreComponent extends LxComponent {
 
     public static final int DEFAULT_START_LOAD_COUNT = 3;
 
-    @Lx.LoadMoreOn
-    private int loadMoreOn = Lx.LOAD_MORE_ON_SCROLL;
-    @Lx.LoadMoreEdge
+    @Lx.LoadMoreOnDef
+    private int loadMoreOn = Lx.LoadMoreOn.SCROLL;
+    @Lx.LoadMoreEdgeDef
     private int loadMoreEdge;
 
     private boolean loadingMore; // 是否在加载更多
@@ -35,7 +35,7 @@ public class LxLoadMoreComponent extends LxComponent {
 
     private OnLoadMoreListener listener;
 
-    LxLoadMoreComponent(@Lx.LoadMoreEdge int loadMoreEdge, int startLoadMoreCount, OnLoadMoreListener loadMoreListener) {
+    LxLoadMoreComponent(@Lx.LoadMoreEdgeDef int loadMoreEdge, int startLoadMoreCount, OnLoadMoreListener loadMoreListener) {
         this.startLoadMoreCount = startLoadMoreCount;
         this.listener = loadMoreListener;
         this.loadMoreEnable = true;
@@ -44,7 +44,7 @@ public class LxLoadMoreComponent extends LxComponent {
 
     @Override
     public void onBindViewHolder(LxAdapter adapter, @NonNull LxViewHolder holder, int position, @NonNull List<Object> payloads) {
-        if (loadMoreOn == Lx.LOAD_MORE_ON_SCROLL) {
+        if (loadMoreOn == Lx.LoadMoreOn.SCROLL) {
             return;
         }
         if (loadingMore || !loadMoreEnable) {
@@ -61,10 +61,10 @@ public class LxLoadMoreComponent extends LxComponent {
     @Override
     public void onAttachedToRecyclerView(LxAdapter adapter, @NonNull RecyclerView recyclerView) {
         viewOrientation = LxUtil.getRecyclerViewOrientation(recyclerView);
-        if (loadMoreOn == Lx.LOAD_MORE_ON_BIND) {
+        if (loadMoreOn == Lx.LoadMoreOn.BIND) {
             return;
         }
-        if (loadMoreEdge == Lx.LOAD_MORE_END_EDGE) {
+        if (loadMoreEdge == Lx.LoadMoreEdge.END) {
             recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -94,7 +94,7 @@ public class LxLoadMoreComponent extends LxComponent {
                     }
                 }
             });
-        } else if (loadMoreEdge == Lx.LOAD_MORE_START_EDGE) {
+        } else if (loadMoreEdge == Lx.LoadMoreEdge.START) {
             recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -140,7 +140,7 @@ public class LxLoadMoreComponent extends LxComponent {
         super.onAttachedToAdapter(lxAdapter);
         LxList data = lxAdapter.getData();
         // 结束加载监听
-        data.addAdapterEventDispatcher(Lx.EVENT_FINISH_LOAD_MORE, (event, adapter, extra) -> {
+        data.subscribe(Lx.Event.FINISH_LOAD_MORE, (event, adapter, extra) -> {
             LxEndEdgeLoadMoreComponent endEdgeLoadMoreComponent = adapter.getComponent(LxEndEdgeLoadMoreComponent.class);
             if (endEdgeLoadMoreComponent != null) {
                 endEdgeLoadMoreComponent.finishLoadMore();
@@ -151,7 +151,7 @@ public class LxLoadMoreComponent extends LxComponent {
             }
         });
         // 加载开关
-        data.addAdapterEventDispatcher(Lx.EVENT_LOAD_MORE_ENABLE, (event, adapter, extra) -> {
+        data.subscribe(Lx.Event.LOAD_MORE_ENABLE, (event, adapter, extra) -> {
             if (!(extra instanceof Boolean)) {
                 return;
             }

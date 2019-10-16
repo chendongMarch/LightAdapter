@@ -7,7 +7,7 @@ import com.zfy.lxadapter.data.LxModel;
 import com.zfy.lxadapter.diff.DiffableList;
 import com.zfy.lxadapter.function._Function;
 import com.zfy.lxadapter.function._Predicate;
-import com.zfy.lxadapter.listener.AdapterEventDispatcher;
+import com.zfy.lxadapter.listener.EventSubscriber;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,9 +22,9 @@ import java.util.Map;
  */
 public class LxList extends DiffableList<LxModel> {
 
-    protected LxAdapter                           adapter;
-    private   Map<String, AdapterEventDispatcher> interceptors;
-    protected int                                 dataStartPosition;
+    protected LxAdapter                    adapter;
+    private   Map<String, EventSubscriber> subscribers;
+    protected int                          contentStartPosition;
 
     // 是否是异步更新
     protected boolean async;
@@ -53,24 +53,24 @@ public class LxList extends DiffableList<LxModel> {
         return super.get(adapter.isInfinite ? i % size : i);
     }
 
-    public void addAdapterEventDispatcher(String event, AdapterEventDispatcher interceptor) {
-        if (interceptors == null) {
-            interceptors = new HashMap<>(4);
+    public void subscribe(String event, EventSubscriber subscriber) {
+        if (subscribers == null) {
+            subscribers = new HashMap<>(4);
         }
-        interceptors.put(event, interceptor);
+        subscribers.put(event, subscriber);
     }
 
-    public void publishEvent(String event) {
-        this.publishEvent(event, null);
+    public void postEvent(String event) {
+        this.postEvent(event, null);
     }
 
-    public void publishEvent(String event, Object extra) {
-        if (interceptors == null || interceptors.isEmpty()) {
+    public void postEvent(String event, Object extra) {
+        if (subscribers == null || subscribers.isEmpty()) {
             return;
         }
-        AdapterEventDispatcher eventInterceptor = interceptors.get(event);
+        EventSubscriber eventInterceptor = subscribers.get(event);
         if (eventInterceptor != null) {
-            eventInterceptor.dispatch(event, adapter, extra);
+            eventInterceptor.subscribe(event, adapter, extra);
         }
     }
 
@@ -84,8 +84,8 @@ public class LxList extends DiffableList<LxModel> {
         return l;
     }
 
-    /*default*/ int getDataStartPosition() {
-        return dataStartPosition;
+    /*default*/ int getContentStartPosition() {
+        return contentStartPosition;
     }
 
 
@@ -98,11 +98,6 @@ public class LxList extends DiffableList<LxModel> {
     public LxList getExtTypeData(int viewType) {
         return new LxList();
     }
-
-    public boolean hasType(int viewType) {
-        return getExtTypeData(viewType).isEmpty();
-    }
-
 
     protected boolean adapterHasExtType() {
         return adapter.hasExtType;

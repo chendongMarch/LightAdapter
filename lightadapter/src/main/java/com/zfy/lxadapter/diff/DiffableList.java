@@ -24,13 +24,18 @@ import java.util.ListIterator;
  */
 public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
 
+    public static final int FLAG_NORMAL       = -1;
+    public static final int FLAG_INTERNAL     = 0;
+    public static final int FLAG_ONLY_CONTENT = 1;
+
+
     public interface ListUpdateObserver<E> {
         void onChange(List<E> list);
     }
 
     private final List<ListUpdateObserver<E>> updateObservers;
     private final AdapterUpdateCallback       updateCallback;
-    private final IDiffDispatcher<E>          dispatcher;
+    protected     IDiffDispatcher<E>          dispatcher;
 
     public DiffableList(boolean async) {
         updateCallback = new AdapterUpdateCallback();
@@ -52,10 +57,14 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
         this.updateObservers.add(updateObserver);
     }
 
-
     public void update(@NonNull List<E> newItems) {
+        this.update(newItems, FLAG_NORMAL);
+    }
+
+    public void update(@NonNull List<E> newItems, int flag) {
         dispatcher.update(newItems);
     }
+
 
     public List<E> list() {
         return dispatcher.list();
@@ -120,6 +129,11 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
     @Override
     public boolean addAll(Collection<? extends E> c) {
         return list().addAll(c);
+    }
+
+    @Override
+    public void clear() {
+        list().clear();
     }
 
     @NonNull
@@ -395,6 +409,9 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
 
     // 复制数据后实现 set(index, item) 功能
     private E setItem(List<E> list, int pos, _Consumer<E> consumer) {
+        if (pos < 0 || pos > size()) {
+            return null;
+        }
         E item = list.get(pos);
         E copy = (E) LxUtil.copy(item);
         consumer.accept(copy);

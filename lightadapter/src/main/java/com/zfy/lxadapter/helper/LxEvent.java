@@ -18,12 +18,12 @@ import com.zfy.lxadapter.listener.OnItemEventListener;
 public class LxEvent {
 
     private static void setClickEvent(LxViewHolder holder, OnItemEventListener listener) {
-        holder.itemView.setOnClickListener(v -> listener.onEvent(holder.getLxContext(), Lx.EVENT_CLICK));
+        holder.itemView.setOnClickListener(v -> listener.onEvent(holder.getLxContext(), Lx.ViewEvent.CLICK));
     }
 
     private static void setLongPressEvent(LxViewHolder holder, OnItemEventListener listener) {
         holder.itemView.setOnLongClickListener(v -> {
-            listener.onEvent(holder.getLxContext(), Lx.EVENT_LONG_PRESS);
+            listener.onEvent(holder.getLxContext(), Lx.ViewEvent.LONG_PRESS);
             return true;
         });
     }
@@ -35,7 +35,7 @@ public class LxEvent {
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 // 单击事件
                 if (setClick) {
-                    listener.onEvent(holder.getLxContext(), Lx.EVENT_CLICK);
+                    listener.onEvent(holder.getLxContext(), Lx.ViewEvent.CLICK);
                 }
                 return super.onSingleTapConfirmed(e);
             }
@@ -48,7 +48,7 @@ public class LxEvent {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
                 // 双击事件
-                listener.onEvent(holder.getLxContext(), Lx.EVENT_DOUBLE_CLICK);
+                listener.onEvent(holder.getLxContext(), Lx.ViewEvent.DOUBLE_CLICK);
                 return super.onDoubleTap(e);
             }
 
@@ -56,7 +56,7 @@ public class LxEvent {
             public void onLongPress(MotionEvent e) {
                 // 长按事件
                 if (setLongPress) {
-                    listener.onEvent(holder.getLxContext(), Lx.EVENT_LONG_PRESS);
+                    listener.onEvent(holder.getLxContext(), Lx.ViewEvent.LONG_PRESS);
                 }
             }
         };
@@ -91,8 +91,8 @@ public class LxEvent {
         holder.itemView.setFocusable(true);
         holder.itemView.setFocusableInTouchMode(true);
         holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
-            listener.onEvent(holder.getLxContext(), hasFocus ? Lx.EVENT_FOCUS_ATTACH : Lx.EVENT_FOCUS_DETACH);
-            listener.onEvent(holder.getLxContext(), Lx.EVENT_FOCUS_CHANGE);
+            listener.onEvent(holder.getLxContext(), hasFocus ? Lx.ViewEvent.FOCUS_ATTACH : Lx.ViewEvent.FOCUS_DETACH);
+            listener.onEvent(holder.getLxContext(), Lx.ViewEvent.FOCUS_CHANGE);
         });
     }
 }

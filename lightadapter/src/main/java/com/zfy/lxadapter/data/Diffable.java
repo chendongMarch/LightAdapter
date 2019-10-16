@@ -47,7 +47,7 @@ public interface Diffable<T> {
      * @return 内容是否相同
      */
     default boolean areContentsTheSame(T newItem) {
-        return true;
+        return false;
     }
 
     /**

@@ -27,11 +27,11 @@ public class LxSnapComponent extends LxComponent {
     private boolean              enableListenerDispatch;
     private OnPageChangeListener onPageChangeListener;
 
-    public LxSnapComponent(@Lx.SnapMode int snapMode) {
+    public LxSnapComponent(@Lx.SnapModeDef int snapMode) {
         this.snapMode = snapMode;
     }
 
-    public LxSnapComponent(@Lx.SnapMode int snapMode, OnPageChangeListener onPageChangeListener) {
+    public LxSnapComponent(@Lx.SnapModeDef int snapMode, OnPageChangeListener onPageChangeListener) {
         this.snapMode = snapMode;
         this.onPageChangeListener = onPageChangeListener;
     }
@@ -54,7 +54,7 @@ public class LxSnapComponent extends LxComponent {
         super.onAttachedToRecyclerView(adapter, recyclerView);
 
         SnapHelper snapHelper;
-        if (snapMode == Lx.SNAP_MODE_LINEAR) {
+        if (snapMode == Lx.SnapMode.LINEAR) {
             snapHelper = new LinearSnapHelper();
         } else {
             snapHelper = new PagerSnapHelper();

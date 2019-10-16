@@ -2,7 +2,8 @@ package com.zfy.lxadapter;
 
 import android.widget.ImageView;
 
-import com.zfy.lxadapter.listener.AdapterEventDispatcher;
+import com.zfy.lxadapter.helper.LxSpan;
+import com.zfy.lxadapter.listener.EventSubscriber;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,21 +20,21 @@ public class LxGlobal {
         void load(ImageView view, String url, Object extra);
     }
 
-    public interface ViewBinder {
-        void bind();
-    }
-
-    static Map<String, AdapterEventDispatcher> dispatchers;
-    static ImgUrlLoader                        imgUrlLoader;
+    static Map<String, EventSubscriber> subscribers;
+    static ImgUrlLoader                 imgUrlLoader;
 
     public static void setImgUrlLoader(ImgUrlLoader imgUrlLoader) {
         LxGlobal.imgUrlLoader = imgUrlLoader;
     }
 
-    public static void addAdapterEventDispatcher(String event, AdapterEventDispatcher handler) {
-        if (dispatchers == null) {
-            dispatchers = new HashMap<>();
+    public static void subscribe(String event, EventSubscriber handler) {
+        if (subscribers == null) {
+            subscribers = new HashMap<>();
         }
-        dispatchers.put(event, handler);
+        subscribers.put(event, handler);
+    }
+
+    public static void setSpanSizeAdapter(LxSpan.SpanSizeAdapter spanSizeAdapter) {
+        LxSpan.spanSizeAdapter = spanSizeAdapter;
     }
 }

@@ -15,7 +15,7 @@ public class TypeOpts {
 
     public            int viewType = Lx.ViewType.DEFAULT; // 数据类型
     @LayoutRes public int layoutId; // 布局资源
-    public            int spanSize = Lx.SPAN_NONE; // 跨越行数
+    public            int spanSize = Lx.SpanSize.NONE; // 跨越行数
 
     public boolean enableClick       = true; // 是否允许点击事件
     public boolean enableLongPress   = false; // 是否允许长按事件
@@ -46,6 +46,14 @@ public class TypeOpts {
         TypeOpts typeOpts = new TypeOpts();
         typeOpts.viewType = viewType;
         typeOpts.layoutId = layoutId;
+        return typeOpts;
+    }
+
+    public static TypeOpts make(int viewType, int layoutId, int spanSize) {
+        TypeOpts typeOpts = new TypeOpts();
+        typeOpts.viewType = viewType;
+        typeOpts.layoutId = layoutId;
+        typeOpts.spanSize = spanSize;
         return typeOpts;
     }
 

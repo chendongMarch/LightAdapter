@@ -29,7 +29,6 @@ public abstract class LxItemBinder<D> implements Typeable {
 
     public LxItemBinder(int pageType) {
         this.pageType = pageType;
-        this.typeOpts = getTypeOpts();
     }
 
     public LxItemBinder() {
@@ -38,6 +37,7 @@ public abstract class LxItemBinder<D> implements Typeable {
 
     void onAdapterAttached(LxAdapter adapter) {
         this.adapter = adapter;
+        this.typeOpts = getTypeOpts();
     }
 
     LxViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -61,7 +61,7 @@ public abstract class LxItemBinder<D> implements Typeable {
         LxContext context = (LxContext) holder.itemView.getTag(R.id.item_context);
         context.holder = holder;
         context.layoutPosition = position;
-        context.dataPosition = position - adapter.getData().getDataStartPosition();
+        context.dataPosition = position - adapter.getData().getContentStartPosition();
         context.data = unpack;
         context.model = data;
         context.viewType = data.getItemType();
@@ -69,17 +69,17 @@ public abstract class LxItemBinder<D> implements Typeable {
         holder.setLxContext(context);
 
         Bundle extra = data.getExtra();
-        context.conditionKey = extra.getString(Lx.KEY_CONDITION_KEY);
-        Bundle bundle = extra.getBundle(Lx.KEY_CONDITION_VALUE);
+        context.conditionKey = extra.getString(Lx.Condition.KEY);
+        Bundle bundle = extra.getBundle(Lx.Condition.VALUE);
         context.conditionValue = bundle == null ? new Bundle() : bundle;
-        extra.putString(Lx.KEY_CONDITION_KEY, null);
-        extra.putBundle(Lx.KEY_CONDITION_VALUE, null);
+        extra.putString(Lx.Condition.KEY, null);
+        extra.putBundle(Lx.Condition.VALUE, null);
 
-        context.bindStrategy = Lx.BIND_BY_NORMAL;
+        context.bindMode = Lx.BindMode.NORMAL;
         if (context.conditionKey != null) {
-            context.bindStrategy = Lx.BIND_BY_CONDITION;
+            context.bindMode = Lx.BindMode.CONDITION;
         } else if (!context.payloads.isEmpty()) {
-            context.bindStrategy = Lx.BIND_BY_PAYLOADS;
+            context.bindMode = Lx.BindMode.PAYLOADS;
         }
         context.context = getAdapter().getContext();
         context.list = getAdapter().getData();
@@ -94,12 +94,12 @@ public abstract class LxItemBinder<D> implements Typeable {
 
         if (typeOpts.enableClick || typeOpts.enableLongPress || typeOpts.enableDbClick) {
             LxEvent.setEvent(holder, typeOpts.enableClick, typeOpts.enableLongPress, typeOpts.enableDbClick, (context, eventType) -> {
-                onItemEvent(context, (D) context.data, eventType);
+                onBindEvent(context, (D) context.data, eventType);
             });
         }
         if (typeOpts.enableFocusChange) {
             LxEvent.setFocusEvent(holder, (context, eventType) -> {
-                LxItemBinder.this.onItemEvent(context, (D) context.data, eventType);
+                LxItemBinder.this.onBindEvent(context, (D) context.data, eventType);
             });
         }
     }
@@ -115,7 +115,7 @@ public abstract class LxItemBinder<D> implements Typeable {
 
     protected abstract void onBindView(LxContext context, LxViewHolder holder, D listItem);
 
-    protected void onItemEvent(LxContext context, D listItem, @Lx.EventType int eventType) {
+    protected void onBindEvent(LxContext context, D listItem, @Lx.ViewEventDef int eventType) {
     }
 
     public LxList getData() {
@@ -175,7 +175,7 @@ public abstract class LxItemBinder<D> implements Typeable {
             return this;
         }
 
-        public Builder<DType> onItemEvent(OnEventBind<DType> onEvent) {
+        public Builder<DType> onEventBind(OnEventBind<DType> onEvent) {
             this.eventBind = onEvent;
             return this;
         }
@@ -209,7 +209,7 @@ public abstract class LxItemBinder<D> implements Typeable {
             }
 
             @Override
-            public void onItemEvent(LxContext context, DType data, int eventType) {
+            public void onBindEvent(LxContext context, DType data, int eventType) {
                 if (eventBind != null) {
                     eventBind.onEvent(this, context, data, eventType);
                 }

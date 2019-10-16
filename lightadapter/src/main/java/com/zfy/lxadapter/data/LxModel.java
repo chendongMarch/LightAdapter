@@ -45,8 +45,8 @@ public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable,
     }
 
     public void setCondition(String condition, Bundle bundle) {
-        getExtra().putString(Lx.KEY_CONDITION_KEY, condition);
-        getExtra().putBundle(Lx.KEY_CONDITION_VALUE, bundle);
+        getExtra().putString(Lx.Condition.KEY, condition);
+        getExtra().putBundle(Lx.Condition.VALUE, bundle);
     }
 
     public LxModel(Object data) {
@@ -108,7 +108,7 @@ public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable,
             return true;
         }
         // 有条件更新，直接调用 bind
-        String condition = getExtra().getString(Lx.KEY_CONDITION_KEY, "");
+        String condition = getExtra().getString(Lx.Condition.KEY, "");
         if (condition != null && !condition.isEmpty()) {
             return false;
         }
@@ -143,6 +143,7 @@ public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable,
         lxModel.type = type;
         lxModel.selected = selected;
         lxModel.incrementId = incrementId;
+        lxModel.extra = extra;
         return lxModel;
     }
 

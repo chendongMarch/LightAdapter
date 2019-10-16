@@ -8,7 +8,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
-import android.view.MotionEvent;
 
 import com.zfy.lxadapter.BuildConfig;
 import com.zfy.lxadapter.Lx;
@@ -35,7 +34,7 @@ public class LxUtil {
     public static int getRecyclerViewSpanCount(RecyclerView view) {
         RecyclerView.LayoutManager layoutManager = view.getLayoutManager();
         if (layoutManager == null) {
-            return Lx.SPAN_NONE;
+            return Lx.SpanSize.NONE;
         }
         if (layoutManager instanceof GridLayoutManager) {
             return ((GridLayoutManager) layoutManager).getSpanCount();

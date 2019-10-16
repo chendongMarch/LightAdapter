@@ -25,7 +25,7 @@ public class LxContext {
     public int          layoutPosition; // 布局中的位置
     public int          dataPosition; // 数据位置
     public int          viewType; // 类型
-    public int          bindStrategy; // 绑定类型
+    public int          bindMode; // 绑定类型
     public Context      context;
 
     @NonNull

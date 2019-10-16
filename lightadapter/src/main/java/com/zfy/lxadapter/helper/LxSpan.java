@@ -19,6 +19,7 @@ import com.zfy.lxadapter.data.TypeOpts;
  */
 public class LxSpan {
 
+
     public static void onViewAttachedToWindow(LxAdapter adapter, LxViewHolder holder) {
         RecyclerView view = adapter.getView();
         if (view == null) {
@@ -32,7 +33,7 @@ public class LxSpan {
         if (layoutManager instanceof StaggeredGridLayoutManager) {
             int type = holder.getItemViewType();
             TypeOpts typeOpts = adapter.getTypeOpts(type);
-            if (typeOpts.spanSize == Lx.SPAN_SIZE_ALL) {
+            if (typeOpts.spanSize == Lx.SpanSize.ALL) {
                 ViewGroup.LayoutParams originLp = holder.itemView.getLayoutParams();
                 StaggeredGridLayoutManager.LayoutParams layoutParams =
                         new StaggeredGridLayoutManager.LayoutParams(originLp.width, originLp.height);
@@ -67,29 +68,37 @@ public class LxSpan {
         }
     }
 
+    public static SpanSizeAdapter spanSizeAdapter;
+
     private static int getSpanSize(int spanSize, int spanCount) {
-        if (spanSize == Lx.SPAN_NONE) {
+        if (spanSize == Lx.SpanSize.NONE) {
             return 1;
         }
         if (spanSize > 0) {
             return spanSize;
         }
-        if (spanSize == Lx.SPAN_SIZE_ALL) {
+        if (spanSize == Lx.SpanSize.ALL) {
             spanSize = spanCount;
-        } else if (spanSize == Lx.SPAN_SIZE_HALF && spanCount % 2 == 0) {
+        } else if (spanSize == Lx.SpanSize.HALF && spanCount % 2 == 0) {
             spanSize = spanCount / 2;
-        } else if (spanSize == Lx.SPAN_SIZE_THIRD && spanCount % 3 == 0) {
+        } else if (spanSize == Lx.SpanSize.THIRD && spanCount % 3 == 0) {
             spanSize = spanCount / 3;
-        } else if (spanSize == Lx.SPAN_SIZE_QUARTER && spanCount % 4 == 0) {
+        } else if (spanSize == Lx.SpanSize.QUARTER && spanCount % 4 == 0) {
             spanSize = spanCount / 4;
+        } else if (spanSizeAdapter != null) {
+            spanSize = spanSizeAdapter.adapt(spanCount, spanSize);
         }
-        if (spanSize == Lx.SPAN_SIZE_HALF && spanCount % 2 != 0
-                || spanSize == Lx.SPAN_SIZE_THIRD && spanCount % 3 != 0
-                || spanSize == Lx.SPAN_SIZE_QUARTER && spanCount % 4 != 0) {
+        if (spanSize == Lx.SpanSize.HALF && spanCount % 2 != 0
+                || spanSize == Lx.SpanSize.THIRD && spanCount % 3 != 0
+                || spanSize == Lx.SpanSize.QUARTER && spanCount % 4 != 0) {
             throw new IllegalArgumentException("spanSize error, spanSize = " + spanCount + ", spanCount = " + spanCount);
         }
         return spanSize;
     }
 
+
+    public interface SpanSizeAdapter {
+        int adapt(int spanCount, int spanSize);
+    }
 
 }

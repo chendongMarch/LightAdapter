@@ -14,7 +14,7 @@ import com.zfy.lxadapter.data.LxModel;
 import com.zfy.lxadapter.data.TypeOpts;
 import com.zfy.lxadapter.function._Function;
 import com.zfy.lxadapter.helper.LxSpan;
-import com.zfy.lxadapter.listener.AdapterEventDispatcher;
+import com.zfy.lxadapter.listener.EventSubscriber;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,18 +42,18 @@ public class LxAdapter extends RecyclerView.Adapter<LxViewHolder> {
 
     public static class Builder {
 
-        private LxList                              data;
-        private SparseArray<LxItemBinder>           binders;
-        private RecyclerView.LayoutManager          layoutManager;
-        private RecyclerView                        view;
-        private Set<LxComponent>                    components;
-        private Map<String, AdapterEventDispatcher> dispatchers;
-        private boolean                             isInfinite;
+        private LxList                       data;
+        private SparseArray<LxItemBinder>    binders;
+        private RecyclerView.LayoutManager   layoutManager;
+        private RecyclerView                 view;
+        private Set<LxComponent>             components;
+        private Map<String, EventSubscriber> subscribers;
+        private boolean                      isInfinite;
 
         private Builder() {
             binders = new SparseArray<>();
             components = new HashSet<>();
-            dispatchers = new HashMap<>();
+            subscribers = new HashMap<>();
         }
 
         public Builder infinite() {
@@ -78,8 +78,8 @@ public class LxAdapter extends RecyclerView.Adapter<LxViewHolder> {
             return this;
         }
 
-        public Builder onAdapterEvent(String event, AdapterEventDispatcher dispatcher) {
-            this.dispatchers.put(event, dispatcher);
+        public Builder subscribe(String event, EventSubscriber dispatcher) {
+            this.subscribers.put(event, dispatcher);
             return this;
         }
 
@@ -119,6 +119,8 @@ public class LxAdapter extends RecyclerView.Adapter<LxViewHolder> {
             }
         }
 
+        setHasStableIds(true);
+
         // set view layout
         if (builder.view != null) {
             this.context = builder.view.getContext();
@@ -129,11 +131,11 @@ public class LxAdapter extends RecyclerView.Adapter<LxViewHolder> {
             this.view.setAdapter(this);
         }
         this.data.setAdapter(this);
-        if (LxGlobal.dispatchers != null) {
-            builder.dispatchers.putAll(LxGlobal.dispatchers);
+        if (LxGlobal.subscribers != null) {
+            builder.subscribers.putAll(LxGlobal.subscribers);
         }
-        for (Map.Entry<String, AdapterEventDispatcher> entry : builder.dispatchers.entrySet()) {
-            this.data.addAdapterEventDispatcher(entry.getKey(), entry.getValue());
+        for (Map.Entry<String, EventSubscriber> entry : builder.subscribers.entrySet()) {
+            this.data.subscribe(entry.getKey(), entry.getValue());
         }
         for (LxComponent component : components) {
             component.onAttachedToAdapter(this);
@@ -197,6 +199,18 @@ public class LxAdapter extends RecyclerView.Adapter<LxViewHolder> {
     @Override
     public int getItemViewType(int position) {
         return data.get(position).getItemType();
+    }
+
+    @Override
+    public long getItemId(int position) {
+        Object objId = data.get(position).getObjId();
+        if (objId instanceof Long) {
+            return (Long) objId;
+        }
+        if (objId instanceof Integer) {
+            return ((Integer) objId).longValue();
+        }
+        return super.getItemId(position);
     }
 
     @Override

@@ -15,7 +15,7 @@ public class AdapterUpdateCallback implements ListUpdateCallback {
 
     private static Handler handler = new Handler(Looper.getMainLooper());
 
-      RecyclerView.Adapter adapter;
+    RecyclerView.Adapter adapter;
 
     public void setAdapter(RecyclerView.Adapter adapter) {
         this.adapter = adapter;

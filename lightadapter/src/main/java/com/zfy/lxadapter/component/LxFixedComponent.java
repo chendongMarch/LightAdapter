@@ -16,25 +16,25 @@ import com.zfy.lxadapter.decoration.FixedItemDecoration;
  */
 public class LxFixedComponent extends LxComponent {
 
-    private ViewGroup actualViewContainer;
-    @Lx.FixedMode private int fixedMode;
+    private                  ViewGroup actualViewContainer;
+    @Lx.FixedModeDef private int       fixedMode;
 
     public LxFixedComponent(ViewGroup viewGroup) {
         actualViewContainer = viewGroup;
-        fixedMode = Lx.FIXED_USE_VIEW;
+        fixedMode = Lx.FixedMode.VIEW;
     }
 
     public LxFixedComponent() {
-        fixedMode = Lx.FIXED_USE_DRAW;
+        fixedMode = Lx.FixedMode.DRAW;
     }
 
     @Override
     public void onAttachedToRecyclerView(LxAdapter adapter, @NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(adapter, recyclerView);
         FixedItemDecoration fixedItemDecoration = new FixedItemDecoration();
-        fixedItemDecoration.setUseActualView(fixedMode == Lx.FIXED_USE_VIEW);
-        fixedItemDecoration.setUseDrawDecor(fixedMode == Lx.FIXED_USE_DRAW);
-        if (fixedMode == Lx.FIXED_USE_VIEW) {
+        fixedItemDecoration.setUseActualView(fixedMode == Lx.FixedMode.VIEW);
+        fixedItemDecoration.setUseDrawDecor(fixedMode == Lx.FixedMode.DRAW);
+        if (fixedMode == Lx.FixedMode.VIEW) {
             fixedItemDecoration.setOnFixedViewAttachListener(view -> {
                 if (view == null) {
                     actualViewContainer.removeAllViews();

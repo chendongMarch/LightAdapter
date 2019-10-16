@@ -57,7 +57,7 @@ public class LxPickerComponent extends LxComponent {
 
     private void initSnapComponent(LxAdapter adapter) {
         if (snapComponent == null) {
-            LxSnapComponent lxSnapComponent = new LxSnapComponent(Lx.SNAP_MODE_LINEAR, new LxSnapComponent.OnPageChangeListener() {
+            LxSnapComponent lxSnapComponent = new LxSnapComponent(Lx.SnapMode.LINEAR, new LxSnapComponent.OnPageChangeListener() {
                 @Override
                 public void onPageSelected(int lastPosition, int position) {
                     LxPickerComponent component = LxPickerComponent.this;

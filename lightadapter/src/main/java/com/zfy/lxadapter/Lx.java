@@ -13,50 +13,77 @@ import java.lang.annotation.RetentionPolicy;
  */
 public class Lx {
 
-    @IntDef({SNAP_MODE_LINEAR, SNAP_MODE_PAGER})
+    /* -------------------------- LxSnapComponent -------------------------- */
+
+    @IntDef({SnapMode.LINEAR, SnapMode.PAGER})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface SnapMode {
+    public @interface SnapModeDef {
     }
 
-    public static final int SNAP_MODE_LINEAR = 0;
-    public static final int SNAP_MODE_PAGER  = 1;
-
-    @IntDef({LOAD_MORE_START_EDGE, LOAD_MORE_END_EDGE})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface LoadMoreEdge {
-
+    public static class SnapMode {
+        public static final int LINEAR = 0;
+        public static final int PAGER  = 1;
     }
 
-    public static final int LOAD_MORE_START_EDGE = 0; // 加载更多，顶部
-    public static final int LOAD_MORE_END_EDGE   = 1; // 加载更多，底部
+    /* -------------------------- LxLoadMoreComponent -------------------------- */
 
-    @IntDef({LOAD_MORE_ON_BIND, LOAD_MORE_ON_SCROLL})
+    @IntDef({LoadMoreEdge.END, LoadMoreEdge.START})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface LoadMoreOn {
+    public @interface LoadMoreEdgeDef {
 
     }
 
-    public static final int LOAD_MORE_ON_SCROLL = 0; // 通过检测 scroll 获取加载更多
-    public static final int LOAD_MORE_ON_BIND   = 1; // 通过检测 onBindViewHolder 获取加载更多
+    public static class LoadMoreEdge {
+        public static final int START = 0; // 加载更多，顶部
+        public static final int END   = 1; // 加载更多，底部
+    }
 
-    public static final int SPAN_NONE         = -0x30;
-    public static final int SPAN_SIZE_ALL     = -0x31; // span size 占满整行
-    public static final int SPAN_SIZE_HALF    = -0x32; // span size 占据一半
-    public static final int SPAN_SIZE_THIRD   = -0x33; // span size 占据 1/3
-    public static final int SPAN_SIZE_QUARTER = -0x34; // span size 占据 1/4
 
-    @IntDef({EVENT_CLICK, EVENT_LONG_PRESS, EVENT_DOUBLE_CLICK, EVENT_FOCUS_ATTACH, EVENT_FOCUS_DETACH})
+    @IntDef({LoadMoreOn.BIND, LoadMoreOn.SCROLL})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface EventType {
+    public @interface LoadMoreOnDef {
 
     }
 
-    public static final int EVENT_CLICK        = 0; // 单击事件
-    public static final int EVENT_LONG_PRESS   = 1; // 长按事件
-    public static final int EVENT_DOUBLE_CLICK = 2; // 双击事件
-    public static final int EVENT_FOCUS_CHANGE = 3; // 焦点变化事件
-    public static final int EVENT_FOCUS_ATTACH = 4; // 获得焦点事件
-    public static final int EVENT_FOCUS_DETACH = 5; // 失去焦点事件
+    public static class LoadMoreOn {
+        public static final int SCROLL = 0; // 通过检测 scroll 获取加载更多
+        public static final int BIND   = 1; // 通过检测 onBindViewHolder 获取加载更多
+
+    }
+
+    /* -------------------------- LxSpan -------------------------- */
+
+    public static class SpanSize {
+
+        public static int BASIC = -0x30;
+
+        public static final int NONE    = --BASIC;
+        public static final int ALL     = --BASIC; // span size 占满整行
+        public static final int HALF    = --BASIC; // span size 占据一半
+        public static final int THIRD   = --BASIC; // span size 占据 1/3
+        public static final int QUARTER = --BASIC; // span size 占据 1/4
+    }
+
+    /* -------------------------- LxEvent -------------------------- */
+
+    @IntDef({ViewEvent.CLICK, ViewEvent.LONG_PRESS, ViewEvent.DOUBLE_CLICK, ViewEvent.FOCUS_ATTACH, ViewEvent.FOCUS_DETACH})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ViewEventDef {
+
+    }
+
+    public static class ViewEvent {
+
+        public static final int CLICK        = 0; // 单击事件
+        public static final int LONG_PRESS   = 1; // 长按事件
+        public static final int DOUBLE_CLICK = 2; // 双击事件
+        public static final int FOCUS_CHANGE = 3; // 焦点变化事件
+        public static final int FOCUS_ATTACH = 4; // 获得焦点事件
+        public static final int FOCUS_DETACH = 5; // 失去焦点事件
+    }
+
+
+    /* -------------------------- EventType -------------------------- */
 
     private static int VIEW_TYPE_EXT_BASE_4_GENERATE_BEFORE_CONTENT = 40000;
     private static int VIEW_TYPE_CONTENT_BASE_4_GENERATE_MIN        = 50000;
@@ -71,69 +98,107 @@ public class Lx {
         public static final int EXPANDABLE_CHILD = Lx.contentTypeOf(); // 分组-子
     }
 
-    @IntDef({DRAG_SWIPE_STATE_NONE, DRAG_STATE_ACTIVE, SWIPE_STATE_ACTIVE, DRAG_STATE_RELEASE, SWIPE_STATE_RELEASE})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface DragSwipeState {
-
-    }
-
-    public static final int DRAG_SWIPE_STATE_NONE = 0;
-    public static final int DRAG_STATE_ACTIVE     = 1;
-    public static final int SWIPE_STATE_ACTIVE    = 2;
-    public static final int DRAG_STATE_RELEASE    = 3;
-    public static final int SWIPE_STATE_RELEASE   = 4;
-
-
-    @IntDef({SELECT_SINGLE, SELECT_MULTI})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface SelectMode {
-
-    }
-
-    public static final int SELECT_SINGLE = 1;
-    public static final int SELECT_MULTI  = 2;
-
-    @IntDef({FIXED_USE_DRAW, FIXED_USE_VIEW})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface FixedMode {
-
-    }
-
-    public static final int FIXED_USE_DRAW = 0;
-    public static final int FIXED_USE_VIEW = 1;
 
     public static int contentTypeOf() {
-        return VIEW_TYPE_CONTENT_BASE_4_GENERATE_MIN++;
+        return ++VIEW_TYPE_CONTENT_BASE_4_GENERATE_MIN;
     }
 
     public static int extTypeBeforeContentOf() {
-        return VIEW_TYPE_EXT_BASE_4_GENERATE_BEFORE_CONTENT++;
+        return ++VIEW_TYPE_EXT_BASE_4_GENERATE_BEFORE_CONTENT;
     }
 
     public static int extTypeAfterContentOf() {
-        return VIEW_TYPE_EXT_BASE_4_GENERATE_AFTER_CONTENT++;
+        return ++VIEW_TYPE_EXT_BASE_4_GENERATE_AFTER_CONTENT;
     }
 
     public static boolean isContentType(int viewType) {
         return viewType >= VIEW_TYPE_CONTENT_BASE_4_GENERATE_MIN && viewType < VIEW_TYPE_CONTENT_BASE_4_GENERATE_MAX;
     }
 
-    public static final int DEFAULT_BLOCK_ID = 0;
 
-    public static final String EVENT_FINISH_LOAD_MORE            = "EVENT_FINISH_LOAD_MORE"; // 结束加载更多，开启下一次
-    public static final String EVENT_FINISH_END_EDGE_LOAD_MORE   = "EVENT_FINISH_END_EDGE_LOAD_MORE";  // 结束底部加载更多，开启下一次
-    public static final String EVENT_FINISH_START_EDGE_LOAD_MORE = "EVENT_FINISH_START_EDGE_LOAD_MORE"; // 结束顶部加载更多，开启下一次
+    /* -------------------------- Drag Swipe -------------------------- */
 
-    public static final String EVENT_LOAD_MORE_ENABLE            = "EVENT_LOAD_MORE_ENABLE"; // 设置加载更多开关
-    public static final String EVENT_END_EDGE_LOAD_MORE_ENABLE   = "EVENT_END_EDGE_LOAD_MORE_ENABLE"; // 设置底部加载更多开关
-    public static final String EVENT_START_EDGE_LOAD_MORE_ENABLE = "EVENT_START_EDGE_LOAD_MORE_ENABLE"; // 设置顶部加载更多开关
+    @IntDef({
+            DragState.NONE,
+            SwipeState.NONE,
+            DragState.ACTIVE,
+            SwipeState.ACTIVE,
+            DragState.RELEASE,
+            SwipeState.RELEASE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface DragSwipeState {
+
+    }
+
+    public static class DragState {
+        public static final int NONE    = 0;
+        public static final int ACTIVE  = 1;
+        public static final int RELEASE = 2;
+    }
+
+    public static class SwipeState {
+        public static final int NONE    = 3;
+        public static final int ACTIVE  = 4;
+        public static final int RELEASE = 5;
+    }
+
+    /* -------------------------- LxSelectorComponent -------------------------- */
+
+    @IntDef({SelectMode.SINGLE, SelectMode.MULTI})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface SelectModeDef {
+
+    }
+
+    public static class SelectMode {
+        public static final int SINGLE = 1;
+        public static final int MULTI  = 2;
+
+    }
+
+    /* -------------------------- LxFixedComponent -------------------------- */
+
+    @IntDef({FixedMode.DRAW, FixedMode.VIEW})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface FixedModeDef {
+
+    }
+
+    public static class FixedMode {
+        public static final int DRAW = 0;
+        public static final int VIEW = 1;
+    }
 
 
-    public static final String KEY_CONDITION_KEY   = "KEY_CONDITION_KEY";
-    public static final String KEY_CONDITION_VALUE = "KEY_CONDITION_VALUE";
+    /* -------------------------- 事件 -------------------------- */
 
-    public static final int BIND_BY_NORMAL    = 1;
-    public static final int BIND_BY_CONDITION = 2;
-    public static final int BIND_BY_PAYLOADS  = 3;
+    public static class Event {
+        public static final String FINISH_LOAD_MORE            = "EVENT_FINISH_LOAD_MORE"; // 结束加载更多，开启下一次
+        public static final String FINISH_END_EDGE_LOAD_MORE   = "EVENT_FINISH_END_EDGE_LOAD_MORE";  // 结束底部加载更多，开启下一次
+        public static final String FINISH_START_EDGE_LOAD_MORE = "EVENT_FINISH_START_EDGE_LOAD_MORE"; // 结束顶部加载更多，开启下一次
 
+        public static final String LOAD_MORE_ENABLE            = "EVENT_LOAD_MORE_ENABLE"; // 设置加载更多开关
+        public static final String END_EDGE_LOAD_MORE_ENABLE   = "EVENT_END_EDGE_LOAD_MORE_ENABLE"; // 设置底部加载更多开关
+        public static final String START_EDGE_LOAD_MORE_ENABLE = "EVENT_START_EDGE_LOAD_MORE_ENABLE"; // 设置顶部加载更多开关
+    }
+
+    /* -------------------------- BindMode -------------------------- */
+
+    public static class BindMode {
+
+        public static final int NORMAL    = 1;
+        public static final int CONDITION = 2;
+        public static final int PAYLOADS  = 3;
+
+    }
+
+    /* -------------------------- 条件更新 -------------------------- */
+
+    public static class Condition {
+        public static final String UPDATE_SELECT = "UPDATE_SELECT";
+
+        public static final String KEY   = "KEY_CONDITION_KEY";
+        public static final String VALUE = "KEY_CONDITION_VALUE";
+
+    }
 }

@@ -14,24 +14,24 @@ import com.zfy.lxadapter.listener.OnLoadMoreListener;
 public class LxEndEdgeLoadMoreComponent extends LxLoadMoreComponent {
 
     public LxEndEdgeLoadMoreComponent(int startLoadMoreCount, OnLoadMoreListener loadMoreListener) {
-        super(Lx.LOAD_MORE_END_EDGE, startLoadMoreCount, loadMoreListener);
+        super(Lx.LoadMoreEdge.END, startLoadMoreCount, loadMoreListener);
     }
 
     public LxEndEdgeLoadMoreComponent(OnLoadMoreListener loadMoreListener) {
-        super(Lx.LOAD_MORE_END_EDGE, DEFAULT_START_LOAD_COUNT, loadMoreListener);
+        super(Lx.LoadMoreEdge.END, DEFAULT_START_LOAD_COUNT, loadMoreListener);
     }
 
     @Override
     public void onAttachedToAdapter(LxAdapter lxAdapter) {
         super.onAttachedToAdapter(lxAdapter);
         LxList data = lxAdapter.getData();
-        data.addAdapterEventDispatcher(Lx.EVENT_FINISH_END_EDGE_LOAD_MORE, (event, adapter, extra) -> {
+        data.subscribe(Lx.Event.FINISH_END_EDGE_LOAD_MORE, (event, adapter, extra) -> {
             LxEndEdgeLoadMoreComponent endEdgeLoadMoreComponent = lxAdapter.getComponent(LxEndEdgeLoadMoreComponent.class);
             if (endEdgeLoadMoreComponent != null) {
                 endEdgeLoadMoreComponent.finishLoadMore();
             }
         });
-        data.addAdapterEventDispatcher(Lx.EVENT_END_EDGE_LOAD_MORE_ENABLE, (event, adapter, extra) -> {
+        data.subscribe(Lx.Event.END_EDGE_LOAD_MORE_ENABLE, (event, adapter, extra) -> {
             if (extra instanceof Boolean) {
                 LxEndEdgeLoadMoreComponent endEdgeLoadMoreComponent = lxAdapter.getComponent(LxEndEdgeLoadMoreComponent.class);
                 if (endEdgeLoadMoreComponent != null) {
