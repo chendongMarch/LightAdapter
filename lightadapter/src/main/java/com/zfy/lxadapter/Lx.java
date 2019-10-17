@@ -195,7 +195,8 @@ public class Lx {
     /* -------------------------- 条件更新 -------------------------- */
 
     public static class Condition {
-        public static final String UPDATE_SELECT = "UPDATE_SELECT";
+        public static final String CONDITION_SELECTOR = "CONDITION_SELECTOR";
+        public static final String CONDITION_FORCE_UPDATE = "CONDITION_FORCE_UPDATE";
 
         public static final String KEY   = "KEY_CONDITION_KEY";
         public static final String VALUE = "KEY_CONDITION_VALUE";

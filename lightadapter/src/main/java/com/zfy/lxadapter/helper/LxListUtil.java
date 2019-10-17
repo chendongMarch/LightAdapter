@@ -1,9 +1,12 @@
 package com.zfy.lxadapter.helper;
 
 import com.zfy.lxadapter.Lx;
+import com.zfy.lxadapter.LxList;
 import com.zfy.lxadapter.data.LxModel;
 import com.zfy.lxadapter.function._BiFunction;
 import com.zfy.lxadapter.function._Consumer;
+import com.zfy.lxadapter.function._Function;
+import com.zfy.lxadapter.function._Predicate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +17,7 @@ import java.util.List;
  *
  * @author chendong
  */
-public class LxPacker {
+public class LxListUtil {
 
     // 打包成单个 LxModel
     public static <E> LxModel pack(E data) {
@@ -62,6 +65,25 @@ public class LxPacker {
             list.add(lxModel.unpack());
         }
         return list;
+    }
+
+
+    public static <ReturnType> List<ReturnType> filterTo(LxList lxModels, _Predicate<LxModel> test, _Function<LxModel, ReturnType> function) {
+        List<ReturnType> l = new ArrayList<>();
+        for (LxModel t : lxModels) {
+            if (test.test(t)) {
+                l.add(function.map(t));
+            }
+        }
+        return l;
+    }
+
+    public static <ReturnType> List<ReturnType> filterTo(LxList lxModels, _Predicate<LxModel> test) {
+        return filterTo(lxModels, test, LxModel::unpack);
+    }
+
+    public static <ReturnType> List<ReturnType> filterTo(LxList lxModels, int type) {
+        return filterTo(lxModels, data -> data.getItemType() == type);
     }
 
 

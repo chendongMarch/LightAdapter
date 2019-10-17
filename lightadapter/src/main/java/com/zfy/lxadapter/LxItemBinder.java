@@ -9,6 +9,7 @@ import com.zfy.lxadapter.data.LxContext;
 import com.zfy.lxadapter.data.LxModel;
 import com.zfy.lxadapter.data.TypeOpts;
 import com.zfy.lxadapter.data.Typeable;
+import com.zfy.lxadapter.helper.LxCache;
 import com.zfy.lxadapter.helper.LxEvent;
 import com.zfy.lxadapter.helper.LxUtil;
 
@@ -23,19 +24,21 @@ public abstract class LxItemBinder<D> implements Typeable {
 
     public static final int BIND_TYPE_DEFAULT = 0;
 
-    protected LxAdapter adapter;
-    private   TypeOpts  typeOpts;
-    protected int       pageType; // 绑定类型
+    protected LxAdapter  adapter;
+    private   TypeOpts   typeOpts;
+    protected int        pageType; // 绑定类型
+    protected LxCache<D> cache;
 
     public LxItemBinder(int pageType) {
         this.pageType = pageType;
+        cache = new LxCache<>();
     }
 
     public LxItemBinder() {
         this(BIND_TYPE_DEFAULT);
     }
 
-    void onAdapterAttached(LxAdapter adapter) {
+    protected void onAdapterAttached(LxAdapter adapter) {
         this.adapter = adapter;
         this.typeOpts = getTypeOpts();
     }

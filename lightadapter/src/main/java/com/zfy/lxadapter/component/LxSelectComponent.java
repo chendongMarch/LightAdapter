@@ -6,7 +6,6 @@ import android.view.ViewParent;
 
 import com.zfy.lxadapter.Lx;
 import com.zfy.lxadapter.LxAdapter;
-import com.zfy.lxadapter.LxList;
 import com.zfy.lxadapter.data.LxModel;
 import com.zfy.lxadapter.decoration.LxSlidingSelectLayout;
 
@@ -93,7 +92,7 @@ public class LxSelectComponent extends LxComponent {
         if (useCondition) {
             adapter.getData().updateSet(model, data -> {
                 data.setSelected(selected);
-                data.setCondition(Lx.Condition.UPDATE_SELECT);
+                data.setCondition(Lx.Condition.CONDITION_SELECTOR);
             });
         } else {
             model.setSelected(selected);

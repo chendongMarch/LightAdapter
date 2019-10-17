@@ -53,6 +53,12 @@ public class LxList extends DiffableList<LxModel> {
         return super.get(adapter.isInfinite ? i % size : i);
     }
 
+    /**
+     * 订阅事件
+     *
+     * @param event
+     * @param subscriber
+     */
     public void subscribe(String event, EventSubscriber subscriber) {
         if (subscribers == null) {
             subscribers = new HashMap<>(4);
@@ -60,10 +66,20 @@ public class LxList extends DiffableList<LxModel> {
         subscribers.put(event, subscriber);
     }
 
+    /**
+     * 发送事件
+     *
+     * @param event 事件名
+     */
     public void postEvent(String event) {
         this.postEvent(event, null);
     }
 
+    /**
+     * 发送事件
+     * @param event 事件名
+     * @param extra 事件参数
+     */
     public void postEvent(String event, Object extra) {
         if (subscribers == null || subscribers.isEmpty()) {
             return;
@@ -79,6 +95,16 @@ public class LxList extends DiffableList<LxModel> {
         for (LxModel t : this) {
             if (test.test(t)) {
                 l.add(function.map(t));
+            }
+        }
+        return l;
+    }
+
+    public <ReturnType> List<ReturnType> filterTo(_Predicate<LxModel> test) {
+        List<ReturnType> l = new ArrayList<>();
+        for (LxModel t : this) {
+            if (test.test(t)) {
+                l.add(t.unpack());
             }
         }
         return l;

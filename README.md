@@ -37,8 +37,8 @@
   - [基础：LxGlobal ～ 全局配置](#lxglobal)
   - [基础：LxAdapter ～ 适配器](#lxadapter)
   - [基础：数据源 ～ 为适配器选择数据涞源](#data)
-  - [基础：LxItemBind ～ 类型绑定](itembind)
-  - [基础：LxList ～ 数据源，自动更新，告别 notify](lxlist)
+  - [基础：LxItemBind ～ 类型绑定](#itembind)
+  - [基础：LxList ～ 数据源，自动更新，告别 notify](#lxlist)
   - [基础：LxViewHolder ～ 扩展 ViewHolder](#LxViewHolder)
   - [基础：点击事件 ～ 单击、双击、长按、焦点](#event)
   - [基础：扩展自定义类型 ～ 灵活扩展](#multitype)
@@ -55,6 +55,7 @@
   - [功能：实现 RecyclerView 嵌套 (Nesting) ～ 嵌套滑动，恢复滑动位置](#nesting)
   - [功能：实现滚轮选择器效果 (Picker) ～ 多级级联滚动，数据异步获取](#picker)
 - 进阶
+  - [进阶：使用缓存优化绑定性能](#cache)
   - [进阶：使用 Extra 扩展数据](#extra)
   - [进阶：使用条件更新](#condition)
   - [进阶：使用 Idable 优化 change](#idable)
@@ -1405,6 +1406,43 @@ static class AddressItemBinder extends LxItemBinder<AddressPickItemBean> {
     }
 }
 ```
+
+<span id="cache"></span>
+
+
+## 进阶：使用缓存优化绑定性能
+
+当列表滑动时，`onBindView` 方法会被执行很多次，因此如果在 `onBindView` 中执行了耗时操作就会影响列表的流畅度；应该尽量避免在 `bind` 方法中避免计算等操作，一些不会变的数据我们可以将其缓存起来，这部分功能借助  `LxCache` 实现；
+
+以下是一个简单的例子，使用 `Id` 作为唯一标识
+
+- 注册 `Mapper` 用户计算数据结果；
+- 使用 `cache.getString()` 获取结果；
+
+```java
+public class StudentItemBinder extends LxItemBinder<Student> {
+
+    @Override
+    protected void onAdapterAttached(LxAdapter adapter) {
+        super.onAdapterAttached(adapter);
+        // 注册 Mapper 用来计算显示数据，计算后数据会被自动缓存
+        cache.addMapper(R.id.time_tv, value -> FormatUtils.formatSeconds(value.getDuration()));
+    }
+
+    @Override
+    protected void onBindView(LxContext context, LxViewHolder holder, Student listItem) {
+      // 显示时，使用 Id 获取数据，数据会被自动缓存
+      holder.setText(R.id.time_tv, cache.getString(R.id.time_tv, context.model));
+    }
+}
+```
+
+如果数据发生了变化，需要清除缓存，清除后数据下次绑定时数据会重新计算：
+
+```java
+LxCache.remove(R.id.time_tv, model);
+```
+
 
 <span id="extra"></span>
 
