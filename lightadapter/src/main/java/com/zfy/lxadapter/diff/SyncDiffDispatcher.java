@@ -40,6 +40,11 @@ public class SyncDiffDispatcher<E extends Diffable<E>> implements IDiffDispatche
     }
 
     @Override
+    public void update(@Nullable List<E> newItems, int flag) {
+        list = newItems;
+    }
+
+    @Override
     public List<E> list() {
         return list;
     }

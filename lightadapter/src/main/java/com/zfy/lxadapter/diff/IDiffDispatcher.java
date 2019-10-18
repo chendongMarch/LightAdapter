@@ -18,6 +18,10 @@ public interface IDiffDispatcher<E extends Diffable<E>> {
     @MainThread
     void update(@Nullable List<E> newItems);
 
+    @MainThread
+    default void update(@Nullable List<E> newItems, int flag) {
+    }
+
     List<E> list();
 
 }

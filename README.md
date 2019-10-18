@@ -10,7 +10,7 @@
 
 > [GitHub - LxAdapter](https://github.com/chendongMarch/LxAdapter)
 
-> com.zfy:lxadapter:2.0.9
+> com.zfy:lxadapter:2.0.10
 
 <!--more-->
 
@@ -683,7 +683,7 @@ LxList extTypeData = list.getExtTypeData(TYPE_FOOTER);
 
 - 从 `Presenter` 层有一些数据变化的需要，需要 `Adapter` 响应；
 - 某一些 `Adapter` 的响应可以被抽离出来，更好的复用；
-
+ 
 因此需要事件发布机制，他在 数据（LxList） 和 视图（Adapter） 中间搭建了一条事件通道，借助它可以发布和响应事件；这有点类似于 `EventBus` 不过他不是注册在内存中的，是依赖于 `LxList` 的；
 
 
@@ -731,15 +731,15 @@ list.postEvent(Lx.Event.LOAD_MORE_ENABLE, false)
 list.postEvent(Lx.Event.FINISH_LOAD_MORE);
 
 // 结束加载更多，顶部+底部
-Lx.Event.FINISH_LOAD_MORE
+Lx.Event.FINISH_LOAD_MORE       
 // 结束加载更多，底部
-Lx.Event.FINISH_END_EDGE_LOAD_MORE
+Lx.Event.FINISH_END_EDGE_LOAD_MORE  
 // 结束加载更多，顶部
 Lx.Event.FINISH_START_EDGE_LOAD_MORE
 // 设置加载更多开关
-Lx.Event.LOAD_MORE_ENABLE
+Lx.Event.LOAD_MORE_ENABLE           
 // 设置底部加载更多开关
-Lx.Event.END_EDGE_LOAD_MORE_ENABLE
+Lx.Event.END_EDGE_LOAD_MORE_ENABLE  
 // 设置顶部加载更多开关
 Lx.Event.START_EDGE_LOAD_MORE_ENABLE
 ```
@@ -770,7 +770,7 @@ static class StudentItemBind extends LxItemBinder<Student> {
 指定一个确定的 `SpanSize` 通常是不灵活的，因为我们不知道 `RecyclerView` 在使用时指定的列数 (spanCount)，因此建议使用一个标记表示：
 
 ```java
-Lx.SpanSize.NONE // 不设置，默认值
+Lx.SpanSize.NONE // 不设置，默认值 
 Lx.SpanSize.ALL // 跨越整行
 Lx.SpanSize.HALF // 跨越一半
 Lx.SpanSize.THIRD // 跨越 1/3
@@ -842,11 +842,11 @@ if (component != null) {
 
 ```java
 class SelectItemBind extends LxItemBinder<NoNameData> {
-    //...
+    //... 
     @Override
     public void onBindView(LxContext context, LxViewHolder holder, NoNameData data) {
         LxModel model = context.model;
-
+       
         // 根据选中状态显示 UI
         holder.setText(R.id.title_tv, model.isSelected() ? "我被选中" : "条件我没有被选中");
         holder.setImage(R.id.cover_iv, "image url");
@@ -867,11 +867,11 @@ class SelectItemBind extends LxItemBinder<NoNameData> {
 
 ```java
 class SelectItemBind extends LxItemBinder<NoNameData> {
-    //...
+    //... 
     @Override
     public void onBindView(LxContext context, LxViewHolder holder, NoNameData data) {
         LxModel model = context.model;
-
+        
         // 选中触发时，会触发条件更新
         // 如果你的 bind 方法执行了很多操作，当条件更新发生时
         // 可以选择性的绑定部分数据，避免性能的损失
@@ -885,7 +885,7 @@ class SelectItemBind extends LxItemBinder<NoNameData> {
         holder.setText(R.id.title_tv, model.isSelected() ? "我被选中" : "条件我没有被选中");
         holder.setImage(R.id.cover_iv, "image url");
     }
-
+   
 }
 ```
 
@@ -1322,7 +1322,7 @@ mLxModels.update(lxModels);
 
 ```java
 class NestingItemBinder extends LxItemBinder<NoNameData> {
-
+    
     @Override
     protected TypeOpts newTypeOpts() {
         return TypeOpts.make(opts -> {
@@ -1406,7 +1406,7 @@ static class AddressItemBinder extends LxItemBinder<AddressPickItemBean> {
     }
 }
 ```
-
+  
 <span id="cache"></span>
 
 

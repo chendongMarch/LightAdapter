@@ -147,13 +147,11 @@ public class LxAdapter extends RecyclerView.Adapter<LxViewHolder> {
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
 
-
         RecyclerView.ItemAnimator itemAnimator = view.getItemAnimator();
         if (itemAnimator instanceof SimpleItemAnimator) {
             ((SimpleItemAnimator) itemAnimator).setSupportsChangeAnimations(false);
             itemAnimator.setChangeDuration(0);
         }
-
 
         this.context = recyclerView.getContext();
         this.view = recyclerView;
@@ -170,6 +168,9 @@ public class LxAdapter extends RecyclerView.Adapter<LxViewHolder> {
     @Override
     public LxViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LxItemBinder lxItemBind = binders.get(viewType);
+        if (lxItemBind == null) {
+            throw new IllegalStateException("ITEM BINDER IS NULL, type = " + viewType);
+        }
         LxViewHolder holder = lxItemBind.onCreateViewHolder(parent, viewType);
         holder.setItemViewType(viewType);
         return holder;

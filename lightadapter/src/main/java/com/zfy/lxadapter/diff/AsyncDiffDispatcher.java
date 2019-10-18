@@ -48,6 +48,7 @@ public class AsyncDiffDispatcher<E extends Diffable<E>> implements IDiffDispatch
         differ.submitList(newItems);
     }
 
+
     @Override
     public List<E> list() {
         return differ.getCurrentList();

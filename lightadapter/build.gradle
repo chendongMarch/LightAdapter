@@ -1,8 +1,8 @@
-apply from: '../scripts/library.gradle'
+apply from: '../scripts/module.gradle'
 
 
 dependencies {
-    compileOnly libs.recyclerView_v7
+    compileOnly deps.recyclerView_v7
 }
 
 apply plugin: 'bintray-release'
@@ -10,7 +10,7 @@ publish {
     userOrg = 'zfy'
     groupId = 'com.zfy'
     artifactId = 'lxadapter'
-    publishVersion = '2.0.6'
+    publishVersion = '2.0.10'
     desc = 'lxadapter'
     website = 'https://github.com/chendongMarch/LxAdapter'
 }

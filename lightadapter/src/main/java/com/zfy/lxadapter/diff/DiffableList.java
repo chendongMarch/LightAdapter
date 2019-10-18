@@ -147,9 +147,9 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
         return list().iterator();
     }
 
+
     public List<E> updateDataSetChanged(List<E> newItems) {
-        list().clear();
-        list().addAll(newItems);
+        dispatchUpdate(newItems);
         updateCallback.adapter.notifyDataSetChanged();
         return newItems;
     }
