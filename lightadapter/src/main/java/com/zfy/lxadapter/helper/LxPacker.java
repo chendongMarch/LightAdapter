@@ -14,6 +14,7 @@ import java.util.List;
  *
  * @author chendong
  */
+@Deprecated
 public class LxPacker {
 
     // 打包成单个 LxModel
@@ -53,15 +54,6 @@ public class LxPacker {
             lxModels.add(pack(type, e, consumer));
         }
         return lxModels;
-    }
-
-    // 解包 LxModel 列表
-    public static <E> List<E> unpack(List<LxModel> lxModels) {
-        List<E> list = new ArrayList<>();
-        for (LxModel lxModel : lxModels) {
-            list.add(lxModel.unpack());
-        }
-        return list;
     }
 
 

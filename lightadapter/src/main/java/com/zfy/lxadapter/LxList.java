@@ -5,13 +5,11 @@ import android.support.v7.widget.RecyclerView;
 
 import com.zfy.lxadapter.data.LxModel;
 import com.zfy.lxadapter.diff.DiffableList;
-import com.zfy.lxadapter.function._Function;
-import com.zfy.lxadapter.function._Predicate;
+import com.zfy.lxadapter.helper.LxSource;
+import com.zfy.lxadapter.helper.LxTypedHelper;
 import com.zfy.lxadapter.listener.EventSubscriber;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,6 +23,7 @@ public class LxList extends DiffableList<LxModel> {
     protected LxAdapter                    adapter;
     private   Map<String, EventSubscriber> subscribers;
     protected int                          contentStartPosition;
+    protected LxTypedHelper                helper;
 
     // 是否是异步更新
     protected boolean async;
@@ -56,8 +55,8 @@ public class LxList extends DiffableList<LxModel> {
     /**
      * 订阅事件
      *
-     * @param event
-     * @param subscriber
+     * @param event      事件
+     * @param subscriber 观察者
      */
     public void subscribe(String event, EventSubscriber subscriber) {
         if (subscribers == null) {
@@ -77,6 +76,7 @@ public class LxList extends DiffableList<LxModel> {
 
     /**
      * 发送事件
+     *
      * @param event 事件名
      * @param extra 事件参数
      */
@@ -90,30 +90,9 @@ public class LxList extends DiffableList<LxModel> {
         }
     }
 
-    public <ReturnType> List<ReturnType> filterTo(_Predicate<LxModel> test, _Function<LxModel, ReturnType> function) {
-        List<ReturnType> l = new ArrayList<>();
-        for (LxModel t : this) {
-            if (test.test(t)) {
-                l.add(function.map(t));
-            }
-        }
-        return l;
-    }
-
-    public <ReturnType> List<ReturnType> filterTo(_Predicate<LxModel> test) {
-        List<ReturnType> l = new ArrayList<>();
-        for (LxModel t : this) {
-            if (test.test(t)) {
-                l.add(t.unpack());
-            }
-        }
-        return l;
-    }
-
     /*default*/ int getContentStartPosition() {
         return contentStartPosition;
     }
-
 
     @NonNull
     public LxList getContentTypeData() {
@@ -127,5 +106,16 @@ public class LxList extends DiffableList<LxModel> {
 
     protected boolean adapterHasExtType() {
         return adapter.hasExtType;
+    }
+
+    public void update(LxSource source) {
+        update(source.asModels());
+    }
+
+    public LxTypedHelper getHelper() {
+        if (helper == null) {
+            helper = new LxTypedHelper(this);
+        }
+        return helper;
     }
 }

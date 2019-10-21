@@ -37,6 +37,7 @@
   - [基础：LxGlobal ～ 全局配置](#lxglobal)
   - [基础：LxAdapter ～ 适配器](#lxadapter)
   - [基础：数据源 ～ 为适配器选择数据涞源](#data)
+  - [基础：辅助数据更新～ 让数据更新更好用](#helper)
   - [基础：LxItemBind ～ 类型绑定](#itembind)
   - [基础：LxList ～ 数据源，自动更新，告别 notify](#lxlist)
   - [基础：LxViewHolder ～ 扩展 ViewHolder](#LxViewHolder)
@@ -154,16 +155,6 @@ public class LxModel implements Diffable<LxModel>, Typeable, Selectable, Idable,
 }
 ```
 
-数据的包装可以使用 `LxPacker` 转换，更加方便；
-
-```java
-// 将你的数据包装成 LxModel
-LxModel header = LxPacker.pack(Lx.ViewType.HEADER, new NoNameData());
-
-// 包装列表
-ArrayList<AddressBean> list = new ArrayList<>();
-List<LxModel> models = LxPacker.pack(Lx.ViewType.HEADER, list);
-```
 <span id="lxcontext"></span>
 
 ### LxContext
@@ -224,9 +215,10 @@ LxAdapter.of(list)
 // 为 Adapter 更新数据
 List<Student> students = ListX.range(count, index -> new Student());
 // 数据打包成 LxModel 类型
-List<LxModel> tempList = LxPacker.pack(TYPE_STUDENT, students);
+
+LxSource source = LxSource.just(TYPE_STUDENT, students);
 // 发布更新
-list.update(tempList);
+list.update(source);
 ```
 
 <span id="data"></span>
@@ -365,34 +357,57 @@ LxItemBinder<PayMethod> binder = LxItemBinder.of(PayMethod.class, opts)
 
 ## 基础：LxList
 
-`LxList` 内部基于 `DiffUtil` 实现，辅助完成数据的自动比对和更新，彻底告别 `notify`；
-
-`LxList` 是 `LxAdapter` 的数据源，本质上是 `List` 对象，继承关系如下：
+`LxList` 作为 `LxAdapter` 的数据来源，内部基于 `DiffUtil` 实现，辅助完成数据的自动比对和更新，彻底告别 `notify` 更新数据的方式，继承关系如下：
 
 ```bash
 AbstractList -> DiffableList -> LxList -> LxTypedList
 ```
 
+获取区块数据，可以对指定区块发布更新：
+
+```java
+LxList list = new LxTypedList();
+
+// 获取内容类型的数据
+list.getContentTypeData();
+
+// 获取指定类型的数据
+list.getExtTypeData(TYPE_HEADER);
+```
+
+
 以下是 `LxList` 内置的各种方法 `updateXXX()`，基本能满足开发需求，另外也可以使用 `snapshot` 获取快照，然后自定义扩展操作；
 
 ```java
-// 内部使用 DiffUtil 实现
+// 内部使用 DiffUtil 实现，同步更新
 LxList list = new LxList();
 
 // 内部使用 DiffUtil + 异步 实现，避免阻塞主线程
 LxList list = new LxList(true);
 
+// 用来测试的数据
 List<LxModel> newList = new ArrayList<>();
 LxModel item = new LxModel(new Student("name"));
+```
 
+增：
+
+```java
 // 添加元素
 list.updateAdd(item);
 list.updateAdd(0, item);
 
+// 在末尾添加
+list.updateAddLast(item);
+
 // 添加列表
 list.updateAddAll(newList);
 list.updateAddAll(0, newList);
+```
 
+改：
+
+```java
 // 使用索引更新某一项
 list.updateSet(0, data -> {
     Student stu = data.unpack();
@@ -420,6 +435,25 @@ list.updateSet(data -> {
     stu.name = "new name";
 });
 
+// 使用增强循环，更改指定的元素
+list.updateSetX(data -> {
+    Student stu = data.unpack();
+    // id > 10 就更改，发现一个后停止循环
+    if (stu.id > 10) {
+        return Lx.Loop.TRUE_BREAK;
+    }
+    // 其他情况，不更改，继续循环
+    return Lx.Loop.FALSE_NOT_BREAK;
+}, data -> {
+    Student stu = data.unpack();
+    stu.name = "new name";
+});
+
+```
+
+删：
+
+```java
 // 清空列表
 list.updateClear();
 
@@ -427,32 +461,161 @@ list.updateClear();
 list.updateRemove(item);
 list.updateRemove(0);
 
-// 删除符合规则的元素
-list.updateRemove(data -> {
-    Student stu = data.unpack();
-    return stu.id > 0;
-});
-list.updateRemove(10, true, data -> {
-    Student stu = data.unpack();
-    return stu.id > 10;
+// 删除符合条件的元素
+list.updateRemove(model -> model.getItemType() == TYPE_STUDENT);
+// 使用增强循环，删除符合条件的元素
+list.updateRemoveX(model -> {
+    if (model.getItemType() == TYPE_STUDENT) {
+        return Lx.Loop.TRUE_BREAK;
+    }
+    return Lx.Loop.FALSE_NOT_BREAK;
 });
 
+// 从末尾开始，删除符合条件的元素
+list.updateRemoveLast(model -> model.getItemType() == TYPE_STUDENT);
+// 从末尾开始，使用增强循环，删除符合条件的元素
+list.updateRemoveLastX(model -> {
+    if (model.getItemType() == TYPE_STUDENT) {
+        return Lx.Loop.TRUE_BREAK;
+    }
+    return Lx.Loop.FALSE_NOT_BREAK;
+});
+```
+
+快照更新：
+
+```java
 // 获取列表快照, 删除第一个元素, 发布更新
 List<LxModel> snapshot = list.snapshot();
 snapshot.remove(0);
 list.update(newList);
 ```
 
-获取区块数据，对指定区块发布更新：
+<span id="helper"></span>
+
+## 辅助数据更新
+
+由于 `LxList` 列表是基于 `LxModel` 的，在实际使用过程中，会有些不方便，为了解决这个问题，引入 `LxSource` 和 `LxTypedHelper` 来对数据做自动的包装和解包装：
 
 ```java
-LxList list = new LxTypedList();
+// 初始化测试数据
+Student student = new Student("Job");
+List<Student> studentList = new ArrayList<>();
+studentList.add(student);
+```
 
-// 获取内容类型的数据
-list.getContentTypeData();
+使用 `LxSource` 构建数据源:
 
-// 获取指定类型的数据
-list.getExtTypeData(TYPE_HEADER);
+```java
+LxSource source = null;
+
+// 多种方式创建 LxSource
+source = LxSource.just(student);
+source = LxSource.just(TYPE_STUDENT, student);
+source = LxSource.just(studentList);
+source = LxSource.just(TYPE_STUDENT, studentList);
+source = LxSource.empty();
+source = LxSource.snapshot(list);
+
+// 添加一个
+source.add(student);
+// 添加一个，指定类型
+source.add(TYPE_STUDENT, student);
+// 添加一个，指定类型，并可以重写相关属性
+source.add(TYPE_STUDENT, student, model -> model.setModuleId(100));
+// 指定下标，添加一个
+source.addOnIndex(10, student);
+// 指定下标，添加一个，指定类型
+source.addOnIndex(10, TYPE_STUDENT, student);
+// 指定下标，添加一个，并可以重写相关属性
+source.addOnIndex(10, TYPE_STUDENT, student, model -> model.setModuleId(100));
+
+// 添加多个
+source.addAll(studentList);
+// 添加多个，指定类型
+source.addAll(TYPE_STUDENT, studentList);
+// 添加多个，指定类型，并可以重写相关属性
+source.addAll(TYPE_STUDENT, studentList, model -> model.setModuleId(100));
+// 指定下标，添加多个
+source.addAllOnIndex(10, studentList);
+// 指定下标，添加多个，指定类型
+source.addAllOnIndex(10, TYPE_STUDENT, studentList);
+// 指定下标，添加多个，指定类型，并可以重写相关属性
+source.addAllOnIndex(10, TYPE_STUDENT, studentList, model -> model.setModuleId(100));
+
+// 使用 source 更新数据
+list.update(source);
+```
+
+使用 `LxTypedHelper` 更方便的完成数据的更新：
+
+
+```java
+// 数据更新辅助类
+LxTypedHelper helper = list.getHelper();
+```
+
+增:
+
+```java
+// 增加元素基于 LxSource 实现
+helper.updateAdd(LxSource.just(student));
+```
+
+删：
+
+```java
+// 按条件删除元素
+helper.updateRemove(Student.class, stu -> stu.id > 10);
+// 删除类型为 TYPE_STUDENT 所有元素
+helper.updateRemove4Type(TYPE_STUDENT);
+// 按条件删除，增强循环删除
+helper.updateRemoveX(Student.class, stu -> {
+    if (stu.id == 10) {
+        return Lx.Loop.TRUE_BREAK;
+    }
+    return Lx.Loop.FALSE_NOT_BREAK;
+});
+```
+
+改：
+
+```java
+int index = 10;
+// 按条件更改元素
+helper.updateSet(Student.class, stu -> stu.id == 10, stu -> stu.name = "NEW_NAME");
+
+// 更改指定下标的元素
+helper.updateSet(Student.class, index, stu -> stu.name = "NEW_NAME");
+
+// 更改指定类型的元素
+helper.updateSet4Type(Student.class, TYPE_STUDENT, stu -> {
+    stu.name = "NEW_NAME";
+});
+
+// 增强循环指定条件更新
+helper.updateSetX(Student.class, stu -> {
+    if (stu.id == 10) {
+        // 返回 true，停止循环
+        return Lx.Loop.TRUE_BREAK;
+    }
+    return Lx.Loop.FALSE_NOT_BREAK;
+}, data -> data.name = "NEW_NAME");
+```
+
+查：
+
+```java
+// 按条件查找元素
+List<Student> students1 = helper.find(Student.class, stu -> stu.id > 10);
+// 按类型查找元素
+List<Student> students2 = helper.find(Student.class, TYPE_STUDENT);
+
+// 按条件查找元素 一个
+Student one1 = helper.findOne(Student.class, stu -> stu.id > 10);
+// 按条件查找元素 一个
+Student one2 = helper.findOne(Student.class, TYPE_STUDENT );
+
 ```
 
 <span id="LxViewHolder"></span>
@@ -636,24 +799,21 @@ LxAdapter.of(list)
 添加数据，它们被添加到一个数据源列表中：
 
 ```java
-List<LxModel> snapshot = list.snapshot();
-
+LxList list = new LxList();
+LxSource snapshot = LxSource.snapshot(list);
 // 添加两个 header
-snapshot.add(LxPacker.pack(Lx.ViewType.HEADER, new CustomTypeData("header1")));
-snapshot.add(LxPacker.pack(Lx.ViewType.HEADER, new CustomTypeData("header2")));
-
+snapshot.add(TYPE_HEADER, new NoNameData("header1"));
+snapshot.add(TYPE_HEADER, new NoNameData("header2"));
 // 交替添加 10 个学生和老师
-List<Student> students = ListX.range(10, index -> new Student());
-List<Teacher> teachers = ListX.range(10, index -> new Teacher());
+List<Student> students = ListX.range(10, index -> new Student("1"));
+List<Teacher> teachers = ListX.range(10, index -> new Teacher("2"));
 for (int i = 0; i < 10; i++) {
-    snapshot.add(LxPacker.pack(TYPE_STUDENT, students.get(i)));
-    snapshot.add(LxPacker.pack(TYPE_TEACHER, teachers.get(i)));
+    snapshot.add(TYPE_STUDENT, students.get(i));
+    snapshot.add(TYPE_TEACHER, teachers.get(i));
 }
-
 // 添加两个 footer
-snapshot.add(LxPacker.pack(Lx.ViewType.FOOTER, new CustomTypeData("footer1")));
-snapshot.add(LxPacker.pack(Lx.ViewType.FOOTER, new CustomTypeData("footer2")));
-
+snapshot.add(TYPE_FOOTER, new NoNameData("footer1"));
+snapshot.add(TYPE_FOOTER, new NoNameData("footer2"));
 // 发布数据更新
 list.update(snapshot);
 ```
@@ -1300,8 +1460,8 @@ for (int i = 0; i < 15; i++) {
     }
     groupData.children = childDataList;
 }
-List<LxModel> lxModels = LxPacker.pack(Lx.ViewType.EXPANDABLE_GROUP, groupDataList);
-mLxModels.update(lxModels);
+LxSource source = LxSource.just(Lx.ViewType.EXPANDABLE_GROUP, groupDataList);
+mLxModels.update(source);
 ```
 
 是不是很简单啊，感觉上还是写了一些代码，没有一行代码实现xxx 的感觉，只是提供一个思路，如果类库内部接管太多业务逻辑其实是不友好的，可以看下 `LxExpandable` 的代码，其实就是对数据处理的一些封装，基于基本的设计思想很容易抽离出来；
@@ -1345,10 +1505,10 @@ class NestingItemBinder extends LxItemBinder<NoNameData> {
         holder.setText(R.id.title_tv, listItem.desc + " , offset = " + listItem.offset + " pos = " + listItem.pos);
         // 获取到控件
         RecyclerView contentRv = holder.getView(R.id.content_rv);
-        // 打包横向滑动的数据，这个 type 可自定义
-        List<LxModel> packDatas = LxPacker.pack(TYPE_HORIZONTAL_IMG, listItem.datas);
+        // 数据源
+        LxSource source = LxSource.just(TYPE_HORIZONTAL_IMG, listItem.datas);
         // 设置，这里会尝试恢复上次的位置，并计算接下来滑动的位置
-        mLxNesting.setup(contentRv, context.model, packDatas);
+        mLxNesting.setup(contentRv, context.model, source.asModels());
     }
 }
 ```
@@ -1451,8 +1611,10 @@ LxCache.remove(R.id.time_tv, model);
 在 `LxModel` 中增加了 `extra` 他是一个 `bundle` 类型的数据，可以在不增加字段的情况下扩展一下临时用的数据；
 
 ```java
-LxModel model = LxPacker.pack(Lx.ViewType.LOADING, new NoNameData("加载中～"));
+LxModel model;
+// 存
 model.getExtra().putString("TEMP_DATA","Hello");
+// 取
 String tempData = model.getExtra().getString("TEMP_DATA","");
 ```
 
@@ -1486,7 +1648,7 @@ static class Student implements Idable  {
 
 ## 进阶：使用 Typeable 内置类型
 
-上面的例子中我们主要使用 `LxPacker` 打包数据，这样相对来说可以尽量少的修改你的数据类，但是每次都需要设置一个类型，否则将会使用默认类型，也可以使用数据类实现 `Typeable` 接口，在接口方法中返回类型，这样打包数据的时候就不需要指定类型了，内部会检测是否是 `Typeable` 子类，获取真正的类型；
+如果你的数据对象只有一个类型，也可以使用数据类实现 `Typeable` 接口，在接口方法中返回类型，这样打包数据的时候就不需要指定类型了，内部会检测是否是 `Typeable` 子类，获取真正的类型；
 
 ```java
 static class InnerTypeData implements Typeable {

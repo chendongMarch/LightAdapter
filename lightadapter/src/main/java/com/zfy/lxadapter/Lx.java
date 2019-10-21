@@ -195,7 +195,7 @@ public class Lx {
     /* -------------------------- 条件更新 -------------------------- */
 
     public static class Condition {
-        public static final String CONDITION_SELECTOR = "CONDITION_SELECTOR";
+        public static final String CONDITION_SELECTOR     = "CONDITION_SELECTOR";
         public static final String CONDITION_FORCE_UPDATE = "CONDITION_FORCE_UPDATE";
 
         public static final String KEY   = "KEY_CONDITION_KEY";
@@ -203,4 +203,12 @@ public class Lx {
 
     }
 
+
+    public static class Loop {
+
+        public static final int FALSE_BREAK     = 0;
+        public static final int FALSE_NOT_BREAK = 1;
+        public static final int TRUE_BREAK      = 2;
+        public static final int TRUE_NOT_BREAK  = 3;
+    }
 }

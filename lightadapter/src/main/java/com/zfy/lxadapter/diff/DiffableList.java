@@ -4,8 +4,11 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 
+import com.zfy.lxadapter.Lx;
 import com.zfy.lxadapter.data.Diffable;
 import com.zfy.lxadapter.function._Consumer;
+import com.zfy.lxadapter.function._Function;
+import com.zfy.lxadapter.function._LoopPredicate;
 import com.zfy.lxadapter.function._Predicate;
 import com.zfy.lxadapter.helper.LxUtil;
 
@@ -277,55 +280,98 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
     /**
      * 删除满足条件的元素
      *
-     * @param removeCount  删除的个数
-     * @param fromEnd      从列表尾部开始删除？
      * @param shouldRemove 是否应该删除的条件
      * @return 删除了多少个元素
      */
-    public int updateRemove(int removeCount, boolean fromEnd, _Predicate<E> shouldRemove) {
+    public int updateRemoveLast(_Predicate<E> shouldRemove) {
         List<E> snapshot = snapshot();
         int count = 0;
-        if (fromEnd) {
-            ListIterator<E> iterator = snapshot.listIterator(snapshot.size() - 1);
-            E previous;
-            while (iterator.hasPrevious()) {
-                if (removeCount >= 0 && count >= removeCount) {
-                    break;
-                }
-                previous = iterator.previous();
-                if (previous != null && shouldRemove.test(previous)) {
-                    iterator.remove();
-                    count++;
-                }
-            }
-        } else {
-            Iterator<E> iterator = snapshot.iterator();
-            E next;
-            while (iterator.hasNext()) {
-                if (removeCount >= 0 && count >= removeCount) {
-                    break;
-                }
-                next = iterator.next();
-                if (next != null && shouldRemove.test(next)) {
-                    iterator.remove();
-                    count++;
-                }
+        ListIterator<E> iterator = snapshot.listIterator(snapshot.size() - 1);
+        E previous;
+        while (iterator.hasPrevious()) {
+            previous = iterator.previous();
+
+            if (previous != null && shouldRemove.test(previous)) {
+                iterator.remove();
+                count++;
             }
         }
         dispatchUpdate(snapshot);
         return count;
     }
 
+
+    /**
+     * 删除满足条件的元素
+     *
+     * @param shouldRemove 是否应该删除的条件
+     * @return 删除了多少个元素
+     */
+    public int updateRemoveLastX(_LoopPredicate<E> shouldRemove) {
+        List<E> snapshot = snapshot();
+        int count = 0;
+        ListIterator<E> iterator = snapshot.listIterator(snapshot.size() - 1);
+        E previous;
+        while (iterator.hasPrevious()) {
+            previous = iterator.previous();
+            int result = shouldRemove.test(previous);
+            boolean shouldBreak = result == Lx.Loop.FALSE_BREAK || result == Lx.Loop.TRUE_BREAK;
+            boolean shouldUpdate = result == Lx.Loop.TRUE_BREAK || result == Lx.Loop.TRUE_NOT_BREAK;
+            if (previous != null && shouldUpdate) {
+                iterator.remove();
+                count++;
+            }
+            if (shouldBreak) {
+                break;
+            }
+        }
+        dispatchUpdate(snapshot);
+        return count;
+    }
+
+
     /**
      * 从头开始，删除全部满足条件的元素
      *
      * @param shouldRemove 是否应该删除
      * @return 删除元素的个数
-     * @see DiffableList#updateRemove(int, boolean, _Predicate)
      */
     public int updateRemove(_Predicate<E> shouldRemove) {
-        return updateRemove(-1, false, shouldRemove);
+        List<E> snapshot = snapshot();
+        Iterator<E> iterator = snapshot.iterator();
+        E next;
+        int count = 0;
+        while (iterator.hasNext()) {
+            next = iterator.next();
+            if (next != null && shouldRemove.test(next)) {
+                iterator.remove();
+                count++;
+            }
+        }
+        dispatchUpdate(snapshot);
+        return count;
+    }
 
+    public int updateRemoveX(_LoopPredicate<E> shouldRemove) {
+        List<E> snapshot = snapshot();
+        Iterator<E> iterator = snapshot.iterator();
+        E next;
+        int count = 0;
+        while (iterator.hasNext()) {
+            next = iterator.next();
+            int result = shouldRemove.test(next);
+            boolean shouldBreak = result == Lx.Loop.FALSE_BREAK || result == Lx.Loop.TRUE_BREAK;
+            boolean shouldUpdate = result == Lx.Loop.TRUE_BREAK || result == Lx.Loop.TRUE_NOT_BREAK;
+            if (next != null && shouldUpdate) {
+                iterator.remove();
+                count++;
+            }
+            if (shouldBreak) {
+                break;
+            }
+        }
+        dispatchUpdate(snapshot);
+        return count;
     }
 
     /**
@@ -387,12 +433,21 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
         dispatchUpdate(ts);
     }
 
-
-    public void updateSet(@NonNull _Consumer<E> howToUpdateConsumer) {
-        List<E> ts = foreach(item -> true, howToUpdateConsumer);
+    /**
+     * 循环更新列表中满足条件的所有数据时
+     *
+     * @param shouldUpdate        返回是否需要更新这一项
+     * @param howToUpdateConsumer 如何更新该数据
+     */
+    public void updateSetX(@NonNull _LoopPredicate<E> shouldUpdate, @NonNull _Consumer<E> howToUpdateConsumer) {
+        List<E> ts = foreach(shouldUpdate, howToUpdateConsumer);
         dispatchUpdate(ts);
     }
 
+    public void updateSet(@NonNull _Consumer<E> howToUpdateConsumer) {
+        List<E> ts = foreach((_Predicate<E>) data -> true, howToUpdateConsumer);
+        dispatchUpdate(ts);
+    }
 
     // 循环数据执行操作
     private List<E> foreach(_Predicate<E> needUpdate, _Consumer<E> consumer) {
@@ -406,6 +461,36 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
         }
         return snapshot;
     }
+
+    public <R> List<R> filterTo(_Predicate<E> test, _Function<E, R> function) {
+        List<R> l = new ArrayList<>();
+        for (E e : this) {
+            if (test.test(e)) {
+                l.add(function.map(e));
+            }
+        }
+        return l;
+    }
+
+    // 循环数据执行操作
+    private List<E> foreach(_LoopPredicate<E> needUpdate, _Consumer<E> consumer) {
+        List<E> snapshot = snapshot();
+        E t;
+        for (int i = 0; i < snapshot.size(); i++) {
+            t = snapshot.get(i);
+            int result = needUpdate.test(t);
+            boolean shouldBreak = result == Lx.Loop.FALSE_BREAK || result == Lx.Loop.TRUE_BREAK;
+            boolean shouldUpdate = result == Lx.Loop.TRUE_BREAK || result == Lx.Loop.TRUE_NOT_BREAK;
+            if (shouldUpdate) {
+                setItem(snapshot, i, consumer);
+            }
+            if (shouldBreak) {
+                break;
+            }
+        }
+        return snapshot;
+    }
+
 
     // 复制数据后实现 set(index, item) 功能
     private E setItem(List<E> list, int pos, _Consumer<E> consumer) {
