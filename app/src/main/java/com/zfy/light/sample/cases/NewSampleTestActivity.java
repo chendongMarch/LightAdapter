@@ -46,6 +46,8 @@ import com.zfy.lxadapter.helper.LxManager;
 import com.zfy.lxadapter.helper.LxNesting;
 import com.zfy.lxadapter.helper.LxPacker;
 import com.zfy.lxadapter.helper.LxPicker;
+import com.zfy.lxadapter.helper.LxSource;
+import com.zfy.lxadapter.helper.LxTypedHelper;
 import com.zfy.lxadapter.list.LxTypedList;
 import com.zfy.lxadapter.listener.EventSubscriber;
 
@@ -101,6 +103,96 @@ public class NewSampleTestActivity extends AppActivity {
     public static final int SPAN_SIZE_FIFTH = Lx.SpanSize.QUARTER - 1;
 
     private void test() {
+
+        LxList list = new LxList();
+
+
+        list.updateRemoveLast(model -> model.getItemType() == TYPE_STUDENT);
+        list.updateRemoveLastX(model -> {
+            if (model.getItemType() == TYPE_STUDENT) {
+                return Lx.Loop.TRUE_BREAK;
+            }
+            return Lx.Loop.FALSE_NOT_BREAK;
+        });
+
+        list.updateRemove(model -> model.getItemType() == TYPE_STUDENT);
+        list.updateRemoveX(model -> {
+            if (model.getItemType() == TYPE_STUDENT) {
+                return Lx.Loop.TRUE_BREAK;
+            }
+            return Lx.Loop.FALSE_NOT_BREAK;
+        });
+
+
+        // 初始化
+        Student student = new Student("Job");
+        List<Student> studentList = new ArrayList<>();
+        studentList.add(student);
+
+        // LxSource
+        LxSource source = null;
+        source = LxSource.just(student);
+        source = LxSource.just(TYPE_STUDENT, student);
+        source = LxSource.just(studentList);
+        source = LxSource.just(TYPE_STUDENT, studentList);
+        source = LxSource.empty();
+        source = LxSource.snapshot(list);
+
+        source.add(student);
+        source.add(TYPE_STUDENT, student);
+        source.add(TYPE_STUDENT, student, model -> model.setModuleId(100));
+        source.addOnIndex(10, student);
+        source.addOnIndex(10, TYPE_STUDENT, student);
+        source.addOnIndex(10, TYPE_STUDENT, student, model -> model.setModuleId(100));
+
+        source.addAll(studentList);
+        source.addAll(TYPE_STUDENT, studentList);
+        source.addAll(TYPE_STUDENT, studentList, model -> model.setModuleId(100));
+        source.addAllOnIndex(10, studentList);
+        source.addAllOnIndex(10, TYPE_STUDENT, studentList);
+        source.addAllOnIndex(10, TYPE_STUDENT, studentList, model -> model.setModuleId(100));
+
+
+        // 使用 source 更新数据
+        list.update(source);
+
+        // 数据更新辅助类
+        LxTypedHelper helper = list.getHelper();
+
+        // 增
+        list.update(source);
+        helper.updateAdd(LxSource.just(student));
+
+        // 删
+        helper.updateRemove(Student.class, stu -> stu.id > 10);
+        helper.updateRemove4Type(TYPE_STUDENT);
+        helper.updateRemoveX(Student.class, stu -> {
+            if (stu.id == 10) {
+                return Lx.Loop.TRUE_BREAK;
+            }
+            return Lx.Loop.FALSE_NOT_BREAK;
+        });
+
+        // 改
+        int index = 10;
+        helper.updateSet(Student.class, stu -> stu.id == 10, stu -> stu.name = "NEW_NAME");
+        helper.updateSet(Student.class, index, stu -> stu.name = "NEW_NAME");
+        helper.updateSet4Type(Student.class, TYPE_STUDENT, stu -> {
+            stu.name = "NEW_NAME";
+        });
+        helper.updateSetX(Student.class, stu -> {
+            if (stu.id == 10) {
+                // 返回 true，停止循环
+                return Lx.Loop.TRUE_BREAK;
+            }
+            return Lx.Loop.FALSE_NOT_BREAK;
+        }, data -> data.name = "NEW_NAME");
+
+        // 查
+        List<Student> students1 = helper.find(Student.class, stu -> stu.id > 10);
+        List<Student> students2 = helper.find(Student.class, TYPE_STUDENT);
+        Student one1 = helper.findOne(Student.class, stu -> stu.id > 10);
+        Student one2 = helper.findOne(Student.class, TYPE_STUDENT);
 
         LxGlobal.setSpanSizeAdapter((spanCount, spanSize) -> {
             if (spanSize == SPAN_SIZE_FIFTH && spanCount % 5 == 0) {
@@ -234,8 +326,6 @@ public class NewSampleTestActivity extends AppActivity {
     int degree = 0;
 
     private void initLoadMoreTest() {
-        LxModel model = LxPacker.pack(TYPE_LOADING, new NoNameData("加载中～"));
-        model.getExtra().putString("TEMP_DATA","Hello");
 
         TypeOpts typeOpts = TypeOpts.make(opts -> {
             opts.viewType = TYPE_LOADING;
@@ -267,7 +357,13 @@ public class NewSampleTestActivity extends AppActivity {
                 }))
                 .component(new LxEndEdgeLoadMoreComponent(10, (component) -> { // 加载回调
                     ToastX.show("底部加载更多");
+
+                    LxSource snapshot = LxSource.snapshot(mLxModels);
+                    snapshot.add(TYPE_LOADING, new NoNameData("加载中～"));
+                    mLxModels.update(snapshot.asModels());
+
                     mLxModels.updateAdd(LxPacker.pack(TYPE_LOADING, new NoNameData("加载中～")));
+
                     ExecutorsPool.ui(() -> {
                         if (mLxModels.size() > 70) {
                             LxList customTypeData = mLxModels.getExtTypeData(TYPE_LOADING);
@@ -1201,10 +1297,10 @@ public class NewSampleTestActivity extends AppActivity {
             holder.setText(R.id.title_tv, listItem.desc + " , offset = " + listItem.offset + " pos = " + listItem.pos);
             // 获取到控件
             RecyclerView contentRv = holder.getView(R.id.content_rv);
-            // 打包横向滑动的数据，这个 type 可自定义
-            List<LxModel> packDatas = LxPacker.pack(TYPE_HORIZONTAL_IMG, listItem.datas);
+            // 数据源
+            LxSource source = LxSource.just(TYPE_HORIZONTAL_IMG, listItem.datas);
             // 设置，这里会尝试恢复上次的位置，并计算接下来滑动的位置
-            mLxNesting.setup(contentRv, context.model, packDatas);
+            mLxNesting.setup(contentRv, context.model, source.asModels());
         }
     }
 
