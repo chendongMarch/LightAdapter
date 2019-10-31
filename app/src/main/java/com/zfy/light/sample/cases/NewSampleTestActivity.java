@@ -47,7 +47,6 @@ import com.zfy.lxadapter.function._Consumer;
 import com.zfy.lxadapter.helper.LxExpandable;
 import com.zfy.lxadapter.helper.LxManager;
 import com.zfy.lxadapter.helper.LxNesting;
-import com.zfy.lxadapter.helper.LxPacker;
 import com.zfy.lxadapter.helper.LxPicker;
 import com.zfy.lxadapter.helper.LxSource;
 import com.zfy.lxadapter.helper.query.LxQuery;
@@ -55,7 +54,6 @@ import com.zfy.lxadapter.list.LxTypedList;
 import com.zfy.lxadapter.listener.EventSubscriber;
 
 import java.util.ArrayList;
-
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -246,23 +244,6 @@ public class NewSampleTestActivity extends AppActivity {
         // 直接在数据层注入，会对该数据作为数据源的 Adapter 生效
         models.subscribe(HIDE_LOADING, subscriber);
 
-
-//        List snapshot = models.snapshot();
-//        // 添加两个 header
-//        snapshot.add(LxPacker.pack(TYPE_HEADER, new CustomTypeData("header1")));
-//        snapshot.add(LxPacker.pack(TYPE_HEADER, new CustomTypeData("header2")));
-//        // 交替添加 10 个学生和老师
-//        List<Student> students = ListX.range(10, index -> new Student());
-//        List<Teacher> teachers = ListX.range(10, index -> new Teacher());
-//        for (int i = 0; i < 10; i++) {
-//            snapshot.add(LxPacker.pack(TYPE_STUDENT, students.get(i)));
-//            snapshot.add(LxPacker.pack(TYPE_TEACHER, teachers.get(i)));
-//        }
-//        // 添加两个 footer
-//        snapshot.add(LxPacker.pack(TYPE_FOOTER, new CustomTypeData("footer1")));
-//        snapshot.add(LxPacker.pack(TYPE_FOOTER, new CustomTypeData("footer2")));
-//        // 发布数据更新
-//        models.update(snapshot);
 
 
     }
@@ -644,36 +625,34 @@ public class NewSampleTestActivity extends AppActivity {
                 .bindItem(new VerticalImgItemBind(), new HorizontalImgContainerItemBind())
                 .attachTo(mContentRv, LxManager.grid(getContext(), 2));
 
-        List<LxModel> snapshot = mLxModels.snapshot();
+        LxQuery query = mLxModels.query();
         for (int i = 0; i < 100; i++) {
             if (i % 3 == 0) {
                 NoNameData data = new NoNameData(Utils.randomImage(), i + "");
                 data.datas = ListX.range(((int) (Math.random() * 10)) + 5, integer -> new NoNameData(Utils.randomImage(), integer + ": 横向"));
-                snapshot.add(LxPacker.pack(TYPE_HORIZONTAL_CONTAINER, data));
+                query.add(LxSource.just(TYPE_HORIZONTAL_CONTAINER, data));
             } else {
-                snapshot.add(LxPacker.pack(TYPE_VERTICAL_IMG, new NoNameData(Utils.randomImage(), i + "：竖向")));
+                query.add(LxSource.just(TYPE_VERTICAL_IMG, new NoNameData(Utils.randomImage(), i + "：竖向")));
             }
         }
-        mLxModels.update(snapshot);
-
     }
 
 
     @OnClick({R.id.add_header_btn, R.id.add_footer_btn, R.id.empty_btn})
     public void clickView(View view) {
+        NoNameData nameData = new NoNameData(Utils.randomImage(), String.valueOf(System.currentTimeMillis()));
         switch (view.getId()) {
             case R.id.add_header_btn:
                 mDebugTv.setText("演示：添加Header");
-                LxModel header = LxPacker.pack(TYPE_HEADER, new NoNameData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
                 LxList headerData = mLxModels.getExtTypeData(TYPE_HEADER);
-                headerData.updateAdd(0, header);
+                LxSource source = LxSource.just(TYPE_HEADER, nameData);
+                headerData.query().add(source);
                 mContentRv.smoothScrollToPosition(0);
                 break;
             case R.id.add_footer_btn:
                 mDebugTv.setText("演示：添加Footer");
-                LxModel footer = LxPacker.pack(TYPE_FOOTER, new NoNameData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
                 LxList footerData = mLxModels.getExtTypeData(TYPE_FOOTER);
-                footerData.updateAdd(footer);
+                footerData.query().add(LxSource.just(TYPE_FOOTER, nameData));
                 mContentRv.smoothScrollToPosition(mLxModels.size() - 1);
                 break;
             case R.id.empty_btn:
@@ -687,22 +666,19 @@ public class NewSampleTestActivity extends AppActivity {
 
     private void showEmpty() {
         mLxModels.updateClear();
-        mLxModels.updateAdd(LxPacker.pack(TYPE_EMPTY, new NoNameData("", String.valueOf(System.currentTimeMillis()))));
+        mLxModels.query().add(LxSource.just(TYPE_EMPTY, new NoNameData("", String.valueOf(System.currentTimeMillis()))));
     }
 
 
     private void setData() {
         int count = 10;
 
-        LinkedList<LxModel> lxModels = loadData(count);
+        LxSource source = loadData(count);
 
-        LxModel header = LxPacker.pack(TYPE_HEADER, new NoNameData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
-        lxModels.addFirst(header);
+        source.add(TYPE_HEADER, new NoNameData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
+        source.addLast(TYPE_FOOTER, new NoNameData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
 
-        LxModel footer = LxPacker.pack(TYPE_FOOTER, new NoNameData(Utils.randomImage(), String.valueOf(System.currentTimeMillis())));
-        lxModels.addLast(footer);
-
-        mLxModels.update(lxModels);
+        mLxModels.update(source);
     }
 
 
@@ -723,30 +699,30 @@ public class NewSampleTestActivity extends AppActivity {
             groupData.children = childDataList;
         }
 
-        List<LxModel> lxModels = LxPacker.pack(Lx.ViewType.EXPANDABLE_GROUP, groupDataList);
-        mLxModels.update(lxModels);
+        mLxModels.update(LxSource.just(Lx.ViewType.EXPANDABLE_GROUP, groupDataList));
     }
 
 
     private void setAllStudent() {
         int count = 100;
         List<NoNameData> students = ListX.range(count, index -> new NoNameData(index + " " + System.currentTimeMillis()));
-        List<LxModel> models = LxPacker.pack(TYPE_SELECT, students);
-        mLxModels.update(models);
+        mLxModels.update(LxSource.just(TYPE_SELECT, students));
     }
 
+
     @NonNull
-    private LinkedList<LxModel> loadData(int count) {
+    private LxSource loadData(int count) {
+        LxSource source = LxSource.empty();
         List<NoNameData> sections = ListX.range(count, index -> new NoNameData(index + " " + System.currentTimeMillis()));
         List<Student> students = ListX.range(count, index -> new Student(index + " " + System.currentTimeMillis()));
         List<Teacher> teachers = ListX.range(count, index -> new Teacher(index + " " + System.currentTimeMillis()));
         LinkedList<LxModel> lxModels = new LinkedList<>();
         for (int i = 0; i < count; i++) {
-            lxModels.add(LxPacker.pack(Lx.ViewType.SECTION, sections.get(i)));
-            lxModels.add(LxPacker.pack(TYPE_STUDENT, students.get(i)));
-            lxModels.add(LxPacker.pack(TYPE_TEACHER, teachers.get(i)));
+            source.add(Lx.ViewType.SECTION, sections.get(i));
+            source.add(TYPE_STUDENT, students.get(i));
+            source.add(TYPE_TEACHER, teachers.get(i));
         }
-        return lxModels;
+        return source;
     }
 
 
@@ -1288,7 +1264,7 @@ public class NewSampleTestActivity extends AppActivity {
             if (eventType == Lx.ViewEvent.DOUBLE_CLICK) {
                 // 双击再加一个 footer
                 LxList list = getData().getExtTypeData(TYPE_FOOTER);
-                list.updateAdd(LxPacker.pack(TYPE_FOOTER, new NoNameData("", String.valueOf(System.currentTimeMillis()))));
+                list.query().add(LxSource.just(TYPE_FOOTER, new NoNameData("", String.valueOf(System.currentTimeMillis()))));
             }
         }
     }
