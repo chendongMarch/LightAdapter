@@ -434,7 +434,7 @@ public class NewSampleTestActivity extends AppActivity {
                         }
                     }
                 }))
-                .attachTo(mContentRv, LxManager.linear(getContext()));
+                .attachTo(mContentRv, LxManager.grid(getContext(), 3));
 
         LxSource source = LxSource.snapshot(mLxModels);
         for (int i = 0; i < 100; i++) {
