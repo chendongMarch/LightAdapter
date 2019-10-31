@@ -28,15 +28,15 @@
 |:--|:--|:--|:--|:--|
 |<img width="130px" src="http://s3.hixd.com/218363.gif"/>|<img width="130px" src="http://s3.hixd.com/218364.gif"/>|<img width="130px" src="http://s3.hixd.com/218365.gif"/>|<img width="130px" src="http://s3.hixd.com/218366.gif"/>|<img width="130px" src="http://s3.hixd.com/218367.gif"/>|
 |LxDragSwipeComponent|LxSnapComponent|LxPicker|LxSpaceComponent|LxSelectComponent|
-|拖拽，侧滑|Pager|Picker|Space|Selector|
+|拖拽，侧滑|SnapHelper效果|滚轮选择器|多类型等距间隔|选择器效果|
 
 ---
 
-|||||
+||||||
 |:--|:--|:--|:--|:--|
 |<img width="130px" src="http://s3.hixd.com/218368.gif"/>|<img width="130px" src="http://s3.hixd.com/218370.gif"/>|<img width="130px" src="http://s3.hixd.com/218371.gif"/>|<img width="130px" src="http://s3.hixd.com/218372.gif"/>|<img width="130px" src="http://s3.hixd.com/218374.gif"/>|
 |LxAnimComponent|LxExpandable|LxFixedComponent|LxLoadMoreComponent|LxNesting|
-|Anim|Group|Fixed|LoadMore|Nesting|
+|动画|分组|悬停|加载更多|垂直嵌套水平滑动，记录位置|
 
 
 ## 目录
