@@ -36,8 +36,8 @@
 - 基础
   - [基础：LxGlobal ～ 全局配置](#lxglobal)
   - [基础：LxAdapter ～ 适配器](#lxadapter)
-  - [基础：数据源 ～ 为适配器选择数据涞源](#data)
-  - [基础：辅助数据更新～ 让数据更新更好用](#helper)
+  - [基础：数据源 ～ 适配器的数据来源](#data)
+  - [基础：LxQuery～ 针对类型的数据更新](#query)
   - [基础：LxItemBind ～ 类型绑定](#itembind)
   - [基础：LxList ～ 数据源，自动更新，告别 notify](#lxlist)
   - [基础：LxViewHolder ～ 扩展 ViewHolder](#LxViewHolder)
@@ -46,6 +46,7 @@
 - 功能
   - [功能：事件发布 ～ 将数据更新抽象成事件](#publishevent)
   - [功能：跨越多列（Span）～ 灵活布局](#span)
+  - [功能：间隔（Space）～ 多类型布局等距间隔](#space)
   - [功能：加载更多（LoadMore）～ 赋能分页加载](#loadmore)
   - [功能：选择器（Selector）～ 面向选择器业务场景](#selector)
   - [功能：列表动画（Animator）](#animator)
@@ -369,14 +370,13 @@ AbstractList -> DiffableList -> LxList -> LxTypedList
 LxList list = new LxTypedList();
 
 // 获取内容类型的数据
-list.getContentTypeData();
+LxList list1 = list.getContentTypeData();
 
 // 获取指定类型的数据
-list.getExtTypeData(TYPE_HEADER);
+LxList list2 = list.getExtTypeData(TYPE_HEADER);
 ```
 
-
-以下是 `LxList` 内置的各种方法 `updateXXX()`，基本能满足开发需求，另外也可以使用 `snapshot` 获取快照，然后自定义扩展操作；
+以下是 `LxList` 内置 **增删改查** 方法，基本能满足开发需求，另外也可以使用 `snapshot` 获取快照，然后自定义扩展操作：
 
 ```java
 // 内部使用 DiffUtil 实现，同步更新
@@ -404,6 +404,39 @@ list.updateAddLast(item);
 list.updateAddAll(newList);
 list.updateAddAll(0, newList);
 ```
+
+
+删：
+
+```java
+// 清空列表
+list.updateClear();
+
+// 删除元素
+list.updateRemove(item);
+list.updateRemove(0);
+
+// 删除符合条件的元素
+list.updateRemove(model -> model.getItemType() == TYPE_STUDENT);
+// 使用增强循环，删除符合条件的元素
+list.updateRemoveX(model -> {
+    if (model.getItemType() == TYPE_STUDENT) {
+        return Lx.Loop.TRUE_BREAK;
+    }
+    return Lx.Loop.FALSE_NOT_BREAK;
+});
+
+// 从末尾开始，删除符合条件的元素
+list.updateRemoveLast(model -> model.getItemType() == TYPE_STUDENT);
+// 从末尾开始，使用增强循环，删除符合条件的元素
+list.updateRemoveLastX(model -> {
+    if (model.getItemType() == TYPE_STUDENT) {
+        return Lx.Loop.TRUE_BREAK;
+    }
+    return Lx.Loop.FALSE_NOT_BREAK;
+});
+```
+
 
 改：
 
@@ -451,35 +484,10 @@ list.updateSetX(data -> {
 
 ```
 
-删：
+查：
 
 ```java
-// 清空列表
-list.updateClear();
-
-// 删除元素
-list.updateRemove(item);
-list.updateRemove(0);
-
-// 删除符合条件的元素
-list.updateRemove(model -> model.getItemType() == TYPE_STUDENT);
-// 使用增强循环，删除符合条件的元素
-list.updateRemoveX(model -> {
-    if (model.getItemType() == TYPE_STUDENT) {
-        return Lx.Loop.TRUE_BREAK;
-    }
-    return Lx.Loop.FALSE_NOT_BREAK;
-});
-
-// 从末尾开始，删除符合条件的元素
-list.updateRemoveLast(model -> model.getItemType() == TYPE_STUDENT);
-// 从末尾开始，使用增强循环，删除符合条件的元素
-list.updateRemoveLastX(model -> {
-    if (model.getItemType() == TYPE_STUDENT) {
-        return Lx.Loop.TRUE_BREAK;
-    }
-    return Lx.Loop.FALSE_NOT_BREAK;
-});
+List<Student> students = list.find(data -> data.getItemType() == TYPE_STUDENT, LxModel::unpack);
 ```
 
 快照更新：
@@ -491,11 +499,11 @@ snapshot.remove(0);
 list.update(newList);
 ```
 
-<span id="helper"></span>
+<span id="query"></span>
 
-## 辅助数据更新
+## 数据更新
 
-由于 `LxList` 列表是基于 `LxModel` 的，在实际使用过程中，会有些不方便，为了解决这个问题，引入 `LxSource` 和 `LxTypedHelper` 来对数据做自动的包装和解包装：
+由于 `LxList` 列表是基于 `LxModel` 的，在实际使用过程中，会有些不方便，为了解决这个问题，引入 `LxSource` 和 `LxQuery` 来对数据做自动的包装和解包装：
 
 ```java
 // 初始化测试数据
@@ -547,30 +555,30 @@ source.addAllOnIndex(10, TYPE_STUDENT, studentList, model -> model.setModuleId(1
 list.update(source);
 ```
 
-使用 `LxTypedHelper` 更方便的完成数据的更新：
+使用 `LxQuery` 更方便的完成数据的更新：
 
 
 ```java
 // 数据更新辅助类
-LxTypedHelper helper = list.getHelper();
+LxQuery query = list.query();
 ```
 
 增:
 
 ```java
 // 增加元素基于 LxSource 实现
-helper.updateAdd(LxSource.just(student));
+query.add(LxSource.just(student));
 ```
 
 删：
 
 ```java
 // 按条件删除元素
-helper.updateRemove(Student.class, stu -> stu.id > 10);
+query.remove(Student.class, TYPE_STUDENT, stu -> stu.id > 10);
 // 删除类型为 TYPE_STUDENT 所有元素
-helper.updateRemove4Type(TYPE_STUDENT);
+query.remove(TYPE_STUDENT);
 // 按条件删除，增强循环删除
-helper.updateRemoveX(Student.class, stu -> {
+query.removeX(Student.class, stu -> {
     if (stu.id == 10) {
         return Lx.Loop.TRUE_BREAK;
     }
@@ -583,18 +591,18 @@ helper.updateRemoveX(Student.class, stu -> {
 ```java
 int index = 10;
 // 按条件更改元素
-helper.updateSet(Student.class, stu -> stu.id == 10, stu -> stu.name = "NEW_NAME");
+query.set(Student.class, TYPE_STUDENT, stu -> stu.id == 10, stu -> stu.name = "NEW_NAME");
 
 // 更改指定下标的元素
-helper.updateSet(Student.class, index, stu -> stu.name = "NEW_NAME");
+query.set(Student.class, TYPE_STUDENT, index, stu -> stu.name = "NEW_NAME");
 
 // 更改指定类型的元素
-helper.updateSet4Type(Student.class, TYPE_STUDENT, stu -> {
+query.set(Student.class, TYPE_STUDENT, stu -> {
     stu.name = "NEW_NAME";
 });
 
 // 增强循环指定条件更新
-helper.updateSetX(Student.class, stu -> {
+query.setX(Student.class, TYPE_STUDENT, stu -> {
     if (stu.id == 10) {
         // 返回 true，停止循环
         return Lx.Loop.TRUE_BREAK;
@@ -607,15 +615,15 @@ helper.updateSetX(Student.class, stu -> {
 
 ```java
 // 按条件查找元素
-List<Student> students1 = helper.find(Student.class, stu -> stu.id > 10);
+List<Student> students1 = query.find(Student.class, TYPE_STUDENT, stu -> stu.id > 10);
 // 按类型查找元素
-List<Student> students2 = helper.find(Student.class, TYPE_STUDENT);
+List<Student> students2 = query.find(Student.class, TYPE_STUDENT);
 
 // 按条件查找元素 一个
-Student one1 = helper.findOne(Student.class, stu -> stu.id > 10);
-// 按条件查找元素 一个
-Student one2 = helper.findOne(Student.class, TYPE_STUDENT );
+Student one = query.findOne(Student.class, TYPE_STUDENT, stu -> stu.id > 10);
 
+// 使用 ID 查找，类需实现 Idable 接口返回 ID
+Student oneById = query.findOneById(Student.class, 100);
 ```
 
 <span id="LxViewHolder"></span>
@@ -952,6 +960,35 @@ LxGlobal.setSpanSizeAdapter((spanCount, spanSize) -> {
 });
 ```
 
+<span id="space"></span>
+
+## 功能：间隔（Space）
+
+一般在业务开发中，我们希望布局周边带有一样的间隔，这样比较整齐，一般有两种方案：
+
+- 使用 `padding` 来做，中间相接的地方就会变为间隔的两倍，不能均分，也可以动态设置左右不同 `padding`，但是相对耗时耗力；
+- 使用 `ItemDecoration` 来做，可以根据位置动态的设置，上下左右间距，但是因为多类型的存在，每种类型的 `spanSize` 不同，很难一下处理好；
+
+为此提供了 `LxSpaceComponent`，用来为所有类型布局周边添加相等的间隔，并且在数据增删变动时，也能及时自动修改间距，用法如下：
+
+```java
+LxAdapter.of(mLxModels)
+    .bindItem(new SpaceItemBinder()...)
+    .component(new LxSpaceComponent(50))
+    .attachTo(mContentRv, LxManager.grid(getContext(), 3));
+
+// 自定义扩展
+LxAdapter.of(mLxModels)
+    .bindItem(new SpaceItemBinder()...)
+    .component(new LxSpaceComponent(50, new LxSpaceComponent.SpaceSetter() {
+      @Override
+      public void set(LxSpaceComponent comp, Rect outRect, LxSpaceComponent.SpaceOpts opts) {
+          // 自己做一些定制改变
+      }
+    }))
+    .attachTo(mContentRv, LxManager.grid(getContext(), 3));
+
+```
 
 <span id="loadmore"></span>
 
@@ -1187,7 +1224,7 @@ public static class DragSwipeOptions {
 ```java
 LxDragSwipeComponent.DragSwipeOptions options = new LxDragSwipeComponent.DragSwipeOptions();
 // 在上下方向上拖拽
-options.dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
+options.dragFlags = ItemTouchquery.UP | ItemTouchquery.DOWN;
 // 关闭触摸自动触发侧滑
 options.touchItemView4Swipe = false;
 
