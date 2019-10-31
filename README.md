@@ -22,14 +22,19 @@
 
 <span id="top"> </span>
 
-<img src="http://hibropro.oss-cn-beijing.aliyuncs.com/202949.gif"/>
 
 
-|||||||||||
-|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|
-|<img width="120px" src="http://s3.hixd.com/218363.gif"/>|<img width="120px" src="http://s3.hixd.com/218363.gif"/>|<img width="120px" src="http://s3.hixd.com/218363.gif"/>|<img width="120px" src="http://s3.hixd.com/218363.gif"/>|<img width="120px" src="http://s3.hixd.com/218363.gif"/>|<img width="120px" src="http://s3.hixd.com/218363.gif"/>|<img width="120px" src="http://s3.hixd.com/218363.gif"/>|<img width="120px" src="http://s3.hixd.com/218363.gif"/>|<img width="120px" src="http://s3.hixd.com/218363.gif"/>|<img width="120px" src="http://s3.hixd.com/218363.gif"/>
-|拖拽，侧滑|拖拽，侧滑|拖拽，侧滑|拖拽，侧滑|拖拽，侧滑|拖拽，侧滑|拖拽，侧滑|拖拽，侧滑|拖拽，侧滑|拖拽，侧滑
-|拖拽，侧滑|拖拽，侧滑|拖拽，侧滑|拖拽，侧滑|拖拽，侧滑|拖拽，侧滑|拖拽，侧滑|拖拽，侧滑|拖拽，侧滑|拖拽，侧滑|
+||||||
+|:--|:--|:--|:--|:--|
+|<img width="120px" src="http://s3.hixd.com/218363.gif"/>|<img width="120px" src="http://s3.hixd.com/218364.gif"/>|<img width="120px" src="http://s3.hixd.com/218365.gif"/>|<img width="120px" src="http://s3.hixd.com/218366.gif"/>|<img width="120px" src="http://s3.hixd.com/218367.gif"/>|
+|拖拽，侧滑|Pager|Picker|Space|Selector|Anim|Group|Fixed|LoadMore|Nesting|
+|拖拽，侧滑|Pager|Picker|Space|Selector|
+
+|||||
+|:--|:--|:--|:--|:--|
+|<img width="120px" src="http://s3.hixd.com/218368.gif"/>|<img width="120px" src="http://s3.hixd.com/218370.gif"/>|<img width="120px" src="http://s3.hixd.com/218371.gif"/>|<img width="120px" src="http://s3.hixd.com/218372.gif"/>|<img width="120px" src="http://s3.hixd.com/218374.gif"/>|
+|Anim|Group|Fixed|LoadMore|Nesting|
+|Anim|Group|Fixed|LoadMore|Nesting|
 
 
 ## 目录
