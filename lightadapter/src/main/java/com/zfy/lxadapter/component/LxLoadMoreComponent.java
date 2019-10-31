@@ -164,6 +164,13 @@ public class LxLoadMoreComponent extends LxComponent {
                 startEdgeLoadMoreComponent.setLoadMoreEnable((Boolean) extra);
             }
         });
+    }
 
+
+    public void active() {
+        loadingMore = true;
+        if (listener != null) {
+            listener.load(LxLoadMoreComponent.this);
+        }
     }
 }

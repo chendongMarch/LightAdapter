@@ -115,6 +115,35 @@ public class LxSource {
         return lxModels;
     }
 
+    public <E> LxModel addLast(E data) {
+        return addLast(Lx.ViewType.DEFAULT, data);
+    }
+
+    public <E> LxModel addLast(int type, E data) {
+        return addLast(type, data, null);
+    }
+
+    public <E> LxModel addLast(int type, E data, _Consumer<LxModel> consumer) {
+        LxModel model = wrap(type, data, consumer);
+        internalList.add(internalList.size(), model);
+        return model;
+    }
+
+
+    public <E> List<LxModel> addAllLast(List<E> list) {
+        return addAllLast(Lx.ViewType.DEFAULT, list);
+    }
+
+    public <E> List<LxModel> addAllLast(int type, List<E> list) {
+        return addAllLast(type, list, null);
+    }
+
+    public <E> List<LxModel> addAllLast(int type, List<E> list, _Consumer<LxModel> consumer) {
+        List<LxModel> lxModels = wrap(type, list, consumer);
+        internalList.addAll(internalList.size(), lxModels);
+        return lxModels;
+    }
+
     private <E> LxModel wrap(int type, E data, _Consumer<LxModel> consumer) {
         LxModel lxModel = new LxModel(data);
         lxModel.setType(type);

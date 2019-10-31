@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.zfy.lxadapter.component.LxComponent;
+import com.zfy.lxadapter.component.LxFixedComponent;
 import com.zfy.lxadapter.data.LxModel;
 import com.zfy.lxadapter.data.TypeOpts;
 import com.zfy.lxadapter.function._Function;
@@ -118,6 +119,7 @@ public class LxAdapter extends RecyclerView.Adapter<LxViewHolder> {
             if (!Lx.isContentType(lxItemBind.getTypeOpts().viewType)) {
                 this.hasExtType = true;
             }
+
         }
 
         setHasStableIds(true);

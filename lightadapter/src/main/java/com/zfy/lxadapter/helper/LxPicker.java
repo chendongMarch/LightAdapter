@@ -65,16 +65,16 @@ public class LxPicker<D> {
             }
         }
     }
-    
-    
+
+
     private static class PickerNode<D> {
-        int                    defaultPickPosition = 0;
-        int                    currentPickPosition;
-        int                    index;
-        int                    viewType;
-        LxAdapter              adapter;
-        Opts opts;
-        PickerDataFetcher<D>   fetcher;
+        int                  defaultPickPosition = 0;
+        int                  currentPickPosition;
+        int                  index;
+        int                  viewType;
+        LxAdapter            adapter;
+        Opts                 opts;
+        PickerDataFetcher<D> fetcher;
     }
 
     private LinkedList<PickerNode<D>>        pickerNodeList;
@@ -189,7 +189,7 @@ public class LxPicker<D> {
         LxPickerComponent component = getPickerComponent(adapter);
         Opts opts = component.getOpts();
         _Consumer<List<D>> consumer = respData -> {
-            List<LxModel> pack = LxPacker.pack(node.viewType, respData);
+            List<LxModel> pack = LxSource.just(node.viewType, respData).asModels();
             List<LxModel> models = addFakeData(pack, node.viewType, opts);
             adapter.getData().updateDataSetChanged(models);
             int pos = calcDefaultPosition(node.defaultPickPosition, node.opts, adapter.getData().size());

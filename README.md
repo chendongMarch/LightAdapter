@@ -84,24 +84,28 @@
 ## 特性
 
 - 使用 `LxAdapter` 构建单类型、多类型数据适配器；
-- 使用 `LxItemBinder` 完成每种类型的数据绑定和事件处理；
+- 使用 `LxItemBinder` 完成每种类型的数据绑定和事件处理，支持自定义类型，可灵活扩展实现 `Header/Footer/Loading/Empty` 等场景效果，支持单击事件、双击事件、长按事件；；
 - 使用 `LxViewHolder` 作为 `ViewHolder` 进行数据绑定；
 - 使用 `LxList` 作为数据源，基于 `DiffUtil` 并自动完成数据比对和更新；
+- 使用 `LxSource` 和 `LxQuery` 搭配 `LxList`，简化数据列表增删改查；
 - 使用 `LxComponent` 完成分离、易于扩展的扩展功能，如果加载更多等；
 - 使用 `TypeOpts` 针对每种数据类型，进行细粒度的配置侧滑、拖拽、顶部悬停、跨越多列、动画等效果；
-- 支持单击事件、双击事件、长按事件；
+- 使用 `LxSpaceComponent` 实现多类型数据等距间隔；
+- 使用 `LxLoadMoreComponent` 支持列表顶部、列表底部，预加载更多数据；
+- 使用 `LxSelectorComponent` 支持快速实现选择器效果，单选、多选、**滑动选中**等。
+- 使用 `LxFixedComponent` 实现顶部悬停效果；
+- 使用 `LxDragSwipeComponent` 实现拖拽排序，侧滑删除效果；
+- 使用 `LxAnimatorComponent` 支持 `ItemAnimator` / `BindAnimator` 两种方式实现添加布局动画。
+- 使用 `LxSnapComponent` 支持借助 `SnapHelper` 快速实现 `ViewPager` 效果；
+- 使用 `LxExpandable` 快速实现分组列表；
+- 使用 `LxNesting` 快速实现 `RecyclerView` 的嵌套滑动，返回时自动复位；
+- 使用 `LxPicker` 快速实现滚轮选择器效果；
+- 使用 `LxCache` 实现缓存，优化绑定耗时问题；
 - 支持自动检测数据更新的线程，避免出现在子线程更新数据的情况；
-- 支持自定义类型，可灵活扩展实现 `Header/Fooer/Loading/Empty` 等场景效果；
-- 支持列表顶部、列表底部，预加载更多数据；
-- 支持快速实现选择器效果，单选、多选、滑动选中等。
-- 支持 `ItemAnimator` / `BindAnimator` 两种方式实现添加布局动画。
-- 支持借助 `SnapHelper` 快速实现 `ViewPager` 效果；
 - 支持发布订阅模式的事件抽离，更容易分离公共逻辑；
 - 支持使用 `payloads` 实现有效更新；
 - 支持使用 `condition` 实现条件更新，按照指定条件更新数据，拒绝无脑刷新；
-- 使用 `LxExpandable` 快速实现分组列表；
-- 使用 `LxNesting` 快速实现 `RecyclerView` 的嵌套滑动；
-- 使用 `LxPicker` 快速实现滚轮选择器效果；
+
 
 <span id="design"></span>
 
@@ -1842,13 +1846,11 @@ class StudentItemBind extends LxItemBinder<Student> {
 
 ## 联系我
 
-- Android开发技术交流
+|Android开发技术交流|微信|
+|:--|:--|
+|<img src="http://hibropro.oss-cn-beijing.aliyuncs.com/208737.jpeg" width="150px"/>|<img src="http://cdn1.showjoy.com/shop/images/20190911/8DYEEANAVZR2EPI7D8BW1568191925378.jpeg" width="150px"/>|
 
-![](http://hibropro.oss-cn-beijing.aliyuncs.com/208737.jpeg)
 
-- 微信
-
-![](http://cdn1.showjoy.com/shop/images/20190911/8DYEEANAVZR2EPI7D8BW1568191925378.jpeg)
 
 
 <!-- <img style="width:100px;" src="http://cdn1.showjoy.com/shop/images/20190911/Y6HO22A85HL6LBHBGEMD1568190538159.gif"/>

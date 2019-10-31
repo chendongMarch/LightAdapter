@@ -102,15 +102,15 @@ public class LxSnapComponent extends LxComponent {
             }
         } else {
             enableListenerDispatch = false;
-            if (onPageChangeListener != null) {
-                onPageChangeListener.onPageSelected(lastSelectPosition, position);
-            }
-            lastSelectPosition = position;
             if (smooth) {
                 LxScroller.scrollToPositionOnCenter(view, position);
             } else {
                 LxScroller.scrollToPositionOnCenter(view, position);
             }
+            if (onPageChangeListener != null) {
+                onPageChangeListener.onPageSelected(lastSelectPosition, position);
+            }
+            lastSelectPosition = position;
             enableListenerDispatch = true;
         }
     }

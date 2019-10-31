@@ -10,7 +10,7 @@
 
 > [GitHub - LxAdapter](https://github.com/chendongMarch/LxAdapter)
 
-> com.zfy:lxadapter:2.0.10
+> com.zfy:lxadapter:2.0.11
 
 <!--more-->
 
@@ -22,7 +22,22 @@
 
 <span id="top"> </span>
 
-<img src="http://hibropro.oss-cn-beijing.aliyuncs.com/202949.gif"/>
+
+
+||||||
+|:--|:--|:--|:--|:--|
+|<img width="130px" src="http://s3.hixd.com/218363.gif"/>|<img width="130px" src="http://s3.hixd.com/218364.gif"/>|<img width="130px" src="http://s3.hixd.com/218365.gif"/>|<img width="130px" src="http://s3.hixd.com/218366.gif"/>|<img width="130px" src="http://s3.hixd.com/218367.gif"/>|
+|LxDragSwipeComponent|LxSnapComponent|LxPicker|LxSpaceComponent|LxSelectComponent|
+|拖拽，侧滑|SnapHelper效果|滚轮选择器|多类型等距间隔|选择器效果|
+
+---
+
+||||||
+|:--|:--|:--|:--|:--|
+|<img width="130px" src="http://s3.hixd.com/218368.gif"/>|<img width="130px" src="http://s3.hixd.com/218370.gif"/>|<img width="130px" src="http://s3.hixd.com/218371.gif"/>|<img width="130px" src="http://s3.hixd.com/218372.gif"/>|<img width="130px" src="http://s3.hixd.com/218374.gif"/>|
+|LxAnimComponent|LxExpandable|LxFixedComponent|LxLoadMoreComponent|LxNesting|
+|动画|分组|悬停|加载更多|垂直嵌套水平滑动，记录位置|
+
 
 ## 目录
 
@@ -69,24 +84,28 @@
 ## 特性
 
 - 使用 `LxAdapter` 构建单类型、多类型数据适配器；
-- 使用 `LxItemBinder` 完成每种类型的数据绑定和事件处理；
+- 使用 `LxItemBinder` 完成每种类型的数据绑定和事件处理，支持自定义类型，可灵活扩展实现 `Header/Footer/Loading/Empty` 等场景效果，支持单击事件、双击事件、长按事件；；
 - 使用 `LxViewHolder` 作为 `ViewHolder` 进行数据绑定；
 - 使用 `LxList` 作为数据源，基于 `DiffUtil` 并自动完成数据比对和更新；
+- 使用 `LxSource` 和 `LxQuery` 搭配 `LxList`，简化数据列表增删改查；
 - 使用 `LxComponent` 完成分离、易于扩展的扩展功能，如果加载更多等；
 - 使用 `TypeOpts` 针对每种数据类型，进行细粒度的配置侧滑、拖拽、顶部悬停、跨越多列、动画等效果；
-- 支持单击事件、双击事件、长按事件；
+- 使用 `LxSpaceComponent` 实现多类型数据等距间隔；
+- 使用 `LxLoadMoreComponent` 支持列表顶部、列表底部，预加载更多数据；
+- 使用 `LxSelectorComponent` 支持快速实现选择器效果，单选、多选、**滑动选中**等。
+- 使用 `LxFixedComponent` 实现顶部悬停效果；
+- 使用 `LxDragSwipeComponent` 实现拖拽排序，侧滑删除效果；
+- 使用 `LxAnimatorComponent` 支持 `ItemAnimator` / `BindAnimator` 两种方式实现添加布局动画。
+- 使用 `LxSnapComponent` 支持借助 `SnapHelper` 快速实现 `ViewPager` 效果；
+- 使用 `LxExpandable` 快速实现分组列表；
+- 使用 `LxNesting` 快速实现 `RecyclerView` 的嵌套滑动，返回时自动复位；
+- 使用 `LxPicker` 快速实现滚轮选择器效果；
+- 使用 `LxCache` 实现缓存，优化绑定耗时问题；
 - 支持自动检测数据更新的线程，避免出现在子线程更新数据的情况；
-- 支持自定义类型，可灵活扩展实现 `Header/Fooer/Loading/Empty` 等场景效果；
-- 支持列表顶部、列表底部，预加载更多数据；
-- 支持快速实现选择器效果，单选、多选、滑动选中等。
-- 支持 `ItemAnimator` / `BindAnimator` 两种方式实现添加布局动画。
-- 支持借助 `SnapHelper` 快速实现 `ViewPager` 效果；
 - 支持发布订阅模式的事件抽离，更容易分离公共逻辑；
 - 支持使用 `payloads` 实现有效更新；
 - 支持使用 `condition` 实现条件更新，按照指定条件更新数据，拒绝无脑刷新；
-- 使用 `LxExpandable` 快速实现分组列表；
-- 使用 `LxNesting` 快速实现 `RecyclerView` 的嵌套滑动；
-- 使用 `LxPicker` 快速实现滚轮选择器效果；
+
 
 <span id="design"></span>
 
@@ -851,7 +870,7 @@ LxList extTypeData = list.getExtTypeData(TYPE_FOOTER);
 
 - 从 `Presenter` 层有一些数据变化的需要，需要 `Adapter` 响应；
 - 某一些 `Adapter` 的响应可以被抽离出来，更好的复用；
- 
+
 因此需要事件发布机制，他在 数据（LxList） 和 视图（Adapter） 中间搭建了一条事件通道，借助它可以发布和响应事件；这有点类似于 `EventBus` 不过他不是注册在内存中的，是依赖于 `LxList` 的；
 
 
@@ -899,15 +918,15 @@ list.postEvent(Lx.Event.LOAD_MORE_ENABLE, false)
 list.postEvent(Lx.Event.FINISH_LOAD_MORE);
 
 // 结束加载更多，顶部+底部
-Lx.Event.FINISH_LOAD_MORE       
+Lx.Event.FINISH_LOAD_MORE
 // 结束加载更多，底部
-Lx.Event.FINISH_END_EDGE_LOAD_MORE  
+Lx.Event.FINISH_END_EDGE_LOAD_MORE
 // 结束加载更多，顶部
 Lx.Event.FINISH_START_EDGE_LOAD_MORE
 // 设置加载更多开关
-Lx.Event.LOAD_MORE_ENABLE           
+Lx.Event.LOAD_MORE_ENABLE
 // 设置底部加载更多开关
-Lx.Event.END_EDGE_LOAD_MORE_ENABLE  
+Lx.Event.END_EDGE_LOAD_MORE_ENABLE
 // 设置顶部加载更多开关
 Lx.Event.START_EDGE_LOAD_MORE_ENABLE
 ```
@@ -938,7 +957,7 @@ static class StudentItemBind extends LxItemBinder<Student> {
 指定一个确定的 `SpanSize` 通常是不灵活的，因为我们不知道 `RecyclerView` 在使用时指定的列数 (spanCount)，因此建议使用一个标记表示：
 
 ```java
-Lx.SpanSize.NONE // 不设置，默认值 
+Lx.SpanSize.NONE // 不设置，默认值
 Lx.SpanSize.ALL // 跨越整行
 Lx.SpanSize.HALF // 跨越一半
 Lx.SpanSize.THIRD // 跨越 1/3
@@ -987,7 +1006,7 @@ LxAdapter.of(mLxModels)
       }
     }))
     .attachTo(mContentRv, LxManager.grid(getContext(), 3));
-    
+
 ```
 
 <span id="loadmore"></span>
@@ -1039,11 +1058,11 @@ if (component != null) {
 
 ```java
 class SelectItemBind extends LxItemBinder<NoNameData> {
-    //... 
+    //...
     @Override
     public void onBindView(LxContext context, LxViewHolder holder, NoNameData data) {
         LxModel model = context.model;
-       
+
         // 根据选中状态显示 UI
         holder.setText(R.id.title_tv, model.isSelected() ? "我被选中" : "条件我没有被选中");
         holder.setImage(R.id.cover_iv, "image url");
@@ -1064,11 +1083,11 @@ class SelectItemBind extends LxItemBinder<NoNameData> {
 
 ```java
 class SelectItemBind extends LxItemBinder<NoNameData> {
-    //... 
+    //...
     @Override
     public void onBindView(LxContext context, LxViewHolder holder, NoNameData data) {
         LxModel model = context.model;
-        
+
         // 选中触发时，会触发条件更新
         // 如果你的 bind 方法执行了很多操作，当条件更新发生时
         // 可以选择性的绑定部分数据，避免性能的损失
@@ -1082,7 +1101,7 @@ class SelectItemBind extends LxItemBinder<NoNameData> {
         holder.setText(R.id.title_tv, model.isSelected() ? "我被选中" : "条件我没有被选中");
         holder.setImage(R.id.cover_iv, "image url");
     }
-   
+
 }
 ```
 
@@ -1519,7 +1538,7 @@ mLxModels.update(source);
 
 ```java
 class NestingItemBinder extends LxItemBinder<NoNameData> {
-    
+
     @Override
     protected TypeOpts newTypeOpts() {
         return TypeOpts.make(opts -> {
@@ -1603,7 +1622,7 @@ static class AddressItemBinder extends LxItemBinder<AddressPickItemBean> {
     }
 }
 ```
-  
+
 <span id="cache"></span>
 
 
@@ -1827,13 +1846,11 @@ class StudentItemBind extends LxItemBinder<Student> {
 
 ## 联系我
 
-- Android开发技术交流
+|Android开发技术交流|微信|
+|:--|:--|
+|<img src="http://hibropro.oss-cn-beijing.aliyuncs.com/208737.jpeg" width="150px"/>|<img src="http://cdn1.showjoy.com/shop/images/20190911/8DYEEANAVZR2EPI7D8BW1568191925378.jpeg" width="150px"/>|
 
-![](http://hibropro.oss-cn-beijing.aliyuncs.com/208737.jpeg)
 
-- 微信
-
-![](http://cdn1.showjoy.com/shop/images/20190911/8DYEEANAVZR2EPI7D8BW1568191925378.jpeg)
 
 
 <!-- <img style="width:100px;" src="http://cdn1.showjoy.com/shop/images/20190911/Y6HO22A85HL6LBHBGEMD1568190538159.gif"/>

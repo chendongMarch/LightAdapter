@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * CreateAt : 2019-09-09
  * Describe :
- *
+ * <p>
  * 分组列表，展开和收起，删除等
  *
  * @author chendong
@@ -72,7 +72,7 @@ public class LxExpandable {
     public static <G extends ExpandableGroup, C extends ExpandableChild>
     void expand(LxAdapter adapter, LxContext context, ExpandableGroup<G, C> group) {
         LxList models = adapter.getData();
-        List<LxModel> lxModels = LxPacker.pack(CHILD_TYPE, group.getChildren());
+        List<LxModel> lxModels = LxSource.just(CHILD_TYPE, group.getChildren()).asModels();
         models.updateAddAll(context.layoutPosition + 1, lxModels);
         models.updateSet(context.model, item -> {
             ExpandableGroup<G, C> groupData = item.unpack();
