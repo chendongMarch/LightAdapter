@@ -7,5 +7,7 @@
     <item name="item_context" type="id" />
     <item name="drag_swipe_state" type="id" />
     <item name="tag_listener" type="id" />
+    <item name="desc_tv" type="id" />
+    <item name="content_tv" type="id" />
 
 </resources>

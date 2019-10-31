@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AwesomeImageView">
+
+        <attr name="round_circle" format="boolean" />
+
+        <attr name="round_all" format="dimension" />
+
+        <attr name="round_left" format="dimension" />
+        <attr name="round_right" format="dimension" />
+        <attr name="round_top" format="dimension" />
+        <attr name="round_bot" format="dimension" />
+
+        <attr name="round_top_right" format="dimension" />
+        <attr name="round_top_left" format="dimension" />
+        <attr name="round_bot_right" format="dimension" />
+        <attr name="round_bot_left" format="dimension" />
+
+        <attr name="darkable" format="boolean" />
+
+    </declare-styleable>
+
+</resources>

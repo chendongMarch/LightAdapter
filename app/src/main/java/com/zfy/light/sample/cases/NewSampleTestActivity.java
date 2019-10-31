@@ -1,6 +1,7 @@
 package com.zfy.light.sample.cases;
 
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
@@ -32,6 +33,7 @@ import com.zfy.lxadapter.component.LxEndEdgeLoadMoreComponent;
 import com.zfy.lxadapter.component.LxFixedComponent;
 import com.zfy.lxadapter.component.LxSelectComponent;
 import com.zfy.lxadapter.component.LxSnapComponent;
+import com.zfy.lxadapter.component.LxSpaceComponent;
 import com.zfy.lxadapter.component.LxStartEdgeLoadMoreComponent;
 import com.zfy.lxadapter.data.Copyable;
 import com.zfy.lxadapter.data.Diffable;
@@ -47,7 +49,7 @@ import com.zfy.lxadapter.helper.LxNesting;
 import com.zfy.lxadapter.helper.LxPacker;
 import com.zfy.lxadapter.helper.LxPicker;
 import com.zfy.lxadapter.helper.LxSource;
-import com.zfy.lxadapter.helper.LxTypedHelper;
+import com.zfy.lxadapter.helper.query.LxQuery;
 import com.zfy.lxadapter.list.LxTypedList;
 import com.zfy.lxadapter.listener.EventSubscriber;
 
@@ -59,8 +61,6 @@ import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-
-//import com.zfy.lxadapter.helper.LxPicker;
 
 /**
  * CreateAt : 2019-08-31
@@ -78,6 +78,8 @@ public class NewSampleTestActivity extends AppActivity {
     public static final int TYPE_SELECT               = Lx.contentTypeOf();
     public static final int TYPE_PAGER                = Lx.contentTypeOf();
     public static final int TYPE_PICKER               = Lx.contentTypeOf();
+    public static final int TYPE_SPACE                = Lx.contentTypeOf();
+    public static final int TYPE_SPACE2               = Lx.contentTypeOf();
     public static final int TYPE_VERTICAL_IMG         = Lx.contentTypeOf();
     public static final int TYPE_HORIZONTAL_IMG       = Lx.contentTypeOf();
     public static final int TYPE_HORIZONTAL_CONTAINER = Lx.contentTypeOf();
@@ -85,7 +87,7 @@ public class NewSampleTestActivity extends AppActivity {
     public static final int TYPE_LOADING = Lx.extTypeAfterContentOf();
     public static final int TYPE_EMPTY   = Lx.extTypeAfterContentOf();
     public static final int TYPE_HEADER  = Lx.extTypeBeforeContentOf();
-    public static final int TYPE_FOOTER  = Lx.extTypeBeforeContentOf();
+    public static final int TYPE_FOOTER  = Lx.extTypeAfterContentOf();
 
     @BindView(R.id.debug_tv)      TextView              mDebugTv;
     @BindView(R.id.content_rv)    RecyclerView          mContentRv;
@@ -103,6 +105,7 @@ public class NewSampleTestActivity extends AppActivity {
     public static final int SPAN_SIZE_FIFTH = Lx.SpanSize.QUARTER - 1;
 
     private void test() {
+
 
         LxList list = new LxList();
 
@@ -157,16 +160,16 @@ public class NewSampleTestActivity extends AppActivity {
         list.update(source);
 
         // 数据更新辅助类
-        LxTypedHelper helper = list.getHelper();
+        LxQuery query = list.query();
 
         // 增
         list.update(source);
-        helper.updateAdd(LxSource.just(student));
+        query.add(LxSource.just(student));
 
         // 删
-        helper.updateRemove(Student.class, stu -> stu.id > 10);
-        helper.updateRemove4Type(TYPE_STUDENT);
-        helper.updateRemoveX(Student.class, stu -> {
+        query.remove(Student.class, TYPE_STUDENT, stu -> stu.id > 10);
+        query.remove(TYPE_STUDENT);
+        query.removeX(Student.class, TYPE_STUDENT, stu -> {
             if (stu.id == 10) {
                 return Lx.Loop.TRUE_BREAK;
             }
@@ -175,12 +178,12 @@ public class NewSampleTestActivity extends AppActivity {
 
         // 改
         int index = 10;
-        helper.updateSet(Student.class, stu -> stu.id == 10, stu -> stu.name = "NEW_NAME");
-        helper.updateSet(Student.class, index, stu -> stu.name = "NEW_NAME");
-        helper.updateSet4Type(Student.class, TYPE_STUDENT, stu -> {
+        query.set(Student.class, TYPE_STUDENT, stu -> stu.id == 10, stu -> stu.name = "NEW_NAME");
+        query.set(Student.class, TYPE_STUDENT, index, stu -> stu.name = "NEW_NAME");
+        query.set(Student.class, TYPE_STUDENT, stu -> {
             stu.name = "NEW_NAME";
         });
-        helper.updateSetX(Student.class, stu -> {
+        query.setX(Student.class, TYPE_STUDENT, stu -> {
             if (stu.id == 10) {
                 // 返回 true，停止循环
                 return Lx.Loop.TRUE_BREAK;
@@ -189,10 +192,10 @@ public class NewSampleTestActivity extends AppActivity {
         }, data -> data.name = "NEW_NAME");
 
         // 查
-        List<Student> students1 = helper.find(Student.class, stu -> stu.id > 10);
-        List<Student> students2 = helper.find(Student.class, TYPE_STUDENT);
-        Student one1 = helper.findOne(Student.class, stu -> stu.id > 10);
-        Student one2 = helper.findOne(Student.class, TYPE_STUDENT);
+        List<Student> students1 = query.find(Student.class, TYPE_STUDENT, stu -> stu.id > 10);
+        List<Student> students2 = query.find(Student.class, TYPE_STUDENT);
+        Student one = query.findOne(Student.class, TYPE_STUDENT, stu -> stu.id > 10);
+
 
         LxGlobal.setSpanSizeAdapter((spanCount, spanSize) -> {
             if (spanSize == SPAN_SIZE_FIFTH && spanCount % 5 == 0) {
@@ -271,8 +274,9 @@ public class NewSampleTestActivity extends AppActivity {
 
 //         initPickerTest();
 //        initLoadMoreTest();
-        initSelectTest();
+//        initSelectTest();
 
+        initSpaceTest();
     }
 
     @OnClick({R.id.test_pager_btn, R.id.test_drag_swipe_btn,
@@ -388,95 +392,68 @@ public class NewSampleTestActivity extends AppActivity {
                 .attachTo(mContentRv, LxManager.grid(getContext(), 3, false));
         setData();
 
-        List<Student> students = mLxModels.filterTo(data -> data.getItemType() == TYPE_PAGER, value -> value.unpack());
+        List<Student> students = mLxModels.find(data -> data.getItemType() == TYPE_PAGER, value -> value.unpack());
+    }
+
+    private void initNormalTest() {
+
+        LxAdapter.of(mLxModels)
+                .bindItem(new QueryItemBinder(), new TeacherItemBind(),
+                        new SectionItemBind(), new SelectItemBind(),
+                        new HeaderItemBind(), new FooterItemBind(),
+                        new EmptyItemBind(),
+                        new GroupItemBind(), new ChildItemBind())
+                .attachTo(mContentRv, LxManager.linear(getContext()));
+
+        List<Student> students = ListX.range(100, index -> new Student(index + " " + System.currentTimeMillis()));
+
+        LxSource source = LxSource.snapshot(mLxModels);
+        NoNameData header = new NoNameData("header");
+        header.url = Utils.randomImage();
+        source.add(TYPE_HEADER, header);
+        source.addAll(TYPE_STUDENT, students);
+        source.add(TYPE_FOOTER, new NoNameData("footer"));
+        mLxModels.update(source);
     }
 
 
-    private void initNormalTest() {
-        LxDragSwipeComponent.DragSwipeOptions dragSwipeOptions = new LxDragSwipeComponent.DragSwipeOptions();
-        dragSwipeOptions.longPressItemView4Drag = true;
-        dragSwipeOptions.touchItemView4Swipe = true;
-
-        TypeOpts typeOpts = TypeOpts.make(opts -> {
-            opts.viewType = TYPE_LOADING;
-            opts.layoutId = R.layout.loading_view;
-            opts.spanSize = Lx.SpanSize.ALL;
-        });
-        LxItemBinder<NoNameData> loadingBind = LxItemBinder.of(NoNameData.class, typeOpts)
-                .onViewBind((binder, context, holder, data) -> {
-                    holder.setText(R.id.content_tv, data.desc);
-
-                    if (data.status == -1) {
-                        holder.setGone(R.id.pb);
-                    }
-                })
-                .build();
+    private void initSpaceTest() {
 
         LxAdapter.of(mLxModels)
-                .bindItem(new StudentItemBind(), new TeacherItemBind(),
-                        new SectionItemBind(), new SelectItemBind(),
-                        new HeaderItemBind(), new FooterItemBind(),
-                        new EmptyItemBind(), loadingBind,
-                        new GroupItemBind(), new ChildItemBind())
-                //                .component(new LxSnapComponent(Lx.SNAP_MODE_PAGER))
-                .component(new LxFixedComponent())
-                //                .component(new LxBindAnimatorComponent())
-                //                .component(new LxItemAnimatorComponent(new ScaleInLeftAnimator()))
-                .component(new LxSelectComponent(Lx.SelectMode.MULTI, (data, toSelect) -> {
-                    data.getExtra().putBoolean("change_now", true);
-                    return false;
-                }))
-//                .component(new LxStartEdgeLoadMoreComponent((component) -> {
-//                    ToastX.show("顶部加载更多");
-//                    ExecutorsPool.ui(() -> {
-//                        mLxModels.postEvent(Lx.Event.FINISH_START_EDGE_LOAD_MORE, null);
-//                    }, 2000);
-//                }))
-//                .component(new LxEndEdgeLoadMoreComponent(10, (component) -> { // 加载回调
-//                    ToastX.show("底部加载更多");
-//                    mLxModels.updateAdd(LxPacker.pack(TYPE_LOADING, new NoNameData("加载中～")));
-//                    ExecutorsPool.ui(() -> {
-//                        if (mLxModels.size() > 130) {
-//                            LxList customTypeData = mLxModels.getExtTypeData(TYPE_LOADING);
-//                            customTypeData.updateSet(0, new LxList.UnpackConsumer<NoNameData>() {
-//                                @Override
-//                                protected void onAccept(NoNameData noNameData) {
-//                                    noNameData.desc = "加载完成～";
-//                                    noNameData.status = -1;
-//                                }
-//                            });
-//                            mLxModels.postEvent(Lx.Event.LOAD_MORE_ENABLE, false);
-//                        } else {
-//                            LxList contentTypeData = mLxModels.getContentTypeData();
-//                            contentTypeData.updateAddAll(loadData(10));
-//                            LxList customTypeData = mLxModels.getExtTypeData(TYPE_LOADING);
-//                            customTypeData.updateClear();
-//                            mLxModels.postEvent(Lx.Event.FINISH_LOAD_MORE, null);
-//                        }
-//                    }, 2000);
-//                }))
-                .component(new LxDragSwipeComponent(dragSwipeOptions, (state, holder, context) -> {
-                    switch (state) {
-                        case Lx.DragState.NONE:
-                        case Lx.SwipeState.NONE:
-                            break;
-                        case Lx.DragState.ACTIVE:
-                            holder.itemView.animate().scaleX(1.13f).scaleY(1.13f).setDuration(300).start();
-                            break;
-                        case Lx.DragState.RELEASE:
-                            holder.itemView.animate().scaleX(1f).scaleY(1f).setDuration(300).start();
-                            break;
-                        case Lx.SwipeState.ACTIVE:
-                            holder.itemView.setBackgroundColor(Color.GRAY);
-                            break;
-                        case Lx.SwipeState.RELEASE:
-                            holder.itemView.setBackgroundColor(Color.WHITE);
-                            break;
+                .bindItem(new SpaceItemBinder(), new Space2ItemBinder(), new HeaderItemBind(), new FooterItemBind())
+                .component(new LxSpaceComponent(50, new LxSpaceComponent.SpaceSetter() {
+                    @Override
+                    public void set(LxSpaceComponent comp, Rect outRect, LxSpaceComponent.SpaceOpts opts) {
+                        TextView tv = opts.view.findViewById(R.id.desc_tv);
+                        if (tv != null) {
+                            tv.setText("[" + opts.startSpanPosition + "," + opts.endSpanPosition + "]" + "l:" + outRect.left + ",r:" + outRect.right + ",t:" + outRect.top + ",b:" + outRect.bottom);
+                        }
+                        tv = opts.view.findViewById(R.id.content_tv);
+                        if (tv != null) {
+                            tv.setText("[" + opts.startSpanPosition + "," + opts.endSpanPosition + "]" + "l:" + outRect.left + ",r:" + outRect.right + ",t:" + outRect.top + ",b:" + outRect.bottom);
+                        }
                     }
                 }))
-                .attachTo(mContentRv, LxManager.grid(getContext(), 3));
+                .attachTo(mContentRv, LxManager.linear(getContext()));
 
-        setData();
+        LxSource source = LxSource.snapshot(mLxModels);
+        for (int i = 0; i < 100; i++) {
+            if (i % 5 == 0) {
+                source.add(TYPE_SPACE2, new NoNameData(""));
+                source.add(TYPE_SPACE, new NoNameData(""));
+            }
+            if (i % 7 == 0) {
+                NoNameData header = new NoNameData("header");
+                header.url = Utils.randomImage();
+                source.add(TYPE_HEADER, header);
+            }
+            source.add(TYPE_SPACE, new NoNameData(""));
+            source.add(TYPE_SPACE, new NoNameData(""));
+            source.add(TYPE_SPACE, new NoNameData(""));
+        }
+
+//        source.add(TYPE_FOOTER, new NoNameData("footer"));
+        mLxModels.update(source);
     }
 
 
@@ -762,7 +739,7 @@ public class NewSampleTestActivity extends AppActivity {
 
 
     // 使用一个自增 ID
-    public static int ID = 10;
+    public static int ID = 0;
 
     static class Student implements Diffable<Student>, Copyable<Student> {
 
@@ -1090,6 +1067,93 @@ public class NewSampleTestActivity extends AppActivity {
             }
         }
     }
+
+    static class SpaceItemBinder extends LxItemBinder<NoNameData> {
+
+        @Override
+        protected TypeOpts newTypeOpts() {
+            return TypeOpts.make(TYPE_SPACE, R.layout.item_space, Lx.SpanSize.NONE);
+        }
+
+        @Override
+        protected void onBindView(LxContext context, LxViewHolder holder, NoNameData listItem) {
+
+        }
+
+        @Override
+        protected void onBindEvent(LxContext context, NoNameData listItem, int eventType) {
+            LxQuery query = context.list.query();
+            query.add(2, LxSource.just(Math.random() > 0.5 ? TYPE_SPACE : TYPE_SPACE2, new NoNameData("")));
+        }
+    }
+
+
+    static class Space2ItemBinder extends LxItemBinder<NoNameData> {
+
+        @Override
+        protected TypeOpts newTypeOpts() {
+            return TypeOpts.make(TYPE_SPACE2, R.layout.item_space, 2);
+        }
+
+        @Override
+        protected void onBindView(LxContext context, LxViewHolder holder, NoNameData listItem) {
+
+        }
+    }
+
+    static class QueryItemBinder extends LxItemBinder<Student> {
+
+        @Override
+        protected TypeOpts newTypeOpts() {
+            return TypeOpts.make(opts -> {
+                opts.layoutId = R.layout.item_squire1;
+                opts.enableLongPress = true;
+                opts.enableDbClick = true;
+                opts.enableClick = true;
+                opts.viewType = TYPE_STUDENT;
+                opts.spanSize = Lx.SpanSize.ALL;
+            });
+        }
+
+        @Override
+        public void onBindView(LxContext context, LxViewHolder holder, Student data) {
+            holder.setText(R.id.title_tv, "id= " + data.id + " 学：" + data.name);
+
+        }
+
+        @Override
+        public void onBindEvent(LxContext context, Student listItem, int eventType) {
+            LxList list = context.list;
+            switch (eventType) {
+                case Lx.ViewEvent.CLICK:
+
+                    ToastX.show("添加 student");
+                    LxSource newStudent = LxSource.just(TYPE_STUDENT, new Student("NEW_STUDENT"));
+//                    context.list.query().updateAdd(2, newStudent);
+//                    List<Student> students = context.list.query().find(Student.class, data -> data.id % 3 == 0);
+
+                    list.query().add(2, newStudent);
+                    list.query().find(Student.class, TYPE_STUDENT, data -> data.id % 3 == 0);
+                    break;
+                case Lx.ViewEvent.LONG_PRESS:
+                    ToastX.show("删除 student");
+                    list.query().removeX(Student.class, TYPE_STUDENT, data -> {
+                        if (data.id < 10) {
+                            return Lx.Loop.TRUE_NOT_BREAK;
+                        }
+                        return Lx.Loop.FALSE_NOT_BREAK;
+                    });
+
+                    break;
+                case Lx.ViewEvent.DOUBLE_CLICK:
+                    ToastX.show("修改 student");
+                    list.query().set(Student.class, TYPE_STUDENT, data -> data.id < 20, data -> data.name = "NEW_NAME");
+                    break;
+            }
+        }
+    }
+
+
 
     static class TeacherItemBind extends LxItemBinder<Teacher> {
         @Override

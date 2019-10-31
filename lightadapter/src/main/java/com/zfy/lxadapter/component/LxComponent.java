@@ -31,4 +31,8 @@ public class LxComponent {
 
     }
 
+    public void onDataUpdate(LxAdapter adapter) {
+
+    }
+
 }

@@ -186,6 +186,8 @@ public class LxTypedList extends LxList {
             this.update(getMergeList(), FLAG_NORMAL);
         }
         calcContentStartPosition();
+
+        adapter.onDataUpdate();
     }
 
 }

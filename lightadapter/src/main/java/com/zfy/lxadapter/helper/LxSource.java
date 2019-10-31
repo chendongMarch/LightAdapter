@@ -21,13 +21,6 @@ public class LxSource {
 
     private LxSource() {
 
-        LxSource source = LxSource.empty();
-        source.add("");
-        source.addAllOnIndex(0, 1, new ArrayList<>());
-
-        LxList lxList = new LxList();
-
-        lxList.update(source.asModels());
     }
 
     public static LxSource empty() {
@@ -50,19 +43,19 @@ public class LxSource {
 
     public static <E> LxSource just(int type, E data) {
         LxSource source = LxSource.empty();
-        LxSource.empty().add(type, data, null);
+        source.add(type, data, null);
         return source;
     }
 
     public static <E> LxSource just(List<E> list) {
         LxSource source = LxSource.empty();
-        LxSource.empty().addAll(Lx.ViewType.DEFAULT, list);
+        source.addAll(Lx.ViewType.DEFAULT, list);
         return source;
     }
 
     public static <E> LxSource just(int type, List<E> list) {
         LxSource source = LxSource.empty();
-        LxSource.empty().addAll(type, list, null);
+        source.addAll(type, list, null);
         return source;
     }
 
@@ -75,7 +68,9 @@ public class LxSource {
     }
 
     public <E> LxModel add(int type, E data, _Consumer<LxModel> consumer) {
-        return addOnIndex(0, type, data, consumer);
+        LxModel lxModel = wrap(type, data, consumer);
+        internalList.add(lxModel);
+        return lxModel;
     }
 
     public <E> LxModel addOnIndex(int index, E data) {
@@ -87,11 +82,7 @@ public class LxSource {
     }
 
     public <E> LxModel addOnIndex(int index, int type, E data, _Consumer<LxModel> consumer) {
-        LxModel lxModel = new LxModel(data);
-        lxModel.setType(type);
-        if (consumer != null) {
-            consumer.accept(lxModel);
-        }
+        LxModel lxModel = wrap(type, data, consumer);
         internalList.add(index, lxModel);
         return lxModel;
     }
@@ -105,7 +96,9 @@ public class LxSource {
     }
 
     public <E> List<LxModel> addAll(int type, List<E> list, _Consumer<LxModel> consumer) {
-        return addAllOnIndex(0, type, list, consumer);
+        List<LxModel> lxModels = wrap(type, list, consumer);
+        internalList.addAll(lxModels);
+        return lxModels;
     }
 
     public <E> List<LxModel> addAllOnIndex(int index, List<E> list) {
@@ -117,11 +110,25 @@ public class LxSource {
     }
 
     public <E> List<LxModel> addAllOnIndex(int index, int type, List<E> list, _Consumer<LxModel> consumer) {
-        List<LxModel> lxModels = new ArrayList<>();
-        for (E e : list) {
-            lxModels.add(add(type, e, consumer));
-        }
+        List<LxModel> lxModels = wrap(type, list, consumer);
         internalList.addAll(index, lxModels);
+        return lxModels;
+    }
+
+    private <E> LxModel wrap(int type, E data, _Consumer<LxModel> consumer) {
+        LxModel lxModel = new LxModel(data);
+        lxModel.setType(type);
+        if (consumer != null) {
+            consumer.accept(lxModel);
+        }
+        return lxModel;
+    }
+
+    private <E> List<LxModel> wrap(int type, List<E> datas, _Consumer<LxModel> consumer) {
+        List<LxModel> lxModels = new ArrayList<>();
+        for (E e : datas) {
+            lxModels.add(wrap(type, e, consumer));
+        }
         return lxModels;
     }
 

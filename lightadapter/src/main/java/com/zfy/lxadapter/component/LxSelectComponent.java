@@ -119,6 +119,6 @@ public class LxSelectComponent extends LxComponent {
     }
 
     public <D> List<D> getResult() {
-        return adapter.getData().filterTo(LxModel::isSelected, LxModel::unpack);
+        return adapter.getData().find(LxModel::isSelected, LxModel::unpack);
     }
 }

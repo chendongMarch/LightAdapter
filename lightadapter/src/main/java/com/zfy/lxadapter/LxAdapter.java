@@ -40,6 +40,7 @@ public class LxAdapter extends RecyclerView.Adapter<LxViewHolder> {
     /*default*/ boolean hasExtType;
     /*default*/ boolean isInfinite;
 
+
     public static class Builder {
 
         private LxList                       data;
@@ -191,6 +192,13 @@ public class LxAdapter extends RecyclerView.Adapter<LxViewHolder> {
             component.onBindViewHolder(this, holder, position, payloads);
         }
     }
+
+    public void onDataUpdate() {
+        for (LxComponent component : components) {
+            component.onDataUpdate(this);
+        }
+    }
+
 
     @Override
     public int getItemCount() {

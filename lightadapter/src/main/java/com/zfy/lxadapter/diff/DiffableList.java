@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.zfy.lxadapter.Lx;
 import com.zfy.lxadapter.data.Diffable;
+import com.zfy.lxadapter.data.LxModel;
 import com.zfy.lxadapter.function._Consumer;
 import com.zfy.lxadapter.function._Function;
 import com.zfy.lxadapter.function._LoopPredicate;
@@ -277,6 +278,7 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
         return remove;
     }
 
+
     /**
      * 删除满足条件的元素
      *
@@ -462,7 +464,7 @@ public class DiffableList<E extends Diffable<E>> extends AbstractList<E> {
         return snapshot;
     }
 
-    public <R> List<R> filterTo(_Predicate<E> test, _Function<E, R> function) {
+    public <R> List<R> find(_Predicate<E> test, _Function<E, R> function) {
         List<R> l = new ArrayList<>();
         for (E e : this) {
             if (test.test(e)) {

@@ -6,7 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import com.zfy.lxadapter.data.LxModel;
 import com.zfy.lxadapter.diff.DiffableList;
 import com.zfy.lxadapter.helper.LxSource;
-import com.zfy.lxadapter.helper.LxTypedHelper;
+import com.zfy.lxadapter.helper.query.LxQuery;
 import com.zfy.lxadapter.listener.EventSubscriber;
 
 import java.util.HashMap;
@@ -23,7 +23,6 @@ public class LxList extends DiffableList<LxModel> {
     protected LxAdapter                    adapter;
     private   Map<String, EventSubscriber> subscribers;
     protected int                          contentStartPosition;
-    protected LxTypedHelper                helper;
 
     // 是否是异步更新
     protected boolean async;
@@ -112,10 +111,19 @@ public class LxList extends DiffableList<LxModel> {
         update(source.asModels());
     }
 
-    public LxTypedHelper getHelper() {
-        if (helper == null) {
-            helper = new LxTypedHelper(this);
+
+    protected LxQuery query;
+
+
+    /**
+     * 实验性质，后面版本可能被废弃，请谨慎使用
+     *
+     * @return LxQueryX
+     */
+    public LxQuery query() {
+        if (query == null) {
+            query = new LxQuery(this);
         }
-        return helper;
+        return query;
     }
 }

@@ -70,7 +70,7 @@ public class LxSpan {
 
     public static SpanSizeAdapter spanSizeAdapter;
 
-    private static int getSpanSize(int spanSize, int spanCount) {
+    public static int getSpanSize(int spanSize, int spanCount) {
         if (spanSize == Lx.SpanSize.NONE) {
             return 1;
         }

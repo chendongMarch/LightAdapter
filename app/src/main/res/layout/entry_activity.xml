@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <Button
         android:layout_width="wrap_content"
@@ -9,4 +10,24 @@
         android:text="Start"
         android:id="@+id/entry"/>
 
+
+    <com.zfy.light.sample.AwesomeImageView
+        android:src="@drawable/test"
+        app:round_all="@dimen/dp5"
+        android:id="@+id/iv"
+        android:background="@color/colorPrimary"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:scaleType="centerCrop"
+        android:layout_width="@dimen/dp200"
+        app:layout_constraintTop_toBottomOf="@id/entry"
+        app:layout_constraintDimensionRatio="2:1"
+        android:layout_height="@dimen/match_constraint" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TEST"
+        app:layout_constraintTop_toBottomOf="@id/iv"
+        android:id="@+id/test" />
 </android.support.constraint.ConstraintLayout>
