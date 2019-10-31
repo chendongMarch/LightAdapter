@@ -28,6 +28,7 @@ import com.zfy.lxadapter.LxItemBinder;
 import com.zfy.lxadapter.LxList;
 import com.zfy.lxadapter.LxViewHolder;
 import com.zfy.lxadapter.animation.BindScaleAnimator;
+import com.zfy.lxadapter.component.LxBindAnimatorComponent;
 import com.zfy.lxadapter.component.LxDragSwipeComponent;
 import com.zfy.lxadapter.component.LxEndEdgeLoadMoreComponent;
 import com.zfy.lxadapter.component.LxFixedComponent;
@@ -54,6 +55,7 @@ import com.zfy.lxadapter.list.LxTypedList;
 import com.zfy.lxadapter.listener.EventSubscriber;
 
 import java.util.ArrayList;
+
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -271,12 +273,7 @@ public class NewSampleTestActivity extends AppActivity {
         LxGlobal.setImgUrlLoader((view, url, extra) -> {
             Glide.with(view).load(url).into(view);
         });
-
-//         initPickerTest();
-//        initLoadMoreTest();
-//        initSelectTest();
-
-        initSpaceTest();
+        initLoadMoreTest();
     }
 
     @OnClick({R.id.test_pager_btn, R.id.test_drag_swipe_btn,
@@ -339,20 +336,15 @@ public class NewSampleTestActivity extends AppActivity {
         LxItemBinder<NoNameData> loadingBind = LxItemBinder.of(NoNameData.class, typeOpts)
                 .onViewBind((binder, context, holder, data) -> {
                     holder.setText(R.id.content_tv, data.desc);
-
                     if (data.status == -1) {
                         holder.setGone(R.id.pb);
                     }
                 })
                 .build();
 
-        LxAdapter.of(mLxModels)
-                .bindItem(new StudentItemBind(), new TeacherItemBind(),
-                        new SectionItemBind(), new SelectItemBind(),
-                        new HeaderItemBind(), new FooterItemBind(), new EmptyItemBind(),
-                        loadingBind,
-                        new GroupItemBind(), new ChildItemBind())
-                .component(new LxFixedComponent())
+        LxAdapter lxAdapter = LxAdapter.of(mLxModels)
+                .bindItem(new StudentItemBind(), new TeacherItemBind(), loadingBind)
+                .component(new LxBindAnimatorComponent())
                 .component(new LxStartEdgeLoadMoreComponent((component) -> {
                     ToastX.show("顶部加载更多");
                     ExecutorsPool.ui(() -> {
@@ -362,37 +354,42 @@ public class NewSampleTestActivity extends AppActivity {
                 .component(new LxEndEdgeLoadMoreComponent(10, (component) -> { // 加载回调
                     ToastX.show("底部加载更多");
 
-                    LxSource snapshot = LxSource.snapshot(mLxModels);
-                    snapshot.add(TYPE_LOADING, new NoNameData("加载中～"));
-                    mLxModels.update(snapshot.asModels());
+                    LxList contentTypeData = mLxModels.getContentTypeData();
+                    LxList loading = mLxModels.getExtTypeData(TYPE_LOADING);
 
-                    mLxModels.updateAdd(LxPacker.pack(TYPE_LOADING, new NoNameData("加载中～")));
+                    if (contentTypeData.size() > 0) {
+                        if (loading.isEmpty()) {
+                            loading.query().add(LxSource.just(TYPE_LOADING, new NoNameData("加载中～")));
+                        } else {
+                            loading.query().set(NoNameData.class, TYPE_LOADING, d -> {
+                                d.desc = "加载中～";
+                            });
+                        }
+                    }
 
                     ExecutorsPool.ui(() -> {
-                        if (mLxModels.size() > 70) {
-                            LxList customTypeData = mLxModels.getExtTypeData(TYPE_LOADING);
-                            customTypeData.updateSet(0, new _Consumer<LxModel>() {
-                                @Override
-                                public void accept(LxModel data) {
-                                    NoNameData noNameData = data.unpack();
-                                    noNameData.desc = "加载完成～";
-                                    noNameData.status = -1;
-                                }
+                        if (mLxModels.size() > 30) {
+                            loading.query().set(NoNameData.class, TYPE_LOADING, d -> {
+                                d.desc = "加载完成～";
+                                d.status = -1;
                             });
-                            mLxModels.postEvent(Lx.Event.LOAD_MORE_ENABLE, false);
                         } else {
-                            LxList contentTypeData = mLxModels.getContentTypeData();
-                            contentTypeData.updateAddAll(loadData(10));
-                            LxList customTypeData = mLxModels.getExtTypeData(TYPE_LOADING);
-                            customTypeData.updateClear();
+                            LxList contentList = mLxModels.getContentTypeData();
+                            List<Teacher> students = ListX.range(20, index -> new Teacher(index + " " + System.currentTimeMillis()));
+                            contentList.query().add(LxSource.just(TYPE_TEACHER, students));
+                            loading.query().set(NoNameData.class, TYPE_LOADING, d -> {
+                                d.desc = "等待加载～";
+                            });
                             mLxModels.postEvent(Lx.Event.FINISH_LOAD_MORE, null);
                         }
-                    }, 1000);
+                    }, 2000);
                 }))
                 .attachTo(mContentRv, LxManager.grid(getContext(), 3, false));
-        setData();
 
-        List<Student> students = mLxModels.find(data -> data.getItemType() == TYPE_PAGER, value -> value.unpack());
+        LxEndEdgeLoadMoreComponent component = lxAdapter.getComponent(LxEndEdgeLoadMoreComponent.class);
+        if (component != null) {
+            component.active();
+        }
     }
 
     private void initNormalTest() {
@@ -403,6 +400,7 @@ public class NewSampleTestActivity extends AppActivity {
                         new HeaderItemBind(), new FooterItemBind(),
                         new EmptyItemBind(),
                         new GroupItemBind(), new ChildItemBind())
+                .component(new LxFixedComponent())
                 .attachTo(mContentRv, LxManager.linear(getContext()));
 
         List<Student> students = ListX.range(100, index -> new Student(index + " " + System.currentTimeMillis()));
@@ -411,7 +409,13 @@ public class NewSampleTestActivity extends AppActivity {
         NoNameData header = new NoNameData("header");
         header.url = Utils.randomImage();
         source.add(TYPE_HEADER, header);
-        source.addAll(TYPE_STUDENT, students);
+
+        for (Student student : students) {
+            if (students.indexOf(student) % 5 == 0) {
+                source.add(Lx.ViewType.SECTION, new NoNameData("悬挂的我" + System.currentTimeMillis()));
+            }
+            source.add(TYPE_STUDENT, student);
+        }
         source.add(TYPE_FOOTER, new NoNameData("footer"));
         mLxModels.update(source);
     }
@@ -437,13 +441,18 @@ public class NewSampleTestActivity extends AppActivity {
                 .attachTo(mContentRv, LxManager.grid(getContext(), 3));
 
         LxSource source = LxSource.snapshot(mLxModels);
+
+        NoNameData header = new NoNameData("header");
+        header.url = Utils.randomImage();
+        source.add(TYPE_HEADER, header);
+
         for (int i = 0; i < 100; i++) {
             if (i % 5 == 0) {
                 source.add(TYPE_SPACE2, new NoNameData(""));
                 source.add(TYPE_SPACE, new NoNameData(""));
             }
             if (i % 7 == 0) {
-                NoNameData header = new NoNameData("header");
+                header = new NoNameData("header");
                 header.url = Utils.randomImage();
                 source.add(TYPE_HEADER, header);
             }
@@ -522,15 +531,17 @@ public class NewSampleTestActivity extends AppActivity {
 
     public void initPagerTest() {
         LxAdapter lxAdapter = LxAdapter.of(mLxModels)
-                .bindItem(new HeaderItemBind(), new FooterItemBind(), new EmptyItemBind(),
-                        new PagerItemBind())
+                .bindItem(new PagerItemBind())
                 .component(new LxSnapComponent(Lx.SnapMode.PAGER, new LxSnapComponent.OnPageChangeListener() {
 
                     @Override
                     public void onPageSelected(int lastPosition, int position) {
                         RecyclerView.ViewHolder holder = mContentRv.findViewHolderForAdapterPosition(position);
+                        if (holder != null) {
+                            holder.itemView.animate().scaleX(1.13f).scaleY(1.13f).setDuration(300).start();
+                        }
+
                         RecyclerView.ViewHolder lastHolder = mContentRv.findViewHolderForAdapterPosition(lastPosition);
-                        holder.itemView.animate().scaleX(1.13f).scaleY(1.13f).setDuration(300).start();
                         if (lastHolder != null && !lastHolder.equals(holder)) {
                             lastHolder.itemView.animate().scaleX(1f).scaleY(1f).setDuration(300).start();
                         }
@@ -544,9 +555,10 @@ public class NewSampleTestActivity extends AppActivity {
                     }
                 }))
                 .attachTo(mContentRv, LxManager.linear(getContext(), true));
-        List<NoNameData> sections = ListX.range(10, index -> new NoNameData(index + " "));
-        mLxModels.update(LxPacker.pack(TYPE_PAGER, sections));
 
+        List<NoNameData> sections = ListX.range(10, index -> new NoNameData(index + " "));
+        LxSource source = LxSource.just(TYPE_PAGER, sections);
+        mLxModels.update(source);
         LxSnapComponent component = lxAdapter.getComponent(LxSnapComponent.class);
         if (component != null) {
             component.selectItem(3, true);
@@ -1083,7 +1095,7 @@ public class NewSampleTestActivity extends AppActivity {
         @Override
         protected void onBindEvent(LxContext context, NoNameData listItem, int eventType) {
             LxQuery query = context.list.query();
-            query.add(2, LxSource.just(Math.random() > 0.5 ? TYPE_SPACE : TYPE_SPACE2, new NoNameData("")));
+            query.add(3, LxSource.just(Math.random() > 0.5 ? TYPE_SPACE : TYPE_SPACE2, new NoNameData("")));
         }
     }
 
@@ -1156,6 +1168,7 @@ public class NewSampleTestActivity extends AppActivity {
 
 
     static class TeacherItemBind extends LxItemBinder<Teacher> {
+
         @Override
         protected TypeOpts newTypeOpts() {
             return TypeOpts.make(opts -> {

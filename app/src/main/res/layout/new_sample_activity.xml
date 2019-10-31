@@ -7,23 +7,29 @@
     <com.zfy.lxadapter.decoration.LxSlidingSelectLayout
         android:layout_width="match_parent"
         android:id="@+id/select_layout"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
 
-    <View
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/content_rv"
-        app:layout_constraintLeft_toLeftOf="@id/content_rv"
-        app:layout_constraintRight_toRightOf="@id/content_rv"
-        app:layout_constraintTop_toTopOf="@id/content_rv"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="@drawable/shape_selected_whell" />
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:id="@+id/content_rv"
+            android:layout_height="match_parent" />
+    </com.zfy.lxadapter.decoration.LxSlidingSelectLayout>
+
+<!--    <View-->
+<!--        android:visibility="gone"-->
+<!--        app:layout_constraintBottom_toBottomOf="@id/content_rv"-->
+<!--        app:layout_constraintLeft_toLeftOf="@id/content_rv"-->
+<!--        app:layout_constraintRight_toRightOf="@id/content_rv"-->
+<!--        app:layout_constraintTop_toTopOf="@id/content_rv"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="60dp"-->
+<!--        android:background="@drawable/shape_selected_whell" />-->
 
 
-    <com.zfy.lxadapter.widget.LxRecyclerView
-        android:layout_width="match_parent"
-        android:id="@+id/content_rv"
-        android:layout_height="match_parent" />
+    <!--    <com.zfy.lxadapter.widget.LxRecyclerView-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:id="@+id/content_rv"-->
+    <!--        android:layout_height="match_parent" />-->
 
 
     <LinearLayout
